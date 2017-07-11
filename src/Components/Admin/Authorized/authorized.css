@@ -1,0 +1,47 @@
+.authorized p {
+    color: #3a4182;
+}
+
+.authorized h6 {
+    color: #3a4182;
+    font-size: 15px;
+}
+
+.authorized .side-divider {
+    border-right: solid 1px #dddddd;
+}
+
+.authorized .add-address {
+    font-size: 12px;
+}
+
+.authorized .info {
+    font-weight: bold;
+    font-size: 14px;
+    color: rgba(58, 65, 130, 0.75);
+    text-align: justify;
+}
+
+.authorized .remove {
+    font-size: 10px;
+}
+
+.authorized th {
+    color: #A49FCF;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+.authorized .table-hover tbody tr:hover td,
+.authorized .table-hover tbody tr:hover th {
+    background-color: rgba(164, 159, 207, 0.65);
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.authorized .address {
+    font-size: 14px;
+    font-weight: bold;
+    color: rgba(58, 65, 130, 0.75);
+    margin-bottom: 7px;
+}

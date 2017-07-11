@@ -1,0 +1,89 @@
+{
+  "contract_name": "AbstractSlotsHelper",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "reel",
+          "type": "bytes32"
+        }
+      ],
+      "name": "convertReelToArray",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256[5]"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "symbol",
+          "type": "uint256"
+        }
+      ],
+      "name": "paytable",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "betSize",
+          "type": "uint256"
+        },
+        {
+          "name": "reelArray",
+          "type": "uint256[5]"
+        }
+      ],
+      "name": "getTotalReward",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "reel",
+          "type": "uint256"
+        },
+        {
+          "name": "index",
+          "type": "uint256"
+        }
+      ],
+      "name": "reels",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    }
+  ],
+  "unlinked_binary": "0x",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1499775526559
+}

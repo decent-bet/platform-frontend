@@ -1,0 +1,42 @@
+.statistics .stat-row {
+    margin-top: 60px;
+}
+
+.statistics .stat-col {
+    padding: 0 100px 0 100px;
+}
+
+.statistics .stat-col h2 {
+    font-size: 20px;
+}
+
+.statistics .stat-col p {
+    color: #3a4182;
+}
+
+.statistics .stat-card {
+    padding-top: 25px;
+}
+
+.statistics .divided {
+    border-right: solid 1px #DDDDDD;
+}
+
+.statistics .highlight {
+    color: #f26170;
+}
+
+.statistics hr {
+    cursor: pointer;
+}
+
+.statistics td:hover {
+    background: rgba(242, 97, 112, 0.65)
+}
+
+.statistics .icon {
+    height: 72px;
+    width: 72px;
+    object-fit: cover;
+    margin-left: 25px;
+}

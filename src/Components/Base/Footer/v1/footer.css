@@ -1,0 +1,35 @@
+footer {
+    padding: 70px 110px 70px 110px;
+}
+
+.footer hr {
+    margin: 0 15vw 0 15vw;
+    background: rgba(212, 209, 211, 0.2);
+}
+
+.footer .copyright {
+    color: #ffffff;
+    font-size: 13px;
+}
+
+.footer h4 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #ffffff;
+}
+
+.footer a {
+    color: #E3E4E3;
+}
+
+.footer a:hover {
+    text-decoration: none;
+    color: #00986f;
+    font-weight: bold;
+}
+
+.footer .social a:hover {
+    text-decoration: none;
+    color: #f26170;
+    font-weight: bold;
+}

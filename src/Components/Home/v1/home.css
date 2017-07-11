@@ -1,0 +1,347 @@
+html,
+body {
+    overflow-x: hidden;
+}
+
+body,
+.pure-g [class*=pure-u] {
+    font-family: 'Lato', 'Hind', 'Open Sans', sans-serif;
+}
+
+h1, h2, h3, h4, h5 {
+    font-family: 'Lato', 'Hind', 'Oswald', 'Arial Narrow', sans-serif;
+    color: #ffffff;
+}
+
+p {
+    font-family: 'Lato', 'Hind', 'Oswald', 'Arial Narrow', sans-serif;
+    color: #ffffff;
+}
+
+code {
+    display: block;
+    margin: 20px 0 15px 0;
+    padding: 10px;
+    background: #eee;
+}
+
+.logo-text {
+    font-weight: bold;
+}
+
+.home {
+    background: #192440; /* fallback for old browsers */
+    background: -webkit-linear-gradient(to bottom, #192440, #0c1226); /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to bottom, #192440, #0c1226); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.hvr-underline-from-left::before {
+    background-color: #f26170;
+}
+
+.btn {
+    cursor: pointer;
+    font-family: "Lato";
+}
+
+.btn-outline-primary {
+    color: #FFFFFF !important;
+    border-color: #FFFFFF !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:active,
+.btn-outline-primary:focus {
+    background: #f26170;
+    color: #FFFFFF !important;
+    border-color: #f26170 !important;
+    outline: none;
+    box-shadow: none;
+}
+
+.btn-primary {
+    background-color: #f26170;
+    border: none;
+}
+
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus {
+    background: #c83d4e;
+    border: none;
+    color: #FFFFFF !important;
+    box-shadow: none;
+}
+
+.navbar {
+    height: 65px;
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.navbar-brand p {
+    padding-top: 10px;
+    color: #ffffff !important;
+    font-weight: bold;
+}
+
+.navbar-light .navbar-nav .nav-link {
+    color: #E3E4E3;
+}
+
+.navbar-light .navbar-nav .nav-link:hover {
+    color: #E3E4E3;
+}
+
+.navbar-light .navbar-nav .active > .nav-link {
+    color: #E3E4E3;
+}
+
+.navbar .logo {
+    height: 48px;
+}
+
+.dbet-logo {
+    height: 400px;
+}
+
+.header {
+    font-weight: bold;
+}
+
+.home hr {
+    margin: 0 15vw 0 15vw;
+    background: rgba(212, 209, 211, 0.2);
+}
+
+/* Cover */
+.cover {
+    padding-top: 140px;
+}
+
+.cover .title {
+    font-size: 50px;
+    text-rendering: optimizeLegibility;
+    color: #4F709B;
+}
+
+.cover h3 {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    line-height: 130%;
+}
+
+.cover .world {
+    height: 85vh;
+    object-fit: contain;
+}
+
+.cover .overlay {
+    background: rgba(0, 0, 0, 0.8);
+    height: 400px;
+    padding: 30px;
+    border-radius: 10px;
+}
+
+@media (max-width: 767px) {
+    .cover {
+        padding-top: 90px;
+    }
+
+    .dbet-logo {
+        height: 180px;
+        padding-left: 100px;
+        margin-bottom: 40px;
+    }
+}
+
+/*Game Info*/
+.game-info p {
+    color: #000000;
+}
+
+.game-info h4 {
+    color: #000000;
+}
+
+/* Upcoming */
+
+.upcoming {
+    min-height: 400px;
+    margin-bottom: 70px;
+    background: #0B1123;
+    position: relative;
+    z-index: 1;
+}
+
+.upcoming:before,
+.upcoming:after {
+    background: inherit;
+    content: '';
+    display: block;
+    height: 50%;
+    left: 0;
+    position: absolute;
+    right: 0;
+    z-index: -1;
+}
+
+.upcoming:before {
+    top: 0;
+    -webkit-transform: skewY(1.5deg);
+    transform: skewY(1.5deg);
+    -webkit-transform-origin: 100% 0;
+    transform-origin: 100% 0;
+}
+
+.upcoming:after {
+    bottom: 0;
+    -webkit-transform: skewY(-1.5deg);
+    transform: skewY(-1.5deg);
+    -webkit-transform-origin: 100%;
+    transform-origin: 100%;
+}
+
+.upcoming .header {
+    font-size: 21px;
+}
+
+.upcoming .game {
+    color: #D4D1D3;
+    cursor: pointer;
+}
+
+.upcoming .selected {
+    border-bottom: 2px solid #f26170;
+}
+
+/*How*/
+
+.how {
+    min-height: 500px;
+    padding-top: 25px;
+    padding-bottom: 75px;
+}
+
+.how .icon {
+    height: 84px;
+    width: 84px;
+}
+
+.how .item {
+    min-height: 325px;
+}
+
+.how .item h4 {
+    color: #f26170;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.how .item p {
+    margin-top: 20px;
+    padding: 0 10px 0 10px;
+    line-height: 23px;
+    text-align: justify;
+    font-size: 15px;
+}
+
+/*Why*/
+.why {
+    padding: 70px 0 0 0;
+    background: #0B1123;
+    position: relative;
+    z-index: 1;
+}
+
+.why:before {
+    background: inherit;
+    content: '';
+    display: block;
+    height: 50%;
+    left: 0;
+    position: absolute;
+    right: 0;
+    z-index: -1;
+}
+
+.why:before {
+    top: 0;
+    -webkit-transform: skewY(1.5deg);
+    transform: skewY(1.5deg);
+    -webkit-transform-origin: 100% 0;
+    transform-origin: 100% 0;
+}
+
+.why .reasons {
+    margin-top: 75px;
+}
+
+.why .item {
+    padding: 45px 0 45px 0;
+    min-height: 250px;
+}
+
+.why .item .vertical-divider {
+    border-right: 1px solid #f26170;
+}
+
+.why .item h3 {
+    color: #f26170;
+    text-align: center;
+    font-weight: bolder;
+}
+
+.why .item p {
+    padding: 30px 60px 30px 60px;
+    text-align: justify;
+    color: #ffffff;
+    line-height: 24px;
+}
+
+.why img {
+    height: 96px;
+    width: 96px;
+    margin-top: 30px;
+    object-fit: contain;
+}
+
+.why hr {
+    margin: 0;
+    background: #f26170;
+}
+
+/*Social-channels*/
+.social-channels {
+    padding: 75px 0 75px 0;
+}
+
+/*Subscribe*/
+.subscribe {
+    padding: 70px 0 70px 0;
+    background: #0B1123;
+    position: relative;
+    z-index: 1;
+}
+
+.subscribe:after {
+    background: inherit;
+    content: '';
+    display: block;
+    height: 50%;
+    left: 0;
+    position: absolute;
+    right: 0;
+    z-index: -1;
+}
+
+.subscribe:after {
+    bottom: 0;
+    -webkit-transform: skewY(-1.5deg);
+    transform: skewY(-1.5deg);
+    -webkit-transform-origin: 100% 0;
+    transform-origin: 100% 0;
+}

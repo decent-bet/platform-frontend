@@ -1,0 +1,112 @@
+html,
+body {
+    overflow-x: hidden;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+.crowdsale {
+    background: #192440; /* fallback for old browsers */
+    background: -webkit-linear-gradient(to bottom, #192440, #0c1226); /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to bottom, #192440, #0c1226); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.crowdsale h1,
+.crowdsale h2,
+.crowdsale h3,
+.crowdsale h4,
+.crowdsale h5 {
+    font-weight: bold;
+}
+
+.navbar .logo {
+    height: 48px;
+}
+
+.crowdsale .divider {
+    border-width: 4px;
+    border-color: #f26170;
+    width: 125px;
+}
+
+.crowdsale-div h1,
+.crowdsale-div h2,
+.crowdsale-div h3,
+.crowdsale-div h4,
+.crowdsale-div h5 {
+    font-weight: bold;
+    color: #222222;
+}
+
+.crowdsale-div p {
+    color: #222222;
+}
+
+.crowdsale-div .card-div {
+    padding: 30px;
+}
+
+.crowdsale-div .card-div:hover {
+    background: #f26170;
+    border-radius: 10px;
+    cursor: pointer;
+    color: #ffffff !important;
+}
+
+.crowdsale-div .card-div:hover h1,
+.crowdsale-div .card-div:hover h3,
+.crowdsale-div .card-div:hover h4,
+.crowdsale-div .card-div:hover p {
+    color: #ffffff !important;
+}
+
+.crowdsale-div .instructions {
+    padding: 35px 0 50px 0;
+    background: #0B1123;
+    position: relative;
+    z-index: 1;
+}
+
+.crowdsale-div .instructions h1,
+.crowdsale-div .instructions h2,
+.crowdsale-div .instructions h3,
+.crowdsale-div .instructions h4,
+.crowdsale-div .instructions h5 {
+    color: #ffffff;
+}
+
+.crowdsale-div .instructions .logo {
+    height: 200px;
+    width: 200px;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto;
+}
+
+.crowdsale-div .instructions li {
+    color: #ffffff;
+    padding-top: 10px;
+    text-align: justify;
+}
+
+.crowdsale-div .instructions a,
+.crowdsale-div .instructions a:hover,
+.crowdsale-div .instructions a:active {
+    color: #f26170;
+    text-decoration: none;
+}
+
+.crowdsale-div .instructions a:hover,
+.crowdsale-div .instructions a:active {
+    font-weight: bold;
+}
+
+.crowdsale-div .instructions .choice {
+    padding: 0 20px 0 20px;
+}

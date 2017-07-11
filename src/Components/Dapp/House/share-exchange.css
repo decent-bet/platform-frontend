@@ -1,0 +1,60 @@
+.share-exchange .highlight {
+    color: #f26170;
+}
+
+.share-exchange .table-hover tbody tr:hover td,
+.share-exchange .table-hover tbody tr:hover th {
+    background-color: #3a4182;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.share-exchange .amount {
+    font-size: 13px;
+    font-weight: bold;
+    color: #3a4182;
+}
+
+.share-exchange .side-divider {
+    border-right: solid 1px #dddddd;
+}
+
+.share-exchange p {
+    color: #3a4182;
+}
+
+.share-exchange h1 {
+    font-size: 24px;
+    text-transform: uppercase;
+}
+
+.share-exchange th {
+    color: #A49FCF;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+.share-exchange .buy {
+    background: #9CCC65;
+    color: #FFFFFF;
+    padding: 5px;
+    font-size: 10px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.share-exchange .sell {
+    background: #ef5350;
+    color: #FFFFFF;
+    padding: 5px;
+    font-size: 10px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.share-exchange .cancel {
+    font-size: 10px;
+    text-transform: uppercase;
+}

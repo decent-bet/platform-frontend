@@ -1,0 +1,377 @@
+html,
+body {
+    overflow-x: hidden;
+}
+
+@font-face {
+    font-family: 'TradeGothic';
+    src: url('../../../../public/assets/fonts/trade-gothic-lt.ttf')
+}
+
+@font-face {
+    font-family: 'TradeGothicBold';
+    src: url('../../../../public/assets/fonts/trade-gothic-lt-bold.ttf')
+}
+
+@font-face {
+    font-family: 'GothamLight';
+    src: url('../../../../public/assets/fonts/gotham-light.otf')
+}
+
+@font-face {
+    font-family: 'GothamBold';
+    src: url('../../../../public/assets/fonts/gotham-bold.otf')
+}
+
+body,
+.pure-g [class*=pure-u] {
+    font-family: 'TradeGothic', 'Lato', 'Hind', 'Open Sans', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'TradeGothic', 'Lato', 'Hind', 'Oswald', 'Arial Narrow', sans-serif;
+    color: #ffffff;
+}
+
+p {
+    font-family: 'TradeGothic', 'Lato', 'Hind', 'Oswald', 'Arial Narrow', sans-serif;
+    color: #ffffff;
+}
+
+.logo-text {
+    font-weight: bold;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.hvr-underline-from-left::before {
+    background-color: #a40c1a;
+}
+
+.btn {
+    cursor: pointer;
+    font-family: 'Lato';
+}
+
+/** Buttons */
+
+.btn-outline-primary {
+    color: #FFFFFF !important;
+    border-color: #FFFFFF !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:active,
+.btn-outline-primary:focus {
+    background: #a40c1a;
+    color: #FFFFFF !important;
+    border-color: #a40c1a !important;
+    outline: none;
+    box-shadow: none;
+}
+
+.btn-primary {
+    background-color: #a40c1a;
+    border: none;
+}
+
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus {
+    background: #6a0712;
+    border: none;
+    color: #FFFFFF !important;
+    box-shadow: none;
+}
+
+/** Navbar */
+
+.navbar {
+    height: 65px;
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.navbar-brand p {
+    padding-top: 15px;
+    color: #ffffff !important;
+    font-weight: bold;
+}
+
+.navbar-light .navbar-nav .nav-link {
+    color: #E3E4E3;
+}
+
+.navbar-light .navbar-nav .nav-link:hover {
+    color: #E3E4E3;
+}
+
+.navbar-light .navbar-nav .active > .nav-link {
+    color: #E3E4E3;
+}
+
+.navbar .logo {
+    height: 75px;
+    width: 125px;
+    object-fit: contain;
+}
+
+.navbar button {
+    padding: 10px 40px 10px 40px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.dbet-logo {
+    height: 400px;
+}
+
+.header {
+    font-weight: bold;
+}
+
+.home {
+    background: #0a0809;
+}
+
+/** Cover */
+
+.home .cover {
+    min-height: 100vh;
+    background: url('../../../../public/assets/img/backgrounds/cover.png');
+    background-size: cover;
+    background-position: center;
+}
+
+.home .cover .globe {
+    margin-top: 125px;
+    margin-left: 15px;
+    height: 575px;
+    width: 600px;
+    object-fit: cover;
+}
+
+.home .cover .slogan {
+    margin-top: 300px;
+    padding: 5px 0 5px 0;
+    background: -moz-linear-gradient(left, rgba(28, 34, 47, 1) 0%, rgba(24, 28, 48, 0) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(left, rgba(28, 34, 47, 1) 0%, rgba(24, 28, 48, 0) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to right, rgba(28, 34, 47, 1) 0%, rgba(24, 28, 48, 0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1c222f', endColorstr='#00181c30', GradientType=1); /* IE6-9 */
+}
+
+.home .cover .slogan h1 {
+    color: #e8b863;
+    margin: 10px 0 10px 0;
+    padding-left: 10px;
+    font-size: 2.1em;
+}
+
+.home .cover .slogan .game {
+    color: #ffffff;
+    font-family: 'TradeGothicBold';
+    font-style: italic;
+}
+
+.home .cover .btn-outline-primary {
+    color: #e8b863 !important;
+    border-color: #e8b863 !important;
+}
+
+.home .cover .btn-outline-primary:hover {
+    background-color: #e8b863 !important;
+    color: #ffffff !important;
+}
+
+/** Benefits */
+
+.benefits {
+    background: #1d232f;
+    padding: 100px 0 100px 0;
+}
+
+.benefits h3 {
+    color: #e8b863;
+}
+
+.benefits hr {
+    background-color: #fff;
+    height: 2px;
+    margin-top: 30px;
+    width: 100px;
+}
+
+.benefits .icon {
+    height: 42px;
+    width: 42px;
+}
+
+.benefits .header {
+    color: #e8b863;
+}
+
+.benefits p {
+    color: #ffffff;
+}
+
+.benefits .points {
+    margin-top: 60px;
+}
+
+/** ICO */
+
+.ico {
+    min-height: 750px;
+    background: url('../../../../public/assets/img/backgrounds/ico.PNG');
+    background-size: cover;
+    background-position: 50% 80%;
+}
+
+.ico .countdown {
+    background: rgba(29, 35, 47, 0.95);
+    margin-top: 275px;
+}
+
+.ico h1 {
+    color: #ffffff;
+    font-size: 72px;
+    font-family: 'GothamBold';
+    font-weight: bold;
+    text-align: center;
+    margin: 0;
+}
+
+.ico h5 {
+    color: #e8b863 !important;
+    font-family: 'GothamLight';
+    text-align: center;
+    margin-top: 15px;
+}
+
+.ico .col-3 {
+    margin: 30px 0 30px 0;
+}
+
+.ico .br {
+    border-right: solid 1px #ffffff;
+}
+
+.ico .start {
+    margin-top: 100px;
+}
+
+.ico .triangle {
+    width: 0;
+    height: 0;
+    border-style: inset;
+    border-width: 0 62.5px 100px 62.5px;
+    border-color: transparent transparent #1d232f transparent;
+    margin: auto;
+    transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+}
+
+.ico p {
+    text-align: center;
+    font-size: 11px;
+    top: 45px;
+    left: -47px;
+    position: relative;
+    width: 93px;
+    height: 93px;
+    margin: 0;
+    font-size: 16px;
+}
+
+/** Games */
+
+.games {
+    background: #1d232f;
+    min-height: 600px;
+    padding: 75px 0 75px 0 !important;
+}
+
+.games h4 {
+    color: #ffffff;
+}
+
+.games .offer-game {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    border-radius: 10px;
+}
+
+.games .available {
+    margin-top: 45px;
+}
+
+.games .sports-betting {
+    background-image: url("../../../../public/assets/img/backgrounds/sports-betting.jpg");
+    background-size: cover;
+    background-position: 50% 80%;
+}
+
+.games .slots {
+    background-image: url("../../../../public/assets/img/backgrounds/slots.jpg");
+    background-size: cover;
+    background-position: 50% 80%;
+}
+
+.games .craps {
+    background-image: url("../../../../public/assets/img/backgrounds/craps.jpg");
+    background-size: cover;
+    background-position: 50% 80%;
+}
+
+.games .roulette {
+    background-image: url("../../../../public/assets/img/backgrounds/roulette.jpg");
+    background-size: cover;
+    background-position: 50% 80%;
+}
+
+.games h5 {
+    color: #ffffff;
+    position: absolute;
+    bottom: 25px;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    padding: 15px 0 15px 0;
+    font-family: 'Lato';
+}
+
+.games hr {
+    width: 100px;
+    margin-top: 20px;
+    border-bottom: solid 2px #e8b863;
+}
+
+/** Sign-up */
+.home .signup {
+    min-height: 300px;
+    background: #ffffff;
+    padding: 100px 0 100px 0 !important;
+}
+
+.home .signup h2,
+.home .signup h6 {
+    color: #000000 !important;
+    font-family: 'GothamLight';
+}
+
+.home .signup h2 {
+    font-weight: bold;
+}
+
+.home .signup button {
+    margin: auto;
+    display: block;
+    border-radius: 20px;
+    padding: 10px 60px 10px 60px;
+    font-weight: bold;
+}
