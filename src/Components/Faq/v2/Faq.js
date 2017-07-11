@@ -1,25 +1,15 @@
 /**
- * Created by user on 4/28/2017.
+ * Created by user on 7/11/2017.
  */
 
 import React, {Component} from 'react'
 
 const WOW = require('wowjs');
 
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
+import Navbar from '../../Base/Navbar/v2/Navbar'
+import Footer from '../../Base/Footer/v2/Footer'
 
-import Card, {CardText} from 'material-ui/Card'
-
-import Footer from '../Base/Footer/v1/Footer'
-import Themes from './../Base/Themes'
-
-import Helper from './../Helper'
-
-const helper = new Helper()
-const themes = new Themes()
-const constants = require('./../Constants')
-
-import Navbar from '../Base/Navbar/v1/Navbar'
+const constants = require('./../../Constants')
 
 import './faq.css'
 
@@ -30,13 +20,6 @@ const DESCRIPTION_TOPIC_GENERAL = 'New around here? Start with the basics',
     DESCRIPTION_TOPIC_FEATURES = 'Dive deeper into decent.bet\'s features',
     DESCRIPTION_TOPIC_CROWDSALE = 'Information regarding our Initial Coin Offering (ICO)',
     DESCRIPTION_TOPIC_PLATFORM = 'Short and long term goals of our platform'
-
-const styles = {
-    card: {
-        borderRadius: 10,
-        padding: 30
-    }
-}
 
 class Faq extends Component {
 
@@ -152,7 +135,8 @@ class Faq extends Component {
 
     getFAQItem = (faq) => {
         return <div>
-            <p className="question">{ faq.question }</p>
+            <p className="question">{ '+\t' + faq.question }</p>
+            <hr className="divider"/>
             <p className="answer">{ faq.answer }</p>
         </div>
     }
@@ -161,8 +145,8 @@ class Faq extends Component {
         console.log('getTopicItem: ' + topic)
         const self = this
         return <div style={{
-            height: 110,
-            padding: 20,
+            height: 75,
+            padding: '20px 0 0 0',
             marginBottom: 10
         }} onClick={() => {
             self.setState({
@@ -170,7 +154,7 @@ class Faq extends Component {
             })
         }}
                     className={ self.state.selectedTopic == topic ? 'selected' : ''}>
-            <h5>{ topic }</h5>
+            <h5>{ topic.toUpperCase() }</h5>
             <p>{ this.getTopicDescription(topic) }</p>
         </div>
     }
@@ -191,46 +175,58 @@ class Faq extends Component {
     render() {
         const self = this
         return (
-            <MuiThemeProvider muiTheme={themes.getAppBar()}>
+            <div>
                 <div className="faq">
                     <Navbar
                         active={ constants.LINK_FAQ }
+                        dark={true}
                     />
-                    <div className="cover">
-                        <h1 className="text-center">FAQ</h1>
-                        <hr className="divider"/>
-                        <div className="container" style={{marginTop: 60}}>
+                    <div className="top">
+                    </div>
+                    <div className="faq-container">
+                        <div className="container">
                             <div className="row">
-                                <div className="col col-3">
-                                    {/*Menu*/}
-                                    { TOPICS.map((topic) =>
-                                        <div className="topic">
-                                            <div className="hvr-grow clickable">
-                                                { self.getTopicItem(topic) }
-                                            </div>
-                                        </div>
-                                    )}
+                                <div className="header">
+                                    <h1><span className="questions">QUESTIONS?</span> LOOK HERE</h1>
+                                    <p className="text-center">Decent.bet is a transparent, profit sharing, smart
+                                        contract
+                                        based
+                                        sports betting platform and online casino</p>
                                 </div>
-                                <div className="col col-9 topic-card">
-                                    <div>
-                                        <h3>{ self.state.selectedTopic }</h3>
-                                        <h5>{ self.getTopicDescription(self.state.selectedTopic)}</h5>
-                                        <hr className="divider"/>
-                                        <div className="questions">
-                                            {   self.getFaq().map((question) =>
-                                                <div className="q clickable">
-                                                    { self.getFAQItem(question) }
+                            </div>
+                            <div className="topics">
+                                <div className="row">
+                                    <div className="col-4 toc">
+                                        <p>TABLE OF CONTENTS</p>
+                                        { TOPICS.map((topic) =>
+                                            <div className="topic">
+                                                <div className="hvr-grow clickable">
+                                                    { self.getTopicItem(topic) }
                                                 </div>
-                                            )}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="col-8">
+                                        <div className="selected-topic">
+                                            <h3>{ self.state.selectedTopic }</h3>
+                                            <h5>{ self.getTopicDescription(self.state.selectedTopic)}</h5>
+                                            <hr className="divider"/>  
+                                            <div className="questions">
+                                                {   self.getFaq().map((question) =>
+                                                    <div className="q">
+                                                        { self.getFAQItem(question) }
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <Footer />
                 </div>
-            </MuiThemeProvider>
+                <Footer/>
+            </div>
         )
     }
 

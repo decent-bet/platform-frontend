@@ -9,14 +9,13 @@ const FORMATTED_LINK_HOME = 'Home', FORMATTED_LINK_WHITE_PAPER = 'White Paper', 
     FORMATTED_LINK_FAQ = 'FAQ'
 const links = [LINK_HOME, LINK_WHITE_PAPER, LINK_ROADMAP, LINK_FAQ]
 
-const constants = require('./../../../Constants')
-
 class Navbar extends Component {
 
     constructor(props) {
         super(props)
         this.state = {
-            active: props.active
+            active: props.active,
+            dark: props.dark
         }
     }
 
@@ -74,7 +73,7 @@ class Navbar extends Component {
     render() {
         const self = this
         return (
-            <nav className="navbar navbar-toggleable-md fixed-top navbar-light">
+            <nav className={ "navbar navbar-toggleable-md fixed-top navbar-light " + (self.state.dark ? 'dark-bg' : '') }>
                 <div className="container">
                     <button className="navbar-toggler navbar-toggler-right" type="button"
                             data-toggle="collapse"

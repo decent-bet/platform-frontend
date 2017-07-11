@@ -91,6 +91,11 @@ p {
 .navbar {
     height: 65px;
     background: rgba(0, 0, 0, 0.15);
+    z-index: 15;
+}
+
+.dark-bg {
+    background: rgba(0, 0, 0, 0.75) !important;
 }
 
 .navbar-brand p {

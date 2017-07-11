@@ -13,7 +13,7 @@ import Home from './Components/Home/v2/Home'
 import AdminPanel from './Components/Admin/AdminPanel'
 import Crowdsale from './Components/Crowdsale/Crowdsale'
 import Dapp from './Components/Dapp/Dapp'
-import Faq from './Components/Faq/Faq'
+import Faq from './Components/Faq/v2/Faq'
 import Roadmap from './Components/Roadmap/Roadmap'
 import Slots from './Components/Slots/Slots'
 
