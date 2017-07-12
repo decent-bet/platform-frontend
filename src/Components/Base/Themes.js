@@ -24,6 +24,15 @@ class Themes {
         })
     }
 
+    getProgressBar() {
+        return getMuiTheme({
+            palette: {
+                primary1Color: constants.COLOR_GOLD,
+                primary3Color: '#000000'
+            }
+        })
+    }
+
 }
 
 export default Themes

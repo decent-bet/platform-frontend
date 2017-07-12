@@ -210,7 +210,7 @@ class Faq extends Component {
                                         <div className="selected-topic">
                                             <h3>{ self.state.selectedTopic }</h3>
                                             <h5>{ self.getTopicDescription(self.state.selectedTopic)}</h5>
-                                            <hr className="divider"/>  
+                                            <hr className="divider"/>
                                             <div className="questions">
                                                 {   self.getFaq().map((question) =>
                                                     <div className="q">
@@ -225,7 +225,7 @@ class Faq extends Component {
                         </div>
                     </div>
                 </div>
-                <Footer/>
+                <Footer active={constants.LINK_FAQ}/>
             </div>
         )
     }

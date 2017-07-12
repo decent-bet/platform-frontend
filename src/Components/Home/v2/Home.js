@@ -242,7 +242,7 @@ class Home extends Component {
                             </div>
                         </div>
                     </div>
-                    <Footer/>
+                    <Footer active={constants.LINK_HOME}/>
                 </div>
             </MuiThemeProvider>
         )

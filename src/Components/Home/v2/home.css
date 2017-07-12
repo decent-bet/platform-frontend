@@ -19,8 +19,18 @@ body {
 }
 
 @font-face {
+    font-family: 'GothamMedium';
+    src: url('../../../../public/assets/fonts/gotham-medium.otf')
+}
+
+@font-face {
     font-family: 'GothamBold';
     src: url('../../../../public/assets/fonts/gotham-bold.otf')
+}
+
+@font-face {
+    font-family: 'GothamRoundedMedium';
+    src: url('../../../../public/assets/fonts/gotham-rounded-medium.otf')
 }
 
 body,
@@ -113,7 +123,7 @@ p {
 }
 
 .navbar-light .navbar-nav .active > .nav-link {
-    color: #E3E4E3;
+    color: #e8b863;
 }
 
 .navbar .logo {

@@ -12,6 +12,7 @@ export const
     COLOR_RED = "#ff4e64",
     COLOR_WHITE = '#FFFFFF',
     COLOR_WHITE_DARK = '#949494',
+    COLOR_GOLD = '#f2b45c',
 
     /** Links */
     LINK_FAQ = 'faq',

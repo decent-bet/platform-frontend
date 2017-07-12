@@ -10,10 +10,10 @@ import TextField from 'material-ui/TextField'
 
 const WOW = require('wowjs');
 
-import Helper from './../Helper'
+import Helper from '../../Helper'
 
 const helper = new Helper()
-const constants = require('./../Constants')
+const constants = require('./../../Constants')
 
 import './register.css'
 

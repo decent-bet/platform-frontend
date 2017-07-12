@@ -62,7 +62,7 @@ class Navbar extends Component {
             case LINK_HOME:
                 return '/'
             case LINK_WHITE_PAPER:
-                return '#'
+                return '/whitepaper'
             case LINK_ROADMAP:
                 return '/roadmap'
             case LINK_FAQ:
@@ -90,7 +90,7 @@ class Navbar extends Component {
                         </ul>
                         <div className="my-2 my-lg-0">
                             <button className="btn btn-primary mt-1 font-weight-bold" onClick={ () => {
-                                window.location = '/dapp'
+                                window.location = '/ico'
                             }}>JOIN ICO
                             </button>
                         </div>

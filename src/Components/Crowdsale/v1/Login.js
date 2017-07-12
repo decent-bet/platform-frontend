@@ -12,10 +12,10 @@ const WOW = require('wowjs');
 
 import Register from './Register'
 
-import Helper from './../Helper'
+import Helper from '../../Helper'
 
 const helper = new Helper()
-const constants = require('./../Constants')
+const constants = require('./../../Constants')
 
 import './login.css'
 

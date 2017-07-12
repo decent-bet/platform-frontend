@@ -17,21 +17,21 @@ const request = require('request')
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 
-import Footer from '../Base/Footer/v1/Footer'
-import Themes from './../Base/Themes'
-import Loading from './../Base/Loading'
+import Footer from '../../Base/Footer/v1/Footer'
+import Themes from '../../Base/Themes'
+import Loading from '../../Base/Loading'
 
-import Helper from './../Helper'
+import Helper from '../../Helper'
 
 const helper = new Helper()
 const themes = new Themes()
-const constants = require('./../Constants')
+const constants = require('./../../Constants')
 
-import ContractHelper from './../ContractHelper'
+import ContractHelper from '../../ContractHelper'
 
 const contractHelper = new ContractHelper()
 
-import Navbar from '../Base/Navbar/v1/Navbar'
+import Navbar from '../../Base/Navbar/v1/Navbar'
 import Login from './Login'
 
 import './crowdsale.css'

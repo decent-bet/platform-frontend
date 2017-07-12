@@ -29,6 +29,10 @@ footer {
     padding-right: 30px;
 }
 
+.footer .active {
+    color: #e8b863 !important;
+}
+
 .footer .icons {
     display: inline;
     margin-left: 45px;
