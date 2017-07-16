@@ -105,3 +105,9 @@
     border-width: 1px;
     border-color: #8e8e8e !important;
 }
+
+@media (max-width: 767px) {
+    .faq .topics .topic {
+        padding-bottom: 20px;
+    }
+}

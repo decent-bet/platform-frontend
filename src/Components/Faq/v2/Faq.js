@@ -145,7 +145,6 @@ class Faq extends Component {
         console.log('getTopicItem: ' + topic)
         const self = this
         return <div style={{
-            height: 75,
             padding: '20px 0 0 0',
             marginBottom: 10
         }} onClick={() => {

@@ -17,6 +17,8 @@ const contractHelper = new ContractHelper()
 
 let callback
 
+const IS_TEST = true
+
 let initMetaMask = () => {
     // Checking if Web3 has been injected by the browser (Mist/MetaMask)
     if (typeof web3 !== 'undefined') {
@@ -30,14 +32,17 @@ let initMetaMask = () => {
         // Show no mist/metamask extension error
         window.web3 = contractHelper.getWeb3();
     }
-    contractHelper.getAllContracts((err, token, house, sportsBetting) => {
-        window.web3.eth.defaultAccount = window.web3.eth.accounts[0]
-        console.log('getAllContracts: ' + err + ', ' + token.address + ', ' + house.address + ', ' +
-            sportsBetting.address + ', ' + window.web3.eth.defaultAccount)
-        window.contractHelper = contractHelper
-        if (callback)
-            callback()
-    })
+    if (!IS_TEST)
+        contractHelper.getAllContracts((err, token, house, sportsBetting) => {
+            window.web3.eth.defaultAccount = window.web3.eth.accounts[0]
+            console.log('getAllContracts: ' + err + ', ' + token.address + ', ' + house.address + ', ' +
+                sportsBetting.address + ', ' + window.web3.eth.defaultAccount)
+            window.contractHelper = contractHelper
+            if (callback)
+                callback()
+        })
+    else if (callback)
+        callback()
 }
 
 window.addEventListener('load', function () {

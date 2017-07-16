@@ -70,7 +70,7 @@ class Home extends Component {
                                 </div>
                                 <div className="col-1">
                                 </div>
-                                <div className="col-6">
+                                <div className="col-5">
                                     <img className="globe mr-auto" src="assets/img/overlays/globe.png"/>
                                 </div>
                             </div>
@@ -85,14 +85,16 @@ class Home extends Component {
                                 </div>
                             </div>
                             <div className="row points">
-                                <div className="col-6">
+                                <div className="col-md-6 col-xs-12">
                                     <div className="row">
                                         <div className="col-2">
-                                            <img className="icon" src="assets/img/icons/v2/share.png"/>
+                                            <img className="icon"
+                                                 src={process.env.PUBLIC_URL + "assets/img/icons/v2/share.png"}/>
                                         </div>
                                         <div className="col-8">
                                             <p className="header">Purchase House Shares</p>
-                                            <p>Buy shares into the house for DBETs. Your DBETs get deposited into the
+                                            <p>Buy shares into the house for DBETs. Your DBETs get deposited into
+                                                the
                                                 house
                                                 and
                                                 in return
@@ -100,10 +102,11 @@ class Home extends Component {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="col-6">
+                                <div className="col-md-6 col-xs-12">
                                     <div className="row">
                                         <div className="col-2">
-                                            <img className="icon" src="assets/img/icons/v2/safe.png"/>
+                                            <img className="icon"
+                                                 src={process.env.PUBLIC_URL + "assets/img/icons/v2/safe.png"}/>
                                         </div>
                                         <div className="col-8">
                                             <p className="header">Lock up DBETs for a Quarter</p>
@@ -116,10 +119,11 @@ class Home extends Component {
                                 </div>
                             </div>
                             <div className="row points">
-                                <div className="col-6">
+                                <div className="col-md-6 col-xs-12">
                                     <div className="row">
                                         <div className="col-2">
-                                            <img className="icon" src="assets/img/icons/v2/lottery.png"/>
+                                            <img className="icon"
+                                                 src={process.env.PUBLIC_URL + "assets/img/icons/v2/lottery.png"}/>
                                         </div>
                                         <div className="col-8">
                                             <p className="header">Have a chance at the lottery</p>
@@ -132,10 +136,11 @@ class Home extends Component {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="col-6">
+                                <div className="col-md-6 col-xs-12">
                                     <div className="row">
                                         <div className="col-2">
-                                            <img className="icon" src="assets/img/icons/v2/earnings.png"/>
+                                            <img className="icon"
+                                                 src={process.env.PUBLIC_URL + "assets/img/icons/v2/earnings.png"}/>
                                         </div>
                                         <div className="col-8">
                                             <p className="header">Receive Quarterly Returns</p>
@@ -156,31 +161,118 @@ class Home extends Component {
                     </div>
                     <div className="ico">
                         <div className="row">
-                            <div className="col-6 offset-3 countdown">
+                            <div className="col-8 col-md-6 offset-2 offset-md-3 countdown">
                                 <div className="row">
                                     <div className="col-3 br">
-                                        <h1>12</h1>
+                                        <h1>??</h1>
                                         <h5>DAYS</h5>
                                     </div>
                                     <div className="col-3 br">
-                                        <h1>06</h1>
+                                        <h1>??</h1>
                                         <h5>HOURS</h5>
                                     </div>
                                     <div className="col-3 br">
-                                        <h1>11</h1>
+                                        <h1>??</h1>
                                         <h5>MINUTES</h5>
                                     </div>
                                     <div className="col-3">
-                                        <h1>23</h1>
+                                        <h1>??</h1>
                                         <h5>SECONDS</h5>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div className="row start">
-                            <div className="col-2 offset-5">
+                            <div className="col-2 offset-4 offset-md-5">
                                 <div className="triangle">
-                                    <p className="text-center">ICO STARTS IN</p>
+                                    <p className="text-center">ICO TO BE ANNOUNCED</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="why">
+                        <div className="container">
+                            <div className="row">
+                                <div className="col">
+                                    <h3 className="text-center">WHY DECENT.BET?</h3>
+                                    <hr/>
+                                </div>
+                            </div>
+                            <div className="row points">
+                                <div className="col-md-6 col-xs-12">
+                                    <div className="row">
+                                        <div className="col-2">
+                                            <img className="icon"
+                                                 src={process.env.PUBLIC_URL + "assets/img/icons/v2/transparency.png"}/>
+                                        </div>
+                                        <div className="col-8">
+                                            <p className="header">Transparency</p>
+                                            <p>Being hosted on smart contracts on the Ethereum
+                                                Blockchain, users can
+                                                look through
+                                                our contract source code as well as track any transaction made on the
+                                                contract to ensure
+                                                <span className="logo-text"> decent.bet</span> stays fair and relies on
+                                                trustworthy game outcomes and does not cheat it's users. </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="col-md-6 col-xs-12">
+                                    <div className="row">
+                                        <div className="col-2">
+                                            <img className="icon"
+                                                 src={process.env.PUBLIC_URL + "assets/img/icons/v2/house.png"}/>
+                                        </div>
+                                        <div className="col-8">
+                                            <p className="header">Be the house</p>
+                                            <p>Bets placed by users will always have the house to hedge against their
+                                                bets -
+                                                users can buy into the house funds and receive a split of the profits at
+                                                the
+                                                end of every quarter. Moreover, shares into the house can be traded at
+                                                any time
+                                                with other users for any convenient price for liquidity.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="row points">
+                                <div className="col-md-6 col-xs-12">
+                                    <div className="row">
+                                        <div className="col-2">
+                                            <img className="icon"
+                                                 src={process.env.PUBLIC_URL + "assets/img/icons/v2/decentc.png"}/>
+                                        </div>
+                                        <div className="col-8">
+                                            <p className="header">Decent.C</p>
+                                            <p><span className="logo-text">decent.bet</span> allots 20% of all collected
+                                                profits and donates them to needy causes and charities around the world.
+                                                All
+                                                charitable donations will be transparent and registered on the
+                                                blockchain to ensure honesty and trustworthiness.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="col-md-6 col-xs-12">
+                                    <div className="row">
+                                        <div className="col-2">
+                                            <img className="icon"
+                                                 src={process.env.PUBLIC_URL + "assets/img/icons/v2/whitelabel.png"}/>
+                                        </div>
+                                        <div className="col-8">
+                                            <p className="header">White Label</p>
+                                            <p>After Year 2, <span className="logo-text">decent.bet</span> will open
+                                                it's
+                                                API and custom houses on the platform for betting companies to join in
+                                                the platform
+                                                with custom lines and APIs. This would ultimately benefit users of the
+                                                platform, by
+                                                simply holding shares in the platform as share prices would shoot up
+                                                with
+                                                a larger user base joining in the long run.</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -189,34 +281,34 @@ class Home extends Component {
                         <div className="container">
                             <div className="row">
                                 <div className="col">
-                                    <h4 className="text-center">GAMES ON OFFER</h4>
+                                    <h3 className="text-center">GAMES ON OFFER</h3>
                                     <hr/>
                                 </div>
                             </div>
                             <div className="row available">
-                                <div className="col-3 hvr-float-shadow">
-                                    <Card style={styles.card} zDepth={5}>
+                                <div className="col-12 col-md-3 hvr-float-shadow">
+                                    <Card style={styles.card} zDepth={5} className="game-card">
                                         <div className="offer-game sports-betting">
                                             <h5 className="text-center">SPORTS BETTING</h5>
                                         </div>
                                     </Card>
                                 </div>
-                                <div className="col-3 hvr-float-shadow">
-                                    <Card style={styles.card} zDepth={5}>
+                                <div className="col-12 col-md-3 hvr-float-shadow">
+                                    <Card style={styles.card} zDepth={5} className="game-card">
                                         <div className="offer-game slots">
                                             <h5 className="text-center">SLOTS</h5>
                                         </div>
                                     </Card>
                                 </div>
-                                <div className="col-3 hvr-float-shadow">
-                                    <Card style={styles.card} zDepth={5}>
+                                <div className="col-12 col-md-3 hvr-float-shadow">
+                                    <Card style={styles.card} zDepth={5} className="game-card">
                                         <div className="offer-game craps">
                                             <h5 className="text-center">CRAPS</h5>
                                         </div>
                                     </Card>
                                 </div>
-                                <div className="col-3 hvr-float-shadow">
-                                    <Card style={styles.card} zDepth={5}>
+                                <div className="col-12 col-md-3 hvr-float-shadow">
+                                    <Card style={styles.card} zDepth={5} className="game-card">
                                         <div className="offer-game roulette">
                                             <h5 className="text-center">ROULETTE</h5>
                                         </div>

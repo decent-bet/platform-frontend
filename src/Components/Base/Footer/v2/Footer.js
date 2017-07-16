@@ -76,9 +76,21 @@ class Footer extends Component {
                 <footer>
                     <div className="container">
                         <div className="row">
-                            <div className="col-7 offset-3">
+                            <div className="col-7 offset-3 hidden-md-down">
                                 { self.getLinks() }
                                 <div className="icons">
+                                    <a href="https://www.facebook.com/decentbet/"><span
+                                        className="fa fa-facebook icon"/></a>
+                                    <a href="https://www.twitter.com/decentbet/"><span className="fa fa-twitter icon"/></a>
+                                    <a href="https://www.instagram.com/decentbet/"><span
+                                        className="fa fa-instagram icon"/></a>
+                                </div>
+                            </div>
+                            <div className="col-12 hidden-md-up">
+                                <div className="text-center">
+                                    { self.getLinks() }
+                                </div>
+                                <div className="icons text-center">
                                     <a href="https://www.facebook.com/decentbet/"><span
                                         className="fa fa-facebook icon"/></a>
                                     <a href="https://www.twitter.com/decentbet/"><span className="fa fa-twitter icon"/></a>
