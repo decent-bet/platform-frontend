@@ -9,7 +9,13 @@ const ethJsUtil = require('ethereumjs-util')
 
 let contractHelper
 
+const IS_DEV = true
+
 class Helper {
+
+    isDev = () => {
+        return IS_DEV
+    }
 
     getWeb3 = () => {
         return window.web3

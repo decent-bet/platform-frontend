@@ -12,18 +12,15 @@ import LinearProgress from 'material-ui/LinearProgress'
 import Navbar from './../../Base/Navbar/v2/Navbar'
 import Footer from './../../Base/Footer/v2/Footer'
 
+const countdown = require('countdown')
+const ethUnits = require('ethereum-units')
+const request = require('request')
+
 const themes = new Themes()
 
 const constants = require('./../../Constants')
 
 import './crowdsale.css'
-
-const styles = {
-    progressBar: {
-        width: 300,
-        margin: '20px auto 0 auto'
-    }
-}
 
 
 class Crowdsale extends Component {
@@ -31,9 +28,42 @@ class Crowdsale extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            completed: 50,
-            address: '0xb8c8a58ce79c62be465f7b18fd32b7e558bd407d'
+            address: 'TO BE ANNOUNCED',
+            ethRate: 0,
+            amounts: {
+                dbets: 1000,
+                eth: 1
+            },
+            ico: {
+                balance: 0,
+                tokensRaised: 0,
+                maxTokenCap: 350000000,
+                dbetsPerEth: 1000,
+                timeRemaining: 0
+            }
         }
+    }
+
+    componentWillMount() {
+        this.getETHUSDPrice()
+    }
+
+    getETHUSDPrice = () => {
+        const self = this
+        const URL = 'https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD'
+        let options = {
+            url: URL,
+            qs: {
+                fsym: 'ETH',
+                tsyms: 'USD'
+            }
+        };
+        request(options, function (err, response, body) {
+            console.log('getETHUSDPrice: ' + JSON.parse(body).USD)
+            self.setState({
+                ethRate: JSON.parse(body).USD
+            })
+        });
     }
 
     render() {
@@ -43,6 +73,8 @@ class Crowdsale extends Component {
                 <div className="crowdsale">
                     <Navbar active={constants.LINK_ICO}/>
                     <div className="cover">
+                        <img src={process.env.PUBLIC_URL + '/assets/img/backgrounds/crowdsale-cover.PNG'}
+                             className="animated fadeIn"/>
                     </div>
                     <div className="details">
                         <div className="container">
@@ -58,11 +90,11 @@ class Crowdsale extends Component {
                                         send
                                         your Ether and receive your DBETS.</p>
                                     <h3>TOKEN DISTRIBUTION</h3>
-                                    <p className="remaining">REMAINING <span className="time">00 : 00 : 00</span></p>
+                                    <p className="remaining">REMAINING <span className="time">?? : ?? : ??</span></p>
                                     <LinearProgress
                                         mode="determinate"
-                                        value={this.state.completed}
-                                        style={styles.progressBar}
+                                        value={self.state.ico.tokensRaised / self.state.ico.maxTokenCap}
+                                        className="progressbar"
                                     />
                                     <div className="dbet-meter">
                                         <div className="row">
@@ -70,17 +102,25 @@ class Crowdsale extends Component {
                                                 <p className="start">0</p>
                                             </div>
                                             <div className="col-6 pr-0">
-                                                <p className="end">500M</p>
+                                                <p className="end">350M DBETs</p>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="prices">
                                         <div className="row">
-                                            <div className="col-6">
-                                                <p>USD <span className="price">10,000,000</span></p>
+                                            <div className="col-12 col-md-6">
+                                                <p className="text-md-left text-center">USD <span
+                                                    className="price">{ self.state.ico.balance }</span>
+                                                </p>
                                             </div>
-                                            <div className="col-6">
-                                                <p className="text-right">ETH <span className="price">50,000</span></p>
+                                            <div className="col-12 col-md-6">
+                                                <p className="text-md-right text-center">ETH
+                                                    <span className="price">
+                                                    { ' ' + (self.state.ethRate != 0 ?
+                                                        (self.state.ico.balance / self.state.ethRate) : 0)
+                                                    }
+                                                    </span>
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
@@ -91,32 +131,67 @@ class Crowdsale extends Component {
                     <div className="buy">
                         <div className="container">
                             <div className="row">
-                                <div className="col">
+                                <div className="col hidden-md-down">
                                     <p className="address text-center">ADDRESS&#09;<span
-                                        className="ico-address">{ self.state.address}</span></p>
+                                        className="ico-address">{ self.state.address }</span></p>
+                                </div>
+                                <div className="col hidden-md-up">
+                                    <p className="address text-center">ADDRESS&#09;</p>
+                                    <p className="ico-address text-center">{ self.state.address }</p>
                                 </div>
                             </div>
                             <div className="row conversion">
-                                <div className="col-5 offset-1">
+                                <div className="col-12 col-md-5 offset-md-1 mt-4 mt-md-0">
                                     <div className="dbets">
                                         <div className="row">
                                             <div className="col-6">
                                                 <p className="text-center">DBETS</p>
                                             </div>
                                             <div className="col-6">
-                                                <input value="200" type="number"/>
+                                                <input value={self.state.amounts.dbets}
+                                                       type="number"
+                                                       onChange={(e) => {
+                                                           let value = e.target.value
+                                                           let amounts = self.state.amounts
+                                                           if (value.length > 0) {
+                                                               let ethValue = value / (self.state.ico.dbetsPerEth)
+                                                               amounts.dbets = value
+                                                               amounts.eth = ethValue
+                                                           } else {
+                                                               amounts.dbets = ''
+                                                               amounts.eth = ''
+                                                           }
+                                                           self.setState({
+                                                               amounts: amounts
+                                                           })
+                                                       }}/>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="col-5">
-                                    <div className="usd">
+                                <div className="col-12 col-md-5 mt-4 mt-md-0">
+                                    <div className="eth">
                                         <div className="row">
                                             <div className="col-6">
-                                                <p className="text-center">USD</p>
+                                                <p className="text-center">ETH</p>
                                             </div>
                                             <div className="col-6">
-                                                <input value="2.30" type="number"/>
+                                                <input value={self.state.amounts.eth} type="number"
+                                                       onChange={(e) => {
+                                                           let value = e.target.value
+                                                           let amounts = self.state.amounts
+                                                           if (value.length > 0) {
+                                                               let dbetsValue = value * (self.state.ico.dbetsPerEth)
+                                                               amounts.dbets = dbetsValue
+                                                               amounts.eth = value
+                                                           } else {
+                                                               amounts.dbets = ''
+                                                               amounts.eth = ''
+                                                           }
+                                                           self.setState({
+                                                               amounts: amounts
+                                                           })
+                                                       }}/>
                                             </div>
                                         </div>
                                     </div>
@@ -124,11 +199,12 @@ class Crowdsale extends Component {
                             </div>
                             <div className="row">
                                 <div className="col-12">
-                                    <p className="text-center price">CURRENT ETHER PRICE = 250 USD/ETH</p>
+                                    <p className="text-center price">CURRENT ETHER PRICE = {self.state.ethRate}
+                                        USD/ETH</p>
                                 </div>
                             </div>
                             <div className="row">
-                                <div className="col-4 offset-5">
+                                <div className="col-12 text-center">
                                     <button className="buy-dbets btn">BUY</button>
                                 </div>
                             </div>
@@ -158,7 +234,7 @@ class Crowdsale extends Component {
                                 </div>
                             </div>
                             <div className="row mt-4">
-                                <div className="col col-6 choice">
+                                <div className="col-12 col-md-6 choice">
                                     <div className="row">
                                         <img className="logo hvr-grow clickable"
                                              src="assets/img/logos/metamask.png"/>
@@ -214,7 +290,7 @@ class Crowdsale extends Component {
                                         </li>
                                     </ul>
                                 </div>
-                                <div className="col col-6">
+                                <div className="col-12 col-md-6">
                                     <div className="row">
                                         <img className="logo scaling clickable"
                                              src="assets/img/logos/ethereum.png"/>
@@ -267,7 +343,7 @@ class Crowdsale extends Component {
                                 </div>
                             </div>
                             <div className="row mt-2">
-                                <div className="col col-6">
+                                <div className="col-12 col-md-6">
                                     <div className="row">
                                         <img className="logo hvr-grow clickable"
                                              src="assets/img/logos/parity.png"/>
@@ -318,7 +394,7 @@ class Crowdsale extends Component {
                                         </li>
                                     </ul>
                                 </div>
-                                <div className="col col-6">
+                                <div className="col-12 col-md-6">
                                     <div className="row">
                                         <img className="logo hvr-grow clickable"
                                              src="assets/img/logos/myetherwallet.png"/>

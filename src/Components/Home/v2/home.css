@@ -50,6 +50,7 @@ p {
 
 .logo-text {
     font-weight: bold;
+    color: #e8b863;
 }
 
 .clickable {
@@ -105,7 +106,7 @@ p {
 }
 
 .navbar .navbar-toggler {
-    border-color: rgba(232, 184, 99, 0.5);
+    border-color: transparent;
 }
 
 .navbar .navbar-toggler-icon {
@@ -128,7 +129,7 @@ p {
     }
 
     .navbar .navbar-toggler:focus {
-        border-color: rgba(232, 184, 99, 0.5);
+        border-color: transparent;
     }
 }
 
@@ -159,7 +160,7 @@ p {
     object-fit: contain;
 }
 
-.navbar button {
+.navbar .join-ico {
     padding: 10px 40px 10px 40px;
     font-size: 14px;
     font-weight: bold;
@@ -216,12 +217,17 @@ p {
     font-style: italic;
 }
 
+.home .cover .info {
+    text-align: justify;
+}
+
 .home .cover .btn-outline-primary {
     color: #e8b863 !important;
     border-color: #e8b863 !important;
 }
 
-.home .cover .btn-outline-primary:hover {
+.home .cover .btn-outline-primary:hover,
+.home .cover .btn-outline-primary:focus {
     background-color: #e8b863 !important;
     color: #ffffff !important;
 }
@@ -267,6 +273,10 @@ p {
 
 .home .benefits .header {
     color: #e8b863;
+}
+
+.home .benefits .info {
+    text-align: justify;
 }
 
 .home .benefits p {
@@ -362,11 +372,11 @@ p {
 
 @media (max-width: 767px) {
     .home .ico h1 {
-        font-size: 1.5rem;
+        font-size: 1.75rem;
     }
 
     .home .ico h5 {
-        font-size: 0.5rem;
+        font-size: 0.75rem;
     }
 }
 
@@ -395,6 +405,10 @@ p {
 
 .home .why .header {
     color: #e8b863;
+}
+
+.home .why .info {
+    text-align: justify;
 }
 
 .home .why p {
@@ -495,7 +509,25 @@ p {
         width: 90%;
         margin: auto;
     }
+}
 
+/** Distribution Info */
+
+.home .distribution {
+    min-height: 600px;
+    background: #1d232f;
+    padding: 100px 0 100px 0;
+}
+
+.home .distribution h3 {
+    color: #e8b863;
+}
+
+.home .distribution hr {
+    background-color: #fff;
+    height: 2px;
+    margin-top: 30px;
+    width: 100px;
 }
 
 /** Sign-up */
@@ -518,7 +550,48 @@ p {
 .home .signup button {
     margin: auto;
     display: block;
-    border-radius: 20px;
+    border-radius: 30px;
     padding: 10px 60px 10px 60px;
     font-weight: bold;
+}
+
+.home .signup input {
+    font-family: 'TradeGothic';
+    margin: 0;
+    padding: 10px 55px 10px 30px;
+    border: solid 1px #ffffff;
+    background-color: rgba(0, 0, 0, 0.1);
+    color: #1d232f;
+    width: 100%;
+    border-radius: 25px;
+}
+
+.home .signup input:focus {
+    outline: none;
+}
+
+.home .signup .error-message {
+    font-family: 'TradeGothic';
+    color: #ff2f3e !important;
+    font-size: 14px;
+    margin-top: 25px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.home .signup .success-message {
+    font-family: 'TradeGothic';
+    color: #5cb85c !important;
+    font-size: 14px;
+    margin-top: 25px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.home .signup .loading {
+    width: 50%;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
 }

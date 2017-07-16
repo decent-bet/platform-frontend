@@ -3,9 +3,25 @@
 }
 
 .crowdsale .cover {
-    min-height: 90vh;
-    background: #000000 url('../../../../public/assets/img/backgrounds/crowdsale-cover.PNG') no-repeat 50% 0%;
+    height: 100vh;
+    background: #000000;
     background-size: 80%;
+}
+
+.crowdsale .cover img {
+    height: 90vh;
+    object-fit: cover;
+    width: 100%;
+    margin-top: 10vh;
+}
+
+@media (max-width: 767px) {
+    .crowdsale .cover {
+        height: 85vh;
+    }
+    .crowdsale .cover img {
+        height: 75vh;
+    }
 }
 
 /** Details */
@@ -49,7 +65,12 @@
     color: #f2b45c;
     font-family: GothamMedium;
     text-align: center;
-    margin: 15px 0 30px 0;
+    margin: 30px 0 30px 0;
+}
+
+.crowdsale .details .progressbar {
+    width: 300px !important;
+    margin: 20px auto 0 auto !important;
 }
 
 .crowdsale .details .time {
@@ -89,6 +110,31 @@
     color: #FFFFFF;
 }
 
+@media (max-width: 767px) {
+    .crowdsale .details .info {
+        padding: 0 20px 0 20px;
+        text-align: justify;
+    }
+
+    .crowdsale .details h3 {
+        margin-top: 60px;
+        font-size: 32px;
+    }
+
+    .crowdsale .details .progressbar {
+        width: 200px;
+        margin: 20px auto 0 auto;
+    }
+
+    .crowdsale .details .dbet-meter .end {
+        text-align: center;
+    }
+
+    .crowdsale .details .prices {
+        width: inherit;
+    }
+}
+
 /** Buy */
 .crowdsale .buy {
     min-height: 60vh;
@@ -101,7 +147,7 @@
     font-size: 20px;
 }
 
-.crowdsale .buy .address .ico-address {
+.crowdsale .buy .ico-address {
     font-family: GothamLight;
     color: #000000;
 }
@@ -157,7 +203,7 @@ input[type="number"]::-webkit-inner-spin-button {
     border: 0;
 }
 
-.crowdsale .buy .usd {
+.crowdsale .buy .eth {
     background: #1d232f;
     padding: 40px;
     height: 110px;
@@ -167,20 +213,20 @@ input[type="number"]::-webkit-inner-spin-button {
     transform-style: preserve-3d;
 }
 
-.crowdsale .buy .usd > .row {
+.crowdsale .buy .eth > .row {
     position: relative;
     top: 50%;
     transform: translateY(-50%);
 }
 
-.crowdsale .buy .usd p {
+.crowdsale .buy .eth p {
     color: #ffffff;
     font-size: 24px;
     font-family: GothamLight;
     margin: 0;
 }
 
-.crowdsale .buy .usd input {
+.crowdsale .buy .eth input {
     color: #ffffff;
     font-size: 24px;
     background: transparent;
@@ -218,6 +264,21 @@ input[type="number"]::-webkit-inner-spin-button {
     margin-top: 40px;
     color: #000000;
     text-align: center;
+}
+
+@media (max-width: 767px) {
+    .crowdsale .buy .conversion {
+        margin-top: 0;
+    }
+
+    .crowdsale .buy .ico-address {
+        font-size: 0.8rem;
+    }
+
+    .crowdsale .buy .warning {
+        padding: 0 20px 0 20px;
+        text-align: justify;
+    }
 }
 
 /** Instructions */
@@ -274,4 +335,11 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .crowdsale .instructions .choice {
     padding: 0 20px 0 20px;
+}
+
+@media (max-width: 767px) {
+    .crowdsale .instructions ul {
+        padding-left: 20px;
+        padding-right: 10px;
+    }
 }

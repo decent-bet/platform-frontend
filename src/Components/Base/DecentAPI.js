@@ -1,12 +1,14 @@
 /**
  * Created by user on 6/14/2017.
  */
+import Helper from './../Helper'
 
-const IS_DEV = true
+const helper = new Helper()
+
 const LOCAL_URL = 'http://localhost:3010/api'
 const PUBLIC_URL = ''
 
-const API_URL = IS_DEV ? LOCAL_URL : PUBLIC_URL
+const BASE_URL = helper.isDev() ? LOCAL_URL : PUBLIC_URL
 
 const cryptoJs = require("crypto-js")
 const ethUtil = require('ethereumjs-util')
@@ -36,7 +38,7 @@ class DecentAPI {
          * aesKey - send encrypted spin to server to save state
          */
         let encryptedSpin = cryptoJs.AES.encrypt(JSON.stringify(spin), aesKey).toString()
-        let url = API_URL + '/casino/channels/slots/' + address + '/spin'
+        let url = BASE_URL + '/casino/channels/slots/' + address + '/spin'
         let options = {
             url: url,
             method: 'POST',
@@ -56,7 +58,7 @@ class DecentAPI {
      * Get the latest encrypted spin saved by the house
      **/
     getLastSpin = (address, callback) => {
-        let url = API_URL + '/casino/channels/slots/' + address + '/spin'
+        let url = BASE_URL + '/casino/channels/slots/' + address + '/spin'
         let options = {
             url: url,
             method: 'GET'

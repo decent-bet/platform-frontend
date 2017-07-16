@@ -7,7 +7,7 @@ import React, {Component} from 'react'
 const LINK_HOME = 'home', LINK_WHITE_PAPER = 'whitepaper', LINK_ROADMAP = 'roadmap', LINK_FAQ = 'faq'
 const FORMATTED_LINK_HOME = 'Home', FORMATTED_LINK_WHITE_PAPER = 'White Paper', FORMATTED_LINK_ROADMAP = 'Roadmap',
     FORMATTED_LINK_FAQ = 'FAQ'
-const links = [LINK_HOME, LINK_WHITE_PAPER, LINK_ROADMAP, LINK_FAQ]
+const links = [LINK_HOME, LINK_WHITE_PAPER, LINK_FAQ]
 
 class Navbar extends Component {
 
@@ -91,7 +91,7 @@ class Navbar extends Component {
                                 { self.getLinks() }
                             </ul>
                             <div className="my-2 my-lg-0 hidden-md-down">
-                                <button className="btn btn-primary mt-1 font-weight-bold" onClick={ () => {
+                                <button className="btn btn-primary mt-1 font-weight-bold join-ico" onClick={ () => {
                                     window.location = '/ico'
                                 }}>JOIN ICO
                                 </button>
