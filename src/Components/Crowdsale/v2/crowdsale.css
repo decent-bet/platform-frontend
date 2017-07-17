@@ -19,6 +19,7 @@
     .crowdsale .cover {
         height: 85vh;
     }
+
     .crowdsale .cover img {
         height: 75vh;
     }
@@ -108,6 +109,7 @@
 
 .crowdsale .details .prices .price {
     color: #FFFFFF;
+    font-size: 20px !important;
 }
 
 @media (max-width: 767px) {

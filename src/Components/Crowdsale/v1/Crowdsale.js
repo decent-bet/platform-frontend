@@ -10,7 +10,6 @@ import RaisedButton from 'material-ui/RaisedButton'
 import SelectField from 'material-ui/SelectField'
 import TextField from 'material-ui/TextField'
 
-const WOW = require('wowjs');
 const ethUnits = require('ethereum-units')
 const countdown = require('countdown')
 const request = require('request')
@@ -59,7 +58,6 @@ class Crowdsale extends Component {
 
     constructor(props) {
         super(props)
-        new WOW.WOW().init();
         this.state = {
             accounts: [],
             selectedAccount: null,

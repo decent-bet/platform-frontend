@@ -36,9 +36,9 @@ class Faq extends Component {
         switch (this.state.selectedTopic) {
 
             case TOPIC_GENERAL:
-                faq.push(this.getQuestion('What is decent.bet?', 'Decent.bet is a decentralized betting platform hosted on ' +
-                    'Smart Contracts in the Ethereum blockchain. Decent.bet allows anyone to buy into the house and receive returns ' +
-                    'based on profits obtained during each quarter.'))
+                faq.push(this.getQuestion('What is decent.bet?', 'Decent.bet is a transparent and verifiable sports betting and gambling platform hosted on ' +
+                    'Smart Contracts in the Ethereum blockchain. Decent.bet allows anyone to buy into houses on the platform and receive returns ' +
+                    'based on profits obtained during operations for each quarter.'))
                 faq.push(this.getQuestion('What games are offered on the platform?', 'Decent.bet will launch with sports betting ' +
                     'as it\'s initial offering. Decent.bet will constantly release other games as part of the platform in the future.' +
                     'Have a look at our roadmap for more information on our future plans.'))

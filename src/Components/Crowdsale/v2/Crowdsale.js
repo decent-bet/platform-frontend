@@ -15,6 +15,7 @@ import Footer from './../../Base/Footer/v2/Footer'
 const countdown = require('countdown')
 const ethUnits = require('ethereum-units')
 const request = require('request')
+const WOW = require('wowjs');
 
 const themes = new Themes()
 
@@ -44,8 +45,12 @@ class Crowdsale extends Component {
         }
     }
 
-    componentWillMount() {
+    componentWillMount = () => {
         this.getETHUSDPrice()
+    }
+
+    componentDidMount = () => {
+        new WOW.WOW().init()
     }
 
     getETHUSDPrice = () => {
@@ -74,15 +79,16 @@ class Crowdsale extends Component {
                     <Navbar active={constants.LINK_ICO}/>
                     <div className="cover">
                         <img src={process.env.PUBLIC_URL + '/assets/img/backgrounds/crowdsale-cover.PNG'}
-                             className="animated fadeIn"/>
+                             className="wow fadeIn"/>
                     </div>
                     <div className="details">
                         <div className="container">
                             <div className="row">
-                                <div className="col">
-                                    <h4 className="text-center">PARTICIPATE</h4>
+                                <div className="col wow fadeIn">
+                                    <h4 className="text-center wow fadeInUp">PARTICIPATE</h4>
                                     <hr/>
-                                    <p className="info">Please send Ether to only the contract address mentioned below
+                                    <p className="info wow fadeIn">Please send Ether to only the contract address
+                                        mentioned below
                                         using your preferred
                                         Ethereum Wallet or Browser. If you're using MetaMask, simply fill out the form
                                         below
@@ -129,7 +135,7 @@ class Crowdsale extends Component {
                         </div>
                     </div>
                     <div className="buy">
-                        <div className="container">
+                        <div className="container wow fadeIn">
                             <div className="row">
                                 <div className="col hidden-md-down">
                                     <p className="address text-center">ADDRESS&#09;<span
@@ -229,12 +235,12 @@ class Crowdsale extends Component {
                         <div className="container">
                             <div className="row" style={{marginTop: 25}}>
                                 <div className="col">
-                                    <h1 className="text-center">INSTRUCTIONS</h1>
+                                    <h1 className="text-center wow fadeInUp">INSTRUCTIONS</h1>
                                     <hr className="divider"/>
                                 </div>
                             </div>
                             <div className="row mt-4">
-                                <div className="col-12 col-md-6 choice">
+                                <div className="col-12 col-md-6 choice wow fadeIn">
                                     <div className="row">
                                         <img className="logo hvr-grow clickable"
                                              src="assets/img/logos/metamask.png"/>
@@ -290,7 +296,7 @@ class Crowdsale extends Component {
                                         </li>
                                     </ul>
                                 </div>
-                                <div className="col-12 col-md-6">
+                                <div className="col-12 col-md-6 wow fadeIn">
                                     <div className="row">
                                         <img className="logo scaling clickable"
                                              src="assets/img/logos/ethereum.png"/>
@@ -343,7 +349,7 @@ class Crowdsale extends Component {
                                 </div>
                             </div>
                             <div className="row mt-2">
-                                <div className="col-12 col-md-6">
+                                <div className="col-12 col-md-6 wow fadeIn">
                                     <div className="row">
                                         <img className="logo hvr-grow clickable"
                                              src="assets/img/logos/parity.png"/>
@@ -394,7 +400,7 @@ class Crowdsale extends Component {
                                         </li>
                                     </ul>
                                 </div>
-                                <div className="col-12 col-md-6">
+                                <div className="col-12 col-md-6 wow fadeIn">
                                     <div className="row">
                                         <img className="logo hvr-grow clickable"
                                              src="assets/img/logos/myetherwallet.png"/>

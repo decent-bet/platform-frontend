@@ -103,6 +103,7 @@ p {
     height: 65px;
     background: rgba(0, 0, 0, 0.15);
     z-index: 15;
+    padding-top: 0;
 }
 
 .navbar .navbar-toggler {
@@ -235,11 +236,11 @@ p {
 @media (max-width: 767px) {
     .home .cover {
         min-height: 110vh;
-        padding-bottom: 20px;
+        padding-bottom: 40px;
     }
 
     .home .cover .slogan {
-        margin-top: 125px;
+        margin-top: 30vh;
     }
 
     .home .cover .globe {

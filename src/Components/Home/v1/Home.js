@@ -90,7 +90,7 @@ class Home extends Component {
 
     constructor(props) {
         super(props)
-        new WOW.WOW().init();
+        new WOW.WOW().init()
         this.state = {
             selectedGame: GAME_SOCCER
         }

@@ -6,6 +6,7 @@ import React, {Component} from 'react'
 
 const Chart = require('chart.js')
 const scrollToElement = require('scroll-to-element');
+const WOW = require('wowjs');
 
 import LinearProgress from 'material-ui/LinearProgress'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
@@ -48,6 +49,7 @@ class Home extends Component {
     }
 
     componentDidMount = () => {
+        new WOW.WOW().init()
         this.initCharts()
     }
 
@@ -197,7 +199,7 @@ class Home extends Component {
                     <div className="cover">
                         <div className="container">
                             <div className="row">
-                                <div className="col-5">
+                                <div className="col-7 col-xs-6 col-md-5">
                                     <div className="row slogan">
                                         <div className="col">
                                             <h1>BE PART OF THE <span className="game">GAME</span></h1>
@@ -205,7 +207,8 @@ class Home extends Component {
                                     </div>
                                     <div className="row mt-4">
                                         <div className="col pl-4">
-                                            <p className="info">DECENT.BET is a transparent and verifiable sports betting and gambling
+                                            <p className="info">DECENT.BET is a transparent and verifiable sports
+                                                betting and gambling
                                                 game platform powered by
                                                 the Ethereum
                                                 Blockchain. Your in-house casino from anywhere in the world. </p>
@@ -222,8 +225,8 @@ class Home extends Component {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="col-5 offset-1">
-                                    <img className="globe mr-auto animated fadeIn" src="assets/img/overlays/globe.png"/>
+                                <div className="col-5 offset-md-1">
+                                    <img className="globe mr-auto wow fadeIn" src="assets/img/overlays/globe.png"/>
                                 </div>
                             </div>
                         </div>
@@ -232,12 +235,12 @@ class Home extends Component {
                         <div className="container">
                             <div className="row">
                                 <div className="col">
-                                    <h3 className="text-center">PLATFORM BENEFITS</h3>
+                                    <h3 className="text-center wow slideInUp">PLATFORM BENEFITS</h3>
                                     <hr/>
                                 </div>
                             </div>
                             <div className="row points">
-                                <div className="col-md-6 col-xs-12">
+                                <div className="col-md-6 col-xs-12 wow fadeIn">
                                     <div className="row">
                                         <div className="col-2">
                                             <img className="icon"
@@ -245,7 +248,8 @@ class Home extends Component {
                                         </div>
                                         <div className="col-9">
                                             <p className="header">Purchase House Shares</p>
-                                            <p className="info">Buy shares into the house for DBETs. Your DBETs get deposited into
+                                            <p className="info">Buy shares into the house for DBETs. Your DBETs get
+                                                deposited into
                                                 the
                                                 house
                                                 and
@@ -254,7 +258,7 @@ class Home extends Component {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="col-md-6 col-xs-12">
+                                <div className="col-md-6 col-xs-12 wow fadeIn">
                                     <div className="row">
                                         <div className="col-2">
                                             <img className="icon"
@@ -262,7 +266,8 @@ class Home extends Component {
                                         </div>
                                         <div className="col-9">
                                             <p className="header">Lock up DBETs for a Quarter</p>
-                                            <p className="info">Your DBETs are now locked up for a quarter and used as funds to hedge
+                                            <p className="info">Your DBETs are now locked up for a quarter and used as
+                                                funds to hedge
                                                 against
                                                 bets placed by users. Shares can be placed anytime for sale in our share
                                                 exchange and could be traded for DBETs.</p>
@@ -271,7 +276,7 @@ class Home extends Component {
                                 </div>
                             </div>
                             <div className="row points">
-                                <div className="col-md-6 col-xs-12">
+                                <div className="col-md-6 col-xs-12 wow fadeIn">
                                     <div className="row">
                                         <div className="col-2">
                                             <img className="icon"
@@ -279,7 +284,8 @@ class Home extends Component {
                                         </div>
                                         <div className="col-9">
                                             <p className="header">Have a chance at the lottery</p>
-                                            <p className="info">20% of all profits generated by the house will automatically be used to
+                                            <p className="info">20% of all profits generated by the house will
+                                                automatically be used to
                                                 fund
                                                 a
                                                 lottery,
@@ -288,7 +294,7 @@ class Home extends Component {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="col-md-6 col-xs-12">
+                                <div className="col-md-6 col-xs-12 wow fadeIn">
                                     <div className="row">
                                         <div className="col-2">
                                             <img className="icon"
@@ -296,7 +302,8 @@ class Home extends Component {
                                         </div>
                                         <div className="col-9">
                                             <p className="header">Receive Quarterly Returns</p>
-                                            <p className="info">At the end of every quarter, profits generated would be calculated by the
+                                            <p className="info">At the end of every quarter, profits generated would be
+                                                calculated by the
                                                 house
                                                 and distributed to all share holders depending on the size of shares
                                                 that
@@ -313,7 +320,7 @@ class Home extends Component {
                     </div>
                     <div className="ico">
                         <div className="row">
-                            <div className="col-10 col-md-6 offset-1 offset-md-3 countdown">
+                            <div className="col-10 col-md-6 offset-1 offset-md-3 countdown wow fadeIn">
                                 <div className="row">
                                     <div className="col-3 br">
                                         <h1>??</h1>
@@ -336,7 +343,7 @@ class Home extends Component {
                         </div>
                         <div className="row start">
                             <div className="col-2 offset-4 offset-md-5">
-                                <div className="triangle">
+                                <div className="triangle wow fadeInUp">
                                     <p className="text-center">ICO TO BE ANNOUNCED</p>
                                 </div>
                             </div>
@@ -346,12 +353,12 @@ class Home extends Component {
                         <div className="container">
                             <div className="row">
                                 <div className="col">
-                                    <h3 className="text-center">WHY DECENT.BET?</h3>
+                                    <h3 className="text-center wow fadeInUp">WHY DECENT.BET?</h3>
                                     <hr/>
                                 </div>
                             </div>
                             <div className="row points">
-                                <div className="col-md-6 col-xs-12">
+                                <div className="col-md-6 col-xs-12 wow fadeIn">
                                     <div className="row">
                                         <div className="col-2">
                                             <img className="icon"
@@ -369,7 +376,7 @@ class Home extends Component {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="col-md-6 col-xs-12">
+                                <div className="col-md-6 col-xs-12 wow fadeIn">
                                     <div className="row">
                                         <div className="col-2">
                                             <img className="icon"
@@ -377,7 +384,8 @@ class Home extends Component {
                                         </div>
                                         <div className="col-9">
                                             <p className="header">Be the house</p>
-                                            <p className="info">Bets placed by users will always the house to hedge against their
+                                            <p className="info">Bets placed by users will always the house to hedge
+                                                against their
                                                 bets -
                                                 users can buy into the house funds and receive a split of the profits at
                                                 the
@@ -390,7 +398,7 @@ class Home extends Component {
                                 </div>
                             </div>
                             <div className="row points">
-                                <div className="col-md-6 col-xs-12">
+                                <div className="col-md-6 col-xs-12 wow fadeIn">
                                     <div className="row">
                                         <div className="col-2">
                                             <img className="icon"
@@ -398,7 +406,8 @@ class Home extends Component {
                                         </div>
                                         <div className="col-9">
                                             <p className="header">Decent.C</p>
-                                            <p className="info"><span className="logo-text">Decent.bet</span> allots 10% of
+                                            <p className="info"><span className="logo-text">Decent.bet</span> allots 10%
+                                                of
                                                 profits generated by the founder's shares in the house and donates them
                                                 to needy causes and charities around the world.
                                                 All charitable donations will be transparent and registered on the
@@ -407,7 +416,7 @@ class Home extends Component {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="col-md-6 col-xs-12">
+                                <div className="col-md-6 col-xs-12 wow fadeIn">
                                     <div className="row">
                                         <div className="col-2">
                                             <img className="icon"
@@ -439,28 +448,28 @@ class Home extends Component {
                                 </div>
                             </div>
                             <div className="row available">
-                                <div className="col-12 col-md-3 hvr-float-shadow">
+                                <div className="col-12 col-md-3 hvr-float-shadow wow fadeIn">
                                     <Card style={styles.card} zDepth={5} className="game-card">
                                         <div className="offer-game sports-betting">
                                             <h5 className="text-center">SPORTS BETTING</h5>
                                         </div>
                                     </Card>
                                 </div>
-                                <div className="col-12 col-md-3 hvr-float-shadow">
+                                <div className="col-12 col-md-3 hvr-float-shadow wow fadeIn">
                                     <Card style={styles.card} zDepth={5} className="game-card">
                                         <div className="offer-game slots">
                                             <h5 className="text-center">SLOTS</h5>
                                         </div>
                                     </Card>
                                 </div>
-                                <div className="col-12 col-md-3 hvr-float-shadow">
+                                <div className="col-12 col-md-3 hvr-float-shadow wow fadeIn">
                                     <Card style={styles.card} zDepth={5} className="game-card">
                                         <div className="offer-game craps">
                                             <h5 className="text-center">CRAPS</h5>
                                         </div>
                                     </Card>
                                 </div>
-                                <div className="col-12 col-md-3 hvr-float-shadow">
+                                <div className="col-12 col-md-3 hvr-float-shadow wow fadeIn">
                                     <Card style={styles.card} zDepth={5} className="game-card">
                                         <div className="offer-game roulette">
                                             <h5 className="text-center">ROULETTE</h5>
@@ -474,23 +483,22 @@ class Home extends Component {
                         <div className="container">
                             <div className="row">
                                 <div className="col">
-                                    <p></p>
-                                    <h3 className="text-center">ICO DETAILS</h3>
+                                    <h3 className="text-center wow fadeInDown">ICO DETAILS</h3>
                                     <hr/>
                                 </div>
                             </div>
                             <div className="row">
-                                <div className="col-12 col-md-6">
+                                <div className="col-12 col-md-6 wow fadeIn">
                                     <canvas id="ico-distribution" width="400" height="400"/>
                                 </div>
-                                <div className="col-12 col-md-6">
+                                <div className="col-12 col-md-6 wow fadeIn">
                                     <canvas id="ico-usage" width="400" height="400"/>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div className="signup">
-                        <div className="row">
+                        <div className="row wow fadeIn">
                             <div className="col-12">
                                 <div>
                                     <h2 className="text-center">
