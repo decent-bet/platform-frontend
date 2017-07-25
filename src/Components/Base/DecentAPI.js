@@ -6,7 +6,7 @@ import Helper from './../Helper'
 const helper = new Helper()
 
 const LOCAL_URL = 'http://localhost:3010/api'
-const PUBLIC_URL = ''
+const PUBLIC_URL = 'http://35.176.87.201:3010/api'
 
 const BASE_URL = helper.isDev() ? LOCAL_URL : PUBLIC_URL
 
@@ -64,7 +64,12 @@ class DecentAPI {
             method: 'GET'
         }
         request(options, (err, response, body) => {
-            callback(err, JSON.parse(body))
+            try {
+                body = JSON.parse(body)
+            } catch (e) {
+
+            }
+            callback(err, body)
         })
     }
 

@@ -85,7 +85,7 @@ contract GameChannelManager is SafeMath, Utils {
     // Closes an open channel
     function closeChannel(address channel) isHouse returns (bool) {
         if (channels[channel].exists == false) throw;
-        channels[channel].exists = true;
+        channels[channel].exists = false;
         ChannelClosed(channel, channels[channel].user);
         return true;
     }

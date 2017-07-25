@@ -12,18 +12,8 @@
 var callback
 
 var initMetaMask = function () {
-    // Checking if Web3 has been injected by the browser (Mist/MetaMask)
-    if (typeof web3 !== 'undefined') {
-        // Use Mist/MetaMask's provider
-        console.log('Mist/Metamask web3 detected')
-        window.web3 = new Web3(web3.currentProvider);
-    } else {
-        console.log('No web3? You should consider trying MetaMask!')
-        // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
-
-        //TODO: Show no mist/metamask extension error
-    }
     if (callback) {
+        window.web3 = parent.window.web3;
         window.contractHelper = parent.window.contractHelper
         console.log('Initialized contract helper: ' + window.contractHelper.getTokenInstance().address)
         window.web3.eth.defaultAccount = window.web3.eth.accounts[0]

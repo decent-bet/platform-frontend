@@ -56,6 +56,7 @@ function CPayTablePanel() {
             y: 122
         }, {x: 1100, y: 302}];
         var iCurPos = 0;
+
         for (var i = 0; i < s_aSymbolWin.length; i++) {
 
             var aSymbolPayouts = new Array();

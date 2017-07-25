@@ -341,10 +341,14 @@ class ContractHelper {
                         return slotsChannelInstance.deposit()
                     },
                     finalize: (currSpin, prevSpin) => {
-                        currSpin = self.getSpinParts(currSpin)
-                        prevSpin = self.getSpinParts(prevSpin)
                         console.log('Curr spin: ' + JSON.stringify(currSpin))
                         console.log('Prior spin: ' + JSON.stringify(prevSpin))
+                        currSpin = self.getSpinParts(currSpin)
+                        prevSpin = self.getSpinParts(prevSpin)
+                        console.log('Curr spin parts: ' + JSON.stringify(currSpin))
+                        console.log('Prior spin parts: ' + JSON.stringify(prevSpin))
+                        console.log(JSON.stringify([currSpin.parts, prevSpin.parts,
+                                currSpin.r, currSpin.s, prevSpin.r, prevSpin.s]))
                         return slotsChannelInstance.finalize.call(currSpin.parts, prevSpin.parts,
                             currSpin.r, currSpin.s, prevSpin.r, prevSpin.s,
                             {from: window.web3.eth.defaultAccount})
@@ -369,7 +373,7 @@ class ContractHelper {
         let v = ethUtil.bufferToInt(ethUtil.toBuffer('0x' + sign.slice(130, 132)))
         console.log('getSpinParts - v: ' + v + ', r: ' + r + ', s: ' + s)
         return {
-            parts: spin.reelHash + '/' + (spin.reel != '' ? JSON.stringify(spin.reel) : '') + '/' + spin.reelSeedHash +
+            parts: spin.reelHash + '/' + (spin.reel != '' ? spin.reel.toString() : '') + '/' + spin.reelSeedHash +
             '/' + spin.prevReelSeedHash + '/' + spin.userHash + '/' + spin.prevUserHash + '/' + spin.nonce +
             '/' + spin.turn + '/' + spin.userBalance + '/' + spin.houseBalance + '/' + spin.betSize + '/' + v,
             r: r,

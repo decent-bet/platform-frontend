@@ -31,6 +31,7 @@ import Sportsbook from './Sportsbook/Sportsbook'
 import '../../css/oswald.css'
 import '../../css/open-sans.css'
 import '../../css/pure-min.css'
+
 import './dapp.css'
 
 const constants = require('./../Constants')
@@ -201,7 +202,7 @@ class Dapp extends Component {
     }
 
     getAddress = () => {
-        return window.web3.eth.accounts[0]
+        return window.web3.eth.defaultAccount
     }
 
     getSelectedPage = () => {
@@ -247,8 +248,13 @@ class Dapp extends Component {
                             top: 0
                         }}
                         showMenuIconButton={false}
-                        title={<a href="/" className="text-white font-weight-bold hvr-shrink"
-                                  style={{fontFamily: 'Lato', textDecoration: 'none', fontSize: 19}}>decent.bet</a>}
+                        title={
+                            <div className="appbar">
+                                <a href="/">
+                                    <img src={process.env.PUBLIC_URL + "/assets/img/logos/dbet-white.png"}
+                                         className="logo"/>
+                                </a>
+                            </div>}
                         iconElementRight={
                             <div>
                                 <button className="btn btn-sm btn-primary hvr-fade"

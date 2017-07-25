@@ -1,9 +1,7 @@
 pragma solidity ^0.4.0;
 
-
 import './SafeMath.sol';
 import './Utils.sol';
-
 
 contract SlotsHelper is SafeMath, Utils {
 
@@ -61,36 +59,30 @@ contract SlotsHelper is SafeMath, Utils {
         reels[4] = [1, 4, 1, 1, 2, 4, 1, 3, 6, 2, 7, 2, 4, 1, 3, 1, 3, 6, 1, 2, 5];
     }
 
-
     // Converts a string reel to a uint array
-    // Example string reel = '[0,1,2,3,4]'
-    function convertReelToArray(bytes32 _reel) internal returns (uint[5]){
+    // Example string reel = '0,1,2,3,4'
+    function convertReelToArray(string reel) internal returns (uint[5]){
         uint[5] memory reelArray;
         string memory temp = '';
         uint8 iterator = 0;
         // Example _result: [12,4,5,6,7]
-        for (uint i = 0; i < _reel.length - 1; i++) {
-            if (i == _reel.length - 1)
-            reelArray[iterator] = parseInt(string(temp));
-            else {
-                if (_reel[i] != ',') {
-                    string memory char = new string(1);
-                    bytes memory _char = bytes(char);
-                    _char[0] = _reel[i];
-                    temp = strConcat(temp, string(_char));
-                }
-                else {
-                    reelArray[iterator++] = parseInt(string(temp));
-                    temp = '';
-                }
+        for (uint8 i = 0; i < strLen(reel); i++) {
+            string memory char = getCharAt(reel, i);
+            if (!strCompare(char, ',')) {
+                temp = strConcat(temp, char);
+            } else {
+                reelArray[iterator++] = parseInt(temp);
+                temp = '';
             }
         }
+        reelArray[iterator] = parseInt(temp);
         return reelArray;
     }
 
     function getTotalReward(uint betSize, uint[5] reelArray) internal returns (uint) {
         uint totalReward = 0;
-        for (uint8 i = 0; i < betSize; i++) {//300k gas
+        uint adjustedBetSize = safeDiv(betSize, 1 ether);
+        for (uint8 i = 0; i < adjustedBetSize; i++) { //300k gas
             totalReward = safeAdd(totalReward, getLineRewardMultiplier(getLine(i, reelArray)));
         }
         return totalReward;

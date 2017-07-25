@@ -157,6 +157,11 @@ code {
     color: #3a4182;
 }
 
+.dapp .appbar .logo {
+    width: 110px;
+    object-fit: contain;
+}
+
 .dapp .details .logo {
     height: 95px;
     width: 95px;

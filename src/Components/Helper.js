@@ -9,7 +9,7 @@ const ethJsUtil = require('ethereumjs-util')
 
 let contractHelper
 
-const IS_DEV = false
+const IS_DEV = true
 
 class Helper {
 

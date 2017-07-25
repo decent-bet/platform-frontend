@@ -3,7 +3,6 @@ pragma solidity ^0.4.8;
 
 import './SafeMath.sol';
 import './AbstractDecentBetToken.sol';
-import './GameChannelManager.sol';
 
 
 // Decent.bet House Contract.
@@ -47,7 +46,7 @@ contract House is SafeMath {
 
     address[] public authorizedAddresses;
 
-    uint public constant profitSharePercent = 50;
+    uint public constant profitSharePercent = 95;
 
     bool public isActive = false;
 
@@ -155,7 +154,7 @@ contract House is SafeMath {
         for (uint i = 0; i < authorizedAddresses.length; i++) {
             if (authorizedAddresses[i] == _address) {
                 delete authorizedAddresses[i];
-                authorized[_address] = true;
+                authorized[_address] = false;
                 break;
             }
         }

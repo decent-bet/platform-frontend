@@ -16,14 +16,6 @@ contract Utils {
         else throw;
     }
 
-    function bytes32ToUint(bytes32 b) returns (uint) {
-        return uint(b);
-    }
-
-    function bytes32ToUint8(bytes32 b) returns (uint8) {
-        return uint8(b);
-    }
-
     function bytes32ToBool(bytes32 b) returns (bool) {
         if (b == 0) return false;
         else if (b == 1) return true;
@@ -59,11 +51,6 @@ contract Utils {
         return _string.toSlice().len();
     }
 
-    // Helper function to count length of bytes32 string
-    function bytesStrLen(bytes32 _bytes) returns (uint) {
-        return _bytes.toSliceB32().len();
-    }
-
     // Helper function to compare two strings
     function strCompare(string s1, string s2) returns (bool) {
         int result = s1.toSlice().compare(s2.toSlice());
@@ -75,7 +62,7 @@ contract Utils {
         bytes memory b = bytes(s);
         string memory char = new string(1);
         bytes memory bChar = bytes(char);
-        bChar[1] = b[index];
+        bChar[0] = b[index];
         return string(bChar);
     }
 
@@ -106,18 +93,6 @@ contract Utils {
 
     function strConcat(string _a, string _b) internal returns (string) {
         return strConcat(_a, _b, '', '', '');
-    }
-
-    function stringToBytes8(string source) returns (bytes8 result) {
-        assembly {
-        result := mload(add(source, 8))
-        }
-    }
-
-    function stringToBytes32(string source) returns (bytes32 result) {
-        assembly {
-        result := mload(add(source, 32))
-        }
     }
 
     function uintToBytes(uint v) constant returns (bytes32 ret) {
@@ -158,9 +133,36 @@ contract Utils {
 
     function boolToString(bool b) returns (string) {
         if (b == true)
-            return "true";
+        return "true";
         else if (b == false)
-            return "false";
+        return "false";
+    }
+
+    function toBytes32(string self, uint startIndex) returns (bytes32 b) {
+        uint l = 32;
+        bytes memory bs = toBytes(self, startIndex, l);
+
+        for (uint x = 0; x < l; x++) {
+            b = bytes32(uint(b) + uint(uint(bs[x]) * (2 ** (8 * (l - 1 - x)))));
+        }
+    }
+
+    function toBytes(string self, uint startIndex, uint length) internal returns (bytes) {
+        bytes memory str = bytes(self);
+        bytes memory bs = new bytes(length);
+        uint maxIndex = ((str.length - startIndex) < (length * 2) ? (str.length - startIndex) : startIndex + (length * 2));
+
+        for (uint i = startIndex; i < maxIndex; i++) {
+            uint ii = i - startIndex;
+            bs[ii / 2] = byte(uint8(bs[ii / 2]) + (uint8(toByte(str[i])) * uint8(16 ** (1 - (ii % 2)))));
+        }
+
+        return bs;
+    }
+
+    function toByte(byte char) returns (byte c) {
+        if (uint8(char) > 0x57) return byte(uint8(char) - 0x57);
+        else return byte(uint8(char) - 0x30);
     }
 
 }

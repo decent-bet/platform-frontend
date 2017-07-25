@@ -67,13 +67,13 @@ class SlotsChannel extends Component {
 
     initPaytable = () => {
         paytable = {}
-        paytable[symbolA] = 10;
-        paytable[symbolB] = 20;
-        paytable[symbolC] = 40;
-        paytable[symbolD] = 50;
-        paytable[symbolE] = 75;
-        paytable[symbolF] = 150;
-        paytable[symbolG] = 300;
+        paytable[symbolA] = 10
+        paytable[symbolB] = 20
+        paytable[symbolC] = 40
+        paytable[symbolD] = 50
+        paytable[symbolE] = 75
+        paytable[symbolF] = 150
+        paytable[symbolG] = 300
     }
 
     initWatchers = () => {
@@ -219,12 +219,14 @@ class SlotsChannel extends Component {
                             channelContracts: channelContracts,
                             activeChannel: activeChannel
                         })
+                        console.log('initChannelDetails1')
                         self.initChannelDetails(contract, (err) => {
                             self.loadLastSpin(activeChannel)
                         })
                         self.initChannelWatchers(contract)
                     })
                 } else {
+                    console.log('initChannelDetails2')
                     this.initChannelDetails(this.state.channelContracts[address], (err) => {
 
                     })
@@ -246,6 +248,7 @@ class SlotsChannel extends Component {
 
     loadLastSpin = (channel) => {
         const self = this
+        console.log('Load last spin: ' + channel.address)
         decentApi.getLastSpin(channel.address, (err, result) => {
             if (!err) {
                 console.log('loadLastSpin: ' + JSON.stringify(result))
@@ -280,7 +283,7 @@ class SlotsChannel extends Component {
         })
     }
 
-    initChannelDetails = (channelContract, callback) => {
+    initChannelDetails = (channelContract, cb) => {
         async.parallel({
             allowance: (callback) => {
                 this.getChannelAllowance(channelContract, (err) => {
@@ -321,9 +324,10 @@ class SlotsChannel extends Component {
                 this.getInitialUserNumber(channelContract, (err) => {
                     callback(false)
                 })
-            },
+            }
         }, (err, results) => {
-            callback(false)
+            console.log('initChannelDetails: ' + err + ', ' + JSON.stringify(results))
+            cb(false)
         })
     }
 
@@ -544,8 +548,8 @@ class SlotsChannel extends Component {
                     .then((sha3Hash) => {
                         console.log('Is sign address equal: ' + JSON.stringify(sha3Hash))
                     }).catch((err) => {
-                    console.log('finalize err: ' + err)
-                })
+                        console.log('finalize err: ' + err)
+                    })
             } else
                 console.log('Error generating spin: ' + err)
         })

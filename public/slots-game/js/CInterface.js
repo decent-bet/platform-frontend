@@ -74,27 +74,27 @@ function CInterface(iCurBet, iTotBet, iMoney) {
         _oMaxBetBut = new CTextButton(805 + (oSprite.width / 2), 595, oSprite, TEXT_MAX_BET, FONT_GAME, "#ffffff", 30);
         _oMaxBetBut.addEventListener(ON_MOUSE_UP, this._onMaxBet, this);
 
-        _oMoneyText = new createjs.Text(TEXT_MONEY + "\n" + iMoney.toFixed(2) + TEXT_CURRENCY, "24px " + FONT_GAME, "#ffde00");
+        _oMoneyText = new createjs.Text(TEXT_MONEY + "\n" + iMoney.toFixed(2) + TEXT_CURRENCY, "24px " + FONT_GAME, "#333333");
         _oMoneyText.x = 408;
         _oMoneyText.y = 14;
         _oMoneyText.textAlign = "center";
         s_oStage.addChild(_oMoneyText);
 
-        _oNumLinesText = new createjs.Text(NUM_PAYLINES, "30px " + FONT_GAME, "#ffffff");
+        _oNumLinesText = new createjs.Text(NUM_PAYLINES, "30px " + FONT_GAME, "#333333");
         _oNumLinesText.x = 530;
         _oNumLinesText.y = CANVAS_HEIGHT - 96;
         _oNumLinesText.textAlign = "center";
         _oNumLinesText.textBaseline = "alphabetic";
         s_oStage.addChild(_oNumLinesText);
 
-        _oCoinText = new createjs.Text(iCurBet.toFixed(2), "30px " + FONT_GAME, "#ffffff");
+        _oCoinText = new createjs.Text(iCurBet.toFixed(2), "30px " + FONT_GAME, "#333333");
         _oCoinText.x = 712;
         _oCoinText.y = CANVAS_HEIGHT - 96;
         _oCoinText.textAlign = "center";
         _oCoinText.textBaseline = "alphabetic";
         s_oStage.addChild(_oCoinText);
 
-        _oTotalBetText = new createjs.Text(TEXT_BET + ": " + iTotBet.toFixed(2), "30px " + FONT_GAME, "#ffffff");
+        _oTotalBetText = new createjs.Text(TEXT_BET + ": " + iTotBet.toFixed(2), "30px " + FONT_GAME, "#333333");
         _oTotalBetText.x = 918;
         _oTotalBetText.y = CANVAS_HEIGHT - 96;
         _oTotalBetText.textAlign = "center";

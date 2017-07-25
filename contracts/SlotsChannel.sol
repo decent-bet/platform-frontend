@@ -104,8 +104,8 @@ contract SlotsChannel is SafeMath, Utils {
     // Amount of DBETs to be deposited by the user
     uint public initialDeposit;
 
-    // AES-256 encrypted initial seed used to generate reels by house
-    string public initialSeed;
+    // Initial house seed hash used to create blended seed
+    string public initialHouseSeedHash;
 
     // Final reel hash submitted by the server
     string public finalReelHash;
@@ -127,6 +127,7 @@ contract SlotsChannel is SafeMath, Utils {
 
     /* Contracts */
     AbstractDecentBetToken tokenContract;
+
     AbstractSlotsHelper slotsHelper;
 
     GameChannelManager gameChannelManagerContract;
@@ -221,14 +222,14 @@ contract SlotsChannel is SafeMath, Utils {
         return true;
     }
 
-    // House sends the final reel and seed hashes to activate the channel along with the initial seed
-    // encrypted to restore state at any time
-    function activate(string _initialSeed, string _finalSeedHash, string _finalReelHash) // 373k gas
+    // House sends the final reel and seed hashes to activate the channel along with the initial house seed hash
+    // to verify the blended seed after a channel is closed
+    function activate(string _initialHouseSeedHash, string _finalSeedHash, string _finalReelHash) // 373k gas
     isNotActivated
     isHouse
     isUserReady
     returns (bool) {
-        initialSeed = _initialSeed;
+        initialHouseSeedHash = _initialHouseSeedHash;
         finalReelHash = _finalReelHash;
         finalSeedHash = _finalSeedHash;
         activated = true;
@@ -255,14 +256,15 @@ contract SlotsChannel is SafeMath, Utils {
     function checkPair(Spin curr, Spin prior) private returns (bool) {
 
         // Verify signatures
-//        if (!checkSigPrivate(curr)) throw; // 100k gas
-//        if (!checkSigPrivate(prior)) throw; // 100k gas
+        if (!checkSigPrivate(curr)) throw; // 100k gas
+        if (!checkSigPrivate(prior)) throw; // 100k gas
 
         // If Player's turn
         if (curr.turn == false) {
 
             // Checks if spin hashes are pre-images of previous hashes or are hashes in previous spins
-            if(!checkSpinHashes(curr, prior)) throw; // 5.6k gas
+            if (!checkSpinHashes(curr, prior)) throw;
+            // 5.6k gas
 
             // Nonce should be incremented by 1
             if (curr.nonce != prior.nonce + 1) throw;
@@ -271,16 +273,20 @@ contract SlotsChannel is SafeMath, Utils {
             // The random numbers don't need to verified on contract, only the reel rewards
             // Random numbers could be verified off-chain using the seed-random library using the
             // below hash as the seed
-            if (!compareReelHashes(curr, prior)) throw; // 103k gas
+            if (!compareReelHashes(curr, prior)) throw;
+            // 103k gas
 
             // Bet size can be only upto maximum number of lines
             if (prior.betSize > 5 || prior.betSize == 0) throw;
 
             // Compute last reel reward and check whether balances in current spin are correct
-            uint totalSpinReward = getTotalSpinReward(prior); // 700k gas
+            uint totalSpinReward = getTotalSpinReward(prior);
+            // 700k gas
             if (totalSpinReward > 0) {
-                if (!isAccurateBalances(curr, prior, totalSpinReward)) throw; // 26k gas
-            } else {
+                if (!isAccurateBalances(curr, prior, totalSpinReward)) throw;
+                // 26k gas
+            }
+            else {
                 // User balance for this spin must be the last user balance - betSize
                 if (curr.userBalance != safeSub(prior.userBalance, prior.betSize)) throw;
 
@@ -293,7 +299,7 @@ contract SlotsChannel is SafeMath, Utils {
             // During the house's turn, the spin would have the user hash sent by the player
 
             // Checks if spin hashes are pre-images of previous hashes or are hashes in previous spins
-            if(!checkSpinHashes(curr, prior)) throw;
+            if (!checkSpinHashes(curr, prior)) throw;
 
             //32k gas for all conditions
 
@@ -327,30 +333,29 @@ contract SlotsChannel is SafeMath, Utils {
         // seed hash which were sent from the server.
 
         // Previous reel seed needs to be hash of current reel seed
-        if (!strCompare(curr.prevReelSeedHash, bytes32ToString(sha256(curr.reelSeedHash)))) throw;
+        if (toBytes32(prior.reelSeedHash, 0) != sha256(curr.prevReelSeedHash)) throw;
 
         // Current and last spin should report the same reel seed hashes
-        if (!strCompare(curr.prevReelSeedHash, prior.reelSeedHash)) throw;
+        if (!strCompare(curr.reelSeedHash, prior.reelSeedHash)) throw;
 
         // Previous user hash needs to be hash of current user hash
-        if (!strCompare(curr.prevUserHash, bytes32ToString(sha256(curr.userHash)))) throw;
+        if (toBytes32(prior.userHash, 0) != sha256(curr.userHash)) throw;
 
         // Current and last spins should report the same user hashes
-        if (!strCompare(curr.prevUserHash, prior.userHash)) throw;
+        if (!strCompare(curr.userHash, prior.prevUserHash)) throw;
     }
 
     // Compare reel hashes for spins
     function compareReelHashes(Spin curr, Spin prior) private returns (bool) {
         string memory hashSeed = (prior.reelSeedHash.toSlice()
-        .concat(prior.prevUserHash.toSlice()))
-        .toSlice()
-        .concat(prior.reel.toSlice());
-        return strCompare(prior.reelHash, bytes32ToString(sha256(hashSeed)));
+        .concat(prior.reel.toSlice()));
+        return toBytes32(prior.reelHash, 0) == sha256(hashSeed);
     }
 
     // Check reel array for winning lines (Currently 5 lines)
     function getTotalSpinReward(Spin spin) private returns (uint) {
-        uint[5] memory reelArray = slotsHelper.convertReelToArray(stringToBytes32(spin.reel)); //300k gas
+        uint[5] memory reelArray = slotsHelper.convertReelToArray(spin.reel);
+        //300k gas
         bool isValid = true;
 
         for (uint8 i = 0; i < NUMBER_OF_REELS; i++) {
@@ -380,19 +385,35 @@ contract SlotsChannel is SafeMath, Utils {
 
     // Finalizes the channel before closing the channel and allowing participants to transfer DBETs
     function finalize(string _curr, string _prior,
-        bytes32 currR, bytes32 currS, bytes32 priorR, bytes32 priorS) isParticipant {
+    bytes32 currR, bytes32 currS, bytes32 priorR, bytes32 priorS) isParticipant
+    returns (uint) {
 
-        Spin memory curr = convertSpin(_curr); // 5.6k gas
+        Spin memory curr = convertSpin(_curr);
+        // 5.6k gas
         curr.r = currR;
         curr.s = currS;
 
-        Spin memory prior = convertSpin(_prior); // 5.6k gas
+        Spin memory prior = convertSpin(_prior);
+        // 5.6k gas
         prior.r = priorR;
         prior.s = priorS;
 
-//        return checkSigPrivate(curr);
-//        if (!checkPair(curr, prior)) throw; // 1238k gas
-        if (!finalized || curr.nonce > finalNonce) setFinal(curr); // 86k gas
+        uint totalSpinReward = getTotalSpinReward(prior);
+//         700k gas
+//        if (totalSpinReward > 0) {
+//            if (!isAccurateBalances(curr, prior, totalSpinReward)) throw;
+//            // 26k gas
+//        } else {
+//            // User balance for this spin must be the last user balance - betSize
+//            if (curr.userBalance != safeSub(prior.userBalance, prior.betSize)) throw;
+//
+//            // House balance for this spin must be the last house balance + betSize
+//            if (curr.houseBalance != safeAdd(prior.houseBalance, prior.betSize)) throw;
+//        }
+        return totalSpinReward;
+//        if (!checkPair(curr, prior)) throw;
+        // 1238k gas
+        //if (!finalized || curr.nonce > finalNonce) setFinal(curr); // 86k gas
     }
 
     // Convert a bytes32 array to a Spin object
@@ -400,20 +421,20 @@ contract SlotsChannel is SafeMath, Utils {
     function convertSpin(string _spin) private returns (Spin) {
         string[14] memory parts = getParts(_spin);
         Spin memory spin = Spin({
-            reelHash : parts[0],
-            reel : parts[1],
-            reelSeedHash : parts[2],
-            prevReelSeedHash : parts[3],
-            userHash : parts[4],
-            prevUserHash : parts[5],
-            nonce : parseInt(parts[6]),
-            turn : parseBool(parts[7]),
-            userBalance : parseInt(parts[8]),
-            houseBalance : parseInt(parts[9]),
-            betSize : parseInt(parts[10]),
-            v : (uint8)(parseInt(parts[11])),
-            r: 0,
-            s: 0
+        reelHash : parts[0],
+        reel : parts[1],
+        reelSeedHash : parts[2],
+        prevReelSeedHash : parts[3],
+        userHash : parts[4],
+        prevUserHash : parts[5],
+        nonce : parseInt(parts[6]),
+        turn : parseBool(parts[7]),
+        userBalance : parseInt(parts[8]),
+        houseBalance : parseInt(parts[9]),
+        betSize : parseInt(parts[10]),
+        v : (uint8)(parseInt(parts[11])),
+        r : 0,
+        s : 0
         });
         return spin;
     }

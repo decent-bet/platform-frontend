@@ -60,7 +60,7 @@ function CCreditsPanel(){
         _oButLogo.y = CANVAS_HEIGHT/2;
         _oContainer.addChild(_oButLogo);
         
-        _oLinkOutline = new createjs.Text("www.codethislab.com", "34px " + FONT_GAME, "#000");
+        _oLinkOutline = new createjs.Text("https://decent.bet", "34px " + FONT_GAME, "#000");
         _oLinkOutline.textAlign = "center";
         _oLinkOutline.textBaseline = "alphabetic";
 	_oLinkOutline.x = CANVAS_WIDTH/2;
@@ -68,7 +68,7 @@ function CCreditsPanel(){
         _oLinkOutline.outline = 3;
         _oContainer.addChild(_oLinkOutline);
         
-        _oLink = new createjs.Text("www.codethislab.com", "34px " + FONT_GAME, "#fff");
+        _oLink = new createjs.Text("https://decent.bet", "34px " + FONT_GAME, "#fff");
         _oLink.textAlign = "center";
         _oLink.textBaseline = "alphabetic";
 	_oLink.x = CANVAS_WIDTH/2;
