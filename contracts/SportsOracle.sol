@@ -14,10 +14,17 @@ contract SportsOracle {
     address[] requestedHouseAddresses;
     address[] acceptedHouseAddresses;
 
+    // Structs
+    struct House {
+        bool requested;
+        bool accepted;
+        address[] bettingProviders;
+        bool exists;
+    }
+
     // Mappings
     mapping(address => bool) public authorized;
-    mapping(address => bool) public requestedHouses;
-    mapping(address => bool) public acceptedHouses;
+    mapping(address => House) public houses;
     mapping(uint => Game) public games;
 
     // Constants
@@ -35,23 +42,23 @@ contract SportsOracle {
 
     // Structs
     struct Game {
-    uint id;
-    string refId;
-    uint8 sportId;
-    uint startBlock;
-    uint endBlock;
-    int8 result;
-    string ipfsHash;
-    mapping(address => uint) houseGamesToUpdate;
-    bool exists;
+        uint id;
+        string refId;
+        uint8 sportId;
+        uint startBlock;
+        uint endBlock;
+        int8 result;
+        string ipfsHash;
+        mapping(address => uint) houseGamesToUpdate;
+        bool exists;
     }
 
     // Events
-    event NewAuthorizedAddress(address _address);
-    event NewAcceptedHouse(address _address);
-    event GameAdded(uint id, uint8 sportId, string ipfsHash);
-    event GameDetailsUpdate(uint id, string ipfsHash);
-    event GameResult(uint id, int8 result);
+    event LogNewAuthorizedAddress(address _address);
+    event LogNewAcceptedHouse(address _address);
+    event LogGameAdded(uint id, uint8 sportId, string ipfsHash);
+    event LogGameDetailsUpdate(uint id, string ipfsHash);
+    event LogGameResult(uint id, int8 result);
 
     // Constructor
     function SportsOracle() {
@@ -73,7 +80,7 @@ contract SportsOracle {
     }
 
     modifier onlyAcceptedHouse() {
-        if(!acceptedHouses[msg.sender])
+        if(!houses[msg.sender].accepted)
         throw;
         _;
     }
@@ -114,7 +121,7 @@ contract SportsOracle {
     onlyOwner {
         authorized[_address] = true;
         authorizedAddresses.push(_address);
-        NewAuthorizedAddress(_address);
+        LogNewAuthorizedAddress(_address);
     }
 
     function togglePayForHouseAcceptance(bool enabled)
@@ -134,16 +141,17 @@ contract SportsOracle {
 
     // Any house can request the oracle to accept it
     function requestHouse() {
-        requestedHouses[msg.sender] = true;
+        houses[msg.sender].requested = true;
+        houses[msg.sender].exists = true;
         requestedHouseAddresses.push(msg.sender);
     }
 
     // Accepted houses get results pushed into their games at end time
     function acceptHouse(address _address)
     onlyAuthorized {
-        acceptedHouses[_address] = true;
+        houses[_address].accepted = true;
         acceptedHouseAddresses.push(_address);
-        NewAcceptedHouse(_address);
+        LogNewAcceptedHouse(_address);
     }
 
     // Allows house contracts to pay to be accepted by the oracle
@@ -152,15 +160,16 @@ contract SportsOracle {
     payable {
         if(msg.value < houseAcceptanceCost)
         throw;
-        acceptedHouses[msg.sender] = true;
+        houses[msg.sender].accepted = true;
+        houses[msg.sender].exists = true;
         acceptedHouseAddresses.push(msg.sender);
-        NewAcceptedHouse(msg.sender);
+        LogNewAcceptedHouse(msg.sender);
     }
 
     // gameId - ID in oracle contract
     // houseGameId - ID in house contract
 
-    // Oracle should update houseGameId with gameId's result
+    // Reference for oracle to update betting provider under house with gameId's result
     function addHouseGameToUpdate(uint gameId, uint houseGameId)
     onlyAcceptedHouse
     isValidGame(gameId)
@@ -177,29 +186,31 @@ contract SportsOracle {
     function addGame(string refId, uint8 sportId, uint startBlock, uint endBlock, string ipfsHash)
     onlyAuthorized {
         Game memory game = Game({
-        id: gamesCount,
-        refId: refId,
-        sportId: sportId,
-        startBlock: startBlock,
-        endBlock: endBlock,
-        result: 0,
-        ipfsHash: '',
-        exists: true
+            id: gamesCount,
+            refId: refId,
+            sportId: sportId,
+            startBlock: startBlock,
+            endBlock: endBlock,
+            result: 0,
+            ipfsHash: '',
+            exists: true
         });
         gamesCount++;
         games[game.id] = game;
-        GameAdded(game.id, sportId, ipfsHash);
+        LogGameAdded(game.id, sportId, ipfsHash);
     }
 
+    // Update IPFS hash containing meta-data for the game
     function updateGameDetails(uint8 id, string ipfsHash)
     isValidGame(id)
     onlyAuthorized {
         Game game = games[game.id];
         game.ipfsHash = ipfsHash;
         games[game.id] = game;
-        GameDetailsUpdate(id, ipfsHash);
+        LogGameDetailsUpdate(id, ipfsHash);
     }
 
+    // Push result for a game
     function pushResult(uint id, int8 result)
     isValidGame(id)
     hasGameEnded(id)
@@ -207,7 +218,7 @@ contract SportsOracle {
         Game game = games[game.id];
         game.result = result;
         games[game.id] = game;
-        GameResult(id, result);
+        LogGameResult(id, result);
     }
 
 }

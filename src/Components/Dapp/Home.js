@@ -119,7 +119,7 @@ class Home extends Component {
                             <Card style={styles.featured} zDepth={2}>
                                 <div>
                                     <img
-                                        src="https://www.bigonsports.com/wp-content/uploads/2016/11/UFC-205-betting-odds.jpg"
+                                        src="https://static1.squarespace.com/static/559f277ee4b093ce9f2c4adb/t/59420de6cd0f68f4fdc69fab/1497501159073/newmaymac.jpg?format=750w"
                                         style={{
                                             objectFit: 'contain',
                                             height: 350,

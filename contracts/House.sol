@@ -6,14 +6,14 @@ import './AbstractDecentBetToken.sol';
 
 
 // Decent.bet House Contract.
-// All shares and payouts are in DBETs and have upto 3 decimal places.
-
+// All shares and payouts are in DBETs and are 18 decimal places in length.
 contract House is SafeMath {
 
-    // Structs //
-    struct UserShares {
-        uint amount;
-        bool exists;
+    // Structs
+	struct UserShares {
+	    uint amount;
+		uint liquidated;
+	    bool exists;
     }
 
     struct HouseFunds {
@@ -21,10 +21,10 @@ contract House is SafeMath {
         uint totalPurchasedUserShares;
         uint totalUserShares;
         mapping (address => UserShares) userShares;
-        address[] users;
-        uint winnings;
         mapping (address => uint) payouts;
+        address[] users;
         uint totalHousePayouts;
+        uint profit;
     }
 
     struct Shares {
@@ -39,14 +39,14 @@ contract House is SafeMath {
         bool active;
     }
 
-    // Variables //
+    // Variables
     address public founder;
 
-    address public sportsBettingAddress;
+    address public bettingProviderAddress;
 
     address[] public authorizedAddresses;
 
-    uint public constant profitSharePercent = 95;
+    uint public constant PROFIT_SHARE_PERCENT = 95;
 
     bool public isActive = false;
 
@@ -57,10 +57,10 @@ contract House is SafeMath {
     // Time quarter 0 begins.
     uint public zeroQuarterStartTime = 0;
 
-    // External Contracts //
+    // External Contracts
     AbstractDecentBetToken public decentBetToken;
 
-    // Mappings //
+    // Mappings
     // House funds per quarter
     mapping (uint => HouseFunds) public houseFunds;
 
@@ -68,7 +68,7 @@ contract House is SafeMath {
 
     mapping (uint => Quarter) public quarters;
 
-    // Constructor //
+    // Constructor
     function House(address decentBetTokenAddress) {
         if (decentBetTokenAddress == 0) throw;
         founder = msg.sender;
@@ -77,10 +77,10 @@ contract House is SafeMath {
         decentBetToken = AbstractDecentBetToken(decentBetTokenAddress);
     }
 
-    function setSportsBettingContract(address _sportsBettingAddress)
+    function setBettingProvider(address _bettingProviderAddress)
     onlyFounder
     returns (bool ok) {
-        sportsBettingAddress = _sportsBettingAddress;
+        bettingProviderAddress = _bettingProviderAddress;
         return true;
     }
 
@@ -96,9 +96,9 @@ contract House is SafeMath {
         _;
     }
 
-    modifier onlySportsBettingContract() {
-        if (sportsBettingAddress == 0x0) throw;
-        if (msg.sender != sportsBettingAddress) throw;
+    modifier onlyBettingProvider() {
+        if (bettingProviderAddress == 0x0) throw;
+        if (msg.sender != bettingProviderAddress) throw;
         _;
     }
 
@@ -118,13 +118,13 @@ contract House is SafeMath {
     }
 
     // Allows functions to execute only if users have "amount" tokens in their balance.
-    modifier isTokensAvailable(uint amount) {
+    modifier areTokensAvailable(uint amount) {
         if (decentBetToken.balanceOf(msg.sender) < amount) throw;
         _;
     }
 
     // Allows functions to execute only if users have "amount" shares available for "quarter".
-    modifier isSharesAvailable(uint quarter, uint amount) {
+    modifier areSharesAvailable(uint quarter, uint amount) {
         if (houseFunds[quarter].userShares[msg.sender].amount < amount) throw;
         _;
     }
@@ -136,6 +136,23 @@ contract House is SafeMath {
         if (now < quarters[quarter].endTime) throw;
         _;
     }
+
+    // Allows functions to execute only if it is the end of the current quarter
+    modifier isEndOfQuarter() {
+        if (currentQuarter == 0) throw;
+        if (now < quarters[currentQuarter].endTime) throw;
+        _;
+    }
+
+    // Events
+    event LogPurchasedShares(address shareHolder, uint quarter, uint amount);
+
+    event LogLiquidateShares(address shareHolder, uint quarter, uint amount);
+
+    event LogRolledOverShares(address shareHolder, uint quarter, uint amount);
+
+    event LogNewQuarter(uint quarter, uint startTimestamp, uint startBlockNumber,
+    uint endTimestamp, uint endBlockNumber);
 
     // Adds an address to the list of authorized addresses.
     function addToAuthorizedAddresses(address _address)
@@ -162,8 +179,8 @@ contract House is SafeMath {
     }
 
     // Approves a transfer from the house address.
-    function transferWinnings(address winner, uint amount)
-    onlySportsBettingContract
+    function transferProfit(address winner, uint amount)
+    onlyBettingProvider
     returns (bool ok) {
         if (!decentBetToken.transfer(winner, amount)) throw;
         return true;
@@ -172,20 +189,19 @@ contract House is SafeMath {
     // Transfers DBETs from users to house contract address and generates shares in return.
     function purchaseShares(uint amount)
     isShareBuyingPeriod
-    isTokensAvailable(amount)
-    returns (bool purchased) {
+    areTokensAvailable(amount) {
 
         // Issue shares to user equivalent to amount transferred.
         uint nextQuarter = safeAdd(currentQuarter, 1);
 
-        // Transfer tokens to house contract address.
-        if (!decentBetToken.transfer(address(this), amount)) throw;
-
         // Add to house and user funds.
-        houseFunds[nextQuarter].totalFunds = safeAdd(houseFunds[nextQuarter].totalFunds, amount);
+        houseFunds[nextQuarter].totalFunds =
+        safeAdd(houseFunds[nextQuarter].totalFunds, amount);
         houseFunds[nextQuarter].totalPurchasedUserShares =
         safeAdd(houseFunds[nextQuarter].totalPurchasedUserShares, amount);
-        houseFunds[nextQuarter].totalUserShares = safeAdd(houseFunds[nextQuarter].totalUserShares, amount);
+
+        houseFunds[nextQuarter].totalUserShares =
+        safeAdd(houseFunds[nextQuarter].totalUserShares, amount);
         houseFunds[nextQuarter].userShares[msg.sender].amount =
         safeAdd(houseFunds[nextQuarter].userShares[msg.sender].amount, amount);
 
@@ -195,50 +211,61 @@ contract House is SafeMath {
             houseFunds[nextQuarter].userShares[msg.sender].exists = true;
         }
 
-        houseFunds[nextQuarter].userShares[msg.sender].amount += amount;
+        houseFunds[nextQuarter].userShares[msg.sender].amount =
+        safeAdd(houseFunds[nextQuarter].userShares[msg.sender].amount, amount);
+
+        // Transfer tokens to house contract address.
+        if (!decentBetToken.transfer(address(this), amount)) throw;
+
+        LogPurchasedShares(msg.sender, currentQuarter, amount);
     }
 
     // Returns the payout per share based on the house winnings for a quarter.
     function getPayoutPerShare(uint quarter) returns (uint) {
 
-        uint quarterWinnings = houseFunds[quarter].winnings;
+        uint quarterlyProfit = houseFunds[quarter].profit;
         uint totalPurchasedUserShares = houseFunds[quarter].totalPurchasedUserShares;
 
-        // ((Total User Shares / Quarter winnings) * 100) * 50/100;
-        return safeMul(safeMul(safeDiv(totalPurchasedUserShares, quarterWinnings), 100), safeDiv(50, 100));
+        // ((Total User Shares / Quarter winnings) * 100) * PROFIT_SHARE_PERCENT/100;
+        return safeMul(safeMul(safeDiv(totalPurchasedUserShares, quarterlyProfit), 100),
+        safeDiv(PROFIT_SHARE_PERCENT, 100));
     }
 
     // Allows users to return shares and receive tokens along with profit in return.
     function liquidateShares(uint quarter, uint amount)
-    isSharesAvailable(quarter, amount)
-    isProfitDistributionPeriod(quarter) returns (uint){
+    areSharesAvailable(quarter, amount)
+    isProfitDistributionPeriod(quarter) {
 
-        // Payout and current quarter variables.
+        // Payout variables
         uint payoutPerShare = getPayoutPerShare(quarter);
+        // (Payout per share * amount of shares) + amount of shares
+        uint payout = safeAdd(safeMul(payoutPerShare, amount), amount);
+
+        // Current quarter variables
         uint shares = houseFunds[quarter].userShares[msg.sender].amount;
+	    uint liquidatedShares = houseFunds[quarter].userShares[msg.sender].liquidated;
         uint paidOut = houseFunds[quarter].payouts[msg.sender];
         uint totalHousePayouts = houseFunds[quarter].totalHousePayouts;
         uint totalUserShares = houseFunds[quarter].totalUserShares;
-        uint payout = safeMul(payoutPerShare, amount);
 
         // Payout users for current quarter and liquidate shares.
         houseFunds[quarter].payouts[msg.sender] = safeAdd(paidOut, payout);
         houseFunds[quarter].totalUserShares = safeSub(totalUserShares, amount);
         houseFunds[quarter].userShares[msg.sender].amount = safeSub(shares, amount);
+	    houseFunds[quarter].userShares[msg.sender].liquidated = safeAdd(liquidatedShares, amount);
         houseFunds[quarter].totalHousePayouts = safeAdd(totalHousePayouts, payout);
 
         // Transfers from house to user.
         if (!decentBetToken.transferFrom(address(this), msg.sender, payout)) throw;
 
-        // Returns payout to user for UI purposes.
-        return payout;
+        LogLiquidateShares(msg.sender, quarter, amount);
     }
 
     // Allows users holding shares in the current quarter to roll over their shares to the
     // next quarter and receive profits for current quarter.
     function rollOverShares(uint amount)
-    isSharesAvailable(currentQuarter, amount)
-    isShareBuyingPeriod returns (uint){
+    areSharesAvailable(currentQuarter, amount)
+    isShareBuyingPeriod {
 
         // Payout and current quarter variables.
         uint payoutPerShare = getPayoutPerShare(currentQuarter);
@@ -248,7 +275,7 @@ contract House is SafeMath {
         uint payout = safeMul(payoutPerShare, amount);
 
         // Next quarter variables.
-        uint nextQuarter = currentQuarter + 1;
+        uint nextQuarter = safeAdd(currentQuarter, 1);
         uint totalUserSharesForNextQuarter = houseFunds[nextQuarter].userShares[msg.sender].amount;
 
         // Payout users for current quarter and liquidate shares.
@@ -263,31 +290,33 @@ contract House is SafeMath {
         // Transfers from house to user.
         if (!decentBetToken.transferFrom(address(this), msg.sender, payout)) throw;
 
-        // Returns payout to user for UI purposes.
-        return payout;
+        LogRolledOverShares(msg.sender, currentQuarter, amount);
     }
 
     // Starts the next quarter.
     function beginNextQuarter()
+    isEndOfQuarter
     onlyAuthorized {
-        uint nextQuarter = currentQuarter + 1;
+        uint nextQuarter = safeAdd(currentQuarter, 1);
+        quarters[currentQuarter].active = false;
         if (currentQuarter == 0) {
             zeroQuarterStartTime = now;
             // One week grace period to buy shares.
-            quarters[nextQuarter].startTime = zeroQuarterStartTime + 1 weeks;
-            quarters[nextQuarter].endTime = zeroQuarterStartTime + 13 weeks;
+            quarters[nextQuarter].startTime = safeAdd(zeroQuarterStartTime, 1 weeks);
+            quarters[nextQuarter].endTime = safeAdd(zeroQuarterStartTime, 13 weeks);
             // For a quarter to be considered active, now would need to be between startTime and endTime
             // AND quarter should be active.
             quarters[nextQuarter].active = true;
         }
         else {
-            uint currentQuarterEndTime = quarters[currentQuarter].endTime;
-            quarters[nextQuarter].startTime = currentQuarterEndTime;
-            quarters[nextQuarter].endTime = currentQuarterEndTime + 12 weeks;
+            quarters[nextQuarter].startTime = now;
+            quarters[nextQuarter].endTime = safeAdd(quarters[nextQuarter].startTime, 12 weeks);
             // For a quarter to be considered active, now would need to be between startTime and endTime
             // AND quarter should be active.
             quarters[nextQuarter].active = true;
         }
+        LogNewQuarter(nextQuarter, quarters[nextQuarter].startTime, 0,
+        quarters[nextQuarter].endTime, 0);
     }
 
     // Utility functions for front-end purposes.
