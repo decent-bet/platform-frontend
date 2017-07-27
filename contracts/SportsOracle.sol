@@ -6,25 +6,36 @@ contract SportsOracle {
     address public creator;
     uint public gamesCount;
     uint public gameUpdateCost;
-    uint public houseAcceptanceCost;
-    bool public payForHouseAcceptance;
+    uint public providerAcceptanceCost;
+    bool public payForProviderAcceptance;
 
     // Arrays
     address[] authorizedAddresses;
-    address[] requestedHouseAddresses;
-    address[] acceptedHouseAddresses;
+    address[] requestedProviderAddresses;
+    address[] acceptedProviderAddresses;
 
     // Structs
-    struct House {
+    struct Provider {
         bool requested;
         bool accepted;
-        address[] bettingProviders;
+        bool exists;
+    }
+
+    struct Game {
+        uint id;
+        string refId;
+        uint8 sportId;
+        uint startBlock;
+        uint endBlock;
+        int8 result;
+        string swarmHash;
+        mapping(address => string) providerGamesToUpdate;
         bool exists;
     }
 
     // Mappings
     mapping(address => bool) public authorized;
-    mapping(address => House) public houses;
+    mapping(address => Provider) public providers;
     mapping(uint => Game) public games;
 
     // Constants
@@ -35,29 +46,16 @@ contract SportsOracle {
     uint8 constant SPORT_SOCCER            = 4;
     uint8 constant SPORT_HOCKEY            = 5;
 
-    int8 constant RESULT_WIN       =  1;
-    int8 constant RESULT_DRAW      =  2;
-    int8 constant RESULT_LOSS      =  3;
-    int8 constant RESULT_CANCELLED = -1;
-
-    // Structs
-    struct Game {
-        uint id;
-        string refId;
-        uint8 sportId;
-        uint startBlock;
-        uint endBlock;
-        int8 result;
-        string ipfsHash;
-        mapping(address => uint) houseGamesToUpdate;
-        bool exists;
-    }
+    int8 constant RESULT_TEAM1_WIN         = 1;
+    int8 constant RESULT_DRAW              = 2;
+    int8 constant RESULT_TEAM2_WIN         = 3;
+    int8 constant RESULT_CANCELLED         = -1;
 
     // Events
     event LogNewAuthorizedAddress(address _address);
-    event LogNewAcceptedHouse(address _address);
-    event LogGameAdded(uint id, uint8 sportId, string ipfsHash);
-    event LogGameDetailsUpdate(uint id, string ipfsHash);
+    event LogNewAcceptedProvider(address _address);
+    event LogGameAdded(uint id, uint8 sportId, string swarmHash);
+    event LogGameDetailsUpdate(uint id, string swarmHash);
     event LogGameResult(uint id, int8 result);
 
     // Constructor
@@ -79,21 +77,21 @@ contract SportsOracle {
         _;
     }
 
-    modifier onlyAcceptedHouse() {
-        if(!houses[msg.sender].accepted)
+    modifier onlyAcceptedProvider() {
+        if(!providers[msg.sender].accepted)
         throw;
         _;
     }
 
-    modifier isPayableForHouseAcceptance() {
-        if(!payForHouseAcceptance)
+    modifier isPayableForProviderAcceptance() {
+        if(!payForProviderAcceptance)
         throw;
         _;
     }
 
     modifier isValidResult(int8 result) {
-        if(result != RESULT_WIN || result != RESULT_DRAW ||
-        result != RESULT_LOSS || result != RESULT_CANCELLED)
+        if(result != RESULT_TEAM1_WIN || result != RESULT_DRAW ||
+        result != RESULT_TEAM2_WIN || result != RESULT_CANCELLED)
         throw;
         _;
     }
@@ -124,9 +122,9 @@ contract SportsOracle {
         LogNewAuthorizedAddress(_address);
     }
 
-    function togglePayForHouseAcceptance(bool enabled)
+    function togglePayForProviderAcceptance(bool enabled)
     onlyOwner {
-        payForHouseAcceptance = enabled;
+        payForProviderAcceptance = enabled;
     }
 
     function changeGameUpdateCost(uint cost)
@@ -134,85 +132,86 @@ contract SportsOracle {
         gameUpdateCost = cost;
     }
 
-    function changeHouseAcceptanceCost(uint cost)
+    function changeProviderAcceptanceCost(uint cost)
     onlyOwner {
-        houseAcceptanceCost = cost;
+        providerAcceptanceCost = cost;
     }
 
-    // Any house can request the oracle to accept it
-    function requestHouse() {
-        houses[msg.sender].requested = true;
-        houses[msg.sender].exists = true;
-        requestedHouseAddresses.push(msg.sender);
+    // Any provider can request the oracle to accept it
+    function requestProvider() {
+        providers[msg.sender].requested = true;
+        providers[msg.sender].exists = true;
+        requestedProviderAddresses.push(msg.sender);
     }
 
     // Accepted houses get results pushed into their games at end time
-    function acceptHouse(address _address)
+    function acceptProvider(address _address)
     onlyAuthorized {
-        houses[_address].accepted = true;
-        acceptedHouseAddresses.push(_address);
-        LogNewAcceptedHouse(_address);
+        providers[_address].accepted = true;
+        acceptedProviderAddresses.push(_address);
+        LogNewAcceptedProvider(_address);
     }
 
     // Allows house contracts to pay to be accepted by the oracle
-    function payForHouseAcceptance()
-    isPayableForHouseAcceptance
+    function payForProviderAcceptance()
+    isPayableForProviderAcceptance
     payable {
-        if(msg.value < houseAcceptanceCost)
+        if(msg.value < providerAcceptanceCost)
         throw;
-        houses[msg.sender].accepted = true;
-        houses[msg.sender].exists = true;
-        acceptedHouseAddresses.push(msg.sender);
-        LogNewAcceptedHouse(msg.sender);
+        providers[msg.sender].accepted = true;
+        providers[msg.sender].exists = true;
+        acceptedProviderAddresses.push(msg.sender);
+        LogNewAcceptedProvider(msg.sender);
     }
 
     // gameId - ID in oracle contract
     // houseGameId - ID in house contract
 
     // Reference for oracle to update betting provider under house with gameId's result
-    function addHouseGameToUpdate(uint gameId, uint houseGameId)
-    onlyAcceptedHouse
+    function addProviderGameToUpdate(uint gameId, string providerGameId)
+    onlyAcceptedProvider
     isValidGame(gameId)
     hasGameNotStarted(gameId)
     payable {
-        if(msg.value < gameUpdateCost)
-        throw;
+        if(msg.value < gameUpdateCost) throw;
         Game game = games[gameId];
-        game.houseGamesToUpdate[msg.sender] = houseGameId;
+        game.providerGamesToUpdate[msg.sender] = providerGameId;
         games[gameId] = game;
     }
 
     // Start block needs to be in advance of the actual game start time
-    function addGame(string refId, uint8 sportId, uint startBlock, uint endBlock, string ipfsHash)
+    function addGame(string refId, uint8 sportId, uint startBlock,
+    uint endBlock, string swarmHash)
     onlyAuthorized {
         Game memory game = Game({
-            id: gamesCount,
-            refId: refId,
-            sportId: sportId,
-            startBlock: startBlock,
-            endBlock: endBlock,
-            result: 0,
-            ipfsHash: '',
-            exists: true
+        id: gamesCount,
+        refId: refId,
+        sportId: sportId,
+        startBlock: startBlock,
+        endBlock: endBlock,
+        result: 0,
+        swarmHash: '',
+        exists: true
         });
         gamesCount++;
         games[game.id] = game;
-        LogGameAdded(game.id, sportId, ipfsHash);
+        LogGameAdded(game.id, sportId, swarmHash);
     }
 
     // Update IPFS hash containing meta-data for the game
-    function updateGameDetails(uint8 id, string ipfsHash)
+    function updateGameDetails(uint8 id, string swarmHash)
     isValidGame(id)
     onlyAuthorized {
         Game game = games[game.id];
-        game.ipfsHash = ipfsHash;
+        game.swarmHash = swarmHash;
         games[game.id] = game;
-        LogGameDetailsUpdate(id, ipfsHash);
+        LogGameDetailsUpdate(id, swarmHash);
     }
 
     // Push result for a game
     function pushResult(uint id, int8 result)
     isValidGame(id)
+    isValidResult(result)
     hasGameEnded(id)
     onlyAuthorized {
         Game game = games[game.id];

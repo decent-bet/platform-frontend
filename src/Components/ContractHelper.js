@@ -6,8 +6,7 @@ const ethUtil = require('ethereumjs-util')
 
 import DecentBetToken from '../../build/contracts/DecentBetToken.json'
 import House from '../../build/contracts/House.json'
-import Slots from '../../build/contracts/Slots.json'
-import SportsBetting from '../../build/contracts/SportsBetting.json'
+import BettingProvider from '../../build/contracts/BettingProvider.json'
 import GameChannelManager from '../../build/contracts/GameChannelManager.json'
 import SlotsChannel from '../../build/contracts/SlotsChannel.json'
 
@@ -20,15 +19,13 @@ const provider = new Web3.providers.HttpProvider('http://localhost:8545')
 const contract = require('truffle-contract')
 const decentBetToken = contract(DecentBetToken)
 const house = contract(House)
-const sportsBetting = contract(SportsBetting)
-const slots = contract(Slots)
+const bettingProvider = contract(BettingProvider)
 const gameChannelManager = contract(GameChannelManager)
 const slotsChannel = contract(SlotsChannel)
 
 decentBetToken.setProvider(provider)
 house.setProvider(provider)
-slots.setProvider(provider)
-sportsBetting.setProvider(provider)
+bettingProvider.setProvider(provider)
 gameChannelManager.setProvider(provider)
 slotsChannel.setProvider(provider)
 
@@ -36,11 +33,11 @@ slotsChannel.setProvider(provider)
 const web3 = new Web3(provider)
 
 // Declaring these for later so we can chain functions on Contract objects.
-let decentBetTokenInstance, houseInstance, slotsInstance, sportsBettingInstance,
+let decentBetTokenInstance, houseInstance, bettingProviderInstance,
     gameChannelManagerInstance
 
-const TYPE_DBET_TOKEN = 0, TYPE_DBET_HOUSE = 1, TYPE_DBET_SLOTS = 3,
-    TYPE_DBET_SPORTS_BETTING = 4, TYPE_DBET_GAME_CHANNEL_MANAGER = 5, TYPE_DBET_SLOTS_CHANNEL = 6
+const TYPE_DBET_TOKEN = 0, TYPE_DBET_HOUSE = 1, TYPE_DBET_BETTING_PROVIDER = 4,
+    TYPE_DBET_GAME_CHANNEL_MANAGER = 5, TYPE_DBET_SLOTS_CHANNEL = 6
 
 class ContractHelper {
 
@@ -48,16 +45,8 @@ class ContractHelper {
         return web3
     }
 
-    isTokenInitialized = () => {
-        return decentBetTokenInstance != null
-    }
-
     getTokenInstance = () => {
         return decentBetTokenInstance
-    }
-
-    getSlotsInstance = () => {
-        return slotsInstance
     }
 
     getGameChannelManagerInstance = () => {
@@ -72,12 +61,8 @@ class ContractHelper {
         this.getContract(TYPE_DBET_HOUSE, callback)
     }
 
-    getSlotsContract = (callback) => {
-        this.getContract(TYPE_DBET_SLOTS, callback)
-    }
-
-    getSportsBettingContract = (callback) => {
-        this.getContract(TYPE_DBET_SPORTS_BETTING, callback)
+    getBettingProviderContract = (callback) => {
+        this.getContract(TYPE_DBET_BETTING_PROVIDER, callback)
     }
 
     getGameChannelManagerContract = (callback) => {
@@ -105,17 +90,10 @@ class ContractHelper {
                     callback(null, instance)
                 })
             },
-            slots: (callback) => {
-                this.getSlotsContract((instance) => {
-                    console.log('gotSlotsContract')
-                    self.setInstance(TYPE_DBET_SLOTS, instance)
-                    callback(null, instance)
-                })
-            },
-            sportsBetting: (callback) => {
-                this.getSportsBettingContract((instance) => {
-                    console.log('gotSportsBettingContract')
-                    self.setInstance(TYPE_DBET_SPORTS_BETTING, instance)
+            bettingProvider: (callback) => {
+                this.getBettingProviderContract((instance) => {
+                    console.log('gotBettingProviderContract')
+                    self.setInstance(TYPE_DBET_BETTING_PROVIDER, instance)
                     callback(null, instance)
                 })
             },
@@ -127,7 +105,7 @@ class ContractHelper {
                 })
             }
         }, (err, results) => {
-            callback(false, results.token, results.house, results.sportsBetting)
+            callback(false, results.token, results.house, results.bettingProvider)
         })
     }
 
@@ -173,11 +151,8 @@ class ContractHelper {
             case TYPE_DBET_HOUSE:
                 return house
                 break
-            case TYPE_DBET_SLOTS:
-                return slots
-                break
-            case TYPE_DBET_SPORTS_BETTING:
-                return sportsBetting
+            case TYPE_DBET_BETTING_PROVIDER:
+                return bettingProvider
                 break
             case TYPE_DBET_GAME_CHANNEL_MANAGER:
                 return gameChannelManager
@@ -197,11 +172,8 @@ class ContractHelper {
             case TYPE_DBET_HOUSE:
                 return houseInstance
                 break
-            case TYPE_DBET_SLOTS:
-                return slotsInstance
-                break
-            case TYPE_DBET_SPORTS_BETTING:
-                return sportsBettingInstance
+            case TYPE_DBET_BETTING_PROVIDER:
+                return bettingProviderInstance
                 break
             case TYPE_DBET_GAME_CHANNEL_MANAGER:
                 return gameChannelManagerInstance
@@ -218,11 +190,8 @@ class ContractHelper {
             case TYPE_DBET_HOUSE:
                 houseInstance = instance
                 break
-            case TYPE_DBET_SLOTS:
-                slotsInstance = instance
-                break
-            case TYPE_DBET_SPORTS_BETTING:
-                sportsBettingInstance = instance
+            case TYPE_DBET_BETTING_PROVIDER:
+                bettingProviderInstance = instance
                 break
             case TYPE_DBET_GAME_CHANNEL_MANAGER:
                 gameChannelManagerInstance = instance
@@ -286,33 +255,18 @@ class ContractHelper {
                     }
                 }
             },
-            slots: () => {
-                return {
-                    spin: () => {
-                        // Oraclize fees are 0.01$ in Ether. Currently 0.000045 ETH = 0.01$.
-                        // Send extra to make up for it.
-                        let fees = 0.004 * ethUnits.units.ether
-                        console.log('Sending transaction for spin with fees: ' + fees)
-                        return slotsInstance.spin.sendTransaction({},
-                            {from: window.web3.eth.defaultAccount, gas: 400000, value: fees})
-                    },
-                    testEvent: () => {
-                        return slotsInstance.testEvent()
-                    }
-                }
-            },
-            sportsBetting: () => {
+             bettingProvider: () => {
                 return {
                     addGame: (id, parties, odds, maxBet, startTime, endTime) => {
                         console.log('Adding game: ' + id + ', ' + parties + ', ' + odds + ', ' + maxBet +
                             ', ' + startTime + ', ' + endTime)
-                        return sportsBettingInstance.addGame(id, parties, odds, maxBet, startTime, endTime)
+                        return bettingProviderInstance.addGame(id, parties, odds, maxBet, startTime, endTime)
                     },
                     updateGameOdds: (id, parties, odds) => {
-                        return sportsBettingInstance.updateGameOdds(id, parties, odds)
+                        return bettingProviderInstance.updateGameOdds(id, parties, odds)
                     },
                     updateGameOutcome: (id, outcome) => {
-                        return sportsBettingInstance.updateGameOutcome(id, outcome)
+                        return bettingProviderInstance.updateGameOutcome(id, outcome)
                     }
                 }
             },

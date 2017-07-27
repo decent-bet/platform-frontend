@@ -3,17 +3,17 @@ pragma solidity ^0.4.8;
 
 import './SafeMath.sol';
 import './AbstractDecentBetToken.sol';
-
+import './AbstractSportsOracle.sol';
 
 // Decent.bet House Contract.
 // All shares and payouts are in DBETs and are 18 decimal places in length.
 contract House is SafeMath {
 
     // Structs
-	struct UserShares {
-	    uint amount;
-		uint liquidated;
-	    bool exists;
+    struct UserShares {
+        uint amount;
+        uint liquidated;
+        bool exists;
     }
 
     struct HouseFunds {
@@ -179,8 +179,9 @@ contract House is SafeMath {
     }
 
     // Approves a transfer from the house address.
-    function transferProfit(address winner, uint amount)
+    function transferProfits(address winner, uint amount)
     onlyBettingProvider
+    internal
     returns (bool ok) {
         if (!decentBetToken.transfer(winner, amount)) throw;
         return true;
@@ -243,7 +244,7 @@ contract House is SafeMath {
 
         // Current quarter variables
         uint shares = houseFunds[quarter].userShares[msg.sender].amount;
-	    uint liquidatedShares = houseFunds[quarter].userShares[msg.sender].liquidated;
+        uint liquidatedShares = houseFunds[quarter].userShares[msg.sender].liquidated;
         uint paidOut = houseFunds[quarter].payouts[msg.sender];
         uint totalHousePayouts = houseFunds[quarter].totalHousePayouts;
         uint totalUserShares = houseFunds[quarter].totalUserShares;
@@ -252,7 +253,7 @@ contract House is SafeMath {
         houseFunds[quarter].payouts[msg.sender] = safeAdd(paidOut, payout);
         houseFunds[quarter].totalUserShares = safeSub(totalUserShares, amount);
         houseFunds[quarter].userShares[msg.sender].amount = safeSub(shares, amount);
-	    houseFunds[quarter].userShares[msg.sender].liquidated = safeAdd(liquidatedShares, amount);
+        houseFunds[quarter].userShares[msg.sender].liquidated = safeAdd(liquidatedShares, amount);
         houseFunds[quarter].totalHousePayouts = safeAdd(totalHousePayouts, payout);
 
         // Transfers from house to user.

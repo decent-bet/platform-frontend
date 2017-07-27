@@ -12,7 +12,6 @@
 import Web3 from 'web3'
 
 import ContractHelper from '../ContractHelper'
-
 const contractHelper = new ContractHelper()
 
 let callback
@@ -35,9 +34,9 @@ let initMetaMask = () => {
         window.web3.eth.defaultAccount = window.web3.eth.accounts[1]
     }
     if (!IS_TEST)
-        contractHelper.getAllContracts((err, token, house, sportsBetting) => {
+        contractHelper.getAllContracts((err, token, house, bettingProvider) => {
             console.log('getAllContracts: ' + err + ', ' + token.address + ', ' + house.address + ', ' +
-                sportsBetting.address + ', ' + window.web3.eth.defaultAccount)
+                bettingProvider.address + ', ' + window.web3.eth.defaultAccount)
             window.contractHelper = contractHelper
             if (callback)
                 callback()

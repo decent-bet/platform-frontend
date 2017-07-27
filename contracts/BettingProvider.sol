@@ -17,12 +17,12 @@ contract BettingProvider is SafeMath {
 	struct Odds {
 		// Incremented ID for each game.
 		uint id;
-		// Odds for win
-		uint win;
+		// Odds for team1 win
+		uint team1;
 		// Odds for draw
 		uint draw;
-		// Odds for loss
-		uint loss;
+		// Odds for team2 win
+		uint team2;
 	}
 
 	struct Game {
@@ -98,29 +98,29 @@ contract BettingProvider is SafeMath {
 
 	uint constant public RESULT_OFFSET_HOURS = 24;
 
-	int8 constant RESULT_WIN = 1;
+	int8 constant RESULT_TEAM1_WIN = 1;
 
 	int8 constant RESULT_DRAW = 2;
 
-	int8 constant RESULT_LOSS = 3;
+	int8 constant RESULT_TEAM2_WIN = 3;
 
 	int8 constant RESULT_CANCELLED = - 1;
 
 	// Events
 	event LogNewGame(string id, uint oracleId, uint winOdds, uint drawOdds,
-		uint lossOdds, uint cutOffTime, uint endTime);
+	uint lossOdds, uint cutOffTime, uint endTime);
 
 	event LogUpdatedGameOdds(string id, uint winOdds, uint drawOdds,
-		uint lossOdds);
+	uint lossOdds);
 
 	event LogNewBet(string gameId, uint id, address bettor, int choice,
-		uint odds, uint amount);
+	uint odds, uint amount);
 
 	event LogClaimedBet(string gameId, uint id, address bettor, uint amount,
-		uint payout);
+	uint payout);
 
 	// Constructor.
-	function SportsBetting(address decentBetTokenAddress, address _houseAddress) {
+	function BettingProvider(address decentBetTokenAddress, address _houseAddress) {
 		if (decentBetTokenAddress == 0) throw;
 		if (_houseAddress == 0) throw;
 		houseAddress = _houseAddress;
@@ -189,16 +189,18 @@ contract BettingProvider is SafeMath {
 	}
 
 	// Adds a game to the contract.
-	function addGame(string id, uint oracleId, int[] parties, uint winOdds,
-	uint drawOdds, uint lossOdds, uint maxBet,
+	function addGame(string id, uint oracleId, int[] parties, uint team1Odds,
+	uint drawOdds, uint team2Odds, uint maxBet,
 	uint cutOffTime, uint endTime)
 	onlyAuthorized {
+
 		Odds memory odds = Odds({
 			id : 1,
-			win : winOdds,
+			team1 : team1Odds,
 			draw : drawOdds,
-			loss : lossOdds
+			team2 : team2Odds
 		});
+
 		Game memory game = Game({
 			id : id,
 			oracleId : oracleId,
@@ -214,6 +216,7 @@ contract BettingProvider is SafeMath {
 			outcome : 0,
 			exists : true
 		});
+
 		games[id] = game;
 		availableGames.push(id);
 	}
@@ -245,24 +248,6 @@ contract BettingProvider is SafeMath {
 		game.hasEnded = true;
 		games[id] = game;
 		return true;
-	}
-
-	function getChoiceOdds(string gameId, int choice) internal returns (uint) {
-		if (choice == RESULT_WIN)
-		return games[gameId].odds.win;
-		else if (choice == RESULT_DRAW)
-		return games[gameId].odds.draw;
-		if (choice == RESULT_LOSS)
-		return games[gameId].odds.loss;
-	}
-
-	function getChoiceOdds(Bet bet) internal returns (uint) {
-		if (bet.choice == RESULT_WIN)
-		return bet.odds.win;
-		else if (bet.choice == RESULT_DRAW)
-		return bet.odds.draw;
-		if (bet.choice == RESULT_LOSS)
-		return bet.odds.loss;
 	}
 
 	// Bet on a game.
@@ -312,14 +297,32 @@ contract BettingProvider is SafeMath {
 		uint payout = safeAdd(amount, safeMul(amount, odds));
 		bet.claimed = true;
 		userBets[msg.sender][gameId].bets[betId] = bet;
-		if (!house.transferWinnings(msg.sender, payout)) throw;
-		LogClaimedBet(gameId, betId, msg.sender, amount,
-		payout);
+		if (!house.transferProfits(msg.sender, payout)) throw;
+		LogClaimedBet(gameId, betId, msg.sender, amount, payout);
 	}
 
 	// Don't allow ETH to be sent to this contract
 	function() {
 		throw;
+	}
+
+	// Internal calls
+	function getChoiceOdds(string gameId, int choice) internal returns (uint) {
+		if (choice == RESULT_TEAM1_WIN)
+			return games[gameId].odds.team1;
+		else if (choice == RESULT_DRAW)
+			return games[gameId].odds.draw;
+		if (choice == RESULT_TEAM2_WIN)
+			return games[gameId].odds.team2;
+	}
+
+	function getChoiceOdds(Bet bet) internal returns (uint) {
+		if (bet.choice == RESULT_TEAM1_WIN)
+			return bet.odds.team1;
+		else if (bet.choice == RESULT_DRAW)
+			return bet.odds.draw;
+		if (bet.choice == RESULT_TEAM2_WIN)
+			return bet.odds.team2;
 	}
 
 }
