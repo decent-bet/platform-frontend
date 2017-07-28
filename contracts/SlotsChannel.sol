@@ -421,20 +421,20 @@ contract SlotsChannel is SafeMath, Utils {
     function convertSpin(string _spin) private returns (Spin) {
         string[14] memory parts = getParts(_spin);
         Spin memory spin = Spin({
-        reelHash : parts[0],
-        reel : parts[1],
-        reelSeedHash : parts[2],
-        prevReelSeedHash : parts[3],
-        userHash : parts[4],
-        prevUserHash : parts[5],
-        nonce : parseInt(parts[6]),
-        turn : parseBool(parts[7]),
-        userBalance : parseInt(parts[8]),
-        houseBalance : parseInt(parts[9]),
-        betSize : parseInt(parts[10]),
-        v : (uint8)(parseInt(parts[11])),
-        r : 0,
-        s : 0
+            reelHash : parts[0],
+            reel : parts[1],
+            reelSeedHash : parts[2],
+            prevReelSeedHash : parts[3],
+            userHash : parts[4],
+            prevUserHash : parts[5],
+            nonce : parseInt(parts[6]),
+            turn : parseBool(parts[7]),
+            userBalance : parseInt(parts[8]),
+            houseBalance : parseInt(parts[9]),
+            betSize : parseInt(parts[10]),
+            v : (uint8)(parseInt(parts[11])),
+            r : 0,
+            s : 0
         });
         return spin;
     }
