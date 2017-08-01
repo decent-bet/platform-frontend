@@ -16,21 +16,29 @@ contract SportsOracle {
 
     // Structs
     struct Provider {
-        bool requested;
-        bool accepted;
-        bool exists;
+    bool requested;
+    bool accepted;
+    bool exists;
     }
 
     struct Game {
-        uint id;
-        string refId;
-        uint8 sportId;
-        uint startBlock;
-        uint endBlock;
-        int8 result;
-        string swarmHash;
-        mapping(address => string) providerGamesToUpdate;
-        bool exists;
+    uint id;
+    string refId;
+    uint8 sportId;
+    uint startBlock;
+    uint endBlock;
+    int8 result;
+    string swarmHash;
+    mapping(address => string) providerGamesToUpdate;
+    address[] providersToUpdate;
+    bool exists;
+    }
+
+    struct Period {
+    uint8 number;
+    uint team1Score;
+    uint team2Score;
+    uint settleTime;
     }
 
     // Mappings
@@ -54,9 +62,9 @@ contract SportsOracle {
     // Events
     event LogNewAuthorizedAddress(address _address);
     event LogNewAcceptedProvider(address _address);
-    event LogGameAdded(uint id, uint8 sportId, string swarmHash);
-    event LogGameDetailsUpdate(uint id, string swarmHash);
-    event LogGameResult(uint id, int8 result);
+    event LogGameAdded(uint id, string refId, uint8 sportId, string swarmHash);
+    event LogGameDetailsUpdate(uint id, string refId, string swarmHash);
+    event LogGameResult(uint id, string refId, int8 result);
 
     // Constructor
     function SportsOracle() {
@@ -176,6 +184,7 @@ contract SportsOracle {
         if(msg.value < gameUpdateCost) throw;
         Game game = games[gameId];
         game.providerGamesToUpdate[msg.sender] = providerGameId;
+        game.providersToUpdate.push(msg.sender);
         games[gameId] = game;
     }
 
@@ -191,21 +200,20 @@ contract SportsOracle {
         endBlock: endBlock,
         result: 0,
         swarmHash: '',
-        exists: true
-        });
+        providersToUpdate: new address[](0),
+    exists: true
+    });
         gamesCount++;
         games[game.id] = game;
-        LogGameAdded(game.id, sportId, swarmHash);
+        LogGameAdded(game.id, refId, sportId, swarmHash);
     }
 
     // Update IPFS hash containing meta-data for the game
     function updateGameDetails(uint8 id, string swarmHash)
     isValidGame(id)
     onlyAuthorized {
-        Game game = games[game.id];
-        game.swarmHash = swarmHash;
-        games[game.id] = game;
-        LogGameDetailsUpdate(id, swarmHash);
+        games[id].swarmHash = swarmHash;
+        LogGameDetailsUpdate(id, games[id].refId, games[id].swarmHash);
     }
 
     // Push result for a game
@@ -214,10 +222,8 @@ contract SportsOracle {
     isValidResult(result)
     hasGameEnded(id)
     onlyAuthorized {
-        Game game = games[game.id];
-        game.result = result;
-        games[game.id] = game;
-        LogGameResult(id, result);
+        games[id].result = result;
+        LogGameResult(id, games[id].refId, result);
     }
 
 }
