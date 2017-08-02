@@ -1,7 +1,7 @@
 pragma solidity ^0.4.0;
 
-import './SafeMath.sol';
-import './Utils.sol';
+import '../../Libraries/SafeMath.sol';
+import '../../Libraries/Utils.sol';
 
 contract SlotsHelper is SafeMath, Utils {
 

@@ -1,10 +1,10 @@
 pragma solidity ^0.4.0;
 
 
-import "./SafeMath.sol";
-import "./AbstractDecentBetToken.sol";
-import "./AbstractHouse.sol";
-import "./oraclizeAPI.sol";
+import "../../Libraries/SafeMath.sol";
+import "../../Token/AbstractDecentBetToken.sol";
+import "../../House/AbstractHouse.sol";
+import "../../Libraries/oraclizeAPI.sol";
 
 
 contract Slots is usingOraclize {

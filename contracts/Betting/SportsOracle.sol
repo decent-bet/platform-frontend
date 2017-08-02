@@ -16,29 +16,29 @@ contract SportsOracle {
 
     // Structs
     struct Provider {
-    bool requested;
-    bool accepted;
-    bool exists;
+        bool requested;
+        bool accepted;
+        bool exists;
     }
 
     struct Game {
-    uint id;
-    string refId;
-    uint8 sportId;
-    uint startBlock;
-    uint endBlock;
-    int8 result;
-    string swarmHash;
-    mapping(address => string) providerGamesToUpdate;
-    address[] providersToUpdate;
-    bool exists;
+        uint id;
+        string refId;
+        uint8 sportId;
+        uint startBlock;
+        uint endBlock;
+        int8 result;
+        string swarmHash;
+        mapping(address => string) providerGamesToUpdate;
+        address[] providersToUpdate;
+        bool exists;
     }
 
     struct Period {
-    uint8 number;
-    uint team1Score;
-    uint team2Score;
-    uint settleTime;
+        uint8 number;
+        uint team1Score;
+        uint team2Score;
+        uint settleTime;
     }
 
     // Mappings

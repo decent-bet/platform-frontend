@@ -1,9 +1,9 @@
 pragma solidity ^0.4.8;
 
 
-import './SafeMath.sol';
-import './AbstractDecentBetToken.sol';
-import './AbstractSportsOracle.sol';
+import '../Libraries/SafeMath.sol';
+import '../Token/AbstractDecentBetToken.sol';
+import '../Betting/AbstractSportsOracle.sol';
 
 // Decent.bet House Contract.
 // All credits and payouts are in DBETs and are 18 decimal places in length.

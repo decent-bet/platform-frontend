@@ -7,6 +7,7 @@ let UpgradeAgent = artifacts.require("UpgradeAgent")
 let DecentBetVault = artifacts.require("DecentBetVault")
 let House = artifacts.require("House")
 let BettingProvider = artifacts.require("BettingProvider")
+let BettingProviderHelper = artifacts.require("BettingProviderHelper")
 let SportsOracle = artifacts.require("SportsOracle")
 
 let ECVerify = artifacts.require("ECVerify")
@@ -20,8 +21,8 @@ module.exports = function (deployer, network) {
     let startBlock, endBlock
     let accounts = web3.eth.accounts.slice(0, 3)
     let signaturesRequired = 2
-    let token, wallet, upgradeAgent, house, bettingProvider, sportsOracle, gameChannelManager, ecVerify,
-        sportsBetting, slots, slotsHelper
+    let token, wallet, upgradeAgent, house, bettingProvider, bettingProviderHelper, sportsOracle,
+        gameChannelManager, ecVerify, sportsBetting, slots, slotsHelper
     console.log('Network: ' + network + ', startBlock: ' + web3.eth.blockNumber)
     if (network == 'testnet' || network == 'development') {
         deployer.deploy(MultiSigWallet, accounts, signaturesRequired).then(function (instance) {
@@ -41,17 +42,24 @@ module.exports = function (deployer, network) {
             return House.deployed()
         }).then(function (instance) {
             house = instance
+            return deployer.deploy(BettingProviderHelper)
+        }).then(function () {
+            return BettingProviderHelper.deployed()
+        }).then(function (instance) {
+            bettingProviderHelper = instance
             console.log('Deploying BettingProvider with addresses: ' + token.address + ', ' + house.address)
-            return deployer.deploy(BettingProvider, token.address, house.address)
+            return deployer.deploy(BettingProvider, token.address, house.address, bettingProviderHelper.address, {
+                gas: 5000000
+            })
         }).then(function () {
             return BettingProvider.deployed()
         }).then(function (instance) {
             sportsBetting = instance
             console.log('House: ' + web3.eth.accounts[0])
             return deployer.deploy(SportsOracle)
-        }).then(function() {
+        }).then(function () {
             return SportsOracle.deployed()
-        }).then(function(instance){
+        }).then(function (instance) {
             sportsOracle = instance
             return deployer.deploy(ECVerify)
         }).then(function (instance) {
@@ -60,12 +68,11 @@ module.exports = function (deployer, network) {
         }).then(function () {
             console.log('Linked ecverify to GameChannelManager')
             return deployer.deploy(SlotsHelper)
-        }).then(function(){
+        }).then(function () {
             return SlotsHelper.deployed()
-        }).then(function(instance) {
+        }).then(function (instance) {
             console.log('Deployed Slots Helper')
             slotsHelper = instance
-
             console.log('Deploying GameChannelManager with token: ' + token.address + ', slotsHelper: ' +
                 slotsHelper.address + ' and ' + web3.eth.accounts[0])
             return deployer.deploy(GameChannelManager, token.address, slotsHelper.address, web3.eth.accounts[0])

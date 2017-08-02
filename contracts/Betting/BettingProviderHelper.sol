@@ -1,21 +1,21 @@
 pragma solidity ^0.4.11;
 
-import './SafeMath.sol';
+import '../Libraries/SafeMath.sol';
 
 contract BettingProviderHelper is SafeMath {
 
-	uint8 constant SPREAD_OUTCOME_WIN       = 1;
-	uint8 constant SPREAD_OUTCOME_DRAW      = 2;
-	uint8 constant SPREAD_OUTCOME_LOSS      = 3;
-	uint8 constant SPREAD_OUTCOME_HALF_WIN  = 4;
-	uint8 constant SPREAD_OUTCOME_HALF_LOSS = 5;
+	uint constant SPREAD_OUTCOME_WIN       = 1;
+	uint constant SPREAD_OUTCOME_DRAW      = 2;
+	uint constant SPREAD_OUTCOME_LOSS      = 3;
+	uint constant SPREAD_OUTCOME_HALF_WIN  = 4;
+	uint constant SPREAD_OUTCOME_HALF_LOSS = 5;
 
-	uint8 constant BET_CHOICE_TEAM1 = 1;
-	uint8 constant BET_CHOICE_DRAW  = 2;
-	uint8 constant BET_CHOICE_TEAM2 = 3;
+	uint constant BET_CHOICE_TEAM1 = 1;
+	uint constant BET_CHOICE_DRAW  = 2;
+	uint constant BET_CHOICE_TEAM2 = 3;
 
 	function getSpreadOutcome(uint amount, int handicap, uint team1Points,
-	uint team2Points, uint8 choice) returns (uint8) {
+	uint team2Points, uint choice) returns (uint) {
 		// Handicap - Multiplied by 100
 		// Hcp  ->  0.5 (50)
 		// Team 1 -> -180
@@ -80,9 +80,9 @@ contract BettingProviderHelper is SafeMath {
 	}
 
 	function getSpreadReturns(uint amount, int handicap,
-	uint team1Points, uint team2Points, uint8 choice, int odds)
+	uint team1Points, uint team2Points, uint choice, int odds)
 	returns (uint) {
-		uint8 spreadOutcome =
+		uint spreadOutcome =
 		getSpreadOutcome(amount, handicap, team1Points, team2Points,
 		choice);
 		if(spreadOutcome == SPREAD_OUTCOME_WIN) {

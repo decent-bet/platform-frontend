@@ -1,10 +1,10 @@
 pragma solidity ^0.4.0;
 
 
-import './AbstractDecentBetToken.sol';
-import './SafeMath.sol';
-import './SlotsChannel.sol';
-import './Utils.sol';
+import '../Token/AbstractDecentBetToken.sol';
+import '../Libraries/SafeMath.sol';
+import './Slots/SlotsChannel.sol';
+import '../Libraries/Utils.sol';
 
 
 // Decent.bet Game Channel Manager Contract

@@ -1,13 +1,13 @@
 pragma solidity ^0.4.0;
 
 
-import './AbstractDecentBetToken.sol';
+import '../../Token/AbstractDecentBetToken.sol';
 import './AbstractSlotsHelper.sol';
-import './ECVerify.sol';
-import './GameChannelManager.sol';
-import './SafeMath.sol';
-import './strings.sol';
-import './Utils.sol';
+import '../../Libraries/ECVerify.sol';
+import '../GameChannelManager.sol';
+import '../../Libraries/SafeMath.sol';
+import '../../Libraries/strings.sol';
+import '../../Libraries/Utils.sol';
 
 
 // A State channel contract to handle slot games on the Decent.bet platform
