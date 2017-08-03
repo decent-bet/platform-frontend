@@ -1,9 +1,9 @@
 pragma solidity ^0.4.8;
 
-
 import '../Libraries/SafeMath.sol';
 import '../Token/AbstractDecentBetToken.sol';
 import '../Betting/AbstractSportsOracle.sol';
+import './HouseOffering.sol';
 
 // Decent.bet House Contract.
 // All credits and payouts are in DBETs and are 18 decimal places in length.
@@ -13,6 +13,7 @@ contract House is SafeMath {
     struct UserCredits {
         uint amount;
         uint liquidated;
+        uint rolledOver;
         bool exists;
     }
 
@@ -24,6 +25,7 @@ contract House is SafeMath {
         mapping (address => uint) payouts;
         address[] users;
         uint totalHousePayouts;
+        uint totalWithdrawn;
         uint profit;
     }
 
@@ -39,10 +41,15 @@ contract House is SafeMath {
         bool active;
     }
 
+    struct Offering {
+        HouseOffering houseOffering;
+        bool exists;
+    }
+
     // Variables
     address public founder;
 
-    address public bettingProviderAddress;
+    address[] public houseOfferingAddresses;
 
     address[] public authorizedAddresses;
 
@@ -64,6 +71,8 @@ contract House is SafeMath {
     // House funds per session
     mapping (uint => HouseFunds) public houseFunds;
 
+    mapping (address => Offering) offerings;
+
     mapping (address => bool) public authorized;
 
     mapping (uint => Session) public sessions;
@@ -77,11 +86,14 @@ contract House is SafeMath {
         decentBetToken = AbstractDecentBetToken(decentBetTokenAddress);
     }
 
-    function setBettingProvider(address _bettingProviderAddress)
-    onlyFounder
-    returns (bool ok) {
-        bettingProviderAddress = _bettingProviderAddress;
-        return true;
+    function addHouseOffering(address houseOfferingAddress)
+    onlyFounder {
+        houseOfferingAddresses.push(houseOfferingAddress);
+            offerings[houseOfferingAddress] = Offering({
+            houseOffering: HouseOffering(houseOfferingAddress),
+            exists: true
+        });
+        LogNewHouseOffering(houseOfferingAddress, offerings[houseOfferingAddress].houseOffering.name());
     }
 
     // Modifiers //
@@ -96,22 +108,16 @@ contract House is SafeMath {
         _;
     }
 
-    modifier onlyBettingProvider() {
-        if (bettingProviderAddress == 0x0) throw;
-        if (msg.sender != bettingProviderAddress) throw;
-        _;
-    }
-
     // Allows functions to execute only if it's currently a credit-buying period i.e
     // 1 week before the end of the current session.
     modifier isCreditBuyingPeriod() {
         if (currentSession > 0) {
-            if (now < (sessions[currentSession].endTime - 1 weeks) ||
-            now > (sessions[currentSession].endTime + 1 weeks))
+            if (now < (sessions[currentSession].endTime - 1 weeks) || now > (sessions[currentSession].endTime))
             throw;
-        }
-        else {
+        } else {
+            // Session zero hasn't started
             if (sessionZeroStartTime == 0) throw;
+            // Session zero has ended
             if (now > sessionZeroStartTime + 1 weeks) throw;
         }
         _;
@@ -129,11 +135,17 @@ contract House is SafeMath {
         _;
     }
 
+    // Allows functions to execute only if users have rolled over credits available for "session".
+    modifier areRolledOverCreditsAvailable(uint session) {
+        if (houseFunds[session].userCredits[msg.sender].rolledOver == 0) throw;
+        _;
+    }
+
     // Allows functions to execute only if the profit distribution period is going on i.e
     // after the end of the previous session.
     modifier isProfitDistributionPeriod(uint session) {
         if (session == 0) throw;
-        if (now < sessions[session].endTime) throw;
+        if (now < sessions[session].endTime + 4 days) throw;
         _;
     }
 
@@ -144,29 +156,34 @@ contract House is SafeMath {
         _;
     }
 
+    modifier isValidHouseOffering(address offering) {
+        if(!offerings[offering].exists) throw;
+        _;
+    }
+
     // Events
     event LogPurchasedCredits(address creditHolder, uint session, uint amount);
 
-    event LogLiquidateCredits(address creditHolder, uint session, uint amount);
+    event LogLiquidateCredits(address creditHolder, uint session, uint amount, uint payout);
+
+    event LogPayoutRolledOverCredits(address creditHolder, uint session, uint amount, uint payout);
 
     event LogRolledOverCredits(address creditHolder, uint session, uint amount);
 
-    event LogNewSession(uint session, uint startTimestamp, uint startBlockNumber,
-    uint endTimestamp, uint endBlockNumber);
+    event LogNewSession(uint session, uint startTimestamp, uint startBlockNumber, uint endTimestamp, uint endBlockNumber);
+
+    event LogNewHouseOffering(address offeringAddress, bytes32 name);
 
     // Adds an address to the list of authorized addresses.
     function addToAuthorizedAddresses(address _address)
-    onlyFounder
-    returns (bool ok) {
+    onlyFounder {
         authorizedAddresses.push(_address);
         authorized[_address] = true;
-        return true;
     }
 
     // Removes an address from the list of authorized addresses.
     function removeFromAuthorizedAddresses(address _address)
-    onlyFounder
-    returns (bool ok) {
+    onlyFounder {
         if (authorized[_address] == false) throw;
         for (uint i = 0; i < authorizedAddresses.length; i++) {
             if (authorizedAddresses[i] == _address) {
@@ -175,19 +192,10 @@ contract House is SafeMath {
                 break;
             }
         }
-        return true;
-    }
-
-    // Approves a transfer from the house address.
-    function transferProfits(address winner, uint amount)
-    onlyBettingProvider
-    internal
-    returns (bool ok) {
-        if (!decentBetToken.transfer(winner, amount)) throw;
-        return true;
     }
 
     // Transfers DBETs from users to house contract address and generates credits in return.
+    // House contract must be approved to transfer amount from msg.sender to house.
     function purchaseCredits(uint amount)
     isCreditBuyingPeriod
     areTokensAvailable(amount) {
@@ -200,7 +208,6 @@ contract House is SafeMath {
         safeAdd(houseFunds[nextSession].totalFunds, amount);
         houseFunds[nextSession].totalPurchasedUserCredits =
         safeAdd(houseFunds[nextSession].totalPurchasedUserCredits, amount);
-
         houseFunds[nextSession].totalUserCredits =
         safeAdd(houseFunds[nextSession].totalUserCredits, amount);
         houseFunds[nextSession].userCredits[msg.sender].amount =
@@ -216,20 +223,9 @@ contract House is SafeMath {
         safeAdd(houseFunds[nextSession].userCredits[msg.sender].amount, amount);
 
         // Transfer tokens to house contract address.
-        if (!decentBetToken.transfer(address(this), amount)) throw;
+        if (!decentBetToken.transferFrom(msg.sender, address(this), amount)) throw;
 
         LogPurchasedCredits(msg.sender, currentSession, amount);
-    }
-
-    // Returns the payout per credit based on the house winnings for a session.
-    function getPayoutPerCredit(uint session) returns (uint) {
-
-        uint sessionProfit = houseFunds[session].profit;
-        uint totalPurchasedUserCredits = houseFunds[session].totalPurchasedUserCredits;
-
-        // ((Total User Credits / Session winnings) * 100) * PROFIT_SHARE_PERCENT/100;
-        return safeMul(safeMul(safeDiv(totalPurchasedUserCredits, sessionProfit), 100),
-        safeDiv(PROFIT_SHARE_PERCENT, 100));
     }
 
     // Allows users to return credits and receive tokens along with profit in return.
@@ -257,41 +253,78 @@ contract House is SafeMath {
         houseFunds[session].totalHousePayouts = safeAdd(totalHousePayouts, payout);
 
         // Transfers from house to user.
-        if (!decentBetToken.transferFrom(address(this), msg.sender, payout)) throw;
+        if (!decentBetToken.transfer(msg.sender, payout)) throw;
 
-        LogLiquidateCredits(msg.sender, session, amount);
+        LogLiquidateCredits(msg.sender, session, amount, payout);
+    }
+
+    function payoutRolledOverCredits(uint session)
+    areRolledOverCreditsAvailable(session)
+    isProfitDistributionPeriod(session) {
+        // Calculate payout for rolled over credit.
+        uint payoutPerCredit = getPayoutPerCredit(session);
+        uint rolledOver = houseFunds[session].userCredits[msg.sender].rolledOver;
+        uint payout = safeMul(payoutPerCredit, rolledOver);
+
+        if(!decentBetToken.transfer(msg.sender, payout)) throw;
+
+        LogPayoutRolledOverCredits(msg.sender, session, rolledOver, payout);
+    }
+
+    // Returns the payout per credit based on the house winnings for a session.
+    function getPayoutPerCredit(uint session) returns (uint) {
+
+        uint sessionProfit = houseFunds[session].profit;
+        uint totalPurchasedUserCredits = houseFunds[session].totalPurchasedUserCredits;
+
+        // ((Total User Credits / Session profits) * 100) * PROFIT_SHARE_PERCENT/100;
+        return safeMul(safeMul(safeDiv(totalPurchasedUserCredits, sessionProfit), 100),
+        safeDiv(PROFIT_SHARE_PERCENT, 100));
     }
 
     // Allows users holding credits in the current session to roll over their credits to the
-    // next session and receive profits for current session.
+    // next session.
     function rollOverCredits(uint amount)
     areCreditsAvailable(currentSession, amount)
     isCreditBuyingPeriod {
 
         // Payout and current session variables.
-        uint payoutPerCredit = getPayoutPerCredit(currentSession);
         uint credits = houseFunds[currentSession].userCredits[msg.sender].amount;
-        uint paidOut = houseFunds[currentSession].payouts[msg.sender];
-        uint totalHousePayouts = houseFunds[currentSession].totalHousePayouts;
-        uint payout = safeMul(payoutPerCredit, amount);
 
         // Next session variables.
         uint nextSession = safeAdd(currentSession, 1);
         uint totalUserCreditsForNextSession = houseFunds[nextSession].userCredits[msg.sender].amount;
 
-        // Payout users for current session and liquidate credits.
-        houseFunds[currentSession].payouts[msg.sender] = safeAdd(paidOut, payout);
+        // Rollover credits from current session to next.
         houseFunds[currentSession].userCredits[msg.sender].amount = safeSub(credits, amount);
-        houseFunds[currentSession].totalHousePayouts = safeAdd(totalHousePayouts, payout);
+        houseFunds[currentSession].userCredits[msg.sender].rolledOver = safeAdd(credits, amount);
 
         // Add to credits for next session.
-        houseFunds[nextSession].userCredits[msg.sender].amount = safeAdd(credits, amount);
-        houseFunds[nextSession].totalUserCredits = safeAdd(totalUserCreditsForNextSession, amount);
-
-        // Transfers from house to user.
-        if (!decentBetToken.transferFrom(address(this), msg.sender, payout)) throw;
+        houseFunds[nextSession].userCredits[msg.sender].amount = safeAdd(totalUserCreditsForNextSession, amount);
+        houseFunds[nextSession].totalPurchasedUserCredits = safeAdd(houseFunds[nextSession].totalUserCredits, amount);
+        houseFunds[nextSession].totalFunds = safeAdd(houseFunds[nextSession].totalFunds, amount);
 
         LogRolledOverCredits(msg.sender, currentSession, amount);
+    }
+
+    // Withdraws session tokens from the previously ended session from betting provider.
+    function withdrawPreviousSessionTokensFromHouseOffering(address houseOffering)
+    isValidHouseOffering(houseOffering)
+    onlyAuthorized {
+        uint previousSession = currentSession - 1;
+        // Withdrawals are only allowed after session 1.
+        if(currentSession <= 1) throw;
+
+        // Tokens can only be withdrawn 48h after the previous session has ended to account for pending bets.
+        if(now < sessions[previousSession].endTime + 2 days) throw;
+
+        uint previousSessionTokens = offerings[houseOffering].houseOffering.balanceOf(address(this), previousSession);
+
+        // Withdraw from previous session
+        if(!offerings[houseOffering].houseOffering.withdrawPreviousSessionTokens()) throw;
+
+        houseFunds[previousSession].totalWithdrawn =
+        safeAdd(houseFunds[previousSession].totalWithdrawn, previousSessionTokens);
     }
 
     // Starts the next session.
@@ -308,16 +341,19 @@ contract House is SafeMath {
             // For a session to be considered active, now would need to be between startTime and endTime
             // AND session should be active.
             sessions[nextSession].active = true;
-        }
-        else {
+        } else {
+            // TODO Deposit %age of tokens to all offerings
             sessions[nextSession].startTime = now;
             sessions[nextSession].endTime = safeAdd(sessions[nextSession].startTime, 12 weeks);
             // For a session to be considered active, now would need to be between startTime and endTime
             // AND session should be active.
             sessions[nextSession].active = true;
         }
-        LogNewSession(nextSession, sessions[nextSession].startTime, 0,
-        sessions[nextSession].endTime, 0);
+        currentSession = nextSession;
+
+        // TODO Set session for all offerings
+        //        bettingProvider.setSession(nextSession);
+        LogNewSession(nextSession, sessions[nextSession].startTime, 0, sessions[nextSession].endTime, 0);
     }
 
     // Utility functions for front-end purposes.
