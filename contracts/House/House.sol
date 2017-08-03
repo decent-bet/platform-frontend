@@ -29,16 +29,27 @@ contract House is SafeMath {
         uint profit;
     }
 
-    struct Credits {
-        // Session => amount
-        mapping (uint => uint) amounts;
-        bool exists;
-    }
-
     struct Session {
         uint startTime;
         uint endTime;
         bool active;
+        // Offerings available for this session.
+        address[] offerings;
+        // Offerings that have been withdrawn from in this session.
+        // Must be equal to number of offerings to switch to the next session.
+        uint withdrawnOfferings;
+        // %age allocation of total tokens for deposit at start of session.
+        mapping (address => TokenAllocations) offeringTokenAllocations;
+        // Total % of tokens allocated, must be equal before switching to next session.
+        uint totalTokensAllocated;
+        // Increments by 1 after each deposit to an offering allocation.
+        uint depositedAllocations;
+    }
+
+    struct TokenAllocations {
+        // Amount allocated to offering.
+        uint allocation;
+        bool deposited;
     }
 
     struct Offering {
@@ -49,7 +60,7 @@ contract House is SafeMath {
     // Variables
     address public founder;
 
-    address[] public houseOfferingAddresses;
+    address[] public offeringAddresses;
 
     address[] public authorizedAddresses;
 
@@ -86,16 +97,6 @@ contract House is SafeMath {
         decentBetToken = AbstractDecentBetToken(decentBetTokenAddress);
     }
 
-    function addHouseOffering(address houseOfferingAddress)
-    onlyFounder {
-        houseOfferingAddresses.push(houseOfferingAddress);
-            offerings[houseOfferingAddress] = Offering({
-            houseOffering: HouseOffering(houseOfferingAddress),
-            exists: true
-        });
-        LogNewHouseOffering(houseOfferingAddress, offerings[houseOfferingAddress].houseOffering.name());
-    }
-
     // Modifiers //
     modifier onlyFounder() {
         if (msg.sender != founder) throw;
@@ -111,15 +112,16 @@ contract House is SafeMath {
     // Allows functions to execute only if it's currently a credit-buying period i.e
     // 1 week before the end of the current session.
     modifier isCreditBuyingPeriod() {
-        if (currentSession > 0) {
-            if (now < (sessions[currentSession].endTime - 1 weeks) || now > (sessions[currentSession].endTime))
-            throw;
-        } else {
-            // Session zero hasn't started
-            if (sessionZeroStartTime == 0) throw;
-            // Session zero has ended
-            if (now > sessionZeroStartTime + 1 weeks) throw;
-        }
+        if (currentSession == 0 && sessionZeroStartTime == 0) throw;
+        if (now < (sessions[currentSession].endTime - 2 weeks) ||
+            now > (sessions[currentSession].endTime - 1 weeks)) throw;
+        _;
+    }
+
+    // If this is the last week of a session - signifying the period when token deposits can be made to house offerings.
+    modifier isLastWeekForSession() {
+        if (currentSession == 0 && sessionZeroStartTime == 0) throw;
+        if (now < (sessions[currentSession].endTime - 1 weeks) || now > (sessions[currentSession].endTime)) throw;
         _;
     }
 
@@ -149,9 +151,9 @@ contract House is SafeMath {
         _;
     }
 
-    // Allows functions to execute only if it is the end of the current session
+    // Allows functions to execute only if it is the end of the current session.
     modifier isEndOfSession() {
-        if (currentSession == 0) throw;
+        if (currentSession == 0 && sessionZeroStartTime == 0) throw;
         if (now < sessions[currentSession].endTime) throw;
         _;
     }
@@ -194,6 +196,19 @@ contract House is SafeMath {
         }
     }
 
+    // Adds a new offering to the house.
+    function addHouseOffering(address houseOfferingAddress)
+    onlyFounder {
+        uint nextSession = currentSession + 1;
+        offeringAddresses.push(houseOfferingAddress);
+        offerings[houseOfferingAddress] = Offering({
+            houseOffering: HouseOffering(houseOfferingAddress),
+            exists: true
+        });
+        sessions[nextSession].offerings.push(houseOfferingAddress);
+        LogNewHouseOffering(houseOfferingAddress, offerings[houseOfferingAddress].houseOffering.name());
+    }
+
     // Transfers DBETs from users to house contract address and generates credits in return.
     // House contract must be approved to transfer amount from msg.sender to house.
     function purchaseCredits(uint amount)
@@ -205,13 +220,13 @@ contract House is SafeMath {
 
         // Add to house and user funds.
         houseFunds[nextSession].totalFunds =
-        safeAdd(houseFunds[nextSession].totalFunds, amount);
+            safeAdd(houseFunds[nextSession].totalFunds, amount);
         houseFunds[nextSession].totalPurchasedUserCredits =
-        safeAdd(houseFunds[nextSession].totalPurchasedUserCredits, amount);
+            safeAdd(houseFunds[nextSession].totalPurchasedUserCredits, amount);
         houseFunds[nextSession].totalUserCredits =
-        safeAdd(houseFunds[nextSession].totalUserCredits, amount);
+            safeAdd(houseFunds[nextSession].totalUserCredits, amount);
         houseFunds[nextSession].userCredits[msg.sender].amount =
-        safeAdd(houseFunds[nextSession].userCredits[msg.sender].amount, amount);
+            safeAdd(houseFunds[nextSession].userCredits[msg.sender].amount, amount);
 
         // Add user to house users array for UI iteration purposes.
         if (houseFunds[nextSession].userCredits[msg.sender].exists == false) {
@@ -288,6 +303,8 @@ contract House is SafeMath {
     areCreditsAvailable(currentSession, amount)
     isCreditBuyingPeriod {
 
+        if(currentSession == 0) throw;
+
         // Payout and current session variables.
         uint credits = houseFunds[currentSession].userCredits[msg.sender].amount;
 
@@ -307,7 +324,7 @@ contract House is SafeMath {
         LogRolledOverCredits(msg.sender, currentSession, amount);
     }
 
-    // Withdraws session tokens from the previously ended session from betting provider.
+    // Withdraws session tokens from the previously ended session from a house offering.
     function withdrawPreviousSessionTokensFromHouseOffering(address houseOffering)
     isValidHouseOffering(houseOffering)
     onlyAuthorized {
@@ -315,7 +332,9 @@ contract House is SafeMath {
         // Withdrawals are only allowed after session 1.
         if(currentSession <= 1) throw;
 
-        // Tokens can only be withdrawn 48h after the previous session has ended to account for pending bets.
+        // Tokens can only be withdrawn from offerings by house 48h after the previous session has ended to account
+        // for pending bets/game outcomes.
+
         if(now < sessions[previousSession].endTime + 2 days) throw;
 
         uint previousSessionTokens = offerings[houseOffering].houseOffering.balanceOf(address(this), previousSession);
@@ -325,35 +344,80 @@ contract House is SafeMath {
 
         houseFunds[previousSession].totalWithdrawn =
         safeAdd(houseFunds[previousSession].totalWithdrawn, previousSessionTokens);
+
+        sessions[previousSession].withdrawnOfferings = safeAdd(sessions[previousSession].withdrawnOfferings, 1);
+
+        // All offerings have been withdrawn.
+        if(sessions[previousSession].withdrawnOfferings == sessions[previousSession].offerings.length) {
+            houseFunds[previousSession].profit =
+                safeSub(houseFunds[previousSession].totalFunds, houseFunds[previousSession].totalWithdrawn);
+        }
+    }
+
+    // Allocates a %age of tokens for a house offering for the next session
+    function allocateTokensForHouseOffering(uint percentage, address houseOffering)
+    isCreditBuyingPeriod
+    isValidHouseOffering(houseOffering)
+    onlyAuthorized {
+        uint nextSession = currentSession + 1;
+
+        // Total %age of tokens can't be above 100.
+        if(safeAdd(sessions[nextSession].totalTokensAllocated, percentage) > 100) throw;
+
+        // Tokens have already been deposited to offering.
+        if(sessions[nextSession].offeringTokenAllocations[houseOffering].deposited) throw;
+
+        uint tokenAmount = houseFunds[nextSession].totalFunds;
+        uint tokenAllocation = safeMul(safeDiv(tokenAmount, 100), percentage);
+
+        sessions[nextSession].offeringTokenAllocations[houseOffering].allocation = tokenAllocation;
+        sessions[nextSession].totalTokensAllocated = safeAdd(sessions[nextSession].totalTokensAllocated, percentage);
+    }
+
+    function depositAllocatedTokensToHouseOffering(address houseOffering)
+    isLastWeekForSession
+    isValidHouseOffering(houseOffering)
+    onlyAuthorized {
+        uint nextSession = currentSession + 1;
+
+        // Tokens have already been deposited to offering.
+        if(sessions[nextSession].offeringTokenAllocations[houseOffering].deposited) throw;
+
+        uint allocation = sessions[nextSession].offeringTokenAllocations[houseOffering].allocation;
+        if(!offerings[houseOffering].houseOffering.houseDeposit(allocation, nextSession)) throw;
+
+        sessions[nextSession].offeringTokenAllocations[houseOffering].deposited = true;
+        sessions[nextSession].depositedAllocations = safeAdd(sessions[nextSession].depositedAllocations, 1);
     }
 
     // Starts the next session.
+    // Call this function once after setting up the house to begin the initial credit buying period.
     function beginNextSession()
     isEndOfSession
     onlyAuthorized {
         uint nextSession = safeAdd(currentSession, 1);
         sessions[currentSession].active = false;
-        if (currentSession == 0) {
+        if (currentSession == 0 && sessionZeroStartTime == 0) {
+            // Session zero starts here and allows users to buy credits for a week before starting session 1.
             sessionZeroStartTime = now;
-            // One week grace period to buy credits.
-            sessions[nextSession].startTime = safeAdd(sessionZeroStartTime, 1 weeks);
-            sessions[nextSession].endTime = safeAdd(sessionZeroStartTime, 13 weeks);
-            // For a session to be considered active, now would need to be between startTime and endTime
-            // AND session should be active.
-            sessions[nextSession].active = true;
+            sessions[currentSession].startTime = now;
+            sessions[currentSession].endTime = safeAdd(sessions[currentSession].startTime, 2 weeks);
         } else {
-            // TODO Deposit %age of tokens to all offerings
             sessions[nextSession].startTime = now;
             sessions[nextSession].endTime = safeAdd(sessions[nextSession].startTime, 12 weeks);
             // For a session to be considered active, now would need to be between startTime and endTime
             // AND session should be active.
             sessions[nextSession].active = true;
-        }
-        currentSession = nextSession;
+            currentSession = nextSession;
 
-        // TODO Set session for all offerings
-        //        bettingProvider.setSession(nextSession);
-        LogNewSession(nextSession, sessions[nextSession].startTime, 0, sessions[nextSession].endTime, 0);
+            // All offerings should have allocated tokens deposited before switching to next session.
+            if(sessions[nextSession].depositedAllocations != sessions[nextSession].offerings.length) throw;
+
+            for(uint i=0;i<offeringAddresses.length;i++)
+                offerings[offeringAddresses[i]].houseOffering.setSession(nextSession);
+
+            LogNewSession(nextSession, sessions[nextSession].startTime, 0, sessions[nextSession].endTime, 0);
+        }
     }
 
     // Utility functions for front-end purposes.
