@@ -213,10 +213,10 @@ contract SlotsChannel is SafeMath, Utils {
     returns (bool) {
         if (strLen(_finalUserHash) != 64) throw;
         if (strLen(_initialUserNumber) != 64) throw;
+        if (tokenContract.balanceOf(msg.sender) < deposits[msg.sender]) throw;
         initialUserNumber = _initialUserNumber;
         finalUserHash = _finalUserHash;
         ready = true;
-        if (tokenContract.balanceOf(msg.sender) < deposits[msg.sender]) throw;
         if (!tokenContract.transferFrom(msg.sender, address(this), initialDeposit)) throw;
         Deposit(_finalUserHash);
         return true;
@@ -229,11 +229,11 @@ contract SlotsChannel is SafeMath, Utils {
     isHouse
     isUserReady
     returns (bool) {
+        if (tokenContract.balanceOf(msg.sender) < deposits[players[false]]) throw;
         initialHouseSeedHash = _initialHouseSeedHash;
         finalReelHash = _finalReelHash;
         finalSeedHash = _finalSeedHash;
         activated = true;
-        if (tokenContract.balanceOf(msg.sender) < deposits[players[false]]) throw;
         if (!tokenContract.transferFrom(msg.sender, address(this), deposits[players[false]])) throw;
         Activate(_finalSeedHash, _finalReelHash);
         return true;
