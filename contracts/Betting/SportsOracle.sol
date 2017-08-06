@@ -39,27 +39,41 @@ contract SportsOracle is SafeMath {
 
     // Structs
     struct Provider {
+        // Toggled if a provider has requested for acceptance.
         bool requested;
+        // Toggled if a provider has been accepted.
         bool accepted;
         bool exists;
     }
 
     struct Game {
+        // Incremented unique id for this game.
         uint id;
+        // Reference id set by oracle.
         string refId;
+        // Sport id set by oracle. This is meant only for categorization purposes on the front-end.
         uint sportId;
+        // Starting block for this game.
         uint startBlock;
+        // Ending block for this game.
         uint endBlock;
+        // Swarm hash containing meta data.
         string swarmHash;
+        // Providers who've requested for game update.
         mapping (address => GameUpdate) providerGamesToUpdate;
+        // Period details for this game.
         mapping (uint => Period) periods;
+        // Available periods.
         uint[] availablePeriods;
+        // List of providers to update.
         address[] providersToUpdate;
         bool exists;
     }
 
     struct GameUpdate {
+        // Game ID in provider contract.
         string gameId;
+        // Toggled when updated.
         bool updated;
         bool exists;
     }
@@ -257,17 +271,20 @@ contract SportsOracle is SafeMath {
             sportId : sportId,
             startBlock : startBlock,
             endBlock : endBlock,
-            swarmHash : '',
+            swarmHash : swarmHash,
             providersToUpdate : new address[](0),
             availablePeriods: availablePeriods,
             exists : true
         });
         gamesCount++;
         games[game.id] = game;
+        for(uint i = 0; i < availablePeriods.length; i++) {
+            games[game.id].periods[availablePeriods[i]].exists = true;
+        }
         LogGameAdded(game.id, refId, sportId, swarmHash);
     }
 
-    // Update IPFS hash containing meta-data for the game.
+    // Update swarm hash containing meta-data for the game.
     function updateGameDetails(uint id, string swarmHash)
     isValidGame(id)
     onlyAuthorized {
