@@ -17,7 +17,7 @@ class Statistics extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            currentQuarter: 0,
+            currentSession: 0,
             houseFunds: 0,
             winnings: 0,
             profitSharePercent: 0,
@@ -35,17 +35,17 @@ class Statistics extends Component {
                 profitSharePercent: percent.toString()
             })
         })
-        helper.getContractHelper().getWrappers().house().getCurrentQuarter().then((quarter) => {
-            console.log('House currentQuarter: ' + quarter + typeof quarter)
+        helper.getContractHelper().getWrappers().house().getCurrentSession().then((session) => {
+            console.log('House current session: ' + session + typeof session)
             self.setState({
-                currentQuarter: quarter.toString()
+                currentSession: session.toNumber()
             })
-            self.getQuarterStats(quarter)
+            self.getSessionStats(session)
         })
 
     }
 
-    getQuarterStats = () => {
+    getSessionStats = () => {
 
     }
 
@@ -65,10 +65,10 @@ class Statistics extends Component {
                         <div className="stat-card">
                             <img src="assets/img/icons/house/quarter.png" className="icon"/>
                             <h1 className="text-center highlight">
-                                { self.state.currentQuarter }
+                                { self.state.currentSession }
                             </h1>
                             <p className="text-center">
-                                Q U A R T E R
+                                S E S S I O N
                             </p>
                         </div>
                     </div>

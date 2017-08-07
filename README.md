@@ -16,7 +16,7 @@ Consists of the platform pages - Sports betting, slots, house statistics and mor
 
 Deploy using [pm2](https://github.com/Unitech/pm2) or [serve](https://github.com/zeit/serve)
 
-###Development
+### Development
 
 Run TestRPC with the following configuration
 

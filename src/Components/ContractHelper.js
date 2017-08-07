@@ -13,7 +13,6 @@ import SlotsChannel from '../../build/contracts/SlotsChannel.json'
 import Web3 from 'web3'
 
 const async = require('async')
-const ethUnits = require('ethereum-units')
 
 const provider = new Web3.providers.HttpProvider('http://localhost:8545')
 const contract = require('truffle-contract')
@@ -224,23 +223,23 @@ class ContractHelper {
             },
             house: () => {
                 return {
-                    getCurrentQuarter: () => {
-                        return houseInstance.currentQuarter()
+                    getCurrentSession: () => {
+                        return houseInstance.currentSession()
                     },
                     getProfitSharePercent: () => {
                         return houseInstance.profitSharePercent()
                     },
-                    // Mapping (uint => Quarter)
-                    getQuarter: (quarter) => {
-                        return houseInstance.quarters(quarter)
+                    // Mapping (uint => Session)
+                    getSession: (sessionNumber) => {
+                        return houseInstance.sessions(sessionNumber)
                     },
-                    getHouseFunds: (quarter) => {
-                        return houseInstance.houseFunds(quarter)
+                    getHouseFunds: (sessionNumber) => {
+                        return houseInstance.houseFunds(sessionNumber)
                     },
-                    getUserSharesForQuarter: (quarter, address) => {
-                        console.log('getUserSharesForQuarter: ' + quarter + ', ' + address +
+                    getUserSharesForSession: (sessionNumber, address) => {
+                        console.log('getUserSharesForSession: ' + sessionNumber + ', ' + address +
                             ' (' + window.web3.isAddress(address) + ')')
-                        return houseInstance.getUserSharesForQuarter.call(quarter, address, {
+                        return houseInstance.getUserSharesForSession.call(sessionNumber, address, {
                             from: window.web3.eth.defaultAccount
                         })
                     },

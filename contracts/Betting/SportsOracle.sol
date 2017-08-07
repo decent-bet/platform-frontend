@@ -29,13 +29,13 @@ contract SportsOracle is SafeMath {
     // Arrays
 
     // Authorized addresses.
-    address[] authorizedAddresses;
+    address[] public authorizedAddresses;
 
     // Providers who've requested for an oracle's services.
-    address[] requestedProviderAddresses;
+    address[] public requestedProviderAddresses;
 
     // Accepted providers who can ask the oracle to update game outcomes on their contract.
-    address[] acceptedProviderAddresses;
+    address[] public acceptedProviderAddresses;
 
     // Structs
     struct Provider {
@@ -59,14 +59,6 @@ contract SportsOracle is SafeMath {
         uint endBlock;
         // Swarm hash containing meta data.
         string swarmHash;
-        // Providers who've requested for game update.
-        mapping (address => GameUpdate) providerGamesToUpdate;
-        // Period details for this game.
-        mapping (uint => Period) periods;
-        // Available periods.
-        uint[] availablePeriods;
-        // List of providers to update.
-        address[] providersToUpdate;
         bool exists;
     }
 
@@ -99,6 +91,22 @@ contract SportsOracle is SafeMath {
 
     mapping (uint => Game) public games;
 
+    // List of game periods.
+    // Game id => uint[]
+    mapping (uint => uint[]) public availableGamePeriods;
+
+    // List of providers who've requested for a game update.
+    // Game id => address[]
+    mapping (uint => address[]) public gameProvidersUpdateList;
+
+    // Providers who've requested for game update.
+    // Game id => (provider address => GameUpdate)
+    mapping (uint => mapping(address => GameUpdate)) public providerGamesToUpdate;
+
+    // Period details for games.
+    // Game id => (period number => Period)
+    mapping (uint => mapping(uint => Period)) public gamePeriods;
+
     int constant RESULT_TEAM1_WIN = 1;
 
     int constant RESULT_DRAW = 2;
@@ -127,6 +135,7 @@ contract SportsOracle is SafeMath {
     function SportsOracle(address decentBetTokenAddress) {
         owner = msg.sender;
         authorized[msg.sender] = true;
+        authorizedAddresses.push(msg.sender);
         decentBetToken = AbstractDecentBetToken(decentBetTokenAddress);
     }
 
@@ -231,7 +240,7 @@ contract SportsOracle is SafeMath {
 
     // Allows providers to pay to be accepted by the oracle.
     // Providers need to authorize oracles for the acceptance cost before calling this function.
-    function payForProviderAcceptance()
+    function payForAcceptance()
     isPayableForProviderAcceptance {
         // Provider should have authorized oracle to spend at least 'providerAcceptanceCost' in DBETs.
         if (decentBetToken.allowance(msg.sender, address(this)) < providerAcceptanceCost) throw;
@@ -251,12 +260,12 @@ contract SportsOracle is SafeMath {
     hasGameNotStarted(gameId) returns (bool) {
         // Provider should have authorized oracle to spend at least 'gameUpdateCost' in DBETs.
         if (decentBetToken.allowance(msg.sender, address(this)) < gameUpdateCost) throw;
-        games[gameId].providerGamesToUpdate[msg.sender] = GameUpdate({
+        providerGamesToUpdate[gameId][msg.sender] = GameUpdate({
             gameId : providerGameId,
             updated : false,
             exists : true
         });
-        games[gameId].providersToUpdate.push(msg.sender);
+        gameProvidersUpdateList[gameId].push(msg.sender);
         if (!decentBetToken.transferFrom(msg.sender, address(this), gameUpdateCost)) throw;
         return true;
     }
@@ -272,14 +281,13 @@ contract SportsOracle is SafeMath {
             startBlock : startBlock,
             endBlock : endBlock,
             swarmHash : swarmHash,
-            providersToUpdate : new address[](0),
-            availablePeriods: availablePeriods,
             exists : true
         });
         gamesCount++;
         games[game.id] = game;
+        availableGamePeriods[game.id] = availablePeriods;
         for(uint i = 0; i < availablePeriods.length; i++) {
-            games[game.id].periods[availablePeriods[i]].exists = true;
+            gamePeriods[game.id][availablePeriods[i]].exists = true;
         }
         LogGameAdded(game.id, refId, sportId, swarmHash);
     }
@@ -299,10 +307,10 @@ contract SportsOracle is SafeMath {
     hasGameEnded(gameId)
     onlyAuthorized {
         // Period should be valid to continue.
-        if (!games[gameId].periods[period].exists) throw;
+        if (!gamePeriods[gameId][period].exists) throw;
         // Reduce chances of invalid points input.
         if (totalPoints != safeAdd(team1Points, team2Points)) throw;
-            games[gameId].periods[period] = Period({
+        gamePeriods[gameId][period] = Period({
             number : period,
             result : result,
             team1Points : team1Points,
@@ -322,13 +330,13 @@ contract SportsOracle is SafeMath {
     onlyAuthorized {
         if (!providers[provider].accepted) throw;
         AbstractBettingProvider bettingProvider = AbstractBettingProvider(provider);
-        games[gameId].providerGamesToUpdate[msg.sender].updated = true;
-        if (!bettingProvider.updateGameOutcome(games[gameId].providerGamesToUpdate[msg.sender].gameId,
+        providerGamesToUpdate[gameId][msg.sender].updated = true;
+        if (!bettingProvider.updateGameOutcome(providerGamesToUpdate[gameId][msg.sender].gameId,
             period, result, team1Points, team2Points)) throw;
         LogUpdatedProviderOutcome(gameId, provider, games[gameId].refId, period, result, team1Points, team2Points);
     }
 
-    // Allows the owner of the oracle to withdraw DBETs deposited in the contract
+    // Allows the owner of the oracle to withdraw DBETs deposited in the contract.
     function withdrawTokens()
     onlyOwner {
         uint amount = decentBetToken.balanceOf(address(this));
