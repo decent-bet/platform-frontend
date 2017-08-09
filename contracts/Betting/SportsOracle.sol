@@ -53,6 +53,8 @@ contract SportsOracle is SafeMath {
         string refId;
         // Sport id set by oracle. This is meant only for categorization purposes on the front-end.
         uint sportId;
+        // League id set by oracle. This is meant only for categorization purposes on the front-end.
+        uint leagueId;
         // Starting block for this game.
         uint startBlock;
         // Ending block for this game.
@@ -64,7 +66,7 @@ contract SportsOracle is SafeMath {
 
     struct GameUpdate {
         // Game ID in provider contract.
-        string gameId;
+        bytes32 gameId;
         // Toggled when updated.
         bool updated;
         bool exists;
@@ -120,7 +122,7 @@ contract SportsOracle is SafeMath {
 
     event LogNewAcceptedProvider(address _address);
 
-    event LogGameAdded(uint id, string refId, uint sportId, string swarmHash);
+    event LogGameAdded(uint id, string refId, uint sportId, uint leagueId, string swarmHash);
 
     event LogGameDetailsUpdate(uint id, string refId, string swarmHash);
 
@@ -131,11 +133,14 @@ contract SportsOracle is SafeMath {
 
     event LogWithdrawal(uint amount);
 
+    event LogNewGameUpdateCost(uint cost);
+
+    event LogNewProviderAcceptanceCost(uint cost);
+
     // Constructor
     function SportsOracle(address decentBetTokenAddress) {
         owner = msg.sender;
-        authorized[msg.sender] = true;
-        authorizedAddresses.push(msg.sender);
+        addAuthorizedAddress(msg.sender);
         decentBetToken = AbstractDecentBetToken(decentBetTokenAddress);
     }
 
@@ -198,8 +203,10 @@ contract SportsOracle is SafeMath {
     // Functions
 
     // Add a new authorized address.
-    function addAuthorized(address _address)
+    function addAuthorizedAddress(address _address)
     onlyOwner {
+        if(authorized[_address])
+            throw;
         authorized[_address] = true;
         authorizedAddresses.push(_address);
         LogNewAuthorizedAddress(_address);
@@ -215,12 +222,14 @@ contract SportsOracle is SafeMath {
     function changeGameUpdateCost(uint cost)
     onlyOwner {
         gameUpdateCost = cost;
+        LogNewGameUpdateCost(cost);
     }
 
     // Set a price to accept new providers if it has been toggled on.
     function changeProviderAcceptanceCost(uint cost)
     onlyOwner {
         providerAcceptanceCost = cost;
+        LogNewProviderAcceptanceCost(cost);
     }
 
     // Any provider can request the oracle to accept itself.
@@ -254,7 +263,7 @@ contract SportsOracle is SafeMath {
     // gameId - ID in oracle contract
     // providerGameId - ID in provider contract
     // Reference for oracle to update betting provider with gameId's result
-    function addProviderGameToUpdate(uint gameId, string providerGameId)
+    function addProviderGameToUpdate(uint gameId, bytes32 providerGameId)
     onlyAcceptedProvider
     isValidGame(gameId)
     hasGameNotStarted(gameId) returns (bool) {
@@ -271,13 +280,14 @@ contract SportsOracle is SafeMath {
     }
 
     // Start block needs to be in advance of the actual game start time.
-    function addGame(string refId, uint sportId, uint startBlock,
+    function addGame(string refId, uint sportId, uint leagueId, uint startBlock,
     uint endBlock, uint[] availablePeriods, string swarmHash)
     onlyAuthorized {
         Game memory game = Game({
             id : gamesCount,
             refId : refId,
             sportId : sportId,
+            leagueId : leagueId,
             startBlock : startBlock,
             endBlock : endBlock,
             swarmHash : swarmHash,
@@ -289,7 +299,7 @@ contract SportsOracle is SafeMath {
         for(uint i = 0; i < availablePeriods.length; i++) {
             gamePeriods[game.id][availablePeriods[i]].exists = true;
         }
-        LogGameAdded(game.id, refId, sportId, swarmHash);
+        LogGameAdded(game.id, refId, sportId, leagueId, swarmHash);
     }
 
     // Update swarm hash containing meta-data for the game.

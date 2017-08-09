@@ -23,8 +23,6 @@ contract BettingProvider is SafeMath, HouseOffering {
     struct GameOdds {
         // Mapping of odds for this game.
         mapping(uint => Odds) odds;
-        // IDs of odds for this game.
-        uint[] ids;
         // Number of odds available.
         uint oddsCount;
     }
@@ -134,12 +132,6 @@ contract BettingProvider is SafeMath, HouseOffering {
         bool exists;
     }
 
-    struct UserBets {
-        // Array of bet IDs.
-        string[] gameIds;
-        bool exists;
-    }
-
     struct SessionStats {
         uint totalBetAmount;
         uint totalPayout;
@@ -150,32 +142,32 @@ contract BettingProvider is SafeMath, HouseOffering {
     }
 
     // Arrays
-    string[] public availableGames;
+    bytes32[] public availableGames;
 
     // Mappings
-    mapping (string => Game) games;
+    mapping (bytes32 => Game) games;
 
     // Bets placed by users.
     // userAddress => (gameId => Bet).
-    mapping (address => UserBets) userBets;
+    mapping (address => bytes32[]) public userBets;
 
     // Users need to deposit/withdraw tokens for a sessionwith the provider before placing bets.
     // These can be withdrawn at any time.
     // mapping (userAddress => mapping (sessionNumber => amount))
-    mapping (address => mapping (uint => uint)) depositedTokens;
+    mapping (address => mapping (uint => uint)) public depositedTokens;
 
     // Stats for the ongoing session.
-    mapping (uint => SessionStats) sessionStats;
+    mapping (uint => SessionStats) public sessionStats;
 
     // Variables
-    address houseAddress;
+    address public houseAddress;
 
-    address sportsOracleAddress;
+    address public sportsOracleAddress;
 
-    uint currentSession;
+    uint public currentSession;
 
     // Result constants.
-    uint constant public RESULT_OFFSET_HOURS = 24;
+    uint constant RESULT_OFFSET_HOURS      = 24;
 
     int constant RESULT_TEAM1_WIN          = 1;
 
@@ -220,15 +212,15 @@ contract BettingProvider is SafeMath, HouseOffering {
     uint ASSISTED_CLAIM_BLOCK_OFFSET       = 8640;
 
     // Events
-    event LogNewGame(string id, uint oracleId, uint cutOffBlock, uint endBlock);
+    event LogNewGame(bytes32 id, uint oracleId, uint cutOffBlock, uint endBlock);
 
-    event LogNewGameOdds(string id, uint oddsId);
+    event LogNewGameOdds(bytes32 id, uint oddsId);
 
-    event LogUpdatedGameOdds(string id, uint oddsId);
+    event LogUpdatedGameOdds(bytes32 id, uint oddsId);
 
-    event LogNewBet(string gameId, uint oddsId, address bettor, uint betId);
+    event LogNewBet(bytes32 gameId, uint oddsId, address bettor, uint betId);
 
-    event LogClaimedBet(string gameId, uint oddsId, address bettor,
+    event LogClaimedBet(bytes32 gameId, uint oddsId, address bettor,
     address assistedClaimant, uint betId, uint payout);
 
     event Deposit(address _address, uint amount, uint session, uint balance);
@@ -278,37 +270,37 @@ contract BettingProvider is SafeMath, HouseOffering {
     }
 
     // Allows functions to execute only if game exists.
-    modifier isValidGame(string id) {
+    modifier isValidGame(bytes32 id) {
         if (games[id].exists == false) throw;
         _;
     }
 
     // Allows functions to execute only if current block is earlier than the cutoff block.
-    modifier isBeforeGameCutoff(string id) {
+    modifier isBeforeGameCutoff(bytes32 id) {
         if (block.number >= (games[id].cutOffBlock)) throw;
         _;
     }
 
     // Allows functions to execute only if a game is past end time.
-    modifier isPastGameEndBlock(string id) {
+    modifier isPastGameEndBlock(bytes32 id) {
         if (now < games[id].endBlock) throw;
         _;
     }
 
     // Allows functions to execute only if a game is past end time and is marked as ended.
-    modifier isGameProfitsClaimable(string id) {
+    modifier isGameProfitsClaimable(bytes32 id) {
         if (block.number < games[id].endBlock + RESULT_OFFSET_HOURS ||
         !games[id].hasEnded) throw;
         _;
     }
 
     // Allows functions to execute only if a bet has been placed.
-    modifier isValidBet(string gameId, uint betId) {
+    modifier isValidBet(bytes32 gameId, uint betId) {
         if (games[gameId].bettors[msg.sender].bets[betId].exists == false) throw;
         _;
     }
 
-    modifier isUnclaimedBet(string gameId, uint betId, address bettor) {
+    modifier isUnclaimedBet(bytes32 gameId, uint betId, address bettor) {
         if(bettor == address(0x0))
         bettor = msg.sender;
         if (games[gameId].bettors[bettor].bets[betId].claimed) throw;
@@ -316,7 +308,7 @@ contract BettingProvider is SafeMath, HouseOffering {
     }
 
     // Allows function to execute only if the odds are valid.
-    modifier isValidOdds(string gameId, uint oddsId) {
+    modifier isValidOdds(bytes32 gameId, uint oddsId) {
         if (!games[gameId].odds.odds[oddsId].exists) throw;
         _;
     }
@@ -405,16 +397,15 @@ contract BettingProvider is SafeMath, HouseOffering {
 
     // Adds a game to the contract.
     // 800k gas.
-    function addGame(string id, uint oracleGameId, uint maxSpreadBet,
+    function addGame(bytes32 id, uint oracleGameId, uint maxSpreadBet,
     uint maxMoneylineBet, uint maxTotalsBet, uint maxTeamTotalsBet,
     uint cutOffBlock, uint endBlock)
     onlyAuthorized {
         if(!sportsOracle.addProviderGameToUpdate(oracleGameId, id)) throw;
-            throw;
         games[id] = Game({
             session: currentSession,
             oracleGameId : oracleGameId,
-            odds : GameOdds(new uint[](0), 0),
+            odds : GameOdds(0),
             bettorsList: new address[](0),
             betAmount: 0,
             payouts: 0,
@@ -432,7 +423,7 @@ contract BettingProvider is SafeMath, HouseOffering {
 
     // Handicap must be multiplied by 100.
     // 500k gas.
-    function pushGameOdds(string id, string refId, uint period,
+    function pushGameOdds(bytes32 id, string refId, uint period,
     int handicap, int team1, int team2, int draw, uint betType,
     uint points, int over, int under, bool isTeam1)
     onlyAuthorized
@@ -461,7 +452,7 @@ contract BettingProvider is SafeMath, HouseOffering {
     // Updates odds for a game. Until a timeout of say 300 seconds, has passed,
     // previous odds would still be active, till new odds are enforced.
     // 300k gas.
-    function updateGameOdds(string id, uint oddsId, int handicap, int team1,
+    function updateGameOdds(bytes32 id, uint oddsId, int handicap, int team1,
     int team2, int draw, uint points, int over, int under)
     onlyAuthorized
     isValidGame(id)
@@ -479,7 +470,7 @@ contract BettingProvider is SafeMath, HouseOffering {
     }
 
     // Updates the outcome of a game.
-    function updateGameOutcome(string id, uint period, int result, uint team1Points, uint team2Points)
+    function updateGameOutcome(bytes32 id, uint period, int result, uint team1Points, uint team2Points)
     onlySportsOracle
     isValidGame(id)
     isPastGameEndBlock(id)
@@ -498,7 +489,7 @@ contract BettingProvider is SafeMath, HouseOffering {
 
     // Place a bet on a game based on listed odds.
     // 1M gas.
-    function placeBet(string gameId, uint oddsId, uint betType, uint choice, uint amount)
+    function placeBet(bytes32 gameId, uint oddsId, uint betType, uint choice, uint amount)
     isTokensAvailable(amount)
     isValidGame(gameId)
     isBeforeGameCutoff(gameId)
@@ -523,6 +514,26 @@ contract BettingProvider is SafeMath, HouseOffering {
         uint betId = games[gameId].bettors[msg.sender].betCount;
 
         // Add the bet to user bets mapping for front-end reference.
+        addNewBet(gameId, betId, oddsId, betType, choice, amount, currentSession);
+
+        // Iterate bet count for user.
+        games[gameId].bettors[msg.sender].betCount =
+        safeAdd(games[gameId].bettors[msg.sender].betCount, 1);
+
+        userBets[msg.sender].push(gameId);
+
+        // Provider holds tokens for duration of the bet.
+        depositedTokens[address(this)][currentSession] =
+        safeAdd(depositedTokens[address(this)][currentSession], amount);
+        depositedTokens[msg.sender][currentSession] =
+        safeSub(depositedTokens[msg.sender][currentSession], amount);
+
+        LogNewBet(gameId, oddsId, msg.sender, betId);
+    }
+
+    // Split place bet into two functions to avoid stack too deep errors.
+    function addNewBet(bytes32 gameId, uint betId, uint oddsId, uint betType,
+    uint choice, uint amount, uint currentSession) internal {
         games[gameId].bettors[msg.sender].bets[games[gameId].bettors[msg.sender].betCount] = Bet({
             id : betId,
             oddsId: oddsId,
@@ -534,25 +545,11 @@ contract BettingProvider is SafeMath, HouseOffering {
             exists : true,
             claimed : false
         });
-
-        // Iterate bet count for user.
-        games[gameId].bettors[msg.sender].betCount =
-        safeAdd(games[gameId].bettors[msg.sender].betCount, 1);
-
-        userBets[msg.sender].gameIds.push(gameId);
-
-        // Provider holds tokens for duration of the bet.
-        depositedTokens[address(this)][currentSession] =
-            safeAdd(depositedTokens[address(this)][currentSession], amount);
-        depositedTokens[msg.sender][currentSession] =
-            safeSub(depositedTokens[msg.sender][currentSession], amount);
-
-        LogNewBet(gameId, oddsId, msg.sender, betId);
     }
 
     // Claim winnings for a bet.
     // 780k gas.
-    function claimBet(string gameId, uint betId, address bettor)
+    function claimBet(bytes32 gameId, uint betId, address bettor)
     isValidGame(gameId)
     isValidBet(gameId, betId)
     isUnclaimedBet(gameId, betId, bettor)
@@ -576,24 +573,24 @@ contract BettingProvider is SafeMath, HouseOffering {
 
             if(bettor == msg.sender) {
                 depositedTokens[bettor][betSession] =
-                    safeAdd(depositedTokens[bettor][betSession], betReturns);
+                safeAdd(depositedTokens[bettor][betSession], betReturns);
             } else {
                 depositedTokens[bettor][betSession] =
-                    safeAdd(depositedTokens[bettor][betSession], safeDiv(safeMul(99, betReturns), 100));
+                safeAdd(depositedTokens[bettor][betSession], safeDiv(safeMul(99, betReturns), 100));
                 depositedTokens[msg.sender][betSession] =
-                    safeAdd(depositedTokens[bettor][betSession], safeDiv(safeMul(1, betReturns), 100));
+                safeAdd(depositedTokens[bettor][betSession], safeDiv(safeMul(1, betReturns), 100));
             }
             recordClaimedBet(gameId, betId, bettor, betReturns);
         }
     }
 
     // Record a claimed bet. Split claim bet into two functions to avoid stack too deep error.
-    function recordClaimedBet(string gameId, uint betId, address bettor, uint betReturns) internal {
+    function recordClaimedBet(bytes32 gameId, uint betId, address bettor, uint betReturns) internal {
         games[gameId].bettors[bettor].bets[betId].claimed = true;
         games[gameId].payouts =
-            safeAdd(games[gameId].payouts, betReturns);
+        safeAdd(games[gameId].payouts, betReturns);
         sessionStats[currentSession].totalPayout =
-            safeAdd(sessionStats[currentSession].totalPayout, betReturns);
+        safeAdd(sessionStats[currentSession].totalPayout, betReturns);
 
         LogClaimedBet(gameId, games[gameId].bettors[bettor].bets[betId].oddsId,
         bettor, (bettor != msg.sender) ? msg.sender : address(0x0), betId, betReturns);
@@ -601,7 +598,7 @@ contract BettingProvider is SafeMath, HouseOffering {
 
     // Internal calls
     // Calculates returns for a bet based on the bet type.
-    function getBetReturns(string gameId, uint betId, address bettor) internal returns (uint) {
+    function getBetReturns(bytes32 gameId, uint betId, address bettor) internal returns (uint) {
 
         Bet bet = games[gameId].bettors[bettor].bets[betId];
         Outcome outcome = games[gameId].outcomes[bet.odds.period];
@@ -666,12 +663,112 @@ contract BettingProvider is SafeMath, HouseOffering {
     }
 
     // Split into an additional function to avoid stack too deep error.
-    function pushOdds(string gameId, Odds odds) internal returns (bool) {
+    function pushOdds(bytes32 gameId, Odds odds) internal returns (bool) {
         games[gameId].odds.odds[games[gameId].odds.oddsCount] = odds;
-        games[gameId].odds.ids.push(games[gameId].odds.oddsCount);
         games[gameId].odds.oddsCount++;
         LogNewGameOdds(gameId, games[gameId].odds.oddsCount + 1);
         return true;
+    }
+
+    // Accessor functions for front-end accessibility.
+    function getGame(bytes32 id) returns (uint oracleGameId, uint session,
+    uint betAmount, uint payouts, uint betCount, uint cutOffBlock, uint endBlock,
+    bool hasEnded, bool exists) {
+        Game game = games[id];
+        return (game.oracleGameId,
+                game.session,
+                game.betAmount,
+                game.payouts,
+                game.betCount,
+                game.cutOffBlock,
+                game.endBlock,
+                game.hasEnded,
+                game.exists);
+    }
+
+    function getGameBetLimits(bytes32 id) returns (uint[4]) {
+        return games[id].betLimits;
+    }
+
+    function getGameBettor(bytes32 id, uint index) returns (address) {
+        return games[id].bettorsList[index];
+    }
+
+    function getGameBettorBetCount(bytes32 id, address bettor) returns (uint) {
+        return games[id].bettors[bettor].betCount;
+    }
+
+    function getGameBettorBet(bytes32 gameId, address bettor, uint id) returns (uint oddsId,
+    uint choice, uint amount, uint blockNumber, uint session, bool claimed,
+    bool exists) {
+        Bet bet = games[gameId].bettors[bettor].bets[id];
+        return (bet.oddsId,
+                bet.choice,
+                bet.amount,
+                bet.blockNumber,
+                bet.session,
+                bet.claimed,
+                bet.exists);
+    }
+
+    function getGameBettorBetOdds(bytes32 gameId, address bettor, uint id) returns
+    (uint betType, uint period, int handicap, int team1, int team2, int draw,
+    uint points, int over, int under, bool isTeam1) {
+        Odds odds = games[gameId].bettors[bettor].bets[id].odds;
+        return (odds.betType,
+                odds.period,
+                odds.handicap,
+                odds.team1,
+                odds.team2,
+                odds.draw,
+                odds.points,
+                odds.over,
+                odds.under,
+                odds.isTeam1);
+    }
+
+    function getGameBettorBetOddsDetails(bytes32 gameId, address bettor, uint id) returns
+    (string refId, uint updateBlock, bool isActive) {
+        Odds odds = games[gameId].bettors[bettor].bets[id].odds;
+        return (odds.refId, odds.updateBlock, odds.isActive);
+    }
+
+    function getGameOddsCount(bytes32 id) returns (uint) {
+        return games[id].odds.oddsCount;
+    }
+
+    function getGameOdds(bytes32 gameId, uint id) returns (uint betType,
+    uint period, int handicap, int team1, int team2, int draw,
+    uint points, int over, int under, bool isTeam1) {
+        Odds odds = games[gameId].odds.odds[id];
+        return (odds.betType,
+                odds.period,
+                odds.handicap,
+                odds.team1,
+                odds.team2,
+                odds.draw,
+                odds.points,
+                odds.over,
+                odds.under,
+                odds.isTeam1);
+    }
+
+    function getGameOddsDetails(bytes32 gameId, uint id) returns (string refId,
+    uint updateBlock, bool isActive){
+        Odds odds = games[gameId].odds.odds[id];
+        return (odds.refId, odds.updateBlock, odds.isActive);
+    }
+
+    function getGameOutcome(bytes32 gameId, uint period) returns (int result,
+    uint totalPoints, uint team1Points, uint team2Points, bool isPublished,
+    uint settleBlock) {
+        Outcome outcome = games[gameId].outcomes[period];
+        return (outcome.result,
+                outcome.totalPoints,
+                outcome.team1Points,
+                outcome.team2Points,
+                outcome.isPublished,
+                outcome.settleBlock);
     }
 
     // Don't allow ETH to be sent to this contract

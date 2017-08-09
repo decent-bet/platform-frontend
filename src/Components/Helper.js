@@ -7,8 +7,6 @@ import React from 'react'
 const ethUnits = require('ethereum-units')
 const ethJsUtil = require('ethereumjs-util')
 
-let contractHelper
-
 const IS_DEV = true
 
 class Helper {
