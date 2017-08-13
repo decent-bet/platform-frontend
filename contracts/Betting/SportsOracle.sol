@@ -66,7 +66,7 @@ contract SportsOracle is SafeMath {
 
     struct GameUpdate {
         // Game ID in provider contract.
-        bytes32 gameId;
+        uint gameId;
         // Toggled when updated.
         bool updated;
         bool exists;
@@ -263,7 +263,7 @@ contract SportsOracle is SafeMath {
     // gameId - ID in oracle contract
     // providerGameId - ID in provider contract
     // Reference for oracle to update betting provider with gameId's result
-    function addProviderGameToUpdate(uint gameId, bytes32 providerGameId)
+    function addProviderGameToUpdate(uint gameId, uint providerGameId)
     onlyAcceptedProvider
     isValidGame(gameId)
     hasGameNotStarted(gameId) returns (bool) {
