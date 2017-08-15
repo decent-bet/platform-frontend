@@ -170,7 +170,7 @@ contract Slots is usingOraclize {
     }
 
     // Do not accept payments in ETH
-    function(){
+    function () {
         throw;
     }
 

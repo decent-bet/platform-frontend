@@ -41,10 +41,10 @@ contract MultiSigWallet {
     uint public transactionCount;
 
     struct Transaction {
-    address destination;
-    uint value;
-    bytes data;
-    bool executed;
+        address destination;
+        uint value;
+        bytes data;
+        bool executed;
     }
 
     modifier onlyWallet() {
@@ -275,10 +275,10 @@ contract MultiSigWallet {
     {
         transactionId = transactionCount;
         transactions[transactionId] = Transaction({
-        destination : destination,
-        value : value,
-        data : data,
-        executed : false
+            destination : destination,
+            value : value,
+            data : data,
+            executed : false
         });
         transactionCount += 1;
         Submission(transactionId);

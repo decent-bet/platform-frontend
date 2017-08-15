@@ -294,12 +294,8 @@ class ContractHelper {
                         return slotsChannelInstance.deposit()
                     },
                     finalize: (currSpin, prevSpin) => {
-                        console.log('Curr spin: ' + JSON.stringify(currSpin))
-                        console.log('Prior spin: ' + JSON.stringify(prevSpin))
                         currSpin = self.getSpinParts(currSpin)
                         prevSpin = self.getSpinParts(prevSpin)
-                        console.log('Curr spin parts: ' + JSON.stringify(currSpin))
-                        console.log('Prior spin parts: ' + JSON.stringify(prevSpin))
                         console.log(JSON.stringify([currSpin.parts, prevSpin.parts,
                                 currSpin.r, currSpin.s, prevSpin.r, prevSpin.s]))
                         return slotsChannelInstance.finalize.call(currSpin.parts, prevSpin.parts,

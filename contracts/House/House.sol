@@ -4,6 +4,7 @@ import '../Libraries/SafeMath.sol';
 import '../Token/AbstractDecentBetToken.sol';
 import '../Betting/AbstractSportsOracle.sol';
 import './HouseOffering.sol';
+import './HouseLottery.sol';
 
 // Decent.bet House Contract.
 // All credits and payouts are in DBETs and are 18 decimal places in length.
@@ -18,14 +19,21 @@ contract House is SafeMath {
     }
 
     struct HouseFunds {
+        // Total funds available to house for this session.
         uint totalFunds;
+        // Total credits purchased by users, does not change on liquidation.
         uint totalPurchasedUserCredits;
+        // Current credits available to house, will reduce when users liquidate.
         uint totalUserCredits;
         mapping (address => UserCredits) userCredits;
         mapping (address => uint) payouts;
+        // Credit holders in the house for this session.
         address[] users;
+        // Total DBETs payed out by the house for this session.
         uint totalHousePayouts;
+        // Total DBETs withdrawn by the house for this session.
         uint totalWithdrawn;
+        // Total profit generate by the house for this session.
         uint profit;
     }
 
@@ -57,8 +65,27 @@ contract House is SafeMath {
         bool exists;
     }
 
+    struct Lottery {
+        // Corresponding address for ticket number.
+        mapping (uint => address) ticketHolders;
+        // Tickets owned by a single holder.
+        mapping (address => uint) userTicketCount;
+        // Number of tickets allotted.
+        uint ticketCount;
+        // Winning ticket.
+        uint winningTicket;
+        // Payout for winning ticket in this session.
+        uint payout;
+        // Toggled when winnings are claimed.
+        bool claimed;
+        // Toggled when a winning ticket has been set.
+        bool finalized;
+    }
+
     // Variables
     address public founder;
+
+    address public houseLotteryAddress;
 
     address[] public offeringAddresses;
 
@@ -78,14 +105,22 @@ contract House is SafeMath {
     // External Contracts
     AbstractDecentBetToken public decentBetToken;
 
+    AbstractHouseLottery houseLottery;
+
     // Mappings
     // House funds per session
     mapping (uint => HouseFunds) public houseFunds;
 
+    // Session lottery info.
+    mapping (uint => Lottery) public lotteries;
+
+    // House offerings available for house.
     mapping (address => Offering) offerings;
 
+    // Authorized addresses.
     mapping (address => bool) public authorized;
 
+    // Session statistics.
     mapping (uint => Session) public sessions;
 
     // Constructor
@@ -114,7 +149,7 @@ contract House is SafeMath {
     modifier isCreditBuyingPeriod() {
         if (currentSession == 0 && sessionZeroStartTime == 0) throw;
         if (now < (sessions[currentSession].endTime - 2 weeks) ||
-            now > (sessions[currentSession].endTime - 1 weeks)) throw;
+        now > (sessions[currentSession].endTime - 1 weeks)) throw;
         _;
     }
 
@@ -128,6 +163,12 @@ contract House is SafeMath {
     // Allows functions to execute only if users have "amount" tokens in their balance.
     modifier areTokensAvailable(uint amount) {
         if (decentBetToken.balanceOf(msg.sender) < amount) throw;
+        _;
+    }
+
+    // Allows functions to execute only if users have purchased credits for the session.
+    modifier isUserCreditHolder(uint session) {
+        if(!houseFunds[session].userCredits[msg.sender].exists) throw;
         _;
     }
 
@@ -158,8 +199,15 @@ contract House is SafeMath {
         _;
     }
 
+    // Allows functions to execute only if the house offering exists.
     modifier isValidHouseOffering(address offering) {
         if(!offerings[offering].exists) throw;
+        _;
+    }
+
+    // Allows functions to execute only if lottery has not been finalized.
+    modifier isLotteryNotFinalized(uint session) {
+        if(lotteries[session].finalized) throw;
         _;
     }
 
@@ -175,6 +223,10 @@ contract House is SafeMath {
     event LogNewSession(uint session, uint startTimestamp, uint startBlockNumber, uint endTimestamp, uint endBlockNumber);
 
     event LogNewHouseOffering(address offeringAddress, bytes32 name);
+
+    event LogPickLotteryWinner(uint session, uint participantCount);
+
+    event LogWinningTicket(uint session, uint ticketNumber, address _address);
 
     // Adds an address to the list of authorized addresses.
     function addToAuthorizedAddresses(address _address)
@@ -209,6 +261,12 @@ contract House is SafeMath {
         LogNewHouseOffering(houseOfferingAddress, offerings[houseOfferingAddress].houseOffering.name());
     }
 
+    // Sets the lottery address.
+    function setHouseLotteryAddress(address houseLotteryAddress)
+    onlyFounder {
+        houseLottery = AbstractHouseLottery(houseLotteryAddress);
+    }
+
     // Transfers DBETs from users to house contract address and generates credits in return.
     // House contract must be approved to transfer amount from msg.sender to house.
     function purchaseCredits(uint amount)
@@ -235,7 +293,25 @@ contract House is SafeMath {
         }
 
         houseFunds[nextSession].userCredits[msg.sender].amount =
-        safeAdd(houseFunds[nextSession].userCredits[msg.sender].amount, amount);
+            safeAdd(houseFunds[nextSession].userCredits[msg.sender].amount, amount);
+
+        uint numberOfTickets = amount % 1000 ether;
+        uint userTicketCount = lotteries[currentSession].userTicketCount[msg.sender];
+        uint ticketCount = lotteries[currentSession].ticketCount;
+
+        // Allot lottery tickets for credit holders.
+        if (userTicketCount < 5) {
+            for (uint i = userTicketCount; i < 5; i++) {
+                lotteries[currentSession].ticketHolders[ticketCount++] = msg.sender;
+            }
+            lotteries[currentSession].ticketCount = ticketCount;
+
+            if (numberOfTickets + userTicketCount > 5) {
+                lotteries[currentSession].userTicketCount[msg.sender] = 5;
+            } else {
+                lotteries[currentSession].userTicketCount[msg.sender] += numberOfTickets;
+            }
+        }
 
         // Transfer tokens to house contract address.
         if (!decentBetToken.transferFrom(msg.sender, address(this), amount)) throw;
@@ -245,6 +321,7 @@ contract House is SafeMath {
 
     // Allows users to return credits and receive tokens along with profit in return.
     function liquidateCredits(uint session, uint amount)
+    isUserCreditHolder(session)
     areCreditsAvailable(session, amount)
     isProfitDistributionPeriod(session) {
 
@@ -274,12 +351,16 @@ contract House is SafeMath {
     }
 
     function payoutRolledOverCredits(uint session)
+    isUserCreditHolder(session)
     areRolledOverCreditsAvailable(session)
     isProfitDistributionPeriod(session) {
         // Calculate payout for rolled over credit.
         uint payoutPerCredit = getPayoutPerCredit(session);
         uint rolledOver = houseFunds[session].userCredits[msg.sender].rolledOver;
         uint payout = safeMul(payoutPerCredit, rolledOver);
+
+        // Liquidate all rolled over credits to 0.
+        houseFunds[session].userCredits[msg.sender].rolledOver = 0;
 
         if(!decentBetToken.transfer(msg.sender, payout)) throw;
 
@@ -291,19 +372,21 @@ contract House is SafeMath {
 
         uint sessionProfit = houseFunds[session].profit;
         uint totalPurchasedUserCredits = houseFunds[session].totalPurchasedUserCredits;
+        uint userCredits = houseFunds[session].userCredits[msg.sender].amount;
 
-        // ((Total User Credits / Session profits) * 100) * PROFIT_SHARE_PERCENT/100;
-        return safeMul(safeMul(safeDiv(totalPurchasedUserCredits, sessionProfit), 100),
-        safeDiv(PROFIT_SHARE_PERCENT, 100));
+        // ((User Credits / Total User Credits) * Session profits) * PROFIT_SHARE_PERCENT/100;
+        return safeDiv(safeMul(safeMul(userCredits, sessionProfit), PROFIT_SHARE_PERCENT),
+        safeMul(totalPurchasedUserCredits, 100));
     }
 
     // Allows users holding credits in the current session to roll over their credits to the
     // next session.
     function rollOverCredits(uint amount)
+    isUserCreditHolder(currentSession)
     areCreditsAvailable(currentSession, amount)
     isCreditBuyingPeriod {
 
-        if(currentSession == 0) throw;
+        if (currentSession == 0) throw;
 
         // Payout and current session variables.
         uint credits = houseFunds[currentSession].userCredits[msg.sender].amount;
@@ -343,7 +426,7 @@ contract House is SafeMath {
         if(!offerings[houseOffering].houseOffering.withdrawPreviousSessionTokens()) throw;
 
         houseFunds[previousSession].totalWithdrawn =
-        safeAdd(houseFunds[previousSession].totalWithdrawn, previousSessionTokens);
+            safeAdd(houseFunds[previousSession].totalWithdrawn, previousSessionTokens);
 
         sessions[previousSession].withdrawnOfferings = safeAdd(sessions[previousSession].withdrawnOfferings, 1);
 
@@ -368,7 +451,7 @@ contract House is SafeMath {
         if(sessions[nextSession].offeringTokenAllocations[houseOffering].deposited) throw;
 
         uint tokenAmount = houseFunds[nextSession].totalFunds;
-        uint tokenAllocation = safeMul(safeDiv(tokenAmount, 100), percentage);
+        uint tokenAllocation = safeDiv(safeMul(tokenAmount, percentage), 100);
 
         sessions[nextSession].offeringTokenAllocations[houseOffering].allocation = tokenAllocation;
         sessions[nextSession].totalTokensAllocated = safeAdd(sessions[nextSession].totalTokensAllocated, percentage);
@@ -388,6 +471,46 @@ contract House is SafeMath {
 
         sessions[nextSession].offeringTokenAllocations[houseOffering].deposited = true;
         sessions[nextSession].depositedAllocations = safeAdd(sessions[nextSession].depositedAllocations, 1);
+    }
+
+    // Get house lottery to retrieve random ticket winner using oraclize as RNG.
+    function pickLotteryWinner(uint session)
+    isProfitDistributionPeriod(session)
+    isLotteryNotFinalized(session)
+    onlyAuthorized {
+        // TODO: Send with ether value to fund oraclize
+        if(!houseLottery.pickWinner(currentSession, lotteries[currentSession].ticketCount)) throw;
+        LogPickLotteryWinner(currentSession, lotteries[currentSession].ticketCount);
+    }
+
+    // Called after oraclize has updated lottery winner.
+    function updateWinningLotteryTicket(uint session)
+    isProfitDistributionPeriod(session)
+    isLotteryNotFinalized(session)
+    onlyAuthorized {
+        uint winningTicket = houseLottery.getWinningLotteryTicket(currentSession);
+        lotteries[session].winningTicket = winningTicket;
+        lotteries[session].finalized = true;
+        LogWinningTicket(currentSession, winningTicket, lotteries[session].ticketHolders[winningTicket]);
+    }
+
+    // Allows a winner to withdraw lottery winnings.
+    function withdrawLotteryWinnings(uint session)
+    isProfitDistributionPeriod(session) {
+        // Should only work after the winning number has been finalized.
+        if(!lotteries[session].finalized) throw;
+        // Should not work if winnings have already been claimed.
+        if(lotteries[session].claimed) throw;
+        // Only holder of the winning ticket can withdraw.
+        if(lotteries[session].ticketHolders[lotteries[session].winningTicket] != msg.sender) throw;
+
+        uint payoutPerCredit = getPayoutPerCredit(session);
+        uint lotteryPayout = safeDiv(safeMul(houseFunds[session].totalPurchasedUserCredits, 5), 100);
+
+        lotteries[session].payout = lotteryPayout;
+        lotteries[session].claimed = true;
+
+        if(!decentBetToken.transfer(msg.sender, lotteryPayout)) throw;
     }
 
     // Starts the next session.
@@ -413,8 +536,8 @@ contract House is SafeMath {
             // All offerings should have allocated tokens deposited before switching to next session.
             if(sessions[nextSession].depositedAllocations != sessions[nextSession].offerings.length) throw;
 
-            for(uint i=0;i<offeringAddresses.length;i++)
-                offerings[offeringAddresses[i]].houseOffering.setSession(nextSession);
+            for(uint i = 0; i < offeringAddresses.length; i++)
+            offerings[offeringAddresses[i]].houseOffering.setSession(nextSession);
 
             LogNewSession(nextSession, sessions[nextSession].startTime, 0, sessions[nextSession].endTime, 0);
         }

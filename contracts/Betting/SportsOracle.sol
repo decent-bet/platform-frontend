@@ -233,10 +233,11 @@ contract SportsOracle is SafeMath {
     }
 
     // Any provider can request the oracle to accept itself.
-    function requestProvider() {
+    function requestProvider() returns (bool) {
         providers[msg.sender].requested = true;
         providers[msg.sender].exists = true;
         requestedProviderAddresses.push(msg.sender);
+        return true;
     }
 
     // Accepted providers get results pushed into their games at end time.

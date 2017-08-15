@@ -218,6 +218,8 @@ contract BettingProvider is SafeMath, HouseOffering {
     uint ASSISTED_CLAIM_BLOCK_OFFSET       = 8640;
 
     // Events
+    event LogNewOracleRequest(address _address);
+
     event LogNewGame(uint id, uint oracleId, uint cutOffBlock, uint endBlock);
 
     event LogNewGameOdds(uint id, uint oddsId);
@@ -335,6 +337,13 @@ contract BettingProvider is SafeMath, HouseOffering {
         return true;
     }
 
+    // Requests a sports oracle to accept this provider.
+    function requestSportsOracle(address _address) {
+        AbstractSportsOracle _sportsOracle = AbstractSportsOracle(_address);
+        if(!_sportsOracle.requestProvider()) throw;
+        LogNewOracleRequest(_address);
+    }
+
     // Sets the oracle that can set results for this provider.
     function setSportsOracle(address _address)
     onlyAuthorized returns (bool) {
@@ -346,7 +355,6 @@ contract BettingProvider is SafeMath, HouseOffering {
     function houseDeposit(uint amount, uint session)
     onlyHouse
     onlyAuthorized returns (bool) {
-        uint currentSession = currentSession;
         // House deposits are allowed only for this session or the next.
         if(session == 0 || session < currentSession || session > (currentSession + 1)) return false;
 
