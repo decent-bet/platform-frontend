@@ -367,7 +367,7 @@ contract DecentBetToken is SafeMath, ERC20 {
         balances[decentBetMultisig] = safeAdd(balances[decentBetMultisig], bountyTokens);
         Transfer(0, decentBetMultisig, bountyTokens);
 
-        // Transfer ETH to the Lunyr Multisig address.
+        // Transfer ETH to the DBET Multisig address.
         if (!decentBetMultisig.send(this.balance)) throw;
     }
 

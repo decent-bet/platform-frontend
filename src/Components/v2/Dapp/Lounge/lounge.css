@@ -1,0 +1,14 @@
+.lounge p {
+    font-family: GothamLight;
+}
+
+.lounge .sub-header {
+    font-family: GothamMedium;
+    color: #f2b45c !important;
+}
+
+.lounge .offering {
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
+}

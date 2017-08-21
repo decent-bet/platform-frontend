@@ -2,6 +2,7 @@ pragma solidity ^0.4.8;
 
 import '../Libraries/SafeMath.sol';
 import '../Token/AbstractDecentBetToken.sol';
+import './AbstractHouseLottery.sol';
 import '../Betting/AbstractSportsOracle.sol';
 import './HouseOffering.sol';
 import './HouseLottery.sol';
@@ -66,10 +67,6 @@ contract House is SafeMath {
     }
 
     struct Lottery {
-        // Corresponding address for ticket number.
-        mapping (uint => address) ticketHolders;
-        // Tickets owned by a single holder.
-        mapping (address => uint) userTicketCount;
         // Number of tickets allotted.
         uint ticketCount;
         // Winning ticket.
@@ -114,6 +111,12 @@ contract House is SafeMath {
     // Session lottery info.
     mapping (uint => Lottery) public lotteries;
 
+    // Ticket holders for a session's lottery.
+    mapping (uint => mapping(uint => address)) public lotteryTicketHolders;
+
+    // Number of tickets in session lottery for a user.
+    mapping (uint => mapping(address => uint[])) public lotteryUserTickets;
+
     // House offerings available for house.
     mapping (address => Offering) offerings;
 
@@ -148,7 +151,7 @@ contract House is SafeMath {
     // 1 week before the end of the current session.
     modifier isCreditBuyingPeriod() {
         if (currentSession == 0 && sessionZeroStartTime == 0) throw;
-        if (now < (sessions[currentSession].endTime - 2 weeks) ||
+        if (currentSession != 0 && now < (sessions[currentSession].endTime - 2 weeks) ||
         now > (sessions[currentSession].endTime - 1 weeks)) throw;
         _;
     }
@@ -194,8 +197,8 @@ contract House is SafeMath {
 
     // Allows functions to execute only if it is the end of the current session.
     modifier isEndOfSession() {
-        if (currentSession == 0 && sessionZeroStartTime == 0) throw;
-        if (now < sessions[currentSession].endTime) throw;
+        if (!(currentSession == 0 && sessions[currentSession].endTime == 0)
+              && now < sessions[currentSession].endTime) throw;
         _;
     }
 
@@ -271,7 +274,10 @@ contract House is SafeMath {
     // House contract must be approved to transfer amount from msg.sender to house.
     function purchaseCredits(uint amount)
     isCreditBuyingPeriod
-    areTokensAvailable(amount) {
+    areTokensAvailable(amount)
+    {
+
+        if(decentBetToken.allowance(msg.sender, address(this)) < amount) throw;
 
         // Issue credits to user equivalent to amount transferred.
         uint nextSession = safeAdd(currentSession, 1);
@@ -292,31 +298,23 @@ contract House is SafeMath {
             houseFunds[nextSession].userCredits[msg.sender].exists = true;
         }
 
-        houseFunds[nextSession].userCredits[msg.sender].amount =
-            safeAdd(houseFunds[nextSession].userCredits[msg.sender].amount, amount);
-
-        uint numberOfTickets = amount % 1000 ether;
-        uint userTicketCount = lotteries[currentSession].userTicketCount[msg.sender];
-        uint ticketCount = lotteries[currentSession].ticketCount;
+        uint numberOfTickets = amount / 1000 ether;
+        uint userTicketCount = lotteryUserTickets[nextSession][msg.sender].length;
+        uint ticketCount = lotteries[nextSession].ticketCount;
 
         // Allot lottery tickets for credit holders.
         if (userTicketCount < 5) {
             for (uint i = userTicketCount; i < 5; i++) {
-                lotteries[currentSession].ticketHolders[ticketCount++] = msg.sender;
+                lotteryUserTickets[nextSession][msg.sender].push(ticketCount);
+                lotteryTicketHolders[nextSession][ticketCount++] = msg.sender;
             }
-            lotteries[currentSession].ticketCount = ticketCount;
-
-            if (numberOfTickets + userTicketCount > 5) {
-                lotteries[currentSession].userTicketCount[msg.sender] = 5;
-            } else {
-                lotteries[currentSession].userTicketCount[msg.sender] += numberOfTickets;
-            }
+            lotteries[nextSession].ticketCount = ticketCount;
         }
 
         // Transfer tokens to house contract address.
         if (!decentBetToken.transferFrom(msg.sender, address(this), amount)) throw;
 
-        LogPurchasedCredits(msg.sender, currentSession, amount);
+        LogPurchasedCredits(msg.sender, nextSession, amount);
     }
 
     // Allows users to return credits and receive tokens along with profit in return.
@@ -491,7 +489,7 @@ contract House is SafeMath {
         uint winningTicket = houseLottery.getWinningLotteryTicket(currentSession);
         lotteries[session].winningTicket = winningTicket;
         lotteries[session].finalized = true;
-        LogWinningTicket(currentSession, winningTicket, lotteries[session].ticketHolders[winningTicket]);
+        LogWinningTicket(currentSession, winningTicket, lotteryTicketHolders[session][winningTicket]);
     }
 
     // Allows a winner to withdraw lottery winnings.
@@ -502,7 +500,7 @@ contract House is SafeMath {
         // Should not work if winnings have already been claimed.
         if(lotteries[session].claimed) throw;
         // Only holder of the winning ticket can withdraw.
-        if(lotteries[session].ticketHolders[lotteries[session].winningTicket] != msg.sender) throw;
+        if(lotteryTicketHolders[session][lotteries[session].winningTicket] != msg.sender) throw;
 
         uint payoutPerCredit = getPayoutPerCredit(session);
         uint lotteryPayout = safeDiv(safeMul(houseFunds[session].totalPurchasedUserCredits, 5), 100);

@@ -1,19 +1,20 @@
 let utils = require("../test/utils/utils.js")
 utils.setWeb3(web3)
 
-let MultiSigWallet = artifacts.require("MultiSigWallet")
-let DecentBetToken = artifacts.require("DecentBetToken")
-let UpgradeAgent = artifacts.require("UpgradeAgent")
-let DecentBetVault = artifacts.require("DecentBetVault")
-let House = artifacts.require("House")
-let BettingProvider = artifacts.require("BettingProvider")
-let BettingProviderHelper = artifacts.require("BettingProviderHelper")
-let SportsOracle = artifacts.require("SportsOracle")
+const MultiSigWallet = artifacts.require("MultiSigWallet")
+const DecentBetToken = artifacts.require("DecentBetToken")
+const UpgradeAgent = artifacts.require("UpgradeAgent")
+const DecentBetVault = artifacts.require("DecentBetVault")
+const House = artifacts.require("House")
+const BettingProvider = artifacts.require("BettingProvider")
+const BettingProviderHelper = artifacts.require("BettingProviderHelper")
+const SportsOracle = artifacts.require("SportsOracle")
 
-let ECVerify = artifacts.require("ECVerify")
-let GameChannelManager = artifacts.require("GameChannelManager")
-let SlotsChannel = artifacts.require("SlotsChannel")
-let SlotsHelper = artifacts.require("SlotsHelper")
+const ECVerify = artifacts.require("ECVerify")
+const GameChannelManager = artifacts.require("GameChannelManager")
+const SlotsChannel = artifacts.require("SlotsChannel")
+const SlotsChannelManager = artifacts.require("SlotsChannelManager")
+const SlotsHelper = artifacts.require("SlotsHelper")
 
 module.exports = function (deployer, network) {
     let decentBetMultisig
@@ -22,7 +23,7 @@ module.exports = function (deployer, network) {
     let accounts = web3.eth.accounts.slice(0, 3)
     let signaturesRequired = 2
     let token, wallet, upgradeAgent, house, bettingProvider, bettingProviderHelper, sportsOracle,
-        gameChannelManager, ecVerify, sportsBetting, slots, slotsHelper
+        gameChannelManager, ecVerify, slots, slotsHelper, slotsChannelManager
     console.log('Network: ' + network + ', startBlock: ' + web3.eth.blockNumber)
     if (network == 'testnet' || network == 'development') {
         deployer.deploy(MultiSigWallet, accounts, signaturesRequired).then(function (instance) {
@@ -37,6 +38,7 @@ module.exports = function (deployer, network) {
             return DecentBetToken.deployed()
         }).then(function (instance) {
             token = instance
+            console.log('Deploying house with token', token.address)
             return deployer.deploy(House, token.address)
         }).then(function (instance) {
             return House.deployed()
@@ -54,7 +56,7 @@ module.exports = function (deployer, network) {
         }).then(function () {
             return BettingProvider.deployed()
         }).then(function (instance) {
-            sportsBetting = instance
+            bettingProvider = instance
             console.log('House: ' + web3.eth.accounts[0])
             return deployer.deploy(SportsOracle)
         }).then(function () {
@@ -62,22 +64,34 @@ module.exports = function (deployer, network) {
         }).then(function (instance) {
             sportsOracle = instance
             return deployer.deploy(ECVerify)
-        }).then(function (instance) {
-            ecVerify = instance
-            return deployer.link(ECVerify, GameChannelManager)
         }).then(function () {
             console.log('Linked ecverify to GameChannelManager')
+            return deployer.link(ECVerify, SlotsChannelManager)
+        }).then(function () {
+            console.log('Linked ecverify to SlotsChannelManager')
             return deployer.deploy(SlotsHelper)
         }).then(function () {
             return SlotsHelper.deployed()
         }).then(function (instance) {
             console.log('Deployed Slots Helper')
             slotsHelper = instance
-            console.log('Deploying GameChannelManager with token: ' + token.address + ', slotsHelper: ' +
-                slotsHelper.address + ' and ' + web3.eth.accounts[0])
-            return deployer.deploy(GameChannelManager, token.address, slotsHelper.address, web3.eth.accounts[0])
+            return deployer.deploy(SlotsChannelManager, house.address, token.address, slotsHelper.address)
+        }).then(function () {
+            return SlotsChannelManager.deployed()
         }).then(function (instance) {
-            gameChannelManager = instance
+            console.log('Deployed Slots Channel Manager')
+            slotsChannelManager = instance
+            // console.log('Deploying GameChannelManager with token: ' + token.address + ', slotsHelper: ' +
+            //     slotsHelper.address + ' and ' + web3.eth.accounts[0])
+            // return deployer.deploy(GameChannelManager, token.address, slotsHelper.address, web3.eth.accounts[0])
+            return house.addHouseOffering.sendTransaction(bettingProvider.address, {
+                gas: 3000000
+            })
+        }).then(function () {
+            // gameChannelManager = instance
+            return house.addHouseOffering.sendTransaction(slotsChannelManager.address, {
+                gas: 3000000
+            })
         })
         /** Won't work until in Success state */
         // .then(function (instance) {

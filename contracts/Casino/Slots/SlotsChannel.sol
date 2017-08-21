@@ -1,14 +1,12 @@
 pragma solidity ^0.4.0;
 
-
 import '../../Token/AbstractDecentBetToken.sol';
 import './AbstractSlotsHelper.sol';
 import '../../Libraries/ECVerify.sol';
-import '../GameChannelManager.sol';
+import '../AbstractGameChannelManager.sol';
 import '../../Libraries/SafeMath.sol';
 import '../../Libraries/strings.sol';
 import '../../Libraries/Utils.sol';
-
 
 // A State channel contract to handle slot games on the Decent.bet platform
 contract SlotsChannel is SafeMath, Utils {
@@ -130,7 +128,7 @@ contract SlotsChannel is SafeMath, Utils {
 
     AbstractSlotsHelper slotsHelper;
 
-    GameChannelManager gameChannelManagerContract;
+    AbstractGameChannelManager gameChannelManagerContract;
 
     /* Mappings */
 
@@ -162,7 +160,7 @@ contract SlotsChannel is SafeMath, Utils {
         endTime = safeAdd(now, timeToLive);
         tokenContract = AbstractDecentBetToken(_token);
         slotsHelper = AbstractSlotsHelper(_slotsHelper);
-        gameChannelManagerContract = GameChannelManager(_gameChannelManager);
+        gameChannelManagerContract = AbstractGameChannelManager(_gameChannelManager);
     }
 
     /* Modifiers */
@@ -255,65 +253,27 @@ contract SlotsChannel is SafeMath, Utils {
     // Verifies last two spins and returns their validity
     function checkPair(Spin curr, Spin prior) private returns (bool) {
 
-        // Verify signatures
-        if (!checkSigPrivate(curr)) throw; // 100k gas
-        if (!checkSigPrivate(prior)) throw; // 100k gas
-
         // If Player's turn
         if (curr.turn == false) {
-
-            // Checks if spin hashes are pre-images of previous hashes or are hashes in previous spins
-            if (!checkSpinHashes(curr, prior)) throw;
-            // 5.6k gas
-
-            // Nonce should be incremented by 1
-            if (curr.nonce != prior.nonce + 1) throw;
 
             // The last reel hash needs to be a hash of the last reel seed, user hash and reel
             // The random numbers don't need to verified on contract, only the reel rewards
             // Random numbers could be verified off-chain using the seed-random library using the
             // below hash as the seed
-            if (!compareReelHashes(curr, prior)) throw;
+            if (!compareReelHashes(curr, prior)) return false;
             // 103k gas
 
             // Bet size can be only upto maximum number of lines
-            if (prior.betSize > 5 || prior.betSize == 0) throw;
-
-            // Compute last reel reward and check whether balances in current spin are correct
-            uint totalSpinReward = getTotalSpinReward(prior);
-            // 700k gas
-            if (totalSpinReward > 0) {
-                if (!isAccurateBalances(curr, prior, totalSpinReward)) throw;
-                // 26k gas
-            }
-            else {
-                // User balance for this spin must be the last user balance - betSize
-                if (curr.userBalance != safeSub(prior.userBalance, prior.betSize)) throw;
-
-                // House balance for this spin must be the last house balance + betSize
-                if (curr.houseBalance != safeAdd(prior.houseBalance, prior.betSize)) throw;
-            }
+            if (prior.betSize > 5 ether || prior.betSize == 0) return false;
             return true;
         }
         else {
             // During the house's turn, the spin would have the user hash sent by the player
 
-            // Checks if spin hashes are pre-images of previous hashes or are hashes in previous spins
-            if (!checkSpinHashes(curr, prior)) throw;
-
             //32k gas for all conditions
 
-            // Nonce should be incremented by 1
-            if (curr.nonce != prior.nonce + 1) throw;
-
             // Bet size needs to be determined by the user, not house
-            if (curr.betSize != prior.betSize) throw;
-
-            // User balance for this spin must be the last user balance - betSize
-            if (curr.userBalance != safeSub(prior.userBalance, prior.betSize)) throw;
-
-            // House balance for this spin must be the last house balance + betSize
-            if (curr.houseBalance != safeAdd(prior.houseBalance, prior.betSize)) throw;
+            if (curr.betSize != prior.betSize) return false;
             return true;
         }
 
@@ -374,11 +334,22 @@ contract SlotsChannel is SafeMath, Utils {
     // Works only for user turns
     function isAccurateBalances(Spin curr, Spin prior, uint totalSpinReward) private returns (bool) {
 
-        // User balance for this spin must be the last user balance + reward
-        if (curr.userBalance != safeAdd(prior.userBalance, totalSpinReward)) throw;
+        if(curr.turn) {
+            // House turn
 
-        // House balance for this spin must be the last house balance - reward
-        if (curr.houseBalance != safeSub(prior.houseBalance, totalSpinReward)) throw;
+            // User balance for this spin must be the last user balance + reward
+            if (curr.userBalance != safeSub(safeAdd(prior.userBalance, totalSpinReward), prior.betSize)) return false;
+
+            // House balance for this spin must be the last house balance - reward
+            if (curr.houseBalance != safeAdd(safeSub(prior.houseBalance, totalSpinReward), prior.betSize)) return false;
+        } else {
+            // User turn
+
+            // Both user and house balances should be equal for current and previous spins.
+            if(curr.userBalance != prior.userBalance) return false;
+
+            if(curr.houseBalance != prior.houseBalance) return false;
+        }
 
         return true;
     }
@@ -386,7 +357,7 @@ contract SlotsChannel is SafeMath, Utils {
     // Finalizes the channel before closing the channel and allowing participants to transfer DBETs
     function finalize(string _curr, string _prior,
     bytes32 currR, bytes32 currS, bytes32 priorR, bytes32 priorS) isParticipant
-    returns (uint) {
+    returns (bool) {
 
         Spin memory curr = convertSpin(_curr);
         // 5.6k gas
@@ -399,21 +370,22 @@ contract SlotsChannel is SafeMath, Utils {
         prior.s = priorS;
 
         uint totalSpinReward = getTotalSpinReward(prior);
-//         700k gas
-//        if (totalSpinReward > 0) {
-//            if (!isAccurateBalances(curr, prior, totalSpinReward)) throw;
-//            // 26k gas
-//        } else {
-//            // User balance for this spin must be the last user balance - betSize
-//            if (curr.userBalance != safeSub(prior.userBalance, prior.betSize)) throw;
-//
-//            // House balance for this spin must be the last house balance + betSize
-//            if (curr.houseBalance != safeAdd(prior.houseBalance, prior.betSize)) throw;
-//        }
-        return totalSpinReward;
-//        if (!checkPair(curr, prior)) throw;
-        // 1238k gas
-        //if (!finalized || curr.nonce > finalNonce) setFinal(curr); // 86k gas
+
+        if (!isAccurateBalances(curr, prior, totalSpinReward)) return false;
+        // 26k gas
+
+        if(!checkSigPrivate(curr)) return false;
+        if(!checkSigPrivate(prior)) return false;
+
+        // Checks if spin hashes are pre-images of previous hashes or are hashes in previous spins
+        if (!checkSpinHashes(curr, prior)) return false;
+        // 5.6k gas
+
+        if(!checkPair(curr, prior)) return false;
+
+        if (!finalized || curr.nonce > finalNonce) setFinal(curr); // 86k gas
+
+        return true;
     }
 
     // Convert a bytes32 array to a Spin object

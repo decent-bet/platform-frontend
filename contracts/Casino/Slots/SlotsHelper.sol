@@ -85,6 +85,7 @@ contract SlotsHelper is SafeMath, Utils {
         for (uint8 i = 0; i < adjustedBetSize; i++) { //300k gas
             totalReward = safeAdd(totalReward, getLineRewardMultiplier(getLine(i, reelArray)));
         }
+        totalReward = safeMul(totalReward, 1 ether);
         return totalReward;
     }
 
@@ -94,7 +95,7 @@ contract SlotsHelper is SafeMath, Utils {
         uint8 repetitions = 0;
         uint rewardMultiplier = 0;
         for (uint8 i = 1; i <= NUMBER_OF_REELS; i++) {
-            if (line[i] != line[i - 1]) {
+            if (line[i] == line[i - 1]) {
                 repetitions++;
             }
             else {

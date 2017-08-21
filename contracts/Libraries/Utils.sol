@@ -10,9 +10,8 @@ contract Utils {
     using strings for *;
 
     function parseBool(string b) internal returns (bool) {
-        uint _b = parseInt(b);
-        if (_b == 0) return false;
-        else if (_b == 1) return true;
+        if (strCompare(b, 'false')) return false;
+        else if (strCompare(b, 'true')) return true;
         else throw;
     }
 

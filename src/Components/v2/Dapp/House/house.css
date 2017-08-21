@@ -1,0 +1,52 @@
+.house .stats,
+.house .lottery {
+    margin-top: 60px;
+}
+
+.house .lottery {
+    padding-bottom: 60px;
+}
+
+.house .stats .header,
+.house .lottery .header {
+    color: #f2b45c !important;
+    font-family: GothamMedium;
+    font-size: 30px;
+}
+
+.house .stat {
+    color: #ffffff;
+}
+
+.house .address {
+    font-size: 12px;
+    word-wrap: break-word;
+}
+
+.house .sub-header {
+    margin-top: 50px;
+    font-family: GothamMedium;
+    font-size: 36px;
+}
+
+.house table {
+    margin-top: 30px;
+}
+
+.house tr,
+.house td,
+.house th {
+    color: #ffffff;
+    font-family: GothamMedium;
+    text-align: center;
+}
+
+.house th {
+    color: #f2b45c !important;
+    text-transform: uppercase;
+}
+
+.house .lottery .statistics .stat {
+    color: #f2b45c !important;
+    font-family: GothamMedium;
+}
