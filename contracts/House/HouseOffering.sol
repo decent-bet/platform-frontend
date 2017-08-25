@@ -6,6 +6,8 @@ pragma solidity ^0.4.0;
 contract HouseOffering {
 
     bytes32 public name;
+    // For validating whether a contract is a house offering from the house contract.
+    bool public isHouseOffering;
     function houseDeposit(uint amount, uint session) returns (bool);
     function withdrawPreviousSessionTokens() returns (bool);
     function deposit(uint amount) returns (bool);

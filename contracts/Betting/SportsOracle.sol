@@ -55,10 +55,10 @@ contract SportsOracle is SafeMath {
         uint sportId;
         // League id set by oracle. This is meant only for categorization purposes on the front-end.
         uint leagueId;
-        // Starting block for this game.
-        uint startBlock;
-        // Ending block for this game.
-        uint endBlock;
+        // Starting time for this game.
+        uint startTime;
+        // Ending time for this game.
+        uint endTime;
         // Swarm hash containing meta data.
         string swarmHash;
         bool exists;
@@ -81,8 +81,8 @@ contract SportsOracle is SafeMath {
         uint team1Points;
         // Team 2 Points in game.
         uint team2Points;
-        // Block at which outcome was published.
-        uint settleBlock;
+        // Block time at which outcome was published.
+        uint settleTime;
         bool exists;
     }
 
@@ -188,14 +188,14 @@ contract SportsOracle is SafeMath {
 
     // Functions execute only if game hasn't started.
     modifier hasGameNotStarted(uint id) {
-        if (games[id].startBlock <= block.number)
+        if (games[id].startTime <= block.timestamp)
         throw;
         _;
     }
 
     // Functions execute only if game has ended.
     modifier hasGameEnded(uint id) {
-        if (block.number <= games[id].endBlock)
+        if (block.timestamp <= games[id].endTime)
         throw;
         _;
     }
@@ -280,17 +280,17 @@ contract SportsOracle is SafeMath {
         return true;
     }
 
-    // Start block needs to be in advance of the actual game start time.
-    function addGame(string refId, uint sportId, uint leagueId, uint startBlock,
-    uint endBlock, uint[] availablePeriods, string swarmHash)
+    // Start time needs to be in advance of the actual game start time.
+    function addGame(string refId, uint sportId, uint leagueId, uint startTime,
+    uint endTime, uint[] availablePeriods, string swarmHash)
     onlyAuthorized {
         Game memory game = Game({
             id : gamesCount,
             refId : refId,
             sportId : sportId,
             leagueId : leagueId,
-            startBlock : startBlock,
-            endBlock : endBlock,
+            startTime : startTime,
+            endTime : endTime,
             swarmHash : swarmHash,
             exists : true
         });
@@ -326,7 +326,7 @@ contract SportsOracle is SafeMath {
             result : result,
             team1Points : team1Points,
             team2Points : team2Points,
-            settleBlock: block.number,
+            settleTime: block.timestamp,
             exists: true
         });
         LogGameResult(gameId, games[gameId].refId, period, result, team1Points, team2Points);

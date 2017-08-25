@@ -136,9 +136,10 @@ class House extends Component {
             getUserCreditsForSession: (sessionNumber) => {
                 helper.getContractHelper().getWrappers().house().getUserCreditsForSession(sessionNumber,
                     helper.getWeb3().eth.defaultAccount).then((userCredits) => {
-                    console.log('getUserCreditsForSession', userCredits.toFixed(0))
+                    // 0 - Amount, 1 - Liquidated, 2 - Rolled over, 3 - Exists
+                    console.log('getUserCreditsForSession', userCredits[0].toFixed(0))
                     let credits = self.state.credits
-                    credits[helper.getWeb3().eth.defaultAccount] = userCredits.toFixed(0)
+                    credits[helper.getWeb3().eth.defaultAccount] = userCredits[0].toFixed(0)
                     self.setState({
                         credits: credits
                     })
@@ -248,7 +249,7 @@ class House extends Component {
                     })
                     self.web3Getters().lotteryUserTickets(session, index + 1)
                 }).catch((err) => {
-                    console.log('Error retrieving lottery user tickets', session, err.message,
+                    console.log('Error retrieving lottery user tickets', session, index, err.message,
                         JSON.stringify(self.state.lotteries[session].tickets[helper.getWeb3().eth.defaultAccount]))
                 })
             },

@@ -231,6 +231,10 @@ contract House is SafeMath {
 
     event LogWinningTicket(uint session, uint ticketNumber, address _address);
 
+    event LogOfferingAllocation(uint session, address offering, uint percentage);
+
+    event LogOfferingDeposit(uint session, address offering, uint percentage, uint amount);
+
     // Adds an address to the list of authorized addresses.
     function addToAuthorizedAddresses(address _address)
     onlyFounder {
@@ -254,6 +258,9 @@ contract House is SafeMath {
     // Adds a new offering to the house.
     function addHouseOffering(address houseOfferingAddress)
     onlyFounder {
+        if(houseOfferingAddress == 0) throw;
+        if(!HouseOffering(houseOfferingAddress).isHouseOffering())
+            throw;
         uint nextSession = currentSession + 1;
         offeringAddresses.push(houseOfferingAddress);
         offerings[houseOfferingAddress] = Offering({
@@ -298,15 +305,17 @@ contract House is SafeMath {
             houseFunds[nextSession].userCredits[msg.sender].exists = true;
         }
 
-        uint numberOfTickets = amount / 1000 ether;
+        uint numberOfTickets = safeDiv(amount, 1000 ether);
         uint userTicketCount = lotteryUserTickets[nextSession][msg.sender].length;
         uint ticketCount = lotteries[nextSession].ticketCount;
 
         // Allot lottery tickets for credit holders.
-        if (userTicketCount < 5) {
+        if (userTicketCount < 5 && numberOfTickets > 0) {
             for (uint i = userTicketCount; i < 5; i++) {
                 lotteryUserTickets[nextSession][msg.sender].push(ticketCount);
                 lotteryTicketHolders[nextSession][ticketCount++] = msg.sender;
+                if (lotteryUserTickets[nextSession][msg.sender].length >= 5)
+                    break;
             }
             lotteries[nextSession].ticketCount = ticketCount;
         }
@@ -420,19 +429,19 @@ contract House is SafeMath {
 
         uint previousSessionTokens = offerings[houseOffering].houseOffering.balanceOf(address(this), previousSession);
 
-        // Withdraw from previous session
-        if(!offerings[houseOffering].houseOffering.withdrawPreviousSessionTokens()) throw;
-
         houseFunds[previousSession].totalWithdrawn =
-            safeAdd(houseFunds[previousSession].totalWithdrawn, previousSessionTokens);
+        safeAdd(houseFunds[previousSession].totalWithdrawn, previousSessionTokens);
 
         sessions[previousSession].withdrawnOfferings = safeAdd(sessions[previousSession].withdrawnOfferings, 1);
 
         // All offerings have been withdrawn.
         if(sessions[previousSession].withdrawnOfferings == sessions[previousSession].offerings.length) {
             houseFunds[previousSession].profit =
-                safeSub(houseFunds[previousSession].totalFunds, houseFunds[previousSession].totalWithdrawn);
+            safeSub(houseFunds[previousSession].totalWithdrawn, houseFunds[previousSession].totalFunds);
         }
+
+        // Withdraw from previous session
+        if(!offerings[houseOffering].houseOffering.withdrawPreviousSessionTokens()) throw;
     }
 
     // Allocates a %age of tokens for a house offering for the next session
@@ -448,11 +457,13 @@ contract House is SafeMath {
         // Tokens have already been deposited to offering.
         if(sessions[nextSession].offeringTokenAllocations[houseOffering].deposited) throw;
 
-        uint tokenAmount = houseFunds[nextSession].totalFunds;
-        uint tokenAllocation = safeDiv(safeMul(tokenAmount, percentage), 100);
+        uint previousAllocation = sessions[nextSession].offeringTokenAllocations[houseOffering].allocation;
 
-        sessions[nextSession].offeringTokenAllocations[houseOffering].allocation = tokenAllocation;
-        sessions[nextSession].totalTokensAllocated = safeAdd(sessions[nextSession].totalTokensAllocated, percentage);
+        sessions[nextSession].offeringTokenAllocations[houseOffering].allocation = percentage;
+        sessions[nextSession].totalTokensAllocated =
+            safeSub(safeAdd(sessions[nextSession].totalTokensAllocated, percentage), previousAllocation);
+
+        LogOfferingAllocation(nextSession, houseOffering, percentage);
     }
 
     function depositAllocatedTokensToHouseOffering(address houseOffering)
@@ -465,10 +476,15 @@ contract House is SafeMath {
         if(sessions[nextSession].offeringTokenAllocations[houseOffering].deposited) throw;
 
         uint allocation = sessions[nextSession].offeringTokenAllocations[houseOffering].allocation;
-        if(!offerings[houseOffering].houseOffering.houseDeposit(allocation, nextSession)) throw;
+
+        uint tokenAmount = safeDiv(safeMul(houseFunds[nextSession].totalFunds, allocation), 100);
+
+        if(!offerings[houseOffering].houseOffering.houseDeposit(tokenAmount, nextSession)) throw;
 
         sessions[nextSession].offeringTokenAllocations[houseOffering].deposited = true;
         sessions[nextSession].depositedAllocations = safeAdd(sessions[nextSession].depositedAllocations, 1);
+
+        LogOfferingDeposit(nextSession, houseOffering, allocation, tokenAmount);
     }
 
     // Get house lottery to retrieve random ticket winner using oraclize as RNG.
@@ -522,7 +538,10 @@ contract House is SafeMath {
             // Session zero starts here and allows users to buy credits for a week before starting session 1.
             sessionZeroStartTime = now;
             sessions[currentSession].startTime = now;
+            // TODO: Change to 2 weeks for prod
             sessions[currentSession].endTime = safeAdd(sessions[currentSession].startTime, 2 weeks);
+
+            LogNewSession(currentSession, sessions[currentSession].startTime, 0, sessions[currentSession].endTime, 0);
         } else {
             sessions[nextSession].startTime = now;
             sessions[nextSession].endTime = safeAdd(sessions[nextSession].startTime, 12 weeks);
@@ -543,13 +562,21 @@ contract House is SafeMath {
 
     // Utility functions for front-end purposes.
     function getUserCreditsForSession(uint session, address _address)
-    returns (uint amount) {
-        return houseFunds[session].userCredits[_address].amount;
+    returns (uint amount, uint liquidated, uint rolledOver, bool exists) {
+        return (houseFunds[session].userCredits[_address].amount,
+                houseFunds[session].userCredits[_address].liquidated,
+                houseFunds[session].userCredits[_address].rolledOver,
+                houseFunds[session].userCredits[_address].exists);
     }
 
     function getUserForSession(uint session, uint index)
     returns (address _address) {
         return houseFunds[session].users[index];
+    }
+
+    function getOfferingTokenAllocations(uint session, address _address) returns (uint, bool) {
+        return (sessions[session].offeringTokenAllocations[_address].allocation,
+                sessions[session].offeringTokenAllocations[_address].deposited);
     }
 
     // Do not accept ETH sent to this contract.

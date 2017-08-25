@@ -53,7 +53,7 @@ contract BettingProvider is SafeMath, HouseOffering {
         // Betting provider can activate/de-activate these odds when necessary.
         bool isActive;
         // Previous odds updated block.
-        uint updateBlock;
+        uint updateTime;
         // Does odds exist in mapping
         bool exists;
     }
@@ -70,7 +70,7 @@ contract BettingProvider is SafeMath, HouseOffering {
         // Have outcomes been published?
         bool isPublished;
         // Block settle time.
-        uint settleBlock;
+        uint settleTime;
     }
 
     struct Game {
@@ -91,10 +91,10 @@ contract BettingProvider is SafeMath, HouseOffering {
         // Number of bets.
         uint betCount;
         // End of betting time. Typically a short time period before start of the game.
-        uint cutOffBlock;
-        // Ending game block. Claim after endBlock + RESULT_OFFSET_HOURS hours.
-        uint endBlock;
-        // Games may go over the posted ending block. Once it has ended, this is toggled to true.
+        uint cutOffTime;
+        // Ending game block. Claim after endTime + RESULT_OFFSET_HOURS hours.
+        uint endTime;
+        // Games may go over the posted ending time. Once it has ended, this is toggled to true.
         bool hasEnded;
         // Bet limits for game periods.
         mapping(uint => BetLimits) betLimits;
@@ -129,7 +129,7 @@ contract BettingProvider is SafeMath, HouseOffering {
         // Amount of tokens bet.
         uint amount;
         // Block number at time of bet.
-        uint blockNumber;
+        uint blockTime;
         // Session during which bet was placed.
         uint session;
         // Toggled if claimed.
@@ -214,13 +214,13 @@ contract BettingProvider is SafeMath, HouseOffering {
 
     uint constant SPREAD_OUTCOME_HALF_LOSS = 5;
 
-    // Assisted claim offset blocks constants.
-    uint ASSISTED_CLAIM_BLOCK_OFFSET       = 8640;
+    // Assisted claim offset time constants.
+    uint ASSISTED_CLAIM_TIME_OFFSET       = 2 days;
 
     // Events
     event LogNewOracleRequest(address _address);
 
-    event LogNewGame(uint id, uint oracleId, uint cutOffBlock, uint endBlock);
+    event LogNewGame(uint id, uint oracleId, uint cutOffTime, uint endTime);
 
     event LogNewGameOdds(uint id, uint oddsId);
 
@@ -244,6 +244,7 @@ contract BettingProvider is SafeMath, HouseOffering {
         if (_houseAddress == 0) throw;
         if (bettingProviderHelperAddress == 0) throw;
         name = 'Betting Provider';
+        isHouseOffering = true;
         houseAddress = _houseAddress;
         decentBetToken = AbstractDecentBetToken(decentBetTokenAddress);
         house = AbstractHouse(houseAddress);
@@ -285,21 +286,21 @@ contract BettingProvider is SafeMath, HouseOffering {
         _;
     }
 
-    // Allows functions to execute only if current block is earlier than the cutoff block.
+    // Allows functions to execute only if current block timestamp is earlier than the cutoff block timestamp.
     modifier isBeforeGameCutoff(uint id) {
-        if (block.number >= (games[id].cutOffBlock)) throw;
+        if (block.timestamp >= (games[id].cutOffTime)) throw;
         _;
     }
 
     // Allows functions to execute only if a game is past end time.
-    modifier isPastGameEndBlock(uint id) {
-        if (now < games[id].endBlock) throw;
+    modifier isPastGameEndTime(uint id) {
+        if (now < games[id].endTime) throw;
         _;
     }
 
     // Allows functions to execute only if a game is past end time and is marked as ended.
     modifier isGameProfitsClaimable(uint id) {
-        if (block.number < games[id].endBlock + RESULT_OFFSET_HOURS ||
+        if (block.timestamp < games[id].endTime + RESULT_OFFSET_HOURS ||
         !games[id].hasEnded) throw;
         _;
     }
@@ -406,14 +407,14 @@ contract BettingProvider is SafeMath, HouseOffering {
     }
 
     // Changes assisted claim block offset.
-    function changeAssistedClaimBlockOffset (uint offset)
+    function changeAssistedClaimTimeOffset (uint offset)
     onlyAuthorized {
-        ASSISTED_CLAIM_BLOCK_OFFSET = offset;
+        ASSISTED_CLAIM_TIME_OFFSET = offset;
     }
 
     // Adds a game to the contract.
     // 800k gas.
-    function addGame(uint oracleGameId, uint cutOffBlock, uint endBlock)
+    function addGame(uint oracleGameId, uint cutOffTime, uint endTime)
     onlyAuthorized {
         // Games count serves as ID for each game pushed to the provider
         if(!sportsOracle.addProviderGameToUpdate(oracleGameId, gamesCount)) throw;
@@ -425,13 +426,13 @@ contract BettingProvider is SafeMath, HouseOffering {
             betAmount: 0,
             payouts: 0,
             betCount : 0,
-            cutOffBlock : cutOffBlock,
-            endBlock : endBlock,
+            cutOffTime : cutOffTime,
+            endTime : endTime,
             hasEnded : false,
             exists : true
         });
         gamesCount++;
-        LogNewGame(gamesCount, oracleGameId, cutOffBlock, endBlock);
+        LogNewGame(gamesCount, oracleGameId, cutOffTime, endTime);
     }
 
     // Updates bet limits for a period in a game.
@@ -466,7 +467,7 @@ contract BettingProvider is SafeMath, HouseOffering {
             under: (betType == ODDS_TYPE_TOTAL || betType == ODDS_TYPE_TEAM_TOTAL) ? under : 0,
             isTeam1: (betType == ODDS_TYPE_TOTAL || betType == ODDS_TYPE_TEAM_TOTAL) ? isTeam1 : false,
             isActive: true,
-            updateBlock: block.number,
+            updateTime: block.timestamp,
             exists: true
         });
         pushOdds(id, odds);
@@ -488,7 +489,7 @@ contract BettingProvider is SafeMath, HouseOffering {
         games[id].odds.odds[oddsId].points = points;
         games[id].odds.odds[oddsId].over = over;
         games[id].odds.odds[oddsId].under = under;
-        games[id].odds.odds[oddsId].updateBlock = block.number;
+        games[id].odds.odds[oddsId].updateTime = block.timestamp;
         LogUpdatedGameOdds(id, oddsId);
     }
 
@@ -496,7 +497,7 @@ contract BettingProvider is SafeMath, HouseOffering {
     function updateGameOutcome(uint id, uint period, int result, uint team1Points, uint team2Points)
     onlySportsOracle
     isValidGame(id)
-    isPastGameEndBlock(id)
+    isPastGameEndTime(id)
     returns (bool updated) {
         games[id].outcomes[period] = Outcome({
             result: result,
@@ -504,7 +505,7 @@ contract BettingProvider is SafeMath, HouseOffering {
             team2Points: team2Points,
             totalPoints: safeAdd(team1Points, team2Points),
             isPublished: true,
-            settleBlock: block.number
+            settleTime: block.timestamp
         });
         games[id].hasEnded = true;
         return true;
@@ -556,9 +557,8 @@ contract BettingProvider is SafeMath, HouseOffering {
     function isValidNewBet(uint gameId, uint oddsId, uint betType, uint amount) returns (bool) {
         BetLimits betLimits = games[gameId].betLimits[games[gameId].odds.odds[oddsId].period];
         // Cannot bet more than limit for selected bet type.
-        if(!betLimits.exists ||
-        (betLimits.limits[betType] > 0 && betLimits.limits[betType] < amount))
-        return false;
+        if(!betLimits.exists || (betLimits.limits[betType] > 0 && betLimits.limits[betType] < amount))
+            return false;
         return true;
     }
 
@@ -571,7 +571,7 @@ contract BettingProvider is SafeMath, HouseOffering {
             odds : games[gameId].odds.odds[oddsId],
             choice: choice,
             amount : amount,
-            blockNumber: block.number,
+            blockTime: block.timestamp,
             session : currentSession,
             exists : true,
             claimed : false
@@ -589,9 +589,9 @@ contract BettingProvider is SafeMath, HouseOffering {
         if(bettor == address(0x0))
         bettor = msg.sender;
 
-        // Assisted claims can be made only after offset blocks
+        // Assisted claims can be made only after offset time.
         // have been passed from endTime.
-        if(bettor != msg.sender && block.number >= games[gameId].endBlock + ASSISTED_CLAIM_BLOCK_OFFSET) throw;
+        if(bettor != msg.sender && block.timestamp <= games[gameId].endTime + ASSISTED_CLAIM_TIME_OFFSET) throw;
 
         uint betReturns = getBetReturns(gameId, betId, bettor);
         uint betSession = games[gameId].bettors[bettor].bets[betId].session;
@@ -703,7 +703,7 @@ contract BettingProvider is SafeMath, HouseOffering {
 
     // Accessor functions for front-end accessibility.
     function getGame(uint id) returns (uint oracleGameId, uint session,
-    uint betAmount, uint payouts, uint betCount, uint cutOffBlock, uint endBlock,
+    uint betAmount, uint payouts, uint betCount, uint cutOffTime, uint endTime,
     bool hasEnded, bool exists) {
         Game game = games[id];
         return (game.oracleGameId,
@@ -711,8 +711,8 @@ contract BettingProvider is SafeMath, HouseOffering {
                 game.betAmount,
                 game.payouts,
                 game.betCount,
-                game.cutOffBlock,
-                game.endBlock,
+                game.cutOffTime,
+                game.endTime,
                 game.hasEnded,
                 game.exists);
     }
@@ -727,13 +727,13 @@ contract BettingProvider is SafeMath, HouseOffering {
     }
 
     function getGameBettorBet(uint gameId, address bettor, uint id) returns (uint oddsId,
-    uint choice, uint amount, uint blockNumber, uint session, bool claimed,
+    uint choice, uint amount, uint blockTime, uint session, bool claimed,
     bool exists) {
         Bet bet = games[gameId].bettors[bettor].bets[id];
         return (bet.oddsId,
                 bet.choice,
                 bet.amount,
-                bet.blockNumber,
+                bet.blockTime,
                 bet.session,
                 bet.claimed,
                 bet.exists);
@@ -756,9 +756,9 @@ contract BettingProvider is SafeMath, HouseOffering {
     }
 
     function getGameBettorBetOddsDetails(uint gameId, address bettor, uint id) returns
-    (string refId, uint updateBlock, bool isActive) {
+    (string refId, uint updateTime, bool isActive) {
         Odds odds = games[gameId].bettors[bettor].bets[id].odds;
-        return (odds.refId, odds.updateBlock, odds.isActive);
+        return (odds.refId, odds.updateTime, odds.isActive);
     }
 
     function getGameOddsCount(uint id) returns (uint) {
@@ -782,21 +782,21 @@ contract BettingProvider is SafeMath, HouseOffering {
     }
 
     function getGameOddsDetails(uint gameId, uint id) returns (string refId,
-    uint updateBlock, bool isActive){
+    uint updateTime, bool isActive){
         Odds odds = games[gameId].odds.odds[id];
-        return (odds.refId, odds.updateBlock, odds.isActive);
+        return (odds.refId, odds.updateTime, odds.isActive);
     }
 
     function getGameOutcome(uint gameId, uint period) returns (int result,
     uint totalPoints, uint team1Points, uint team2Points, bool isPublished,
-    uint settleBlock) {
+    uint settleTime) {
         Outcome outcome = games[gameId].outcomes[period];
         return (outcome.result,
                 outcome.totalPoints,
                 outcome.team1Points,
                 outcome.team2Points,
                 outcome.isPublished,
-                outcome.settleBlock);
+                outcome.settleTime);
     }
 
     // Don't allow ETH to be sent to this contract

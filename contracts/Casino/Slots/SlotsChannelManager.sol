@@ -178,11 +178,15 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
     /* Constructor */
 
     function SlotsChannelManager(address _house, address _token, address _slotsHelper) /* onlyHouse */ {
+        if(_house == 0) throw;
+        if(_token == 0) throw;
+        if(_slotsHelper == 0) throw;
         houseAddress = _house;
         decentBetToken = AbstractDecentBetToken(_token);
         house = AbstractHouse(_house);
         slotsHelper = AbstractSlotsHelper(_slotsHelper);
         name = 'Slots Channel Manager';
+        isHouseOffering = true;
     }
 
     /* Modifiers */

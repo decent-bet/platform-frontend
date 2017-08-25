@@ -12,12 +12,12 @@ contract HouseLottery is SafeMath, usingOraclize {
     // Variables
     address public house;
 
-    uint currentSession;
+    uint public currentSession;
 
     // Structs
     struct Lottery {
-        // Participant count for each session.
-        uint participantCount;
+        // Ticket count for each session.
+        uint ticketCount;
         // Winning ticket for a session.
         uint winningTicket;
         // True if ended.
@@ -34,7 +34,7 @@ contract HouseLottery is SafeMath, usingOraclize {
     // Events
     event LogHouseDeposit(uint session, uint amount);
 
-    event LogWinner(uint session, uint number, uint randomInRange, uint participantCount);
+    event LogWinner(uint session, uint number, uint randomInRange, uint ticketCount);
 
     event callback(string message);
 
@@ -51,13 +51,13 @@ contract HouseLottery is SafeMath, usingOraclize {
         _;
     }
 
-    function pickWinner(uint session, uint participantCount) payable
+    function pickWinner(uint session, uint ticketCount) payable
     onlyHouse returns (bool) {
         // Throw if current session is session 0.
         if (session == 0 || session <= currentSession) throw;
 
         currentSession = session;
-        lotteries[currentSession].participantCount = participantCount;
+        lotteries[currentSession].ticketCount = ticketCount;
 
         // Sufficient ETH needs to be sent with this transaction.
         if (oraclize_getPrice("WolframAlpha") > this.balance) {
@@ -91,10 +91,10 @@ contract HouseLottery is SafeMath, usingOraclize {
                 number = parseInt(string(temp));
             }
         }
-        uint randomNumber = randomInRange(number, lotteries[currentSession].participantCount);
+        uint randomNumber = randomInRange(number, lotteries[currentSession].ticketCount);
         lotteries[currentSession].winningTicket = randomNumber;
         lotteries[currentSession].ended = true;
-        LogWinner(currentSession, number, randomNumber, lotteries[currentSession].participantCount);
+        LogWinner(currentSession, number, randomNumber, lotteries[currentSession].ticketCount);
     }
 
     function getWinningLotteryTicket(uint session) returns (uint) {
@@ -104,11 +104,11 @@ contract HouseLottery is SafeMath, usingOraclize {
 
     // Number = 7 digit random number from random.org
     // Participants = Number of participants in this session
-    function randomInRange(uint number, uint participants) returns (uint) {
+    function randomInRange(uint number, uint tickets) returns (uint) {
         uint range = 8999999;
-        uint numberInRange = safeDiv(safeMul(safeSub(number, 1000000), safeAdd(participants, 1)), range);
-        if (numberInRange > participants)
-        numberInRange = participants;
+        uint numberInRange = safeDiv(safeMul(safeSub(number, 1000000), safeAdd(tickets, 1)), range);
+        if (numberInRange > tickets)
+            numberInRange = tickets;
         return numberInRange;
     }
 
