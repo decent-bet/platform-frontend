@@ -11,13 +11,11 @@ const ethUtil = require('ethereumjs-util')
 let cryptoJs = require("crypto-js");
 import sha256 from 'crypto-js/sha256'
 
-import ContractHelper from '../../../ContractHelper'
-import DecentAPI from '../../../v1/Base/DecentAPI'
+import DecentAPI from '../../../Base/DecentAPI'
 import Helper from '../../../Helper'
-import Iframe from '../../../v1/Base/Iframe'
-import Loading from '../../../v1/Base/Loading'
+import Iframe from '../../../Base/Iframe'
+import Loading from '../../../Base/Loading'
 
-const contractHelper = new ContractHelper()
 const decentApi = new DecentAPI()
 const helper = new Helper()
 
@@ -108,7 +106,7 @@ class SlotsChannel extends Component {
                 }
             },
             checkIfChannelExists: (id) => {
-                contractHelper.getWrappers().slotsChannelManager().getChannelInfo(id).then((channel) => {
+                helper.getContractHelper().getWrappers().slotsChannelManager().getChannelInfo(id).then((channel) => {
                     let exists = channel[0]
                     let user = channel[1]
                     let deposit = channel[2]
@@ -131,7 +129,7 @@ class SlotsChannel extends Component {
             createChannel: () => {
                 const deposit = new BigNumber(1000).times(helper.getEtherInWei()).toFixed(0)
                 console.log('Creating channel with deposit: ' + deposit)
-                contractHelper.getWrappers().slotsChannelManager()
+                helper.getContractHelper().getWrappers().slotsChannelManager()
                     .createChannel(deposit).then((tx) => {
                     self.helpers().toggleLoading(true, 'Creating channel..')
                     self.setState({
@@ -188,10 +186,11 @@ class SlotsChannel extends Component {
                         if (!this.state.channelContracts[id]) {
                             self.helpers().toggleLoading(true, 'Joining channel..')
 
-                            contractHelper.getNewSlotsChannelContract(id, (err, contract) => {
+                            helper.getContractHelper().getNewSlotsChannelContract(id, (err, contract) => {
                                 console.log('getNewSlotsChannelContract: ' + err + ', ' + contract.address + ', ' + aesKey)
                                 this.toggleLoading(false, 'Joining channel..')
                                 let channelContracts = self.state.channelContracts
+                                let address = contract.address
                                 channelContracts[address] = contract
                                 let activeChannel = {
                                     address: address,
@@ -211,12 +210,12 @@ class SlotsChannel extends Component {
                             })
                         } else {
                             console.log('initChannelDetails2')
-                            self.helpers().initChannelDetails(self.state.channelContracts[address], (err) => {
+                            self.helpers().initChannelDetails(self.state.channelContracts[id].address, (err) => {
 
                             })
                             this.setState({
                                 activeChannel: {
-                                    address: address
+                                    address: self.state.channelContracts[id].address
                                 }
                             })
                         }
@@ -320,7 +319,7 @@ class SlotsChannel extends Component {
                         let initialRandomNumber = self.helpers().getInitialRandomNumber()
                         userHashes = self.helpers().getUserHashes(initialRandomNumber)
                         const finalHash = userHashes[userHashes.length - 1]
-                        let account = contractHelper.getWeb3().eth.defaultAccount
+                        let account = helper.getContractHelper().getWeb3().eth.defaultAccount
 
                         console.log('Depositing with initialRandomNumber: ' + initialRandomNumber +
                             ', initialUserNumber: ' + initialUserNumber +
@@ -348,7 +347,7 @@ class SlotsChannel extends Component {
                         /**
                          * Approve deposit amount on token contract before depositing to channel
                          * */
-                        contractHelper.getWrappers().token()
+                        helper.getContractHelper().getWrappers().token()
                             .approve(self.state.activeChannel.address,
                                 self.state.activeChannel.depositAmount).then((tx) => {
                             console.log('Successfully approved deposit amount: ' + tx)
@@ -373,7 +372,7 @@ class SlotsChannel extends Component {
                         console.log('House spin: ' + JSON.stringify(priorSpin))
                         console.log('Curr spin sign: ' + spin.sign)
 
-                        contractHelper.getWrappers().slotsChannel(self.helpers().getChannelContract())
+                        helper.getContractHelper().getWrappers().slotsChannel(self.helpers().getChannelContract())
                             .finalize(spin, priorSpin)
                             .then((sha3Hash) => {
                                 console.log('Is sign address equal: ' + JSON.stringify(sha3Hash))
@@ -507,7 +506,7 @@ class SlotsChannel extends Component {
 
                         let msg = self.helpers().getTightlyPackedSpin(nonSignatureSpin)
                         console.log('Verify house spin: ', msg)
-                        let msgHash = contractHelper.getWeb3().sha3(msg)
+                        let msgHash = helper.getContractHelper().getWeb3().sha3(msg)
                         let sign = houseSpin.sign
 
                         console.log('\n\n*** PROCESS SPIN - msgHash: ' + msgHash + ', sign: ' + sign + ' ***\n\n')
@@ -753,7 +752,7 @@ class SlotsChannel extends Component {
         const self = this
         return {
             newChannel: () => {
-                let newChannelEvent = contractHelper.getSlotsChannelManagerInstance().NewChannel({}, {
+                let newChannelEvent = helper.getContractHelper().getSlotsChannelManagerInstance().NewChannel({}, {
                     fromBlock: 0,
                     toBlock: 'latest'
                 })
@@ -773,7 +772,7 @@ class SlotsChannel extends Component {
                 })
             },
             channelFinalized: () => {
-                let channelFinalizedEvent = contractHelper.getSlotsChannelManagerInstance().ChannelFinalized({}, {
+                let channelFinalizedEvent = helper.getContractHelper().getSlotsChannelManagerInstance().ChannelFinalized({}, {
                     fromBlock: 0,
                     toBlock: 'latest'
                 })
@@ -803,7 +802,7 @@ class SlotsChannel extends Component {
         return {
             channelAllowance: (channelContract, callback) => {
                 let user = helper.getWeb3().eth.defaultAccount
-                contractHelper.getWrappers().token().allowance(helper.getWeb3().eth.defaultAccount,
+                helper.getContractHelper().getWrappers().token().allowance(helper.getWeb3().eth.defaultAccount,
                     channelContract.address).then((allowance) => {
                     console.log('Allowance for ' + channelContract.address + 'from ' + user + ': ' + allowance)
                     let activeChannel = self.state.activeChannel
@@ -931,7 +930,7 @@ class SlotsChannel extends Component {
             token: () => {
                 return {
                     faucet: () => {
-                        contractHelper.getWrappers().token().faucet().then((tx) => {
+                        helper.getContractHelper().getWrappers().token().faucet().then((tx) => {
                             console.log('Successfully retrieved dbets: ' + tx)
                         }).catch((err) => {
                             console.log('Error retrieving dbets: ' + err)

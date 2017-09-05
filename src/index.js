@@ -6,7 +6,7 @@ import injectTapEventPlugin from 'react-tap-event-plugin'
 injectTapEventPlugin()
 
 import MetaMaskLoader from './Components/v2/Base/MetaMaskLoader'
-import Dapp from './Components/v2/Dapp/Dapp'
+import Dapp from './Components/v1/Dapp/Dapp'
 
 import './css/bootstrap.min.css'
 import './css/font-awesome.min.css'

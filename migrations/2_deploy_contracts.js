@@ -19,22 +19,33 @@ const SlotsHelper = artifacts.require("SlotsHelper")
 module.exports = function (deployer, network) {
     let decentBetMultisig
     let upgradeMaster, agentOwner
-    let startBlock, endBlock
+    let startTime, endTime
     let accounts = web3.eth.accounts.slice(0, 3)
     let signaturesRequired = 2
-    let token, wallet, upgradeAgent, house, bettingProvider, bettingProviderHelper, sportsOracle,
+    const robotAddress = accounts[0]
+    let token, wallet, upgradeAgent, team, house, bettingProvider, bettingProviderHelper, sportsOracle,
         gameChannelManager, ecVerify, slots, slotsHelper, slotsChannelManager
     console.log('Network: ' + network + ', startBlock: ' + web3.eth.blockNumber)
     if (network == 'testnet' || network == 'development') {
+
+        const timestamp = Math.round(new Date().getTime() / 1000)
         deployer.deploy(MultiSigWallet, accounts, signaturesRequired).then(function (instance) {
             wallet = instance
             upgradeMaster = web3.eth.accounts[0]
+            team = web3.eth.accounts[0]
             agentOwner = upgradeMaster
             decentBetMultisig = MultiSigWallet.address
-            startBlock = web3.eth.blockNumber + 2
-            endBlock = web3.eth.blockNumber + 20000
-            return deployer.deploy(DecentBetToken, decentBetMultisig, upgradeMaster, startBlock, endBlock)
-        }).then(function (instance) {
+
+            const ethPrice = 300
+            const basePrice = ethPrice / 0.125
+
+            startTime = timestamp + (2 * 24 * 60 * 60)
+            endTime = timestamp + (28 * 24 * 60 * 60)
+
+            console.log('Deploying DecentBetToken', decentBetMultisig, upgradeMaster, team, basePrice, startTime, endTime)
+            return deployer.deploy(DecentBetToken, decentBetMultisig, upgradeMaster,
+                team, basePrice, startTime, endTime)
+        }).then(function () {
             return DecentBetToken.deployed()
         }).then(function (instance) {
             token = instance
@@ -57,7 +68,6 @@ module.exports = function (deployer, network) {
             return BettingProvider.deployed()
         }).then(function (instance) {
             bettingProvider = instance
-            console.log('House: ' + web3.eth.accounts[0])
             return deployer.deploy(SportsOracle)
         }).then(function () {
             return SportsOracle.deployed()
@@ -92,6 +102,13 @@ module.exports = function (deployer, network) {
             return house.addHouseOffering.sendTransaction(slotsChannelManager.address, {
                 gas: 3000000
             })
+        }).then(function () {
+            // gameChannelManager = instance
+            return token.setRobot.sendTransaction(robotAddress, {
+                gas: 3000000
+            })
+        }).catch((err) => {
+            console.log('Error', err.message)
         })
         /** Won't work until in Success state */
         // .then(function (instance) {

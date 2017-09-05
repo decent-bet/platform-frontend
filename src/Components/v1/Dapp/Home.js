@@ -6,13 +6,13 @@ import Card, {CardMedia, CardTitle} from 'material-ui/Card';
 import SelectField from 'material-ui/SelectField'
 import MenuItem from 'material-ui/MenuItem'
 
-import Themes from '../v1/Base/Themes'
+import Themes from '../Base/Themes'
 import ContractHelper from '../ContractHelper'
 import Helper from '../Helper'
 
-import '../../css/oswald.css'
-import '../../css/open-sans.css'
-import '../../css/pure-min.css'
+import '../../../css/oswald.css'
+import '../../../css/open-sans.css'
+import '../../../css/pure-min.css'
 
 const constants = require('./../Constants')
 

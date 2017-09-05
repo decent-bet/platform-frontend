@@ -11,9 +11,9 @@ import AppBar from 'material-ui/AppBar';
 import SelectField from 'material-ui/SelectField'
 import MenuItem from 'material-ui/MenuItem'
 
-import Themes from '../v1/Base/Themes'
+import Themes from '../Base/Themes'
 import Helper from '../Helper'
-import Loading from '../v1/Base/Loading'
+import Loading from '../Base/Loading'
 
 import Home from './Home'
 
@@ -28,9 +28,9 @@ import Statistics from './House/Statistics'
 
 import Sportsbook from './Sportsbook/Sportsbook'
 
-import '../../css/oswald.css'
-import '../../css/open-sans.css'
-import '../../css/pure-min.css'
+import '../../../css/oswald.css'
+import '../../../css/open-sans.css'
+import '../../../css/pure-min.css'
 
 import './dapp.css'
 
