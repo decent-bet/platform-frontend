@@ -1,0 +1,38 @@
+.slots {
+    min-height: 100vh;
+    padding-bottom: 50px;
+}
+
+.slots .top .logo {
+    height: 48px;
+    object-fit: cover;
+    display: block;
+    margin: 20px auto 0 auto;
+}
+
+.slots .top h3 {
+    color: #f2b45c;
+}
+
+.slots .intro h5 {
+    text-transform: uppercase;
+}
+
+.slots .text-gold {
+    color: #f2b45c;
+}
+
+.slots .channels {
+    margin-top: 50px;
+}
+
+.slots .channels h3 {
+    font-family: GothamMedium;
+}
+
+.slots th {
+    color: #ffffff;
+    text-transform: uppercase;
+    font-family: GothamLight;
+    font-size: 12px;
+}

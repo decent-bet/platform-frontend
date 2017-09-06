@@ -61,7 +61,7 @@ class Dapp extends Component {
             tokensSold: 0,
             ethNetwork: 0,
             selectedPage: PAGE_SPORTSBOOK,
-            subPage: SPORTSBOOK_SUB_SOCCER,
+            subPage: SPORTSBOOK_SUB_FEATURED,
             contractsLoaded: false
         }
     }

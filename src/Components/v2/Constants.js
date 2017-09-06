@@ -13,4 +13,11 @@ export const
     COLOR_WHITE = '#FFFFFF',
     COLOR_WHITE_DARK = '#949494',
     COLOR_BLACK = '#000000',
-    COLOR_GOLD = '#f2b45c'
+    COLOR_GOLD = '#f2b45c',
+
+    /** Dapp views */
+    DAPP_VIEW_LOUNGE = 0,
+    DAPP_VIEW_CASINO = 1,
+    DAPP_VIEW_SPORTSBOOK = 2,
+    DAPP_VIEW_HOUSE = 3,
+    DAPP_VIEW_SLOTS = 4

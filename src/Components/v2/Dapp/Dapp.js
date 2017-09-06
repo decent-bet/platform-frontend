@@ -22,12 +22,12 @@ const themes = new Themes()
 
 const constants = require('./../Constants')
 
-import Lounge from './Lounge/Lounge'
+import Casino from './Casino/Casino'
 import House from './House/House'
+import Lounge from './Lounge/Lounge'
+import Slots from './Casino/Slots/Slots'
 
 import './dapp.css'
-
-const VIEW_LOUNGE = 0, VIEW_CASINO = 1, VIEW_SPORTSBOOK = 2, VIEW_HOUSE = 3
 
 const styles = {
     menuItem: {
@@ -48,7 +48,7 @@ class Dapp extends Component {
             drawer: {
                 open: false
             },
-            selectedView: VIEW_HOUSE
+            selectedView: this.props.route.view
         }
     }
 
@@ -113,10 +113,14 @@ class Dapp extends Component {
             },
             getSelectedView: () => {
                 switch (self.state.selectedView) {
-                    case VIEW_LOUNGE:
-                        return <Lounge/>
-                    case VIEW_HOUSE:
+                    case constants.DAPP_VIEW_CASINO:
+                        return <Casino/>
+                    case constants.DAPP_VIEW_HOUSE:
                         return <House/>
+                    case constants.DAPP_VIEW_LOUNGE:
+                        return <Lounge/>
+                    case constants.DAPP_VIEW_SLOTS:
+                        return <Slots/>
                 }
             },
             selectView: (view) => {
@@ -196,7 +200,7 @@ class Dapp extends Component {
                             className="menu-item"
                             style={styles.menuItem}
                             onClick={() => {
-                                self.helpers().selectView(VIEW_LOUNGE)
+                                self.helpers().selectView(constants.DAPP_VIEW_LOUNGE)
                             }}>
                             <span className="fa fa-dashboard menu-icon"/>&ensp;&ensp;LOUNGE
                         </MenuItem>
@@ -204,7 +208,7 @@ class Dapp extends Component {
                             className="menu-item"
                             style={styles.menuItem}
                             onClick={() => {
-                                self.helpers().selectView(VIEW_CASINO)
+                                self.helpers().selectView(constants.DAPP_VIEW_CASINO)
                             }}>
                             <span className="fa fa-gamepad menu-icon"/>&ensp;&ensp;CASINO
                         </MenuItem>
@@ -212,7 +216,7 @@ class Dapp extends Component {
                             className="menu-item"
                             style={styles.menuItem}
                             onClick={() => {
-                                self.helpers().selectView(VIEW_SPORTSBOOK)
+                                self.helpers().selectView(constants.DAPP_VIEW_SPORTSBOOK)
                             }}>
                             <span className="fa fa-soccer-ball-o menu-icon"/>&ensp;&ensp;SPORTSBOOK
                         </MenuItem>
@@ -220,7 +224,7 @@ class Dapp extends Component {
                             className="menu-item"
                             style={styles.menuItem}
                             onClick={() => {
-                                self.helpers().selectView(VIEW_HOUSE)
+                                self.helpers().selectView(constants.DAPP_VIEW_HOUSE)
                             }}>
                             <span className="fa fa-home menu-icon"/>&ensp;&ensp;HOUSE
                         </MenuItem>

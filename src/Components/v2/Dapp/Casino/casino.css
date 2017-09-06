@@ -1,0 +1,38 @@
+.casino {
+    min-height: 100vh;
+}
+
+.casino .top .logo {
+    height: 48px;
+    object-fit: cover;
+    display: block;
+    margin: 20px auto 0 auto;
+}
+
+.casino .top h3 {
+    color: #f2b45c;
+}
+
+.casino .text-gold {
+    color: #f2b45c;
+}
+
+.casino .game-card .title {
+    text-align: center;
+    text-transform: uppercase;
+    background: rgba(0, 0, 0, 0.75);
+    padding: 10px 0 10px 0;
+}
+
+.casino .game-card .title h4 {
+    font-family: GothamMedium;
+}
+
+.casino .game-card .title p {
+    font-size: 12px;
+    font-family: GothamLight;
+}
+
+.casino .game-card a {
+    text-decoration: none;
+}

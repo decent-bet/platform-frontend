@@ -163,17 +163,17 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
     mapping (address => mapping (uint => uint)) public depositedTokens;
 
     /* Events */
-    event NewChannel(uint id, address user, uint initialDeposit);
+    event LogNewChannel(uint id, address user, uint initialDeposit);
 
-    event ChannelFinalized(uint id, address user);
+    event LogChannelFinalized(uint id, address user);
 
-    event ChannelDeposit(uint id, string finalUserHash);
+    event LogChannelDeposit(uint id, string finalUserHash);
 
-    event ChannelActivate(uint id, string finalSeedHash, string finalReelHash);
+    event LogChannelActivate(uint id, string finalSeedHash, string finalReelHash);
 
-    event Deposit(address _address, uint amount, uint session, uint balance);
+    event LogDeposit(address _address, uint amount, uint session, uint balance);
 
-    event Withdraw(address _address, uint amount, uint session, uint balance);
+    event LogWithdraw(address _address, uint amount, uint session, uint balance);
 
     /* Constructor */
 
@@ -260,7 +260,7 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
 
     function createChannel(uint initialDeposit) {
         // Deposit in DBETs. Use ether since 1 DBET = 18 Decimals i.e same as ether decimals.
-        if(initialDeposit < 100 ether || initialDeposit > 1000 ether)
+        if(initialDeposit < MIN_DEPOSIT || initialDeposit > MAX_DEPOSIT)
             throw;
         channels[channelCount] = Channel({
             ready: false,
@@ -279,7 +279,7 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
             exists: true
         });
         players[channelCount][false] = msg.sender;
-        NewChannel(channelCount, msg.sender, initialDeposit);
+        LogNewChannel(channelCount, msg.sender, initialDeposit);
         channelCount++;
     }
 
@@ -302,7 +302,7 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
         // Transfer tokens from house to betting provider.
         if(!decentBetToken.transferFrom(msg.sender, address(this), amount)) return false;
 
-        Deposit(houseAddress, amount, session, depositedTokens[houseAddress][session]);
+        LogDeposit(houseAddress, amount, session, depositedTokens[houseAddress][session]);
         return true;
     }
 
@@ -323,7 +323,7 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
         depositedTokens[msg.sender][currentSession] =
         safeAdd(depositedTokens[msg.sender][currentSession], amount);
         if(!decentBetToken.transferFrom(msg.sender, address(this), amount)) return false;
-        Deposit(msg.sender, amount, currentSession, depositedTokens[msg.sender][currentSession]);
+        LogDeposit(msg.sender, amount, currentSession, depositedTokens[msg.sender][currentSession]);
         return true;
     }
 
@@ -333,7 +333,7 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
     isTokensAvailable(amount) returns (bool) {
         depositedTokens[msg.sender][session] = safeSub(depositedTokens[msg.sender][session], amount);
         if(!decentBetToken.transfer(msg.sender, amount)) return false;
-        Withdraw(msg.sender, amount, session, depositedTokens[msg.sender][session]);
+        LogWithdraw(msg.sender, amount, session, depositedTokens[msg.sender][session]);
         return true;
     }
 
@@ -362,7 +362,7 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
         channels[id].finalUserHash = _finalUserHash;
         channels[id].ready = true;
         transferTokensToChannel(id, msg.sender);
-        ChannelDeposit(id, _finalUserHash);
+        LogChannelDeposit(id, _finalUserHash);
         return true;
     }
 
@@ -394,7 +394,7 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
         channels[id].finalSeedHash = _finalSeedHash;
         channels[id].activated = true;
         transferTokensToChannel(id, houseAddress);
-        ChannelActivate(id, _finalSeedHash, _finalReelHash);
+        LogChannelActivate(id, _finalSeedHash, _finalReelHash);
         return true;
     }
 
@@ -601,7 +601,7 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
         channels[id].finalTurn = spin.turn;
         channels[id].endBlock = block.number + 1 hours;
         if (!channels[id].finalized) channels[id].finalized = true;
-        ChannelFinalized(id, msg.sender);
+        LogChannelFinalized(id, msg.sender);
     }
 
     // Allows player/house to claim DBETs after the channel has closed

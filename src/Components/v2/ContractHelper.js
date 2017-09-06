@@ -4,7 +4,7 @@
 
 const ethUtil = require('ethereumjs-util')
 
-import DecentBetToken from '../../../build/contracts/DecentBetToken.json'
+import DecentBetToken from '../../../build/contracts/TestDecentBetToken.json'
 import House from '../../../build/contracts/House.json'
 import BettingProvider from '../../../build/contracts/BettingProvider.json'
 import SlotsChannelManager from '../../../build/contracts/SlotsChannelManager.json'

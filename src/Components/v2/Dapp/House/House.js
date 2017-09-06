@@ -17,22 +17,11 @@ const BigNumber = require('bignumber.js')
 const constants = require('./../../Constants')
 const ethUnits = require('ethereum-units')
 
-import './house.css'
-
 const DIALOG_PURCHASE_CREDITS = 0
 
-const styles = {
-    card: {
-        background: constants.COLOR_PRIMARY_DARK,
-        borderRadius: 8,
-        cursor: 'pointer',
-        padding: 20
-    },
-    buttonLabel: {
-        color: constants.COLOR_WHITE,
-        fontFamily: 'TradeGothic'
-    }
-}
+const styles = require('../../Base/styles').styles()
+
+import './house.css'
 
 class House extends Component {
 
