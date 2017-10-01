@@ -414,7 +414,7 @@ contract House is SafeMath {
         LogRolledOverCredits(msg.sender, currentSession, amount);
     }
 
-    // Withdraws session tokens from the previously ended session from a house offering.
+    // Withdraws session tokens for the previously ended session from a house offering.
     function withdrawPreviousSessionTokensFromHouseOffering(address houseOffering)
     isValidHouseOffering(houseOffering)
     onlyAuthorized {
@@ -491,7 +491,7 @@ contract House is SafeMath {
     function pickLotteryWinner(uint session)
     isProfitDistributionPeriod(session)
     isLotteryNotFinalized(session)
-    onlyAuthorized {
+    onlyAuthorized payable {
         // TODO: Send with ether value to fund oraclize
         if(!houseLottery.pickWinner(currentSession, lotteries[currentSession].ticketCount)) throw;
         LogPickLotteryWinner(currentSession, lotteries[currentSession].ticketCount);

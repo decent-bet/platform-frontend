@@ -3,7 +3,6 @@ utils.setWeb3(web3)
 
 const MultiSigWallet = artifacts.require("MultiSigWallet")
 const DecentBetToken = artifacts.require("TestDecentBetToken")
-const DecentBetVault = artifacts.require("TestDecentBetVault")
 const UpgradeAgent = artifacts.require("TestUpgradeAgent")
 const House = artifacts.require("House")
 const BettingProvider = artifacts.require("BettingProvider")
