@@ -4,7 +4,7 @@ Built with Truffle's [React Box](http://truffleframework.com/boxes/react)
 
 Consists of the platform pages - Sports betting, casino, house and more. The decent.bet website's repository can be found [here](https://github.com/decent-bet/web-frontend)
 
-For a higher level overview on how the platform works, refer to [this document](https://github.com/decent-bet/platform-frontend/docs/platform-architecture.md)
+For a higher level overview on how the platform works, refer to [this document](https://github.com/decent-bet/platform-frontend/blob/master/docs/platform-architecture.md)
 
 ## Development
 
