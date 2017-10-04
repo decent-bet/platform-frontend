@@ -128,10 +128,10 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
     address public houseAddress;
 
     // Used to create incremented channel ids.
-    uint channelCount;
+    uint public channelCount;
 
     // Current house session.
-    uint currentSession;
+    uint public currentSession;
 
     // Time for channel to stay active, after which will be closed
     uint constant public timeToLive = 3 hours;
@@ -167,9 +167,9 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
 
     event LogChannelFinalized(uint id, address user);
 
-    event LogChannelDeposit(uint id, string finalUserHash);
+    event LogChannelDeposit(uint id, address user, string finalUserHash);
 
-    event LogChannelActivate(uint id, string finalSeedHash, string finalReelHash);
+    event LogChannelActivate(uint id, address user, string finalSeedHash, string finalReelHash);
 
     event LogDeposit(address _address, uint amount, uint session, uint balance);
 
@@ -284,8 +284,21 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
     }
 
     // Helper function to returns channel information for the frontend
-    function getChannelInfo(uint id) constant returns (bool, address, uint) {
-        return (channels[id].exists, players[id][false], channels[id].initialDeposit);
+    function getChannelInfo(uint id) constant returns (bool, address, bool, bool, uint) {
+        return (channels[id].exists,
+                players[id][false],
+                channels[id].ready,
+                channels[id].activated,
+                channels[id].initialDeposit);
+    }
+
+    // Helper function to return hashes used for the frontend/backend
+    function getChannelHashes(uint id) constant returns (string, string, string, string, string) {
+        return (channels[id].finalUserHash,
+                channels[id].initialUserNumber,
+                channels[id].initialHouseSeedHash,
+                channels[id].finalReelHash,
+                channels[id].finalSeedHash);
     }
 
     // Allows the house to add funds to the provider for this session or the next.
@@ -362,7 +375,7 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
         channels[id].finalUserHash = _finalUserHash;
         channels[id].ready = true;
         transferTokensToChannel(id, msg.sender);
-        LogChannelDeposit(id, _finalUserHash);
+        LogChannelDeposit(id, players[id][true], _finalUserHash);
         return true;
     }
 
@@ -394,12 +407,12 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
         channels[id].finalSeedHash = _finalSeedHash;
         channels[id].activated = true;
         transferTokensToChannel(id, houseAddress);
-        LogChannelActivate(id, _finalSeedHash, _finalReelHash);
+        LogChannelActivate(id, players[id][true], _finalSeedHash, _finalReelHash);
         return true;
     }
 
     // Transfers tokens to a channel.
-    function transferTokensToChannel(uint id, address _address) {
+    function transferTokensToChannel(uint id, address _address) internal {
         channelDeposits[id][_address] =
         safeAdd(channelDeposits[id][_address], channels[id].initialDeposit);
         depositedTokens[_address][channels[id].session] =

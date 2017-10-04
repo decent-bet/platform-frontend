@@ -39,6 +39,7 @@ class PurchaseCreditsDialog extends Component {
         return (
             <Dialog
                 title={"PURCHASE CREDITS FOR SESSION " + self.state.sessionNumber}
+                titleStyle={styles.titleStyle}
                 actions={<FlatButton
                     label="Purchase"
                     labelStyle={styles.floatingLabelStyle}
@@ -48,7 +49,6 @@ class PurchaseCreditsDialog extends Component {
                     }}
                 />
                 }
-                titleStyle={styles.titleStyle}
                 modal={false}
                 open={self.state.open}
                 onRequestClose={() => {

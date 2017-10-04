@@ -84,7 +84,9 @@ module.exports = function (deployer, network) {
         }).then(function (instance) {
             console.log('Deployed Slots Helper')
             slotsHelper = instance
-            return deployer.deploy(SlotsChannelManager, house.address, token.address, slotsHelper.address)
+            return deployer.deploy(SlotsChannelManager, house.address, token.address, slotsHelper.address, {
+                gas: 6700000
+            })
         }).then(function () {
             return SlotsChannelManager.deployed()
         }).then(function (instance) {
@@ -93,17 +95,13 @@ module.exports = function (deployer, network) {
             // console.log('Deploying GameChannelManager with token: ' + token.address + ', slotsHelper: ' +
             //     slotsHelper.address + ' and ' + web3.eth.accounts[0])
             // return deployer.deploy(GameChannelManager, token.address, slotsHelper.address, web3.eth.accounts[0])
+            console.log('Add house offering', house.address, bettingProvider.address)
             return house.addHouseOffering.sendTransaction(bettingProvider.address, {
                 gas: 3000000
             })
         }).then(function () {
             // gameChannelManager = instance
             return house.addHouseOffering.sendTransaction(slotsChannelManager.address, {
-                gas: 3000000
-            })
-        }).then(function () {
-            // gameChannelManager = instance
-            return token.setRobot.sendTransaction(robotAddress, {
                 gas: 3000000
             })
         }).catch((err) => {

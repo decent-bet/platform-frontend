@@ -7,7 +7,7 @@ points outlined below may change over time. If you do notice any discrepancy
 with an implementation, don't hesitate to create a PR.
 
 The Decent.bet platform to start with offers an initial house operated by the 
-Decent.bet team that will offer various casino games and sports betting. 
+Decent.bet team that will offer sports betting and various casino games to it's users. 
 In the long term, token holders on the platform would be able to initially 
 buy into new houses that're issued by the Decent.bet house.
 

@@ -23,16 +23,22 @@
 }
 
 .slots .channels {
-    margin-top: 50px;
+    margin-top: 20px;
 }
 
 .slots .channels h3 {
     font-family: GothamMedium;
 }
 
-.slots th {
+.slots th,
+.slots td {
     color: #ffffff;
     text-transform: uppercase;
     font-family: GothamLight;
     font-size: 12px;
+}
+
+.slots th > p,
+.slots td > p {
+    padding-top: 10px;
 }

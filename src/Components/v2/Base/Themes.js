@@ -33,6 +33,16 @@ class Themes {
         })
     }
 
+    getButtons() {
+        return getMuiTheme({
+            palette: {
+                textColor: constants.COLOR_GOLD,
+                alternateTextColor: constants.COLOR_GOLD,
+                primary1Color: constants.COLOR_GOLD,
+            }
+        })
+    }
+
 }
 
 export default Themes

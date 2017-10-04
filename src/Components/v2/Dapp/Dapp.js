@@ -24,7 +24,7 @@ const constants = require('./../Constants')
 
 import Casino from './Casino/Casino'
 import House from './House/House'
-import Lounge from './Lounge/Lounge'
+import Lounge from './Balances/Balances'
 import Slots from './Casino/Slots/Slots'
 
 import './dapp.css'
@@ -44,6 +44,7 @@ class Dapp extends Component {
         super(props)
         this.state = {
             ethNetwork: 0,
+            address: helper.getWeb3().eth.defaultAccount,
             balance: 0,
             drawer: {
                 open: false
@@ -54,11 +55,17 @@ class Dapp extends Component {
 
     componentWillMount = () => {
         this.initData()
+        this.initWatchers()
     }
 
     initData = () => {
         this.web3Getters().ethereumNetwork()
         this.web3Getters().balances()
+    }
+
+    initWatchers = () => {
+        this.watchers().transferFrom()
+        this.watchers().transferTo()
     }
 
     web3Getters = () => {
@@ -76,6 +83,41 @@ class Dapp extends Component {
                     self.setState({
                         balance: balance
                     })
+                })
+            }
+        }
+    }
+
+    web3Setters = () => {
+        const self = this
+        return {
+            faucet: () => {
+                contractHelper.getWrappers().token().faucet().then((tx) => {
+                    console.log('Sent faucet tx', tx)
+                })
+            }
+        }
+    }
+
+    watchers = () => {
+        const self = this
+        return {
+            transferFrom: () => {
+                helper.getContractHelper().getWrappers().token()
+                    .logTransfer(self.state.address, true).watch((err, event) => {
+                    console.log('transferFrom', err, JSON.stringify(event))
+                    if (!err) {
+                        self.web3Getters().balances()
+                    }
+                })
+            },
+            transferTo: () => {
+                helper.getContractHelper().getWrappers().token()
+                    .logTransfer(self.state.address, false).watch((err, event) => {
+                    console.log('transferTo', err, JSON.stringify(event))
+                    if (!err) {
+                        self.web3Getters().balances()
+                    }
                 })
             }
         }
@@ -169,6 +211,16 @@ class Dapp extends Component {
                                         color: constants.COLOR_WHITE
                                     }}
                                     onClick={ () => {
+                                        self.web3Setters().faucet()
+                                    }}>{ 'Claim Faucet'}
+                            </button>
+                            <button className="btn btn-sm btn-primary hvr-fade"
+                                    style={{
+                                        fontSize: 12,
+                                        marginTop: 12.5,
+                                        marginRight: 10,
+                                        fontFamily: 'Lato',
+                                        color: constants.COLOR_WHITE
                                     }}>{ 'Balance: ' + self.helpers().getFormattedBalance() + ' DBETs' }
                             </button>
                         </div>
@@ -200,9 +252,9 @@ class Dapp extends Component {
                             className="menu-item"
                             style={styles.menuItem}
                             onClick={() => {
-                                self.helpers().selectView(constants.DAPP_VIEW_LOUNGE)
+                                self.helpers().selectView(constants.DAPP_VIEW_BALANCES)
                             }}>
-                            <span className="fa fa-dashboard menu-icon"/>&ensp;&ensp;LOUNGE
+                            <span className="fa fa-money menu-icon"/>&ensp;&ensp;BALANCES
                         </MenuItem>
                         <MenuItem
                             className="menu-item"

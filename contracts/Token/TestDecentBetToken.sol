@@ -4,6 +4,7 @@ pragma solidity ^0.4.8;
 
 import './ERC20.sol';
 import '../Libraries/SafeMath.sol';
+import '../Libraries/TimeProvider.sol';
 import './MultiSigWallet.sol';
 
 contract TestUpgradeAgent is SafeMath {
@@ -19,7 +20,7 @@ contract TestUpgradeAgent is SafeMath {
 }
 
 /// @title Time-locked vault of tokens allocated to DecentBet after 180 days
-contract TestDecentBetVault is SafeMath {
+contract TestDecentBetVault is SafeMath, TimeProvider {
 
     // flag to determine if address is for a real contract or not
     bool public isDecentBetVault = false;
@@ -40,30 +41,35 @@ contract TestDecentBetVault is SafeMath {
         decentBetToken = TestDecentBetToken(msg.sender);
         decentBetMultisig = _decentBetMultisig;
         isDecentBetVault = true;
-        unlockedAtTime = safeAdd(now, timeOffset);
+
+        // If on local testRPC/testnet and need mock times
+        isMock = true;
+        setTimeController(msg.sender);
+
+        unlockedAtTime = safeAdd(getTime(), timeOffset);
         // 1 year later
     }
 
     /// @notice Transfer locked tokens to Decent.bet's multisig wallet
     function unlock() external {
         // Wait your turn!
-        if (block.timestamp < unlockedAtTime) throw;
+        if (getTime() < unlockedAtTime) throw;
         // Will fail if allocation (and therefore toTransfer) is 0.
         if (!decentBetToken.transfer(decentBetMultisig, decentBetToken.balanceOf(this))) throw;
         // Otherwise ether are trapped here, we could disallow payable instead...
         if (!decentBetMultisig.send(this.balance)) throw;
     }
 
-    // disallow payment after unlock block
+    // disallow ETH payments to TimeVault
     function() payable {
-        if (block.timestamp >= unlockedAtTime) throw;
+        throw;
     }
 
 }
 
 
 /// @title DecentBet crowdsale contract
-contract TestDecentBetToken is SafeMath, ERC20 {
+contract TestDecentBetToken is SafeMath, ERC20, TimeProvider {
 
     // flag to determine if address is for a real contract or not
     bool public isDecentBetToken = false;
@@ -93,9 +99,6 @@ contract TestDecentBetToken is SafeMath, ERC20 {
     // Authorized addresses
     address public team;
 
-    // For issuing tokens purchased with other currencies
-    address public robot;
-
     // Upgrade information
     bool public finalizedUpgrade = false;
 
@@ -104,17 +107,6 @@ contract TestDecentBetToken is SafeMath, ERC20 {
     TestUpgradeAgent public upgradeAgent;
 
     uint256 public totalUpgraded;
-
-    // Crowdsale information
-    bool public finalizedCrowdfunding = false;
-
-    // Whitelisted addresses for pre-sale
-    address[] public preSaleWhitelist;
-    mapping (address => bool) public preSaleAllowed;
-
-    uint256 public preSaleStartTime; // Pre-sale start block timestamp
-    uint256 public fundingStartTime; // crowdsale start block timestamp
-    uint256 public fundingEndTime; // crowdsale end block timestamp
 
     // DBET:ETH exchange rate - Needs to be updated at time of ICO. Price of ETH/0.125.
     // For example: If ETH/USD = 300, it would be 2400 DBETs per ETH.
@@ -139,12 +131,6 @@ contract TestDecentBetToken is SafeMath, ERC20 {
 
     event InvestedOnBehalfOf(address investor, uint amount, string txHash);
 
-    // Allow only the robot address to continue
-    modifier onlyRobot() {
-        if(msg.sender != robot) throw;
-        _;
-    }
-
     // Allow only the team address to continue
     modifier onlyTeam() {
         if(msg.sender != team) throw;
@@ -161,8 +147,12 @@ contract TestDecentBetToken is SafeMath, ERC20 {
         if (_upgradeMaster == 0) throw;
         if (_baseTokensPerEther == 0) throw;
 
+        // If on local testRPC/testnet and need mock times
+        isMock = true;
+        setTimeController(msg.sender);
+
         // Crowdsale can only officially start after the current block timestamp.
-        if (_fundingStartTime <= (block.timestamp)) throw;
+        if (_fundingStartTime <= getTime()) throw;
         if (_fundingEndTime <= _fundingStartTime) throw;
 
         isDecentBetToken = true;
@@ -171,10 +161,6 @@ contract TestDecentBetToken is SafeMath, ERC20 {
         team = _team;
 
         baseTokensPerEther = _baseTokensPerEther;
-
-        preSaleStartTime = _fundingStartTime - 1 days;
-        fundingStartTime = _fundingStartTime;
-        fundingEndTime = _fundingEndTime;
 
         timeVault = new TestDecentBetVault(_decentBetMultisig);
         if (!timeVault.isDecentBetVault()) throw;
@@ -185,6 +171,7 @@ contract TestDecentBetToken is SafeMath, ERC20 {
 
     function faucet() {
         balances[msg.sender] = 100000 ether;
+        Transfer(0, msg.sender, 100000 ether);
     }
 
     function balanceOf(address who) constant returns (uint) {
@@ -329,142 +316,7 @@ contract TestDecentBetToken is SafeMath, ERC20 {
 
     // don't just send ether to the contract expecting to get tokens
     function() payable {
-        invest(msg.sender);
-    }
-
-    // Returns the current rate after adding bonuses for the time period
-    function getCurrentRate() constant returns (uint){
-        if(now >= preSaleStartTime && now < fundingStartTime + 1 weeks) {
-            return safeDiv(safeMul(baseTokensPerEther, 120), 100);
-        } else if(now >= fundingStartTime + 1 weeks && now < fundingStartTime + 2 weeks) {
-            return safeDiv(safeMul(baseTokensPerEther, 110), 100);
-        } else if(now >= fundingStartTime + 2 weeks && now < fundingStartTime + 3 weeks) {
-            return safeDiv(safeMul(baseTokensPerEther, 105), 100);
-        } else if(now >= fundingStartTime + 3 weeks && now < fundingEndTime) {
-            return baseTokensPerEther;
-        }
-    }
-
-    // Allows the owner to add an address to the pre-sale whitelist.
-    function addToPreSaleWhitelist(address _address) onlyTeam {
-        // Address already added to whitelist.
-        if (preSaleAllowed[_address]) throw;
-
-        preSaleWhitelist.push(_address);
-        preSaleAllowed[_address] = true;
-    }
-
-    /// @notice Create tokens when funding is active.
-    /// @dev Required state: Funding
-    /// @dev State transition: -> Funding Success (only if cap reached)
-    function invest(address _address) payable {
-
-        // Abort if not in Funding or PreSale state.
-        if (getState() != State.Funding && getState() != State.PreSale) throw;
-
-        // User hasn't been whitelisted for pre-sale
-        if(getState() == State.PreSale && !preSaleAllowed[msg.sender]) throw;
-
-        // Do not allow creating 0 or more than the cap tokens.
-        if (msg.value == 0) throw;
-
-        // multiply by exchange rate to get newly created token amount
-        uint256 createdTokens = safeMul(msg.value, getCurrentRate());
-
-        allocateTokens(_address, createdTokens);
-    }
-
-    // Allows the robot to allocate tokens for an address that purchased DBETs using alternate cryptos
-    // using the ICO dashboard after receiving a callback from the payment processor.
-    function investOnBehalf(address _address, uint amount, string txHash) onlyRobot {
-        if(_address == 0) throw;
-        if(amount == 0) throw;
-
-        // Abort if not in Funding or PreSale state.
-        if (getState() != State.Funding && getState() != State.PreSale) throw;
-
-        // User hasn't been whitelisted for pre-sale.
-        if(getState() == State.PreSale && !preSaleAllowed[_address]) throw;
-
-        allocateTokens(_address, amount);
-
-        InvestedOnBehalfOf(_address, amount, txHash);
-    }
-
-    // Allocates tokens to an investors' address
-    function allocateTokens(address _address, uint amount) internal {
-
-        // we are creating tokens, so increase the totalSupply
-        totalSupply = safeAdd(totalSupply, amount);
-
-        // don't go over the limit!
-        if (totalSupply > tokenCreationMax) throw;
-
-        // Assign new tokens to the sender
-        balances[_address] = safeAdd(balances[_address], amount);
-
-        // Log token creation event
-        Transfer(0, _address, amount);
-    }
-
-    // Allows the team to replace the robot address in case something goes wrong.
-    function setRobot(address _robot) onlyTeam {
-        robot = _robot;
-    }
-
-    /// @notice Finalize crowdfunding
-    /// @dev If cap was reached or crowdfunding has ended then:
-    /// create DBET for the DecentBet Multisig and developer,
-    /// transfer ETH to the DecentBet Multisig address.
-    /// @dev Required state: Success
-    function finalizeCrowdfunding() external {
-        // Abort if not in Funding Success state.
-        if (getState() != State.Success) throw;
-        // don't finalize unless we won
-        if (finalizedCrowdfunding) throw;
-        // can't finalize twice (so sneaky!)
-
-        // prevent more creation of tokens
-        finalizedCrowdfunding = true;
-
-        // Add house fund tokens
-        // totalSupply = totalSupply + houseFundTokens
-        totalSupply = safeDiv(safeMul(totalSupply, hundredPercent), safeSub(hundredPercent, housePercentOfTotal));
-
-        // Now that house fund tokens are added, just take percentages from totalSupply
-        // Founder's supply : 18% of total goes to vault, time locked for 6 months
-        uint256 vaultTokens = safeDiv(safeMul(totalSupply, vaultPercentOfTotal), hundredPercent);
-        balances[timeVault] = safeAdd(balances[timeVault], vaultTokens);
-        Transfer(0, timeVault, vaultTokens);
-
-        // Bounties: 2% of total goes to Decent bet for bounties
-        uint256 bountyTokens = safeDiv(safeMul(totalSupply, bountyPercentOfTotal), hundredPercent);
-
-        balances[decentBetMultisig] = safeAdd(balances[decentBetMultisig], bountyTokens);
-        Transfer(0, decentBetMultisig, bountyTokens);
-
-        // Transfer ETH to the DBET Multisig address.
-        if (!decentBetMultisig.send(this.balance)) throw;
-    }
-
-    // Interface marker
-    function isDecentBetCrowdsale() returns (bool) {
-        return true;
-    }
-
-    /// @notice This manages the crowdfunding state machine
-    /// We make it a function and do not assign the result to a variable
-    /// So there is no chance of the variable being stale
-    function getState() public constant returns (State){
-        if (block.timestamp < preSaleStartTime) return State.Waiting;
-        else if(block.timestamp >= preSaleStartTime &&
-                block.timestamp < fundingStartTime &&
-                totalSupply < tokenCreationMax) return State.PreSale;
-        else if (block.timestamp >= fundingStartTime &&
-                block.timestamp < fundingEndTime &&
-                totalSupply < tokenCreationMax) return State.Funding;
-        else if (block.timestamp >= fundingEndTime ||
-                totalSupply == tokenCreationMax) return State.Success;
+        throw;
     }
 
 }

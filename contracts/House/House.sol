@@ -6,10 +6,11 @@ import './AbstractHouseLottery.sol';
 import '../Betting/AbstractSportsOracle.sol';
 import './HouseOffering.sol';
 import './HouseLottery.sol';
+import '../Libraries/TimeProvider.sol';
 
 // Decent.bet House Contract.
 // All credits and payouts are in DBETs and are 18 decimal places in length.
-contract House is SafeMath {
+contract House is SafeMath, TimeProvider {
 
     // Structs
     struct UserCredits {
@@ -133,6 +134,10 @@ contract House is SafeMath {
         authorizedAddresses.push(founder);
         authorized[founder] = true;
         decentBetToken = AbstractDecentBetToken(decentBetTokenAddress);
+
+        // If on local testRPC/testnet and need mock times
+        isMock = true;
+        setTimeController(msg.sender);
     }
 
     // Modifiers //
@@ -479,10 +484,12 @@ contract House is SafeMath {
 
         uint tokenAmount = safeDiv(safeMul(houseFunds[nextSession].totalFunds, allocation), 100);
 
-        if(!offerings[houseOffering].houseOffering.houseDeposit(tokenAmount, nextSession)) throw;
-
         sessions[nextSession].offeringTokenAllocations[houseOffering].deposited = true;
         sessions[nextSession].depositedAllocations = safeAdd(sessions[nextSession].depositedAllocations, 1);
+
+        if(!decentBetToken.approve(houseOffering, tokenAmount)) throw;
+
+        if(!offerings[houseOffering].houseOffering.houseDeposit(tokenAmount, nextSession)) throw;
 
         LogOfferingDeposit(nextSession, houseOffering, allocation, tokenAmount);
     }

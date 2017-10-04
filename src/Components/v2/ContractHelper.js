@@ -170,6 +170,7 @@ class ContractHelper {
         return {
             token: () => {
                 return {
+                    /** Getters */
                     allowance: (owner, spender) => {
                         return decentBetTokenInstance.allowance.call(owner, spender, {
                             from: window.web3.eth.defaultAccount,
@@ -180,6 +181,7 @@ class ContractHelper {
                             from: window.web3.eth.defaultAccount,
                         })
                     },
+                    /** Setters */
                     approve: (address, value) => {
                         return decentBetTokenInstance.approve.sendTransaction(address, value, {
                             from: window.web3.eth.defaultAccount,
@@ -189,6 +191,17 @@ class ContractHelper {
                         return decentBetTokenInstance.faucet.sendTransaction({
                             from: window.web3.eth.defaultAccount
                         })
+                    },
+                    /**
+                     * Events
+                     * */
+                    logTransfer: (address, isFrom, fromBlock, toBlock) => {
+                        let options = {}
+                        options[isFrom ? 'from' : 'to'] = address
+                        return decentBetTokenInstance.Transfer(options, {
+                            fromBlock: fromBlock ? fromBlock : 0,
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
                     }
                 }
             },
@@ -196,7 +209,6 @@ class ContractHelper {
                 return {
                     /**
                      * Getters
-                     * @returns {*}
                      */
                     getCurrentSession: () => {
                         return houseInstance.currentSession()
@@ -262,13 +274,81 @@ class ContractHelper {
             },
             slotsChannelManager: () => {
                 return {
+                    /**
+                     * Getters
+                     */
+                    getChannelInfo: (id) => {
+                        return slotsChannelManagerInstance.getChannelInfo.call(id, {
+                            from: window.web3.eth.defaultAccount
+                        })
+                    },
+                    balanceOf: (address, session) => {
+                        return slotsChannelManagerInstance.balanceOf.call(address, session, {
+                            from: window.web3.eth.defaultAccount
+                        })
+                    },
+                    currentSession: () => {
+                        return slotsChannelManagerInstance.currentSession.call({
+                            from: window.web3.eth.defaultAccount
+                        })
+                    },
+                    /**
+                     * Setters
+                     */
                     createChannel: (deposit) => {
                         return slotsChannelManagerInstance.createChannel.sendTransaction(deposit,
                             {from: window.web3.eth.defaultAccount, gas: 3000000})
                     },
-                    getChannelInfo: (id) => {
-                        return slotsChannelManagerInstance.getChannelInfo.call(id, {
-                            from: window.web3.eth.defaultAccount
+                    deposit: (amount) => {
+                        return slotsChannelManagerInstance.deposit.sendTransaction(amount,
+                            {from: window.web3.eth.defaultAccount, gas: 3000000})
+                    },
+                    depositToChannel: (id, initialUserNumber, finalUserHash) => {
+                        return slotsChannelManagerInstance.depositChannel.sendTransaction(id,
+                            initialUserNumber, finalUserHash,
+                            {from: window.web3.eth.defaultAccount, gas: 3000000})
+                    },
+                    /**
+                     * Events
+                     */
+                    logNewChannel: (fromBlock, toBlock) => {
+                        return slotsChannelManagerInstance.LogNewChannel({
+                            user: window.web3.eth.defaultAccount
+                        }, {
+                            fromBlock: fromBlock ? fromBlock : 0,
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logChannelDeposit: (fromBlock, toBlock) => {
+                        return slotsChannelManagerInstance.LogChannelDeposit({
+                            user: window.web3.eth.defaultAccount
+                        }, {
+                            fromBlock: fromBlock ? fromBlock : 0,
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logChannelActivate: (fromBlock, toBlock) => {
+                        return slotsChannelManagerInstance.LogChannelActivate({
+                            user: window.web3.eth.defaultAccount
+                        }, {
+                            fromBlock: fromBlock ? fromBlock : 0,
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logChannelFinalized: (fromBlock, toBlock) => {
+                        return slotsChannelManagerInstance.LogChannelFinalized({
+                            user: window.web3.eth.defaultAccount
+                        }, {
+                            fromBlock: fromBlock ? fromBlock : 0,
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logDeposit: (fromBlock, toBlock) => {
+                        return slotsChannelManagerInstance.LogDeposit({
+                            _address: window.web3.eth.defaultAccount
+                        }, {
+                            fromBlock: fromBlock ? fromBlock : 0,
+                            toBlock: toBlock ? toBlock : 'latest'
                         })
                     }
                 }

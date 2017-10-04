@@ -3,6 +3,7 @@ pragma solidity ^0.4.8;
 
 import './ERC20.sol';
 import '../Libraries/SafeMath.sol';
+import '../Libraries/TimeProvider.sol';
 import './MultiSigWallet.sol';
 
 contract UpgradeAgent is SafeMath {
@@ -18,7 +19,7 @@ contract UpgradeAgent is SafeMath {
 }
 
 /// @title Time-locked vault of tokens allocated to DecentBet after 365 days
-contract DecentBetVault is SafeMath {
+contract DecentBetVault is SafeMath, TimeProvider {
 
     // flag to determine if address is for a real contract or not
     bool public isDecentBetVault = false;
@@ -40,6 +41,10 @@ contract DecentBetVault is SafeMath {
         decentBetMultisig = _decentBetMultisig;
         isDecentBetVault = true;
 
+        // If on local testRPC/testnet and need mock times
+        isMock = true;
+        setTimeController(msg.sender);
+
         // 1 year later
         unlockedAtTime = safeAdd(getTime(), timeOffset);
     }
@@ -52,10 +57,6 @@ contract DecentBetVault is SafeMath {
         if (!decentBetToken.transfer(decentBetMultisig, decentBetToken.balanceOf(this))) throw;
     }
 
-    function getTime() internal returns (uint256) {
-        return now;
-    }
-
     // disallow ETH payments to TimeVault
     function() payable {
         throw;
@@ -65,7 +66,7 @@ contract DecentBetVault is SafeMath {
 
 
 /// @title DecentBet crowdsale contract
-contract DecentBetToken is SafeMath, ERC20 {
+contract DecentBetToken is SafeMath, ERC20, TimeProvider {
 
     // flag to determine if address is for a real contract or not
     bool public isDecentBetToken = false;
@@ -161,6 +162,10 @@ contract DecentBetToken is SafeMath, ERC20 {
         if (_team == 0) throw;
         if (_upgradeMaster == 0) throw;
         if (_baseTokensPerEther == 0) throw;
+
+        // If on local testRPC/testnet and need mock times
+        isMock = true;
+        setTimeController(msg.sender);
 
         // For testing/dev
 //         if(_fundingStartTime == 0) throw;
@@ -507,10 +512,6 @@ contract DecentBetToken is SafeMath, ERC20 {
     // Interface marker
     function isDecentBetCrowdsale() returns (bool) {
         return true;
-    }
-
-    function getTime() constant returns (uint256) {
-        return now;
     }
 
     /// @notice This manages the crowdfunding state machine
