@@ -24,8 +24,9 @@ const constants = require('./../Constants')
 
 import Casino from './Casino/Casino'
 import House from './House/House'
-import Lounge from './Balances/Balances'
+import Balances from './Balances/Balances'
 import Slots from './Casino/Slots/Slots'
+import SlotsGame from './Casino/Slots/Game'
 
 import './dapp.css'
 
@@ -159,10 +160,12 @@ class Dapp extends Component {
                         return <Casino/>
                     case constants.DAPP_VIEW_HOUSE:
                         return <House/>
-                    case constants.DAPP_VIEW_LOUNGE:
-                        return <Lounge/>
+                    case constants.DAPP_VIEW_BALANCES:
+                        return <Balances/>
                     case constants.DAPP_VIEW_SLOTS:
                         return <Slots/>
+                    case constants.DAPP_VIEW_SLOTS_GAME:
+                        return <SlotsGame/>
                 }
             },
             selectView: (view) => {

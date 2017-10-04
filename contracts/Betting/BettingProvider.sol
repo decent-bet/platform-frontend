@@ -354,10 +354,9 @@ contract BettingProvider is SafeMath, HouseOffering {
 
     // Allows the house to add funds to the provider for this session or the next.
     function houseDeposit(uint amount, uint session)
-    onlyHouse
-    onlyAuthorized returns (bool) {
+    onlyHouse returns (bool) {
         // House deposits are allowed only for this session or the next.
-        if(session == 0 || session < currentSession || session > (currentSession + 1)) return false;
+        if(session != currentSession && session != currentSession + 1) return false;
 
         // Record the total number of tokens deposited into the house.
         depositedTokens[houseAddress][session] = safeAdd(depositedTokens[houseAddress][session], amount);

@@ -414,9 +414,7 @@ class Slots extends Component {
                                                 className="ml-4"
                                                 disabled={self.state.channels[id].status !==
                                                 constants.CHANNEL_STATUS_ACTIVATED}
-                                                onClick={() => {
-
-                                                }}/>
+                                                href={'/slots/game?id=' + id}/>
                                         </td>
                                     </MuiThemeProvider>
                                 </tr>

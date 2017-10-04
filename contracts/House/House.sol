@@ -156,15 +156,16 @@ contract House is SafeMath, TimeProvider {
     // 1 week before the end of the current session.
     modifier isCreditBuyingPeriod() {
         if (currentSession == 0 && sessionZeroStartTime == 0) throw;
-        if (currentSession != 0 && now < (sessions[currentSession].endTime - 2 weeks) ||
-        now > (sessions[currentSession].endTime - 1 weeks)) throw;
+        if (currentSession != 0 && getTime() < (sessions[currentSession].endTime - 2 weeks) ||
+        getTime() > (sessions[currentSession].endTime - 1 weeks)) throw;
         _;
     }
 
     // If this is the last week of a session - signifying the period when token deposits can be made to house offerings.
     modifier isLastWeekForSession() {
         if (currentSession == 0 && sessionZeroStartTime == 0) throw;
-        if (now < (sessions[currentSession].endTime - 1 weeks) || now > (sessions[currentSession].endTime)) throw;
+        if (getTime() < (sessions[currentSession].endTime - 1 weeks) ||
+            getTime() > (sessions[currentSession].endTime)) throw;
         _;
     }
 
@@ -196,14 +197,14 @@ contract House is SafeMath, TimeProvider {
     // after the end of the previous session.
     modifier isProfitDistributionPeriod(uint session) {
         if (session == 0) throw;
-        if (now < sessions[session].endTime + 4 days) throw;
+        if (getTime() < sessions[session].endTime + 4 days) throw;
         _;
     }
 
     // Allows functions to execute only if it is the end of the current session.
     modifier isEndOfSession() {
         if (!(currentSession == 0 && sessions[currentSession].endTime == 0)
-              && now < sessions[currentSession].endTime) throw;
+              && getTime() < sessions[currentSession].endTime) throw;
         _;
     }
 
@@ -430,7 +431,7 @@ contract House is SafeMath, TimeProvider {
         // Tokens can only be withdrawn from offerings by house 48h after the previous session has ended to account
         // for pending bets/game outcomes.
 
-        if(now < sessions[previousSession].endTime + 2 days) throw;
+        if(getTime() < sessions[previousSession].endTime + 2 days) throw;
 
         uint previousSessionTokens = offerings[houseOffering].houseOffering.balanceOf(address(this), previousSession);
 
@@ -543,16 +544,16 @@ contract House is SafeMath, TimeProvider {
         sessions[currentSession].active = false;
         if (currentSession == 0 && sessionZeroStartTime == 0) {
             // Session zero starts here and allows users to buy credits for a week before starting session 1.
-            sessionZeroStartTime = now;
-            sessions[currentSession].startTime = now;
+            sessionZeroStartTime = getTime();
+            sessions[currentSession].startTime = getTime();
             // TODO: Change to 2 weeks for prod
             sessions[currentSession].endTime = safeAdd(sessions[currentSession].startTime, 2 weeks);
 
             LogNewSession(currentSession, sessions[currentSession].startTime, 0, sessions[currentSession].endTime, 0);
         } else {
-            sessions[nextSession].startTime = now;
+            sessions[nextSession].startTime = getTime();
             sessions[nextSession].endTime = safeAdd(sessions[nextSession].startTime, 12 weeks);
-            // For a session to be considered active, now would need to be between startTime and endTime
+            // For a session to be considered active, getTime() would need to be between startTime and endTime
             // AND session should be active.
             sessions[nextSession].active = true;
             currentSession = nextSession;
@@ -568,7 +569,7 @@ contract House is SafeMath, TimeProvider {
     }
 
     // Utility functions for front-end purposes.
-    function getUserCreditsForSession(uint session, address _address)
+    function getUserCreditsForSession(uint session, address _address) constant
     returns (uint amount, uint liquidated, uint rolledOver, bool exists) {
         return (houseFunds[session].userCredits[_address].amount,
                 houseFunds[session].userCredits[_address].liquidated,
@@ -576,12 +577,11 @@ contract House is SafeMath, TimeProvider {
                 houseFunds[session].userCredits[_address].exists);
     }
 
-    function getUserForSession(uint session, uint index)
-    returns (address _address) {
+    function getUserForSession(uint session, uint index) constant returns (address _address) {
         return houseFunds[session].users[index];
     }
 
-    function getOfferingTokenAllocations(uint session, address _address) returns (uint, bool) {
+    function getOfferingTokenAllocations(uint session, address _address) constant returns (uint, bool) {
         return (sessions[session].offeringTokenAllocations[_address].allocation,
                 sessions[session].offeringTokenAllocations[_address].deposited);
     }

@@ -4,8 +4,9 @@ pragma solidity ^0.4.0;
 // block timestamp on testnet/mainnet.
 contract TimeProvider {
 
-    bool isMock;
+    bool public isMock;
     uint mockTime = now;
+
     address public timeController;
 
     modifier onlyTimeController() {
@@ -13,7 +14,7 @@ contract TimeProvider {
         _;
     }
 
-    function getTime() returns (uint) {
+    function getTime() constant returns (uint) {
         return isMock ? mockTime : now;
     }
 

@@ -304,10 +304,9 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
     // Allows the house to add funds to the provider for this session or the next.
     function houseDeposit(uint amount, uint session)
     onlyHouse
-    onlyAuthorized
     returns (bool) {
         // House deposits are allowed only for this session or the next.
-        if(session == 0 || session < currentSession || session > (currentSession + 1)) return false;
+        if(session != currentSession && session != currentSession + 1) return false;
 
         // Record the total number of tokens deposited into the house.
         depositedTokens[houseAddress][session] = safeAdd(depositedTokens[houseAddress][session], amount);
@@ -332,7 +331,6 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
     // User needs to approve contract address for amount prior to calling this function.
     function deposit(uint amount)
     isDbetsAvailable(amount) returns (bool) {
-        uint currentSession = currentSession;
         depositedTokens[msg.sender][currentSession] =
         safeAdd(depositedTokens[msg.sender][currentSession], amount);
         if(!decentBetToken.transferFrom(msg.sender, address(this), amount)) return false;
