@@ -123,8 +123,9 @@ previous session has ended.
 
 The house lottery doesn't come under the House Offering category of contracts and 
 is instead solely used to pick a winner at the end of a session based on the total
-number of tickets distributed by the house. The contract makes use of oraclize
-to pick a random 7 digit number using WolfRamAlpha as a data source.
+number of tickets distributed by the house. The contract makes use of 
+[oraclize](http://www.oraclize.it/) to pick a random 7 digit number using 
+WolfRamAlpha as a data source.
 
 The random number pushed in by oraclize is then used to calculate the winning ticket
 number within the range of ticket numbers distributed using the following formula
@@ -193,9 +194,9 @@ of sports oracle contracts. Sports oracle work synergistically with Betting
 Providers - providing them with fixture and outcome data.
 
 Sports oracles can accept betting providers to avail of the oracle's services for
-no charge or a free. Providers can then request oracles to provide outcomes for games,
-these outcomes can also be charged a fee for by the oracle giving data providers
-an additional source of revenue.
+no charge or a fee. Providers can then request oracles to report outcomes for games,
+these outcomes can also be charged a fee for by the oracle giving data providers an 
+additional source of revenue.
 
 Note: A penalty for non-reporting sports oracles would aid the entire platform and 
 would be a necessary and beneficial addition to the sports oracle contract.
@@ -212,9 +213,9 @@ All games will consist of state channel manager contracts which would essentiall
 act as a cryptographically verifiable escrow between the house and player holding 
 and distribute DBETs for both parties while they complete their game off-chain. 
 
-At any time, if either party would like to close the channel, a signed message
-of a hash generated based on the data generated based on the last game moves of 
-the opponent would be used to prove that the opponent did play until the last turn.
+At any time, if either party would like to close the channel, a hash generated based 
+on the data from the last game moves of the opponent, signed by the opponent -
+would be used to prove that the opponent did play until the last reported turn.
 
 All RNG verification would happen off-chain by both parties as well to ensure the
 random numbers generated using a standardized and mutually agreed upon 
@@ -227,15 +228,16 @@ signed messages provided by the user and opponent.
 Just like every game to be built on the platform, the
 [Slots contract](https://github.com/decent-bet/platform-frontend/tree/master/contracts/Casino/Slots/SlotsChannelManager.sol) 
 functions as a State Channel Manager while also being a House Offering.
-The reels used by are pre-defined and hardcoded within the contract.
+The reels used are pre-defined and hardcoded within the contract.
 
-Just like any other house offering, users are supposed to deposit within the contract
-for the current session before creating channels to play the games.
+Just like any other house offering, users are supposed to deposit DBETs within the 
+contract for the current session before creating channels to play games.
 
 When a channel is created, users are allowed to choose the amount of DBETs they'd
 like to deposit into the channel. At the moment, they're allowed to deposit between 
 100 and 1000 DBETs. A cap is necessary in this scenario to ensure all DBETs 
-allocated to slots don't get locked up into a few channels.
+allocated to slots don't get locked up into a few channels by griefers or 
+other malicious entities.
 
 After a channel is created, the user then generates an initial random number 
 which's then AES-256 encrypted using a hash of the contract address signed by 
