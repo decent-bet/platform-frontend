@@ -5,6 +5,19 @@ input::-webkit-inner-spin-button {
     margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
 }
 
+::-webkit-scrollbar {
+    width: 8px; /* for vertical scrollbars */
+    height: 8px; /* for horizontal scrollbars */
+}
+
+::-webkit-scrollbar-track {
+    background: rgb(47, 49, 62);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #f2b45c;
+}
+
 .color-gold {
     color: #f2b45c !important;
 }

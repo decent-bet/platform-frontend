@@ -81,6 +81,10 @@ class Helper {
         return ethJsUtil.bufferToHex(ethJsUtil.setLengthLeft(number, 32))
     }
 
+    duplicate = (obj) => {
+        return JSON.parse(JSON.stringify(obj))
+    }
+
 }
 
 export default Helper

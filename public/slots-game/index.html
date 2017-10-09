@@ -42,6 +42,7 @@
     setOnLoadMetaMaskListener(function () {
         $(document).ready(function () {
             var balances = parent.window.slotsController().balances()
+            console.log('Slot balances', balances.user)
             var oMain = new CMain({
                 win_occurrence: 30,        //WIN PERCENTAGE.SET A VALUE FROM 0 TO 100.
                 slot_cash: balances.house,          //THIS IS THE CURRENT SLOT CASH AMOUNT. THE GAME CHECKS IF THERE IS AVAILABLE CASH FOR WINNINGS.

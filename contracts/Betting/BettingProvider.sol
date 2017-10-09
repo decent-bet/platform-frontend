@@ -401,7 +401,7 @@ contract BettingProvider is SafeMath, HouseOffering {
     }
 
     // Query balance of deposited tokens for a user.
-    function balanceOf(address _address, uint session) returns(uint) {
+    function balanceOf(address _address, uint session) constant returns (uint) {
         return depositedTokens[_address][session];
     }
 

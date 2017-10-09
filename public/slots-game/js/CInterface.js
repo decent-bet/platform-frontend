@@ -74,7 +74,7 @@ function CInterface(iCurBet, iTotBet, iMoney) {
         _oMaxBetBut = new CTextButton(805 + (oSprite.width / 2), 595, oSprite, TEXT_MAX_BET, FONT_GAME, "#ffffff", 30);
         _oMaxBetBut.addEventListener(ON_MOUSE_UP, this._onMaxBet, this);
 
-        _oMoneyText = new createjs.Text(TEXT_MONEY + "\n" + iMoney.toFixed(2) + TEXT_CURRENCY, "24px " + FONT_GAME, "#333333");
+        _oMoneyText = new createjs.Text(TEXT_MONEY + "\n" + iMoney + TEXT_CURRENCY, "24px " + FONT_GAME, "#333333");
         _oMoneyText.x = 408;
         _oMoneyText.y = 14;
         _oMoneyText.textAlign = "center";
@@ -407,12 +407,15 @@ function CInterface(iCurBet, iTotBet, iMoney) {
 
     this._onSpin = function () {
         parent.window.slotsController().spin(window.lines, (err, message, lines) => {
-            lines = lines.splice(0, 3)
-            var temp = lines[0]
-            lines[0] = lines[1]
-            lines[1] = temp
-            console.log('Slots controller: ' + err + ', ' + JSON.stringify(lines))
-            s_oGame.onSpin(lines);
+            if(!err) {
+                lines = lines.splice(0, 3)
+                var temp = lines[0]
+                lines[0] = lines[1]
+                lines[1] = temp
+                console.log('Slots controller: ', err, JSON.stringify(lines))
+                s_oGame.onSpin(lines);
+            } else
+                console.log('Slots controller: Error spinning', err)
         })
     };
 

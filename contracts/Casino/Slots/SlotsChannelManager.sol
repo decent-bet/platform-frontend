@@ -349,7 +349,7 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
     }
 
     // Query balance of deposited tokens for a user.
-    function balanceOf(address _address, uint session) returns(uint) {
+    function balanceOf(address _address, uint session) constant returns (uint) {
         return depositedTokens[_address][session];
     }
 
@@ -404,6 +404,7 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
         channels[id].finalReelHash = _finalReelHash;
         channels[id].finalSeedHash = _finalSeedHash;
         channels[id].activated = true;
+        players[id][true] = msg.sender;
         transferTokensToChannel(id, houseAddress);
         LogChannelActivate(id, players[id][true], _finalSeedHash, _finalReelHash);
         return true;

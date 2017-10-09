@@ -12,7 +12,7 @@ contract HouseOffering {
     function withdrawPreviousSessionTokens() returns (bool);
     function deposit(uint amount) returns (bool);
     function withdraw(uint amount, uint session) returns (bool);
-    function balanceOf(address _address, uint session) returns (uint);
+    function balanceOf(address _address, uint session) constant returns (uint);
     function setSession(uint session) returns (bool);
 
 }

@@ -1,0 +1,28 @@
+.slots-game {
+    min-height: 105vh;
+}
+
+.slots-game table {
+    color: #FFFFFF;
+    font-size: 14px;
+}
+
+.slots-game h3 {
+    font-family: GothamMedium !important;
+}
+
+::-webkit-scrollbar,
+.slots-game table tbody::-webkit-scrollbar {
+    width: 8px; /* for vertical scrollbars */
+    height: 8px; /* for horizontal scrollbars */
+}
+
+::-webkit-scrollbar-track,
+.slots-game table tbody::-webkit-scrollbar-track {
+    background: rgb(47, 49, 62);
+}
+
+::-webkit-scrollbar-thumb,
+.slots-game table tbody::-webkit-scrollbar-thumb {
+    background: #f2b45c;
+}

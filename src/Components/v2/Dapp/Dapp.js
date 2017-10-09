@@ -26,7 +26,7 @@ import Casino from './Casino/Casino'
 import House from './House/House'
 import Balances from './Balances/Balances'
 import Slots from './Casino/Slots/Slots'
-import SlotsGame from './Casino/Slots/Game'
+import Game from './Casino/Slots/Game'
 
 import './dapp.css'
 
@@ -165,7 +165,7 @@ class Dapp extends Component {
                     case constants.DAPP_VIEW_SLOTS:
                         return <Slots/>
                     case constants.DAPP_VIEW_SLOTS_GAME:
-                        return <SlotsGame/>
+                        return <Game/>
                 }
             },
             selectView: (view) => {
@@ -240,8 +240,7 @@ class Dapp extends Component {
                     docked={false}
                     width={300}
                     open={self.state.drawer.open}
-                    onRequestChange={(open) => self.helpers().toggleDrawer(open)}
-                >
+                    onRequestChange={(open) => self.helpers().toggleDrawer(open)}>
                     <div className="container drawer">
                         <div className="row">
                             <div className="col">

@@ -57,8 +57,9 @@ class DecentAPI {
     /**
      * Get the latest encrypted spin saved by the house
      **/
-    getLastSpin = (address, callback) => {
-        let url = BASE_URL + '/casino/channels/slots/' + address + '/spin'
+    getLastSpin = (id, callback) => {
+        let url = BASE_URL + '/casino/channels/slots/' + id + '/spin'
+        console.log('getLastSpin', url)
         let options = {
             url: url,
             method: 'GET'
@@ -89,12 +90,6 @@ class DecentAPI {
                 let adr = '0x' + ethUtil.pubToAddress(pub).toString('hex')
                 if (adr !== window.web3.eth.defaultAccount) throw new Error("I guess this doesn't fix it.")
                 console.log("Ta-da! " + adr + ', ' + window.web3.version.api)
-                // sig = sig.substr(2);
-                // console.log('Signed: ' + sig)
-                // let r = '0x' + sig.substr(0, 64);
-                // let s = '0x' + sig.substr(64, 64);
-                // console.log('r: ' + r + ', s: ' + s + ', v: ' + sig.substr(128, 2))
-                // let v = '0x' + sig.substr(128, 2);
                 callback(false, {msgHash: msgHash, sig: sgn});
             } else
                 callback(true, err)

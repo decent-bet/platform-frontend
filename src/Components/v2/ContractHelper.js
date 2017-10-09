@@ -282,6 +282,17 @@ class ContractHelper {
                             from: window.web3.eth.defaultAccount
                         })
                     },
+                    getChannelHashes: (id) => {
+                        return slotsChannelManagerInstance.getChannelHashes.call(id, {
+                            from: window.web3.eth.defaultAccount
+                        })
+                    },
+                    checkSig: (id, msgHash, sign, turn) => {
+                        console.log('Checksig', id, msgHash, sign, turn)
+                        return slotsChannelManagerInstance.checkSig.call(id, msgHash, sign, turn, {
+                            from: window.web3.eth.defaultAccount
+                        })
+                    },
                     balanceOf: (address, session) => {
                         return slotsChannelManagerInstance.balanceOf.call(address, session, {
                             from: window.web3.eth.defaultAccount
