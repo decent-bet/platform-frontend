@@ -1,0 +1,73 @@
+# Getting Started
+
+## Pre-requisites
+
+To begin working with the platform, you will need to have truffle and TestRPC installed for local development
+
+    npm install -g truffle // Version 3.0.5+ required.
+    npm install -g ethereumjs-testrpc
+    
+Make sure you're running a local testRPC instance when you're working with the platform locally. 
+Using a predefined mnemonic for your testRPC instance is encouraged and makes it easier to work with
+State Channels that require private keys from authorized addressess to sign messages on behalf of the house.
+Without a predefined mnemonic, the private key would have to be replaced every time TestRPC is restarted.
+
+Also, changing the gas limit to reflect the current mainnet gas limit is required since some of the contracts
+require upwards of 6M+ gas and will return an out of gas exception if deployed on a TestRPC instance with the default
+gas limit being 4.7M.
+
+To run a testRPC instance with a predefined mnemonic and 6.7M gas, run the following command
+
+    testrpc --mnemonic "<YOUR MNEMONIC>" -l 6720000
+
+    
+## Setting up
+
+To run the Decent.bet platform, you will need to use the following repositories:
+
+## Smart Contracts
+
+* [Platform frontend](https://github.com/decent-bet/platform-frontend)
+
+Run the following command in your terminal to compile and migrate the Decent.bet platform contracts to your local TestRPC 
+instance.
+
+    truffle migrate
+
+Use the resulting build files in _Platfrom Frontend_, _Admin Frontend_ and _Games API_.
+
+## Frontend
+
+* [Platform frontend](https://github.com/decent-bet/platform-frontend) Used by the end user to interact with 
+the Decent.bet House, Casino and Sportsbook.
+* [Admin frontend](https://github.com/decent-bet/admin-frontend) Used by authorized personnel for the house, 
+sports oracle and betting providers to manage their respective entities.
+
+Both frontend repositories make use of Truffle's [React box](https://github.com/truffle-box/react-box). 
+To begin working with them, simply clone either repository and run 
+
+    npm install
+    
+Now, if you haven't migrated the platform contracts to your local testRPC instance, follow the steps in 
+the [Smart Contracts](#smart-contracts) section to add the build files to the project's root directory.
+
+Once you have the build files in the root directory's build/contracts folder, run the following command
+
+    npm run start
+
+## Backend
+
+* [Sports API](https://github.com/decent-bet/sports-api) Retrieves sports data from Pinnacle's API which 
+will be used by ***Admin frontend*** to retrieve the latest sports odds and game data to use with Sports 
+Oracles and Betting Providers.
+* [Games API](https://github.com/decent-bet/games-api) Used to manage state channels for casino games on 
+the platform. Also used to store/retrieve encrypted game state and process game moves.
+  
+Both backend modules are written in node.js and need the following commands to start
+
+    npm install
+    npm run start
+    
+If you're setting up games API, make sure to follow the steps mentioned in the [Smart Contracts sub-section](#smart-contracts) 
+to migrate the platform contracts to your local TestRPC instance and place the necessary build files in the 
+projects' root directory.

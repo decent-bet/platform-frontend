@@ -4,7 +4,7 @@
 
 import React, {Component} from 'react'
 
-import {Card} from 'material-ui'
+import {Card, FlatButton} from 'material-ui'
 
 const queryString = require('query-string')
 
@@ -13,6 +13,7 @@ import Iframe from '../../../Base/Iframe'
 import SlotsChannelHandler from './Libraries/SlotsChannelHandler'
 
 const async = require('async')
+const constants = require('../../../Constants')
 const styles = require('../../../Base/styles')
 
 const helper = new Helper()
@@ -138,7 +139,7 @@ class Game extends Component {
                         reelSeedHash: spin.reelSeedHash,
                         userHash: self.helpers().getUserHashForNonce(nonce),
                         reel: spin.reel,
-                        payout: slotsChannelHandler.helpers().calculateReelPayout(spin.reel, helper.convertToEther(1)),
+                        payout: slotsChannelHandler.helpers().calculateReelPayout(spin.reel, helper.convertToEther(5)),
                         isValid: true
                     })
                 })
@@ -164,6 +165,65 @@ class Game extends Component {
                         display="initial"
                         position="relative"
                         allowFullScreen/>
+                </div>
+            },
+            channelOptions: () => {
+                return <div className="col-12 mt-4">
+                    <Card style={styles.card} className="p-4">
+                        <div className="row channel-options">
+                            <div className="col-12">
+                                <h3 className="text-center text-uppercase mb-3">Channel Options</h3>
+                            </div>
+                            <div className="col-12 mt-3">
+                                <p className="text-center">To end a channel and withdraw your DBETs, click on the 'Close
+                                    Channel' button below</p>
+                            </div>
+                            <div className="col-12">
+                                <FlatButton
+                                    label="Close Channel"
+                                    className="mx-auto d-block"
+                                    labelStyle={{
+                                        color: constants.COLOR_GOLD
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+            },
+            channelDetails: () => {
+                return <div className="col-12 mt-4">
+                    <Card style={styles.card} className="p-4">
+                        <section className="channel-details">
+                            <h3 className="text-center text-uppercase mb-3">Channel Details</h3>
+                            <div className="row mt-4">
+                                <div className="col-6">
+                                    <h5>Initial Deposit</h5>
+                                    <p>{helper.formatEther(self.state.info.initialDeposit.toString())} DBETs</p>
+                                </div>
+                                <div className="col-6">
+                                    <h5>Initial User Number</h5>
+                                    <p>{self.state.hashes.initialUserNumber}</p>
+                                </div>
+                                <div className="col-6">
+                                    <h5>Final User Hash</h5>
+                                    <p>{self.state.hashes.finalUserHash}</p>
+                                </div>
+                                <div className="col-6">
+                                    <h5>Initial House Seed Hash</h5>
+                                    <p>{self.state.hashes.initialHouseSeedHash}</p>
+                                </div>
+                                <div className="col-6">
+                                    <h5>Final Reel Hash</h5>
+                                    <p>{self.state.hashes.finalReelHash}</p>
+                                </div>
+                                <div className="col-6">
+                                    <h5>Final Seed Hash</h5>
+                                    <p>{self.state.hashes.finalSeedHash}</p>
+                                </div>
+                            </div>
+                        </section>
+                    </Card>
                 </div>
             },
             spinHistory: () => {
@@ -212,6 +272,8 @@ class Game extends Component {
             {   self.state.lastSpinLoaded &&
             <div className="row">
                 { self.views().game() }
+                { self.views().channelOptions() }
+                { self.views().channelDetails() }
                 { self.views().spinHistory() }
             </div>
             }

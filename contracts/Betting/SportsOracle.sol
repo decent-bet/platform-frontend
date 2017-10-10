@@ -269,14 +269,15 @@ contract SportsOracle is SafeMath {
     isValidGame(gameId)
     hasGameNotStarted(gameId) returns (bool) {
         // Provider should have authorized oracle to spend at least 'gameUpdateCost' in DBETs.
-        if (decentBetToken.allowance(msg.sender, address(this)) < gameUpdateCost) throw;
+        if (gameUpdateCost > 0 && decentBetToken.allowance(msg.sender, address(this)) < gameUpdateCost) throw;
         providerGamesToUpdate[gameId][msg.sender] = GameUpdate({
             gameId : providerGameId,
             updated : false,
             exists : true
         });
         gameProvidersUpdateList[gameId].push(msg.sender);
-        if (!decentBetToken.transferFrom(msg.sender, address(this), gameUpdateCost)) throw;
+        if(gameUpdateCost > 0)
+            if (!decentBetToken.transferFrom(msg.sender, address(this), gameUpdateCost)) throw;
         return true;
     }
 

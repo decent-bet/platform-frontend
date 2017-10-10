@@ -430,8 +430,7 @@ contract BettingProvider is SafeMath, HouseOffering {
             hasEnded : false,
             exists : true
         });
-        gamesCount++;
-        LogNewGame(gamesCount, oracleGameId, cutOffTime, endTime);
+        LogNewGame(gamesCount++, oracleGameId, cutOffTime, endTime);
     }
 
     // Updates bet limits for a period in a game.
@@ -701,7 +700,7 @@ contract BettingProvider is SafeMath, HouseOffering {
     }
 
     // Accessor functions for front-end accessibility.
-    function getGame(uint id) returns (uint oracleGameId, uint session,
+    function getGame(uint id) constant returns (uint oracleGameId, uint session,
     uint betAmount, uint payouts, uint betCount, uint cutOffTime, uint endTime,
     bool hasEnded, bool exists) {
         Game game = games[id];
@@ -716,16 +715,16 @@ contract BettingProvider is SafeMath, HouseOffering {
                 game.exists);
     }
 
-    function getGamePeriodBetLimits(uint id, uint period) returns (uint[4]) {
+    function getGamePeriodBetLimits(uint id, uint period) constant returns (uint[4]) {
         return games[id].betLimits[period].limits;
     }
 
-    function getGameBettor(uint id, uint index) returns (address, uint) {
+    function getGameBettor(uint id, uint index) constant returns (address, uint) {
         address bettorAddress = games[id].bettorsList[index];
         return (bettorAddress, games[id].bettors[bettorAddress].betCount);
     }
 
-    function getGameBettorBet(uint gameId, address bettor, uint id) returns (uint oddsId,
+    function getGameBettorBet(uint gameId, address bettor, uint id) constant returns (uint oddsId,
     uint choice, uint amount, uint blockTime, uint session, bool claimed,
     bool exists) {
         Bet bet = games[gameId].bettors[bettor].bets[id];
@@ -738,7 +737,7 @@ contract BettingProvider is SafeMath, HouseOffering {
                 bet.exists);
     }
 
-    function getGameBettorBetOdds(uint gameId, address bettor, uint id) returns
+    function getGameBettorBetOdds(uint gameId, address bettor, uint id) constant returns
     (uint betType, uint period, int handicap, int team1, int team2, int draw,
     uint points, int over, int under, bool isTeam1) {
         Odds odds = games[gameId].bettors[bettor].bets[id].odds;
@@ -754,17 +753,17 @@ contract BettingProvider is SafeMath, HouseOffering {
                 odds.isTeam1);
     }
 
-    function getGameBettorBetOddsDetails(uint gameId, address bettor, uint id) returns
+    function getGameBettorBetOddsDetails(uint gameId, address bettor, uint id) constant returns
     (string refId, uint updateTime, bool isActive) {
         Odds odds = games[gameId].bettors[bettor].bets[id].odds;
         return (odds.refId, odds.updateTime, odds.isActive);
     }
 
-    function getGameOddsCount(uint id) returns (uint) {
+    function getGameOddsCount(uint id) constant returns (uint) {
         return games[id].odds.oddsCount;
     }
 
-    function getGameOdds(uint gameId, uint id) returns (uint betType,
+    function getGameOdds(uint gameId, uint id) constant returns (uint betType,
     uint period, int handicap, int team1, int team2, int draw,
     uint points, int over, int under, bool isTeam1) {
         Odds odds = games[gameId].odds.odds[id];
@@ -780,13 +779,13 @@ contract BettingProvider is SafeMath, HouseOffering {
                 odds.isTeam1);
     }
 
-    function getGameOddsDetails(uint gameId, uint id) returns (string refId,
+    function getGameOddsDetails(uint gameId, uint id) constant returns (string refId,
     uint updateTime, bool isActive){
         Odds odds = games[gameId].odds.odds[id];
         return (odds.refId, odds.updateTime, odds.isActive);
     }
 
-    function getGameOutcome(uint gameId, uint period) returns (int result,
+    function getGameOutcome(uint gameId, uint period) constant returns (int result,
     uint totalPoints, uint team1Points, uint team2Points, bool isPublished,
     uint settleTime) {
         Outcome outcome = games[gameId].outcomes[period];
