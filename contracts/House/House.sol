@@ -221,9 +221,9 @@ contract House is SafeMath, TimeProvider {
     }
 
     // Events
-    event LogPurchasedCredits(address creditHolder, uint session, uint amount);
+    event LogPurchasedCredits(address creditHolder, uint session, uint amount, uint balance);
 
-    event LogLiquidateCredits(address creditHolder, uint session, uint amount, uint payout);
+    event LogLiquidateCredits(address creditHolder, uint session, uint amount, uint payout, uint balance);
 
     event LogPayoutRolledOverCredits(address creditHolder, uint session, uint amount, uint payout);
 
@@ -329,7 +329,7 @@ contract House is SafeMath, TimeProvider {
         // Transfer tokens to house contract address.
         if (!decentBetToken.transferFrom(msg.sender, address(this), amount)) throw;
 
-        LogPurchasedCredits(msg.sender, nextSession, amount);
+        LogPurchasedCredits(msg.sender, nextSession, amount, houseFunds[nextSession].userCredits[msg.sender].amount);
     }
 
     // Allows users to return credits and receive tokens along with profit in return.
@@ -343,26 +343,25 @@ contract House is SafeMath, TimeProvider {
         // (Payout per credit * amount of credits) + amount of credits
         uint payout = safeAdd(safeMul(payoutPerCredit, amount), amount);
 
-        // Current session variables
-        uint credits = houseFunds[session].userCredits[msg.sender].amount;
-        uint liquidatedCredits = houseFunds[session].userCredits[msg.sender].liquidated;
-        uint paidOut = houseFunds[session].payouts[msg.sender];
-        uint totalHousePayouts = houseFunds[session].totalHousePayouts;
-        uint totalUserCredits = houseFunds[session].totalUserCredits;
-
         // Payout users for current session and liquidate credits.
-        houseFunds[session].payouts[msg.sender] = safeAdd(paidOut, payout);
-        houseFunds[session].totalUserCredits = safeSub(totalUserCredits, amount);
-        houseFunds[session].userCredits[msg.sender].amount = safeSub(credits, amount);
-        houseFunds[session].userCredits[msg.sender].liquidated = safeAdd(liquidatedCredits, amount);
-        houseFunds[session].totalHousePayouts = safeAdd(totalHousePayouts, payout);
+        houseFunds[session].payouts[msg.sender] =
+            safeAdd(houseFunds[session].payouts[msg.sender], payout);
+        houseFunds[session].totalUserCredits =
+            safeSub(houseFunds[session].totalUserCredits, amount);
+        houseFunds[session].userCredits[msg.sender].amount =
+            safeSub(houseFunds[session].userCredits[msg.sender].amount, amount);
+        houseFunds[session].userCredits[msg.sender].liquidated =
+            safeAdd(houseFunds[session].userCredits[msg.sender].liquidated, amount);
+        houseFunds[session].totalHousePayouts =
+            safeAdd(houseFunds[session].totalHousePayouts, payout);
 
         // Transfers from house to user.
         if (!decentBetToken.transfer(msg.sender, payout)) throw;
 
-        LogLiquidateCredits(msg.sender, session, amount, payout);
+        LogLiquidateCredits(msg.sender, session, amount, payout, houseFunds[session].userCredits[msg.sender].amount);
     }
 
+    // Claim profit share from credits that were rolled over to the next session
     function payoutRolledOverCredits(uint session)
     isUserCreditHolder(session)
     areRolledOverCreditsAvailable(session)

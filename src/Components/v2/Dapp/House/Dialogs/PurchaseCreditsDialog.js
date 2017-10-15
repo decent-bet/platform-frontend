@@ -18,7 +18,12 @@ class PurchaseCreditsDialog extends Component {
             open: false,
             sessionNumber: props.sessionNumber,
             allowance: props.allowance,
-            amount: ''
+            balance: props.balance,
+            amount: '',
+            valid: {
+                error: false,
+                message: ''
+            }
         }
     }
 
@@ -27,6 +32,7 @@ class PurchaseCreditsDialog extends Component {
             open: props.open,
             sessionNumber: props.sessionNumber,
             allowance: props.allowance,
+            balance: props.balance
         })
     }
 
@@ -45,7 +51,22 @@ class PurchaseCreditsDialog extends Component {
                     labelStyle={styles.floatingLabelStyle}
                     primary={true}
                     onClick={ () => {
-                        self.props.onConfirm(self.state.amount)
+                        let amount = parseInt(self.state.amount)
+                        let balance = parseInt(self.state.balance)
+                        console.log(amount, balance)
+                        if (amount <= balance) {
+                            self.props.onConfirm(self.state.amount)
+                            self.toggleDialog(false)
+                        } else {
+                            self.setState({
+                                valid: {
+                                    error: true,
+                                    message: amount ?
+                                        'You do not have enough DBETs to purchase ' + amount + ' credits' :
+                                        'Please enter a valid amount of DBETs'
+                                }
+                            })
+                        }
                     }}
                 />
                 }
@@ -75,6 +96,17 @@ class PurchaseCreditsDialog extends Component {
                                     })
                                 }}
                             />
+                            {   self.state.valid.error &&
+                            <section>
+                                <small className="text-danger">
+                                    { self.state.valid.message }
+                                </small>
+                                <br/>
+                            </section>
+                            }
+                            <small className="color-gold">Available balance: {self.state.balance} DBETs
+                            </small>
+                            <br/>
                             <small className="text-white">Please note that if you haven't set an allowance for the house
                                 to transfer DBETs to it's contract address, you will be prompted to do so now and will
                                 have to send 2 transactions to the network.

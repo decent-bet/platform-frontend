@@ -254,6 +254,27 @@ class ContractHelper {
                             from: window.web3.eth.defaultAccount,
                             gas: 3000000
                         })
+                    },
+                    /**
+                     * Events
+                     */
+                    logPurchasedCredits: (sessionNumber, fromBlock, toBlock) => {
+                        return houseInstance.LogPurchasedCredits({
+                            creditHolder: window.web3.eth.defaultAccount,
+                            session: sessionNumber
+                        }, {
+                            fromBlock: fromBlock ? fromBlock : 0,
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logLiquidateCredits: (sessionNumber, fromBlock, toBlock) => {
+                        return houseInstance.LogLiquidateCredits({
+                            creditHolder: window.web3.eth.defaultAccount,
+                            session: sessionNumber
+                        }, {
+                            fromBlock: fromBlock ? fromBlock : 0,
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
                     }
                 }
             },

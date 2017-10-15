@@ -30,6 +30,7 @@ class House extends Component {
         this.state = {
             currentSession: 0,
             allowance: 0,
+            balance: 0,
             sessions: {},
             credits: {},
             addresses: {
@@ -54,27 +55,72 @@ class House extends Component {
         this.web3Getters().currentSession()
         this.web3Getters().authorizedAddresses(0, true)
         this.web3Getters().houseAllowance()
+        this.web3Getters().dbetBalance()
     }
 
     initWatchers = () => {
-        this.watchers().purchasedCredits()
+        this.watchers().transferFrom()
+        this.watchers().transferTo()
     }
 
     watchers = () => {
+        const self = this
         return {
-            purchasedCredits: () => {
-                let purchasedCreditsEvent = helper.getContractHelper().getHouseInstance().LogPurchasedCredits({}, {
-                    fromBlock: 0,
-                    toBlock: 'latest'
-                })
+            purchasedCredits: (sessionNumber) => {
+                let purchasedCreditsEvent = helper.getContractHelper().getWrappers().house()
+                    .logPurchasedCredits(sessionNumber, 'latest')
                 purchasedCreditsEvent.watch((err, event) => {
                     if (err)
                         console.log('Purchased credits event error: ' + err)
                     else {
+                        let balance = event.args.balance
+                        let credits = self.state.credits
+                        credits[sessionNumber] = balance.toFixed(0)
+                        self.setState({
+                            credits: credits
+                        })
+                        self.helpers().initSessionData(self.helpers().getCurrentSession())
+                        console.log('Purchased credits event: ', event)
+                    }
+                })
+            },
+            liquidateCredits: (sessionNumber) => {
+                let liquidateCreditsEvent = helper.getContractHelper().getWrappers().house()
+                    .logLiquidateCredits(sessionNumber)
+                liquidateCreditsEvent.watch((err, event) => {
+                    if (err)
+                        console.log('Liquidate credits event error: ' + err)
+                    else {
                         let creditHolder = event.args.creditHolder
                         let session = event.args.session
                         let amount = event.args.amount
-                        console.log('Purchased credits event: ', JSON.stringify(event), creditHolder, session, amount)
+                        let payout = event.args.payout
+                        let balance = event.args.balance
+
+                        let credits = self.state.credits
+                        credits[sessionNumber] = balance.toFixed(0)
+                        self.setState({
+                            credits: credits
+                        })
+                        console.log('Liquidate credits event: ', event)
+                    }
+                })
+            },
+            transferFrom: () => {
+                helper.getContractHelper().getWrappers().token()
+                    .logTransfer(self.state.address, true).watch((err, event) => {
+                    console.log('transferFrom', err, JSON.stringify(event))
+                    if (!err) {
+                        self.web3Getters().dbetBalance()
+                    }
+                })
+            },
+            transferTo: () => {
+                helper.getContractHelper().getWrappers().token()
+                    .logTransfer(self.state.address, false).watch((err, event) => {
+                    console.log('transferTo', err, JSON.stringify(event))
+                    if (!err) {
+                        self.web3Getters().dbetBalance()
                     }
                 })
             }
@@ -93,9 +139,8 @@ class House extends Component {
                     self.setState({
                         currentSession: session
                     })
-                    if (session == 0)
-                        session = 1
-                    self.helpers().initSessionData(session)
+                    self.helpers().initSessionData(self.helpers().getCurrentSession())
+                    self.watchers().purchasedCredits(self.helpers().getCurrentSession())
                 }).catch((err) => {
                     console.log('Error retrieving current session')
                 })
@@ -107,13 +152,15 @@ class House extends Component {
              */
             authorizedAddresses: (index, iterate) => {
                 helper.getContractHelper().getWrappers().house().getAuthorizedAddresses(index).then((address) => {
-                    let addresses = self.state.addresses
-                    addresses.authorized.push(address)
-                    self.setState({
-                        addresses: addresses
-                    })
-                    if (iterate)
-                        self.web3Getters().authorizedAddresses(index + 1, true)
+                    if (address !== '0x') {
+                        let addresses = self.state.addresses
+                        addresses.authorized.push(address)
+                        self.setState({
+                            addresses: addresses
+                        })
+                        if (iterate)
+                            self.web3Getters().authorizedAddresses(index + 1, true)
+                    }
                 }).catch((err) => {
                     console.log('Error retrieving authorized address', index, iterate)
                 })
@@ -128,7 +175,7 @@ class House extends Component {
                     // 0 - Amount, 1 - Liquidated, 2 - Rolled over, 3 - Exists
                     console.log('getUserCreditsForSession', userCredits[0].toFixed(0))
                     let credits = self.state.credits
-                    credits[helper.getWeb3().eth.defaultAccount] = userCredits[0].toFixed(0)
+                    credits[sessionNumber] = userCredits[0].toFixed(0)
                     self.setState({
                         credits: credits
                     })
@@ -197,6 +244,21 @@ class House extends Component {
                 })
             },
             /**
+             * Returns DBET balance for the logged in address
+             */
+            dbetBalance: () => {
+                helper.getContractHelper().getWrappers().token()
+                    .balanceOf(helper.getWeb3().eth.defaultAccount).then((balance) => {
+                    console.log('Retrieved DBET balance', balance.toString())
+                    balance = helper.formatEther(balance)
+                    self.setState({
+                        balance: balance
+                    })
+                }).catch((err) => {
+                    console.log('Error retrieving DBET balance', err.message)
+                })
+            },
+            /**
              * Returns details for a session's lottery
              */
             lottery: (session) => {
@@ -215,7 +277,7 @@ class House extends Component {
                         lotteries: lotteries
                     })
                     self.web3Getters().lotteryUserTickets(session, 0)
-                    console.log('Lottery', session, JSON.stringify(lottery))
+                    console.log('Lottery', session, lottery)
                 }).catch((err) => {
                     console.log('Error retrieving lottery details', session, err.message)
                 })
@@ -230,9 +292,9 @@ class House extends Component {
                     helper.getWeb3().eth.defaultAccount, index).then((ticket) => {
                     let lotteries = self.state.lotteries
                     let lottery = lotteries[session]
-                    if (!lottery.tickets.hasOwnProperty(helper.getWeb3().eth.defaultAccount))
-                        lottery.tickets[helper.getWeb3().eth.defaultAccount] = []
-                    lottery.tickets[helper.getWeb3().eth.defaultAccount].push(ticket.toFixed(0))
+                    if (!lottery.tickets.hasOwnProperty(helper.getWeb3().eth.defaultAccount) || index == 0)
+                        lottery.tickets[helper.getWeb3().eth.defaultAccount] = {}
+                    lottery.tickets[helper.getWeb3().eth.defaultAccount][ticket.toFixed(0)] = true
                     self.setState({
                         lotteries: lotteries
                     })
@@ -259,8 +321,11 @@ class House extends Component {
     helpers = () => {
         const self = this
         return {
+            getCurrentSession: () => {
+                return self.state.currentSession == 0 ? 1 : self.state.currentSession
+            },
             getCurrentSessionHouseFunds: () => {
-                return self.state.houseFunds[self.state.currentSession == 0 ? 1 : self.state.currentSession]
+                return self.state.houseFunds[self.helpers().getCurrentSession()]
             },
             toggleDialog: (dialog, open) => {
                 let dialogs = self.state.dialogs
@@ -277,11 +342,11 @@ class House extends Component {
                 self.web3Getters().lottery(session)
             },
             getCurrentSessionLottery: () => {
-                let session = (self.state.currentSession == 0 ? 1 : self.state.currentSession)
+                let session = self.helpers().getCurrentSession()
                 return {
                     userTickets: () => {
                         return self.state.lotteries[session] ?
-                            self.state.lotteries[session].tickets[helper.getWeb3().eth.defaultAccount] :
+                            Object.keys(self.state.lotteries[session].tickets[helper.getWeb3().eth.defaultAccount]) :
                             null
                     },
                     details: () => {
@@ -359,9 +424,9 @@ class House extends Component {
                                     <div className="col">
                                         <h4 className="header">CREDITS AVAILABLE</h4>
                                         <h4 className="stat mt-3">
-                                            { self.state.credits.hasOwnProperty(helper.getWeb3().eth.defaultAccount) ?
-                                                helper.formatEther(self.state.credits
-                                                    [helper.getWeb3().eth.defaultAccount]) : '0' } CREDITS
+                                            { self.state.credits.hasOwnProperty(self.helpers().getCurrentSession()) ?
+                                                helper.formatEther
+                                                (self.state.credits[self.helpers().getCurrentSession()]) : '0' } CREDITS
                                         </h4>
                                     </div>
                                 </div>
@@ -412,7 +477,7 @@ class House extends Component {
                             <div className="container">
                                 <div className="row">
                                     <div className="col">
-                                        <h4 className="header mb-2">PROFITS GENERATED</h4>
+                                        <h4 className="header mb-2">PROFIT GENERATED</h4>
                                         <h4 className="stat mt-3">
                                             { self.helpers().getCurrentSessionHouseFunds() ?
                                                 helper.formatEther(self.helpers().getCurrentSessionHouseFunds().profit)
@@ -442,8 +507,8 @@ class House extends Component {
                                                 <th>Ticket Number</th>
                                             </tr>
                                             </thead>
-                                            {   self.state.lotteries[self.state.currentSession == 0 ? 1 : self.state.currentSession] &&
-                                            self.state.lotteries[self.state.currentSession == 0 ? 1 : self.state.currentSession]
+                                            {   self.state.lotteries[self.helpers().getCurrentSession()] &&
+                                            self.state.lotteries[self.helpers().getCurrentSession()]
                                                 .tickets[helper.getWeb3().eth.defaultAccount] &&
                                             <tbody>
                                             {   self.helpers().getCurrentSessionLottery().userTickets().map((ticket, index) =>
@@ -517,6 +582,7 @@ class House extends Component {
     }
 
     web3Setters = () => {
+        const self = this
         return {
             /**
              * Purchase session credits. Amount must be converted to 18 decimal places before buying.
@@ -531,13 +597,15 @@ class House extends Component {
                 })
             },
             /**
-             * Approves the house contract to withdraw 'amount' DBETs from the user's ETH address
+             * Approves the house contract to withdraw 'amount' DBETs from the user's ETH address and
+             * purchases 'amount' credits
              * @param amount
              */
-            approveHouse: (amount) => {
+            approveAndPurchaseCredits: (amount) => {
                 let house = helper.getContractHelper().getHouseInstance().address
                 helper.getContractHelper().getWrappers().token().approve(house, amount).then((tx) => {
                     console.log('Successfully sent approve tx', tx)
+                    self.web3Setters().purchaseCredits(amount)
                 }).catch((err) => {
                     console.log('Error sending approve tx', err)
                 })
@@ -560,10 +628,11 @@ class House extends Component {
                             if (isAllowanceAvailable)
                                 self.web3Setters().purchaseCredits(formattedAmount)
                             else
-                                self.web3Setters().approveHouse(formattedAmount)
+                                self.web3Setters().approveAndPurchaseCredits(formattedAmount)
                         }
                     }}
                     allowance={self.state.allowance}
+                    balance={self.state.balance}
                     toggleDialog={(enabled) => {
                         self.helpers().toggleDialog(DIALOG_PURCHASE_CREDITS, enabled)
                     }}
