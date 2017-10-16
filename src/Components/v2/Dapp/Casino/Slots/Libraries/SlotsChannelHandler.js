@@ -218,8 +218,10 @@ export default class SlotsChannelHandler {
                 let prevUserHash = state.userHashes[state.userHashes.length - nonce - 1]
                 let userBalance = ((nonce == 1) ? (state.info.initialDeposit) :
                     lastHouseSpin.userBalance)
+                userBalance = new BigNumber(userBalance).toFixed(0)
                 let houseBalance = ((nonce == 1) ? (state.info.initialDeposit) :
                     lastHouseSpin.houseBalance)
+                houseBalance = new BigNumber(houseBalance).toFixed(0)
 
                 let spin = {
                     reelHash: reelHash,
