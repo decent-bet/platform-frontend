@@ -387,14 +387,6 @@ class ContractHelper {
                             toBlock: toBlock ? toBlock : 'latest'
                         })
                     },
-                    logFinalizeError: (fromBlock, toBlock) => {
-                        return slotsChannelManagerInstance.LogFinalizeError({
-                            user: window.web3.eth.defaultAccount
-                        }, {
-                            fromBlock: fromBlock ? fromBlock : 0,
-                            toBlock: toBlock ? toBlock : 'latest'
-                        })
-                    },
                     logDeposit: (fromBlock, toBlock) => {
                         return slotsChannelManagerInstance.LogDeposit({
                             _address: window.web3.eth.defaultAccount

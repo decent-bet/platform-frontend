@@ -128,7 +128,6 @@ class Game extends Component {
 
     initWatchers = () => {
         this.watchers().channelFinalized()
-        this.watchers().finalizeError()
     }
 
     watchers = () => {
@@ -138,14 +137,6 @@ class Game extends Component {
                 helper.getContractHelper().getWrappers().slotsChannelManager()
                     .logChannelFinalized().watch((err, event) => {
                     console.log('Finalized event', err, event)
-                    if (!err) {
-                    }
-                })
-            },
-            finalizeError: () => {
-                helper.getContractHelper().getWrappers().slotsChannelManager()
-                    .logFinalizeError().watch((err, event) => {
-                    console.log('Finalize error', err, event)
                     if (!err) {
                     }
                 })
