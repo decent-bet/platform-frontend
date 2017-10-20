@@ -185,6 +185,7 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
         decentBetToken = AbstractDecentBetToken(_token);
         house = AbstractHouse(_house);
         slotsHelper = AbstractSlotsHelper(_slotsHelper);
+        if(!slotsHelper.isSlotsHelper()) throw;
         name = 'Slots Channel Manager';
         isHouseOffering = true;
     }
@@ -284,12 +285,13 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
     }
 
     // Helper function to returns channel information for the frontend
-    function getChannelInfo(uint id) constant returns (bool, address, bool, bool, uint) {
+    function getChannelInfo(uint id) constant returns (bool, address, bool, bool, uint, bool) {
         return (channels[id].exists,
                 players[id][false],
                 channels[id].ready,
                 channels[id].activated,
-                channels[id].initialDeposit);
+                channels[id].initialDeposit,
+                channels[id].finalized);
     }
 
     // Helper function to return hashes used for the frontend/backend
@@ -474,16 +476,18 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
         // seed hash which were sent from the server.
 
         // Previous reel seed needs to be hash of current reel seed
-        if (toBytes32(prior.reelSeedHash, 0) != sha256(curr.prevReelSeedHash)) throw;
+        if (toBytes32(prior.reelSeedHash, 0) != sha256(curr.prevReelSeedHash)) return false;
 
         // Current and last spin should report the same reel seed hashes
-        if (!strCompare(curr.reelSeedHash, prior.reelSeedHash)) throw;
+        if (!strCompare(curr.reelSeedHash, prior.reelSeedHash)) return false;
 
         // Previous user hash needs to be hash of current user hash
-        if (toBytes32(prior.userHash, 0) != sha256(curr.userHash)) throw;
+        if (toBytes32(prior.userHash, 0) != sha256(curr.userHash)) return false;
 
         // Current and last spins should report the same user hashes
-        if (!strCompare(curr.userHash, prior.prevUserHash)) throw;
+        if (!strCompare(curr.userHash, prior.prevUserHash)) return false;
+
+        return true;
     }
 
     // Compare reel hashes for spins
@@ -539,7 +543,7 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
     function finalize(uint id, string _curr, string _prior,
     bytes32 currR, bytes32 currS, bytes32 priorR, bytes32 priorS)
     isParticipant(id)
-    returns (bool) {
+    constant returns (bool) {
 
         Spin memory curr = convertSpin(_curr);
         // 5.6k gas
@@ -554,15 +558,16 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
         uint totalSpinReward = getTotalSpinReward(prior);
 
         if (!isAccurateBalances(curr, prior, totalSpinReward)) return false;
-        // 26k gas
 
+        // 26k gas
         if(!checkSigPrivate(id, curr)) return false;
+
         if(!checkSigPrivate(id, prior)) return false;
 
         // Checks if spin hashes are pre-images of previous hashes or are hashes in previous spins
         if (!checkSpinHashes(curr, prior)) return false;
-        // 5.6k gas
 
+        // 5.6k gas
         if(!checkPair(curr, prior)) return false;
 
         if (!channels[id].finalized || curr.nonce > channels[id].finalNonce) setFinal(id, curr); // 86k gas

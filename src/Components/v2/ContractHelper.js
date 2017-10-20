@@ -340,6 +340,18 @@ class ContractHelper {
                             initialUserNumber, finalUserHash,
                             {from: window.web3.eth.defaultAccount, gas: 3000000})
                     },
+                    finalize: (id, userSpin, houseSpin) => {
+                        userSpin = self.getSpinParts(userSpin)
+                        houseSpin = self.getSpinParts(houseSpin)
+
+                        console.log('Finalize', id + ', ' + userSpin.parts + ', ' + houseSpin.parts,
+                        userSpin.r + ', ' + userSpin.s + ', ' + houseSpin.r + ', ' + houseSpin.s)
+
+                        return slotsChannelManagerInstance.finalize.call(id, userSpin.parts,
+                            houseSpin.parts, userSpin.r, houseSpin.r, userSpin.s, houseSpin.s, {
+                                from: window.web3.eth.defaultAccount, gas: 3000000
+                            })
+                    },
                     /**
                      * Events
                      */
@@ -369,6 +381,14 @@ class ContractHelper {
                     },
                     logChannelFinalized: (fromBlock, toBlock) => {
                         return slotsChannelManagerInstance.LogChannelFinalized({
+                            user: window.web3.eth.defaultAccount
+                        }, {
+                            fromBlock: fromBlock ? fromBlock : 0,
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logFinalizeError: (fromBlock, toBlock) => {
+                        return slotsChannelManagerInstance.LogFinalizeError({
                             user: window.web3.eth.defaultAccount
                         }, {
                             fromBlock: fromBlock ? fromBlock : 0,

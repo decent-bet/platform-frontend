@@ -39,6 +39,7 @@ class Game extends Component {
 
     componentWillMount() {
         this.initChannel()
+        this.initWatchers()
     }
 
     initChannel = () => {
@@ -125,6 +126,33 @@ class Game extends Component {
         }
     }
 
+    initWatchers = () => {
+        this.watchers().channelFinalized()
+        this.watchers().finalizeError()
+    }
+
+    watchers = () => {
+        const self = this
+        return {
+            channelFinalized: () => {
+                helper.getContractHelper().getWrappers().slotsChannelManager()
+                    .logChannelFinalized().watch((err, event) => {
+                    console.log('Finalized event', err, event)
+                    if (!err) {
+                    }
+                })
+            },
+            finalizeError: () => {
+                helper.getContractHelper().getWrappers().slotsChannelManager()
+                    .logFinalizeError().watch((err, event) => {
+                    console.log('Finalize error', err, event)
+                    if (!err) {
+                    }
+                })
+            }
+        }
+    }
+
     helpers = () => {
         const self = this
         return {
@@ -184,6 +212,11 @@ class Game extends Component {
                                     className="mx-auto d-block"
                                     labelStyle={{
                                         color: constants.COLOR_GOLD
+                                    }}
+                                    onClick={() => {
+                                        slotsChannelHandler.closeChannel(self.state, (err, message) => {
+                                            console.log('Close channel callback', err, message)
+                                        })
                                     }}
                                 />
                             </div>

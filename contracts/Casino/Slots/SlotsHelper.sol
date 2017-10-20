@@ -5,6 +5,8 @@ import '../../Libraries/Utils.sol';
 
 contract SlotsHelper is SafeMath, Utils {
 
+    bool public isSlotsHelper = true;
+
     // Number of reels
     uint constant NUMBER_OF_REELS = 5;
 

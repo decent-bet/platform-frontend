@@ -173,10 +173,31 @@ export default class SlotsChannelHandler {
                     } else if (callback)
                         callback(true, 'Error retrieving house spin')
                 })
-            } else {
-                if (callback)
-                    callback(true, 'Error generating sign')
-            }
+            } else if (callback)
+                callback(true, 'Error generating user spin')
+        })
+    }
+
+    /**
+     * Closes a channel allowing users to claim DBETs
+     * @param state
+     * @param callback
+     */
+    closeChannel = (state, callback) => {
+        let id = state.id
+        let betSize = helper.convertToEther(1)
+        this.helpers().getSpin(betSize, state, (err, userSpin) => {
+            if (!err) {
+                let lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]
+                helper.getContractHelper().getWrappers().slotsChannelManager()
+                    .finalize(id, userSpin, lastHouseSpin)
+                    .then((tx) => {
+                        callback(false, ('Successfully finalized channel' + ', ' + tx))
+                    }).catch((err) => {
+                        callback(false, ('Error closing channel' + ', ' + err.message))
+                    })
+            } else if (callback)
+                callback(true, 'Error generating user spin')
         })
     }
 
@@ -293,11 +314,11 @@ export default class SlotsChannelHandler {
                         let userBalance, houseBalance
 
                         userBalance = (payout == 0) ?
-                            (new BigNumber(userSpin.userBalance).minus(betSize).toString()) :
-                            (new BigNumber(userSpin.userBalance).plus(payout).minus(betSize).toString())
+                            (new BigNumber(userSpin.userBalance).minus(betSize).toFixed()) :
+                            (new BigNumber(userSpin.userBalance).plus(payout).minus(betSize).toFixed())
                         houseBalance = (payout == 0) ?
-                            (new BigNumber(userSpin.houseBalance).plus(betSize).toString()) :
-                            (new BigNumber(userSpin.houseBalance).minus(payout).plus(betSize).toString())
+                            (new BigNumber(userSpin.houseBalance).plus(betSize).toFixed()) :
+                            (new BigNumber(userSpin.houseBalance).minus(payout).plus(betSize).toFixed())
 
                         if (new BigNumber(houseSpin.betSize).lessThan(helper.convertToEther(1)) ||
                             new BigNumber(houseSpin.betSize).greaterThan(helper.convertToEther(5)))

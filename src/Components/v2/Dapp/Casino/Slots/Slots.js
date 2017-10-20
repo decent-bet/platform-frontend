@@ -85,9 +85,12 @@ class Slots extends Component {
                         let id = event.args.id
                         console.log('New channel event', event.args)
                         let channels = self.state.channels
-                        if (!channels.hasOwnProperty(id))
+                        if (!channels.hasOwnProperty(id)) {
                             channels[id] = event.args
-                        channels[id].status = constants.CHANNEL_STATUS_WAITING
+                            channels[id].status = constants.CHANNEL_STATUS_WAITING
+                            console.log('Channels', channels)
+                        } else
+                            channels[id].initialDeposit = event.args.initialDeposit
                         self.setState({
                             channels: channels
                         })
@@ -105,7 +108,9 @@ class Slots extends Component {
                         let channels = self.state.channels
                         if (!channels.hasOwnProperty(id))
                             channels[id] = event.args
-                        channels[id].status = constants.CHANNEL_STATUS_DEPOSITED
+                        if (channels[id].status !== constants.CHANNEL_STATUS_ACTIVATED &&
+                            channels[id].status !== constants.CHANNEL_STATUS_FINALIZED)
+                            channels[id].status = constants.CHANNEL_STATUS_DEPOSITED
                         self.setState({
                             channels: channels
                         })
@@ -123,7 +128,8 @@ class Slots extends Component {
                         let channels = self.state.channels
                         if (!channels.hasOwnProperty(id))
                             channels[id] = event.args
-                        channels[id].status = constants.CHANNEL_STATUS_ACTIVATED
+                        if (channels[id].status !== constants.CHANNEL_STATUS_FINALIZED)
+                            channels[id].status = constants.CHANNEL_STATUS_ACTIVATED
                         self.setState({
                             channels: channels
                         })
@@ -200,7 +206,7 @@ class Slots extends Component {
                     helper.getContractHelper().getSlotsChannelManagerInstance().address).then((allowance) => {
                     console.log('Successfully retrieved slots channel manager allowance', allowance)
                     self.setState({
-                        allowance: allowance.toString()
+                        allowance: allowance.toFixed()
                     })
                 }).catch((err) => {
                     console.log('Error retrieving slots channel manager allowance', err.message)
@@ -393,8 +399,15 @@ class Slots extends Component {
                                 <tr>
                                     <th scope="row"><p>{id}</p></th>
                                     <td>
-                                        <p>{ helper.getWeb3().fromWei(self.state.channels[id].initialDeposit
-                                            .toString()) } DBETs</p>
+                                        <p>
+                                            {
+                                                self.state.channels.hasOwnProperty(id) &&
+                                                self.state.channels[id].hasOwnProperty('initialDeposit') ?
+                                                    helper.getWeb3().fromWei(self.state.channels[id]
+                                                        .initialDeposit.toString()) :
+                                                    self.views().tinyLoader()
+                                            } DBETs
+                                        </p>
                                     </td>
                                     <td>
                                         <p>{ self.helpers()
