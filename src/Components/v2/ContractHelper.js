@@ -341,14 +341,26 @@ class ContractHelper {
                             {from: window.web3.eth.defaultAccount, gas: 3000000})
                     },
                     finalize: (id, userSpin, houseSpin) => {
+                        id = parseInt(id)
                         userSpin = self.getSpinParts(userSpin)
                         houseSpin = self.getSpinParts(houseSpin)
 
-                        console.log('Finalize', id + ', ' + userSpin.parts + ', ' + houseSpin.parts,
-                        userSpin.r + ', ' + userSpin.s + ', ' + houseSpin.r + ', ' + houseSpin.s)
+                        console.log('Finalize', id, typeof id)
 
-                        return slotsChannelManagerInstance.finalize.call(id, userSpin.parts,
-                            houseSpin.parts, userSpin.r, houseSpin.r, userSpin.s, houseSpin.s, {
+                        let logKeys = (spin) => {
+                            Object.keys(spin).forEach((key) => {
+                                console.log('Finalize', key, spin[key], typeof spin[key])
+                            })
+                        }
+                        logKeys(userSpin)
+                        logKeys(houseSpin)
+
+                        console.log('Finalize string: \"' + id + '\", \"' + userSpin.parts + '\", \"' +
+                            houseSpin.parts + '\", \"' + userSpin.r + '\", \"' + userSpin.s + '\", \"' +
+                            houseSpin.r + '\", \"' + houseSpin.s + '\"')
+
+                        return slotsChannelManagerInstance.finalize.sendTransaction(id, userSpin.parts,
+                            houseSpin.parts, userSpin.r, userSpin.s, houseSpin.r, houseSpin.s, {
                                 from: window.web3.eth.defaultAccount, gas: 3000000
                             })
                     },

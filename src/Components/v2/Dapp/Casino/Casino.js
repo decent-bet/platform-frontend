@@ -84,7 +84,7 @@ class Casino extends Component {
                                 { self.views().gameCard('Slots', 'backgrounds/slots.jpg', '/slots', true)}
                                 { self.views().gameCard('Craps', 'backgrounds/craps.jpg', '#')}
                                 { self.views().gameCard('Roulette', 'backgrounds/roulette.jpg', '#')}
-                                { self.views().gameCard('Crypto price betting', '', '#')}
+                                { self.views().gameCard('Crypto price betting', 'backgrounds/crypto-price-betting.jpg', '#')}
                             </div>
                         </div>
                     </div>

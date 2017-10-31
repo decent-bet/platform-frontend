@@ -63,7 +63,7 @@ contract SlotsHelper is SafeMath, Utils {
 
     // Converts a string reel to a uint array
     // Example string reel = '0,1,2,3,4'
-    function convertReelToArray(string reel) internal returns (uint[5]){
+    function convertReelToArray(string reel) returns (uint[5]){
         uint[5] memory reelArray;
         string memory temp = '';
         uint8 iterator = 0;
@@ -81,7 +81,7 @@ contract SlotsHelper is SafeMath, Utils {
         return reelArray;
     }
 
-    function getTotalReward(uint betSize, uint[5] reelArray) internal returns (uint) {
+    function getTotalReward(uint betSize, uint[5] reelArray) returns (uint) {
         uint totalReward = 0;
         uint adjustedBetSize = safeDiv(betSize, 1 ether);
         for (uint8 i = 0; i < adjustedBetSize; i++) { //300k gas
