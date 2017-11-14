@@ -61,7 +61,7 @@ module.exports = function (deployer, network) {
             bettingProviderHelper = instance
             console.log('Deploying BettingProvider with addresses: ' + token.address + ', ' + house.address)
             return deployer.deploy(BettingProvider, token.address, house.address, bettingProviderHelper.address, {
-                gas: 5000000
+                gas: 6720000
             })
         }).then(function () {
             return BettingProvider.deployed()
@@ -85,7 +85,7 @@ module.exports = function (deployer, network) {
             console.log('Deployed Slots Helper')
             slotsHelper = instance
             return deployer.deploy(SlotsChannelManager, house.address, token.address, slotsHelper.address, {
-                gas: 6700000
+                gas: 6720000
             })
         }).then(function () {
             return SlotsChannelManager.deployed()

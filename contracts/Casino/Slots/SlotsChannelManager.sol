@@ -262,8 +262,8 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
     function createChannel(uint initialDeposit) {
         // Deposit in DBETs. Use ether since 1 DBET = 18 Decimals i.e same as ether decimals.
         if(initialDeposit < MIN_DEPOSIT || initialDeposit > MAX_DEPOSIT)
-            throw;
-        channels[channelCount] = Channel({
+        throw;
+            channels[channelCount] = Channel({
             ready: false,
             activated: false,
             finalized: false,
@@ -499,7 +499,7 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
 
     // Check reel array for winning lines (Currently 5 lines)
     function getTotalSpinReward(Spin spin) private returns (uint) {
-        uint[5] memory reelArray = slotsHelper.convertReelToArray(spin.reel);
+        uint[5] memory reelArray; //slotsHelper.convertReelToArray(spin.reel);
         //300k gas
         bool isValid = true;
 
@@ -512,7 +512,7 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
         }
         if (isValid == false) throw;
 
-        return slotsHelper.getTotalReward(spin.betSize, reelArray);
+        return 0;//slotsHelper.getTotalReward(spin.betSize, reelArray);
     }
 
     // Compares two spins and checks whether balances reflect user winnings
@@ -539,42 +539,11 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
         return true;
     }
 
-    function testTotalSpinReward(uint id, string _curr, string _prior,
-    bytes32 currR, bytes32 currS, bytes32 priorR, bytes32 priorS)
-    isParticipant(id)
-    constant returns (uint, uint[5]) {
-
-        Spin memory curr = convertSpin(_curr);
-        // 5.6k gas
-        curr.r = currR;
-        curr.s = currS;
-
-        Spin memory prior = convertSpin(_prior);
-        // 5.6k gas
-        prior.r = priorR;
-        prior.s = priorS;
-
-        uint[5] memory reelArray = slotsHelper.convertReelToArray(prior.reel);
-        //300k gas
-        bool isValid = true;
-
-        for (uint8 i = 0; i < NUMBER_OF_REELS; i++) {
-            // Reel values can only be between 0 and 20
-            if (reelArray[i] > 20) {
-                isValid = false;
-                break;
-            }
-        }
-        if (isValid == false) throw;
-
-        return (slotsHelper.getTotalReward(prior.betSize, reelArray), reelArray);
-    }
-
     // Finalizes the channel before closing the channel and allowing participants to transfer DBETs
     function finalize(uint id, string _curr, string _prior,
     bytes32 currR, bytes32 currS, bytes32 priorR, bytes32 priorS)
     isParticipant(id)
-    constant returns (bool, uint) {
+    constant returns (bool) {
 
         Spin memory curr = convertSpin(_curr);
         // 5.6k gas
@@ -588,22 +557,22 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
 
         uint totalSpinReward = getTotalSpinReward(prior);
 
-        if (!isAccurateBalances(curr, prior, totalSpinReward)) return (false, 0);
+        if (!isAccurateBalances(curr, prior, totalSpinReward)) return false;
 
         // 26k gas
-        if(!checkSigPrivate(id, curr)) return (false, 1);
+        if(!checkSigPrivate(id, curr)) return false;
 
-        if(!checkSigPrivate(id, prior)) return (false, 2);
+        if(!checkSigPrivate(id, prior)) return false;
 
         // Checks if spin hashes are pre-images of previous hashes or are hashes in previous spins
-        if (!checkSpinHashes(curr, prior)) return (false, 3);
+        if (!checkSpinHashes(curr, prior)) return false;
 
         // 5.6k gas
-        if(!checkPair(curr, prior)) return (false, 4);
+        if(!checkPair(curr, prior)) return false;
 
         if (!channels[id].finalized || curr.nonce > channels[id].finalNonce) setFinal(id, curr); // 86k gas
 
-        return (true, 5);
+        return true;
     }
 
     // Convert a bytes32 array to a Spin object

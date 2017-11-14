@@ -205,8 +205,8 @@ class Game extends Component {
                                         color: constants.COLOR_GOLD
                                     }}
                                     onClick={() => {
-                                        slotsChannelHandler.closeChannel(self.state, (err, message) => {
-                                            console.log('Close channel callback', err, message)
+                                        slotsChannelHandler.closeChannel(self.state, (err, data) => {
+                                            console.log('Close channel callback', err, data)
                                         })
                                     }}
                                 />

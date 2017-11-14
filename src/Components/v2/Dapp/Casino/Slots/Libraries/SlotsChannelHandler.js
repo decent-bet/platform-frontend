@@ -191,8 +191,8 @@ export default class SlotsChannelHandler {
                 let lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]
                 helper.getContractHelper().getWrappers().slotsChannelManager()
                     .finalize(id, userSpin, lastHouseSpin)
-                    .then((data) => {
-                        callback(false, ('Successfully finalized channel: ' + data + ', ' + typeof data))
+                    .then((txHash) => {
+                        callback(false, txHash)
                     }).catch((err) => {
                         callback(false, ('Error closing channel' + ', ' + err.message))
                     })
