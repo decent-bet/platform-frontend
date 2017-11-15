@@ -10,8 +10,7 @@ const BettingProviderHelper = artifacts.require("BettingProviderHelper")
 const SportsOracle = artifacts.require("SportsOracle")
 
 const ECVerify = artifacts.require("ECVerify")
-const GameChannelManager = artifacts.require("GameChannelManager")
-const SlotsChannel = artifacts.require("SlotsChannel")
+const SlotsChannelFinalizer = artifacts.require("SlotsChannelFinalizer")
 const SlotsChannelManager = artifacts.require("SlotsChannelManager")
 const SlotsHelper = artifacts.require("SlotsHelper")
 
@@ -21,9 +20,8 @@ module.exports = function (deployer, network) {
     let startTime, endTime
     let accounts = web3.eth.accounts.slice(0, 3)
     let signaturesRequired = 2
-    const robotAddress = accounts[0]
     let token, wallet, upgradeAgent, team, house, bettingProvider, bettingProviderHelper, sportsOracle,
-        gameChannelManager, ecVerify, slots, slotsHelper, slotsChannelManager
+        ecVerify, slotsHelper, slotsChannelFinalizer, slotsChannelManager
     console.log('Network: ' + network + ', startBlock: ' + web3.eth.blockNumber)
     if (network == 'testnet' || network == 'development') {
 
@@ -74,27 +72,31 @@ module.exports = function (deployer, network) {
             sportsOracle = instance
             return deployer.deploy(ECVerify)
         }).then(function () {
-            console.log('Linked ecverify to GameChannelManager')
+            console.log('Linked ecverify to SlotsChannelManager')
             return deployer.link(ECVerify, SlotsChannelManager)
         }).then(function () {
-            console.log('Linked ecverify to SlotsChannelManager')
             return deployer.deploy(SlotsHelper)
         }).then(function () {
             return SlotsHelper.deployed()
         }).then(function (instance) {
             console.log('Deployed Slots Helper')
             slotsHelper = instance
-            return deployer.deploy(SlotsChannelManager, house.address, token.address, slotsHelper.address, {
-                gas: 6720000
-            })
+            return deployer.deploy(SlotsChannelFinalizer, slotsHelper.address)
+        }).then(function () {
+            return SlotsChannelFinalizer.deployed()
+        }).then(function (instance) {
+            console.log('Deployed Slots Channel Finalizer')
+            slotsChannelFinalizer = instance
+            return deployer.deploy(SlotsChannelManager, house.address, token.address, slotsHelper.address,
+                                   slotsChannelFinalizer.address)
         }).then(function () {
             return SlotsChannelManager.deployed()
         }).then(function (instance) {
             console.log('Deployed Slots Channel Manager')
             slotsChannelManager = instance
-            // console.log('Deploying GameChannelManager with token: ' + token.address + ', slotsHelper: ' +
-            //     slotsHelper.address + ' and ' + web3.eth.accounts[0])
-            // return deployer.deploy(GameChannelManager, token.address, slotsHelper.address, web3.eth.accounts[0])
+            console.log('Set slots channel manager in finalizer', slotsChannelManager.address)
+            return slotsChannelFinalizer.setSlotsChannelManager.sendTransaction(slotsChannelManager.address)
+        }).then(function(instance) {
             console.log('Add house offering', house.address, bettingProvider.address)
             return house.addHouseOffering.sendTransaction(bettingProvider.address, {
                 gas: 3000000
@@ -107,23 +109,6 @@ module.exports = function (deployer, network) {
         }).catch((err) => {
             console.log('Error', err.message)
         })
-        /** Won't work until in Success state */
-        // .then(function (instance) {
-        //     upgradeAgent = instance
-        //     return token.setUpgradeAgent(upgradeAgent.address)
-        // }).then(function () {
-        //     console.log('Successfully setUpgradeAgent')
-        // }).catch(function (err) {
-        //     console.log('Error: ' + err)
-        // }).then(function () {
-        //     return deployer.deploy(NewToken, upgradeAgent.address)
-        // }).then(function () {
-        //     console.log('deployed NEWTOKEN')
-        //     return NewToken.deployed()
-        // }).then(function (instance) {
-        //     newToken = instance
-        //     return upgradeAgent.setNewToken(newToken.address)
-        // })
     } else if (network == 'mainnet') {
         // check this
         MultiSigWallet.at(utils.multisigWalletAddressMainNet).then(function (instance) {

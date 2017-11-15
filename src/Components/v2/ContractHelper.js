@@ -7,6 +7,7 @@ const ethUtil = require('ethereumjs-util')
 import DecentBetToken from '../../../build/contracts/TestDecentBetToken.json'
 import House from '../../../build/contracts/House.json'
 import BettingProvider from '../../../build/contracts/BettingProvider.json'
+import SlotsChannelFinalizer from '../../../build/contracts/SlotsChannelFinalizer.json'
 import SlotsChannelManager from '../../../build/contracts/SlotsChannelManager.json'
 
 import Web3 from 'web3'
@@ -18,20 +19,27 @@ const contract = require('truffle-contract')
 const decentBetToken = contract(DecentBetToken)
 const house = contract(House)
 const bettingProvider = contract(BettingProvider)
+const slotsChannelFinalizer = contract(SlotsChannelFinalizer)
 const slotsChannelManager = contract(SlotsChannelManager)
 
 decentBetToken.setProvider(provider)
 house.setProvider(provider)
 bettingProvider.setProvider(provider)
+slotsChannelFinalizer.setProvider(provider)
 slotsChannelManager.setProvider(provider)
 
 // Get Web3 so we can get our accounts.
 const web3 = new Web3(provider)
 
 // Declaring these for later so we can chain functions on Contract objects.
-let decentBetTokenInstance, houseInstance, bettingProviderInstance, slotsChannelManagerInstance
+let decentBetTokenInstance, houseInstance, bettingProviderInstance, slotsChannelFinalizerInstance,
+    slotsChannelManagerInstance
 
-const TYPE_DBET_TOKEN = 0, TYPE_DBET_HOUSE = 1, TYPE_DBET_BETTING_PROVIDER = 2, TYPE_DBET_SLOTS_CHANNEL_MANAGER = 3
+const TYPE_DBET_TOKEN = 0,
+    TYPE_DBET_HOUSE = 1,
+    TYPE_DBET_BETTING_PROVIDER = 2,
+    TYPE_DBET_SLOTS_CHANNEL_FINALIZER = 3,
+    TYPE_DBET_SLOTS_CHANNEL_MANAGER = 4
 
 class ContractHelper {
 
@@ -67,37 +75,43 @@ class ContractHelper {
         this.getContract(TYPE_DBET_SLOTS_CHANNEL_MANAGER, callback)
     }
 
+    getSlotsChannelFinalizerContract = (callback) => {
+        this.getContract(TYPE_DBET_SLOTS_CHANNEL_FINALIZER, callback)
+    }
+
     getAllContracts = (callback) => {
         const self = this
         async.parallel({
             token: (callback) => {
                 this.getTokenContract((instance) => {
-                    console.log('gotTokenContract')
                     self.setInstance(TYPE_DBET_TOKEN, instance)
                     callback(null, instance)
                 })
             },
             house: (callback) => {
                 this.getHouseContract((instance) => {
-                    console.log('gotHouseContract')
                     self.setInstance(TYPE_DBET_HOUSE, instance)
                     callback(null, instance)
                 })
             },
             bettingProvider: (callback) => {
                 this.getBettingProviderContract((instance) => {
-                    console.log('gotBettingProviderContract')
                     self.setInstance(TYPE_DBET_BETTING_PROVIDER, instance)
                     callback(null, instance)
                 })
             },
             slotsChannelManager: (callback) => {
                 this.getSlotsChannelManagerContract((instance) => {
-                    console.log('gotSlotsChannelManager')
                     self.setInstance(TYPE_DBET_SLOTS_CHANNEL_MANAGER, instance)
                     callback(null, instance)
                 })
-            }
+            },
+            slotsChannelFinalizer: (callback) => {
+                this.getSlotsChannelFinalizerContract((instance) => {
+                    self.setInstance(TYPE_DBET_SLOTS_CHANNEL_FINALIZER, instance)
+                    callback(null, instance)
+                })
+            },
         }, (err, results) => {
             callback(false, results.token, results.house, results.bettingProvider)
         })
@@ -127,6 +141,8 @@ class ContractHelper {
                 return house
             case TYPE_DBET_BETTING_PROVIDER:
                 return bettingProvider
+            case TYPE_DBET_SLOTS_CHANNEL_FINALIZER:
+                return slotsChannelFinalizer
             case TYPE_DBET_SLOTS_CHANNEL_MANAGER:
                 return slotsChannelManager
         }
@@ -141,6 +157,8 @@ class ContractHelper {
                 return houseInstance
             case TYPE_DBET_BETTING_PROVIDER:
                 return bettingProviderInstance
+            case TYPE_DBET_SLOTS_CHANNEL_FINALIZER:
+                return slotsChannelFinalizerInstance
             case TYPE_DBET_SLOTS_CHANNEL_MANAGER:
                 return slotsChannelManagerInstance
         }
@@ -157,6 +175,9 @@ class ContractHelper {
                 break
             case TYPE_DBET_BETTING_PROVIDER:
                 bettingProviderInstance = instance
+                break
+            case TYPE_DBET_SLOTS_CHANNEL_FINALIZER:
+                slotsChannelFinalizerInstance = instance
                 break
             case TYPE_DBET_SLOTS_CHANNEL_MANAGER:
                 slotsChannelManagerInstance = instance
@@ -292,6 +313,9 @@ class ContractHelper {
                         return bettingProviderInstance.updateGameOutcome(id, outcome)
                     }
                 }
+            },
+            slotsChannelFinalizer: () => {
+
             },
             slotsChannelManager: () => {
                 return {

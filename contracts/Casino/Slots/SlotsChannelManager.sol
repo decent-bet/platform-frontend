@@ -1,32 +1,24 @@
 pragma solidity ^0.4.0;
 
-
+import './SlotsImplementation.sol';
+import './AbstractSlotsHelper.sol';
 import '../../Token/AbstractDecentBetToken.sol';
 import '../../House/AbstractHouse.sol';
-import './AbstractSlotsHelper.sol';
-import '../../Libraries/ECVerify.sol';
 import '../../House/HouseOffering.sol';
+
+import '../../Libraries/ECVerify.sol';
 import '../../Libraries/SafeMath.sol';
 import '../../Libraries/strings.sol';
 import '../../Libraries/Utils.sol';
 
 
 // A State channel contract to handle slot games on the Decent.bet platform
-contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
+contract SlotsChannelManager is SlotsImplementation, HouseOffering, SafeMath, Utils {
 
     using strings for *;
     using ECVerify for *;
 
     /* Slot specific */
-
-    // Length of each reel in characters
-    uint constant REEL_LENGTH = 21;
-
-    // Number of reels
-    uint constant NUMBER_OF_REELS = 5;
-
-    // Number of lines
-    uint constant NUMBER_OF_LINES = 5;
 
     // 100 DBETs minimum deposit. Minimum 20 spins (@ 5 DBETs per spin), Maximum 100 spins (@1 DBET per spin)
     uint constant MIN_DEPOSIT = 100 ether;
@@ -36,96 +28,13 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
 
     /* END */
 
-    /* Structs */
-    struct Spin {
-
-        // Reel hash from this turn
-        string reelHash;
-
-        // Reel from this turn
-        string reel;
-
-        // Hash of prevReelSeedHash
-        string reelSeedHash;
-
-        // Hash to get reelSeedHash
-        string prevReelSeedHash;
-
-        // User Submitted Hash
-        string userHash;
-
-        // Prev User Submitted Hash
-        string prevUserHash;
-
-        // Nonce signifying turn number. Every spin increments nonce by 1.
-        uint nonce;
-
-        // Current turn. false = player, true = house
-        bool turn;
-
-        // User Balance
-        uint userBalance;
-
-        // House Balance
-        uint houseBalance;
-
-        // Bet size
-        uint betSize;
-
-        // Signature parameters
-        uint8 v;
-        bytes32 r;
-        bytes32 s;
-
-    }
-
-    struct Channel {
-        // Indicates whether the user has deposited tokens and is ready for channel activation
-        bool ready;
-
-        // Indicates whether the channel has been activated
-        bool activated;
-
-        // Indicates whether the channel has finalized before being closed
-        bool finalized;
-
-        // Ending block after channel has finalized
-        uint endBlock;
-
-        // Final hash submitted by the user
-        string finalUserHash;
-
-        // AES-256 encrypted initial number used to generate hashes
-        string initialUserNumber;
-
-        // Amount of DBETs to be deposited by the user
-        uint initialDeposit;
-
-        // Initial house seed hash used to create blended seed
-        string initialHouseSeedHash;
-
-        // Final reel hash submitted by the server
-        string finalReelHash;
-
-        // Final seed hash submitted by the server
-        string finalSeedHash;
-
-        // Nonce at the time of finalize
-        uint finalNonce;
-
-        // Indicates the final turn, whether it is the house or the player
-        bool finalTurn;
-
-        // Session number.
-        uint session;
-
-        bool exists;
-    }
-
     /* Variables */
 
     // Address of the house contract - passed through during contract creation
     address public houseAddress;
+
+    // Address of the slots channel finalizer contract - passed through during contract creation
+    address public slotsChannelFinalizer;
 
     // Used to create incremented channel ids.
     uint public channelCount;
@@ -177,14 +86,17 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
 
     /* Constructor */
 
-    function SlotsChannelManager(address _house, address _token, address _slotsHelper) /* onlyHouse */ {
+    function SlotsChannelManager(address _house, address _token, address _slotsHelper,
+                                 address _slotsChannelFinalizer) /* onlyHouse */ {
         if(_house == 0) throw;
         if(_token == 0) throw;
         if(_slotsHelper == 0) throw;
+        if(_slotsChannelFinalizer == 0) throw;
         houseAddress = _house;
         decentBetToken = AbstractDecentBetToken(_token);
         house = AbstractHouse(_house);
         slotsHelper = AbstractSlotsHelper(_slotsHelper);
+        slotsChannelFinalizer = _slotsChannelFinalizer;
         if(!slotsHelper.isSlotsHelper()) throw;
         name = 'Slots Channel Manager';
         isHouseOffering = true;
@@ -233,12 +145,6 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
         _;
     }
 
-    // Allows only the house and player to proceed
-    modifier isParticipant(uint id) {
-        if (!house.authorized(msg.sender) && msg.sender != players[id][false]) throw;
-        _;
-    }
-
     // Allows only if the user is ready
     modifier isUserReady(uint id) {
         if (channels[id].ready != true) throw;
@@ -258,7 +164,6 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
     }
 
     /* Functions */
-
     function createChannel(uint initialDeposit) {
         // Deposit in DBETs. Use ether since 1 DBET = 18 Decimals i.e same as ether decimals.
         if(initialDeposit < MIN_DEPOSIT || initialDeposit > MAX_DEPOSIT)
@@ -267,7 +172,7 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
             ready: false,
             activated: false,
             finalized: false,
-            endBlock: 0,
+            endTime: 0,
             finalUserHash: '',
             initialUserNumber: '',
             initialDeposit: initialDeposit,
@@ -284,14 +189,12 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
         channelCount++;
     }
 
-    // Helper function to returns channel information for the frontend
-    function getChannelInfo(uint id) constant returns (bool, address, bool, bool, uint, bool) {
-        return (channels[id].exists,
-                players[id][false],
+    // Helper function to return channel information for the frontend
+    function getChannelInfo(uint id) constant returns (address, bool, bool, uint) {
+        return (players[id][false],
                 channels[id].ready,
                 channels[id].activated,
-                channels[id].initialDeposit,
-                channels[id].finalized);
+                channels[id].initialDeposit);
     }
 
     // Helper function to return hashes used for the frontend/backend
@@ -301,6 +204,15 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
                 channels[id].initialHouseSeedHash,
                 channels[id].finalReelHash,
                 channels[id].finalSeedHash);
+    }
+
+    // Helper function to return whether a channel has been finalized and it's final nonce
+    function getChannelFinalized(uint id) constant returns (bool, uint) {
+        return (channels[id].finalized, channels[id].finalNonce);
+    }
+
+    function getPlayer(uint id, bool isHouse) constant returns (address){
+        return players[id][isHouse];
     }
 
     // Allows the house to add funds to the provider for this session or the next.
@@ -357,7 +269,7 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
 
     function setSession(uint session)
         // Replace other functions with onlyAuthorized
-    onlyHouse returns (bool) {
+        onlyHouse returns (bool) {
         currentSession = session;
         return true;
     }
@@ -413,7 +325,7 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
     }
 
     // Transfers tokens to a channel.
-    function transferTokensToChannel(uint id, address _address) internal {
+    function transferTokensToChannel(uint id, address _address) private {
         channelDeposits[id][_address] =
         safeAdd(channelDeposits[id][_address], channels[id].initialDeposit);
         depositedTokens[_address][channels[id].session] =
@@ -429,202 +341,36 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
     }
 
     // Returns the address for a signed spin
-    function getSigAddress(bytes32 msg, uint8 v, bytes32 r, bytes32 s) returns (address) {
+    function getSigAddress(bytes32 msg, uint8 v, bytes32 r, bytes32 s) constant returns (address) {
         return ecrecover(sha3(msg), v, r, s);
     }
 
-    // Verifies last two spins and returns their validity
-    function checkPair(Spin curr, Spin prior) private returns (bool) {
-
-        // If Player's turn
-        if (curr.turn == false) {
-
-            // The last reel hash needs to be a hash of the last reel seed, user hash and reel
-            // The random numbers don't need to verified on contract, only the reel rewards
-            // Random numbers could be verified off-chain using the seed-random library using the
-            // below hash as the seed
-            if (!compareReelHashes(curr, prior)) return false;
-            // 103k gas
-
-            // Bet size can be only upto maximum number of lines
-            if (prior.betSize > 5 ether || prior.betSize == 0) return false;
-            return true;
-        }
-        else {
-            // During the house's turn, the spin would have the user hash sent by the player
-
-            //32k gas for all conditions
-
-            // Bet size needs to be determined by the user, not house
-            if (curr.betSize != prior.betSize) return false;
-            return true;
-        }
-
-    }
-
-    // Checks the signature of a spin sent and verifies it's validity
-    function checkSigPrivate(uint id, Spin s) private returns (bool) {
-        bytes32 hash = sha3(s.reelHash, s.reel, s.reelSeedHash, s.prevReelSeedHash, s.userHash, s.prevUserHash,
-        uintToString(s.nonce), boolToString(s.turn), uintToString(s.userBalance), uintToString(s.houseBalance),
-        uintToString(s.betSize));
-        address player = players[id][s.turn];
-        return player == ecrecover(hash, s.v, s.r, s.s);
-    }
-
-    function checkSpinHashes(Spin curr, Spin prior) private returns (bool) {
-        // During a player's turn, the spin would have the reel hash and
-        // seed hash which were sent from the server.
-
-        // Previous reel seed needs to be hash of current reel seed
-        if (toBytes32(prior.reelSeedHash, 0) != sha256(curr.prevReelSeedHash)) return false;
-
-        // Current and last spin should report the same reel seed hashes
-        if (!strCompare(curr.reelSeedHash, prior.reelSeedHash)) return false;
-
-        // Previous user hash needs to be hash of current user hash
-        if (toBytes32(prior.userHash, 0) != sha256(curr.userHash)) return false;
-
-        // Current and last spins should report the same user hashes
-        if (!strCompare(curr.userHash, prior.prevUserHash)) return false;
-
-        return true;
-    }
-
-    // Compare reel hashes for spins
-    function compareReelHashes(Spin curr, Spin prior) private returns (bool) {
-        string memory hashSeed = (prior.reelSeedHash.toSlice()
-        .concat(prior.reel.toSlice()));
-        return toBytes32(prior.reelHash, 0) == sha256(hashSeed);
-    }
-
-    // Check reel array for winning lines (Currently 5 lines)
-    function getTotalSpinReward(Spin spin) private returns (uint) {
-        uint[5] memory reelArray; //slotsHelper.convertReelToArray(spin.reel);
-        //300k gas
-        bool isValid = true;
-
-        for (uint8 i = 0; i < NUMBER_OF_REELS; i++) {
-            // Reel values can only be between 0 and 20
-            if (reelArray[i] > 20) {
-                isValid = false;
-                break;
-            }
-        }
-        if (isValid == false) throw;
-
-        return 0;//slotsHelper.getTotalReward(spin.betSize, reelArray);
-    }
-
-    // Compares two spins and checks whether balances reflect user winnings
-    // Works only for user turns
-    function isAccurateBalances(Spin curr, Spin prior, uint totalSpinReward) private returns (bool) {
-
-        if(curr.turn) {
-            // House turn
-
-            // User balance for this spin must be the last user balance + reward
-            if (curr.userBalance != safeSub(safeAdd(prior.userBalance, totalSpinReward), prior.betSize)) return false;
-
-            // House balance for this spin must be the last house balance - reward
-            if (curr.houseBalance != safeAdd(safeSub(prior.houseBalance, totalSpinReward), prior.betSize)) return false;
-        } else {
-            // User turn
-
-            // Both user and house balances should be equal for current and previous spins.
-            if(curr.userBalance != prior.userBalance) return false;
-
-            if(curr.houseBalance != prior.houseBalance) return false;
-        }
-
-        return true;
-    }
-
-    // Finalizes the channel before closing the channel and allowing participants to transfer DBETs
-    function finalize(uint id, string _curr, string _prior,
-    bytes32 currR, bytes32 currS, bytes32 priorR, bytes32 priorS)
-    isParticipant(id)
-    constant returns (bool) {
-
-        Spin memory curr = convertSpin(_curr);
-        // 5.6k gas
-        curr.r = currR;
-        curr.s = currS;
-
-        Spin memory prior = convertSpin(_prior);
-        // 5.6k gas
-        prior.r = priorR;
-        prior.s = priorS;
-
-        uint totalSpinReward = getTotalSpinReward(prior);
-
-        if (!isAccurateBalances(curr, prior, totalSpinReward)) return false;
-
-        // 26k gas
-        if(!checkSigPrivate(id, curr)) return false;
-
-        if(!checkSigPrivate(id, prior)) return false;
-
-        // Checks if spin hashes are pre-images of previous hashes or are hashes in previous spins
-        if (!checkSpinHashes(curr, prior)) return false;
-
-        // 5.6k gas
-        if(!checkPair(curr, prior)) return false;
-
-        if (!channels[id].finalized || curr.nonce > channels[id].finalNonce) setFinal(id, curr); // 86k gas
-
-        return true;
-    }
-
-    // Convert a bytes32 array to a Spin object
-    // Need this to get around 16 local variable function limit
-    function convertSpin(string _spin) private returns (Spin) {
-        string[14] memory parts = getParts(_spin);
-        Spin memory spin = Spin({
-            reelHash : parts[0],
-            reel : parts[1],
-            reelSeedHash : parts[2],
-            prevReelSeedHash : parts[3],
-            userHash : parts[4],
-            prevUserHash : parts[5],
-            nonce : parseInt(parts[6]),
-            turn : parseBool(parts[7]),
-            userBalance : parseInt(parts[8]),
-            houseBalance : parseInt(parts[9]),
-            betSize : parseInt(parts[10]),
-            v : (uint8)(parseInt(parts[11])),
-            r : 0,
-            s : 0
-        });
-        return spin;
-    }
-
-    function getParts(string _spin) private returns (string[14]) {
-        var slice = _spin.toSlice();
-        var delimiter = "/".toSlice();
-        string[14] memory parts;
-        for (uint i = 0; i < parts.length; i++) {
-            parts[i] = slice.split(delimiter).toString();
-        }
-        return parts;
+    // Allows only the house and player to proceed
+    function isParticipant(uint id, address _address) internal returns (bool) {
+        return (!house.authorized(msg.sender) && msg.sender != players[id][false]);
     }
 
     // Sets the final spin for the channel
-    function setFinal(uint id, Spin spin) private {
+    function setFinal(uint id, uint userBalance, uint houseBalance, uint nonce, bool turn) external {
+        if(msg.sender != slotsChannelFinalizer) revert();
+
         address user = players[id][false];
         address house = players[id][true];
-        finalBalances[id][user] = spin.userBalance;
-        finalBalances[id][house] = spin.houseBalance;
-        channels[id].finalNonce = spin.nonce;
-        channels[id].finalTurn = spin.turn;
-        channels[id].endBlock = block.number + 1 hours;
+        finalBalances[id][user] = userBalance;
+        finalBalances[id][house] = houseBalance;
+        channels[id].finalNonce = nonce;
+        channels[id].finalTurn = turn;
+        channels[id].endTime = block.timestamp + 1 hours;
         if (!channels[id].finalized) channels[id].finalized = true;
-        LogChannelFinalized(id, msg.sender);
+        LogChannelFinalized(id, players[id][turn]);
     }
 
     // Allows player/house to claim DBETs after the channel has closed
-    function claim(uint id) isParticipant(id) {
-        address sender = players[id][false] == msg.sender ?
-        msg.sender : players[id][true];
+    function claim(uint id) {
+        if(!isParticipant(id, msg.sender)) revert();
+
+        address sender = players[id][false] == msg.sender ? msg.sender : players[id][true];
+
         if (isChannelClosed(id)) {
             uint256 amount = finalBalances[id][sender];
             if (amount > 0) {
@@ -638,7 +384,7 @@ contract SlotsChannelManager is HouseOffering, SafeMath, Utils {
 
     // Utility function to check whether the channel has closed
     function isChannelClosed(uint id) private returns (bool) {
-        return channels[id].finalized && block.number > channels[id].endBlock;
+        return channels[id].finalized && block.timestamp > channels[id].endTime;
     }
 
 }

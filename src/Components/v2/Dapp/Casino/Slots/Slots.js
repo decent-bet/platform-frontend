@@ -15,6 +15,7 @@ import Themes from '../../../Base/Themes'
 
 import './slots.css'
 
+const BigNumber = require('bignumber.js')
 const helper = new Helper()
 const slotsChannelHandler = new SlotsChannelHandler()
 const themes = new Themes()
@@ -458,7 +459,8 @@ class Slots extends Component {
                 return <NewChannelDialog
                     open={self.state.dialogs.newChannel.open}
                     onCreateChannel={(deposit) => {
-                        self.web3Setters().createChannel(deposit)
+                        console.log('onCreateChannel')
+                        self.web3Setters().createChannel(deposit.toString())
                         self.helpers().toggleDialog(DIALOG_NEW_CHANNEL, false)
                     }}
                     toggleDialog={(open) => {
@@ -471,10 +473,11 @@ class Slots extends Component {
                     open={self.state.dialogs.getChips.open}
                     allowance={self.state.allowance}
                     onGetChips={(amount) => {
-                        if (self.state.allowance < amount)
-                            self.web3Setters().approveAndDeposit(amount)
+                        let allowance = new BigNumber(self.state.allowance)
+                        if (allowance.lessThan(amount))
+                            self.web3Setters().approveAndDeposit(amount.toString())
                         else
-                            self.web3Setters().deposit(amount)
+                            self.web3Setters().deposit(amount.toString())
                         self.helpers().toggleDialog(DIALOG_GET_CHIPS, false)
                     }}
                     toggleDialog={(open) => {

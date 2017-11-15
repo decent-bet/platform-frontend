@@ -62,12 +62,17 @@ export default class SlotsChannelHandler {
                 helper.getContractHelper().getWrappers().slotsChannelManager()
                     .getChannelInfo(id).then((info) => {
                     console.log('Info', info)
+                    let playerAddress = info[0]
+                    let ready = info[1]
+                    let activated = info[2]
+                    let initialDeposit = info[3]
+                    let exists = (playerAddress == '0x0')
                     cb(false, {
-                        exists: info[0],
-                        playerAddress: info[1],
-                        ready: info[2],
-                        activated: info[3],
-                        initialDeposit: info[4]
+                        exists: exists,
+                        playerAddress: playerAddress,
+                        ready: ready,
+                        activated: activated,
+                        initialDeposit: initialDeposit
                     })
                 }).catch((err) => {
                     console.log('Error retrieving channel details', err.message)
