@@ -18,8 +18,9 @@ const constants = require('./Components/v2/Constants')
 metaMaskLoader.setOnLoadMetaMaskListener(() => {
     ReactDOM.render(
         <Router history={browserHistory}>
-            <Route path="/" view={constants.DAPP_VIEW_CASINO} component={Dapp}/>
+            <Route path="/" view={constants.DAPP_VIEW_SPORTSBOOK} component={Dapp}/>
             <Route path="/dapp" view={constants.DAPP_VIEW_CASINO} component={Dapp}/>
+            <Route path="/sportsbook" view={constants.DAPP_VIEW_SPORTSBOOK} component={Dapp}/>
             <Route path="/slots" view={constants.DAPP_VIEW_SLOTS} component={Dapp}/>
             <Route path="/slots/game" view={constants.DAPP_VIEW_SLOTS_GAME} component={Dapp}/>
             <Route path="*" component={() => {

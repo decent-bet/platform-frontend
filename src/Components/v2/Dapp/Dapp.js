@@ -22,11 +22,12 @@ const themes = new Themes()
 
 const constants = require('./../Constants')
 
+import Balances from './Balances/Balances'
 import Casino from './Casino/Casino'
 import House from './House/House'
-import Balances from './Balances/Balances'
-import Slots from './Casino/Slots/Slots'
 import Game from './Casino/Slots/Game'
+import Slots from './Casino/Slots/Slots'
+import Sportsbook from './Sportsbook/Sportsbook'
 
 import './dapp.css'
 
@@ -162,6 +163,8 @@ class Dapp extends Component {
                         return <House/>
                     case constants.DAPP_VIEW_BALANCES:
                         return <Balances/>
+                    case constants.DAPP_VIEW_SPORTSBOOK:
+                        return <Sportsbook/>
                     case constants.DAPP_VIEW_SLOTS:
                         return <Slots/>
                     case constants.DAPP_VIEW_SLOTS_GAME:

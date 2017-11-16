@@ -154,7 +154,7 @@ contract SlotsChannelFinalizer is SlotsImplementation, SafeMath, Utils {
 
     function finalize(uint id, string _curr, string _prior,
     bytes32 currR, bytes32 currS, bytes32 priorR, bytes32 priorS)
-    isSlotsChannelManagerSet returns (bool) {
+    isSlotsChannelManagerSet constant returns (bool, uint) {
 
         if (!slotsChannelManager.isParticipant(id, msg.sender)) revert();
 
@@ -170,25 +170,25 @@ contract SlotsChannelFinalizer is SlotsImplementation, SafeMath, Utils {
 
         uint totalSpinReward = getTotalSpinReward(prior);
 
-        if (!isAccurateBalances(curr, prior, totalSpinReward)) return false;
+        if (!isAccurateBalances(curr, prior, totalSpinReward)) return (false, 1);
 
         // 26k gas
-        if(!checkSigPrivate(id, curr)) return false;
+        if(!checkSigPrivate(id, curr)) return (false, 2);
 
-        if(!checkSigPrivate(id, prior)) return false;
+        if(!checkSigPrivate(id, prior)) return (false, 3);
 
         // Checks if spin hashes are pre-images of previous hashes or are hashes in previous spins
-        if (!checkSpinHashes(curr, prior)) return false;
+        if (!checkSpinHashes(curr, prior)) return (false, 4);
 
         // 5.6k gas
-        if(!checkPair(curr, prior)) return false;
+        if(!checkPair(curr, prior)) return (false, 5);
 
         // Finalized
         if (shouldFinalizeChannel(id, curr.nonce))
             slotsChannelManager.setFinal(id, curr.userBalance, curr.houseBalance,
             curr.nonce, curr.turn); // 86k gas
 
-        return true;
+        return (true, 0);
     }
 
     function shouldFinalizeChannel(uint id, uint nonce) private returns (bool) {

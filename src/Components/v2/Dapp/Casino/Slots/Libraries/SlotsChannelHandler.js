@@ -194,7 +194,7 @@ export default class SlotsChannelHandler {
         this.helpers().getSpin(betSize, state, (err, userSpin) => {
             if (!err) {
                 let lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]
-                helper.getContractHelper().getWrappers().slotsChannelManager()
+                helper.getContractHelper().getWrappers().slotsChannelFinalizer()
                     .finalize(id, userSpin, lastHouseSpin)
                     .then((txHash) => {
                         callback(false, txHash)
