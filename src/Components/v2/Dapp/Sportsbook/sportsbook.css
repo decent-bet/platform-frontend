@@ -66,6 +66,16 @@
     padding: 0;
 }
 
+.dapp .sportsbook .home .top-right {
+    height: 60px;
+    border-bottom: solid 1px;
+}
+
+.dapp .sportsbook .home .top-right p {
+    font-size: 14px;
+    padding-top: 18px;
+}
+
 .dapp .sportsbook .icon {
     color: #f2b45c;
 }
