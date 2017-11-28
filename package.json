@@ -60,6 +60,7 @@
     "dotenv": "^2.0.0",
     "ethereum-units": "0.0.1-b",
     "ethereumjs-util": "^5.1.2",
+    "ipfs-mini": "^1.1.2",
     "jquery": "^3.2.1",
     "keythereum": "^0.5.2",
     "material-ui": "^0.17.3",

@@ -13,6 +13,9 @@ const ethUnits = require('ethereum-units')
 const helper = new Helper()
 const swarm = require('swarm-js').at("http://swarm-gateways.net")
 
+const IPFS = require('ipfs-mini')
+const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' })
+
 class Sportsbook extends Component {
 
     constructor(props) {
@@ -189,12 +192,12 @@ class Sportsbook extends Component {
             },
             sportsOracle: () => {
                 return {
-                    metadata: (gameId, hash, retryCount) => {
-                        swarm.download(hash).then((data) => {
-                            data = swarm.toString(data)
-                            console.log('Retrieved metadata', gameId, hash, data)
-                            try {
-                                data = JSON.parse(data)
+                    metadata: (gameId, hash) => {
+                        console.log('Retrieving from ipfs', hash)
+
+                        ipfs.catJSON(hash, (err, data) => {
+                            console.log('Retrieved data for hash', hash, err, JSON.stringify(data))
+                            if(!err) {
                                 let sportsOracle = self.state.sportsOracle
                                 sportsOracle.games[gameId].team1 = data.team1
                                 sportsOracle.games[gameId].team2 = data.team2
@@ -202,16 +205,9 @@ class Sportsbook extends Component {
                                 self.setState({
                                     sportsOracle: sportsOracle
                                 })
-                            } catch (e) {
-                                if (!retryCount || retryCount < 3)
-                                    self.web3Getters().sportsOracle().metadata(gameId, hash,
-                                        !helper.isUndefined(retryCount) ? retryCount + 1 : 0)
+                            } else {
+                                console.log('Error retrieving hash data', hash, err)
                             }
-                        }).catch((err) => {
-                            console.log('Error retrieving swarm hash', hash, err.message)
-                            if (!retryCount || retryCount < 3)
-                                self.web3Getters().sportsOracle().metadata(gameId, hash,
-                                    !helper.isUndefined(retryCount) ? retryCount + 1 : 0)
                         })
                     },
                     owner: () => {
