@@ -67,6 +67,14 @@ class Helper {
         return Math.round(number * multiplier) / multiplier
     }
 
+    capitalize = (string) => {
+        return string.substr(0, 1).toUpperCase() + string.substring(1, string.length + 1)
+    }
+
+    isUndefined = (object) => {
+        return typeof object == 'undefined'
+    }
+
     fixLargeNumber = (num) => {
         let str = '';
         do {

@@ -443,7 +443,7 @@ contract BettingProvider is SafeMath, HouseOffering {
         LogUpdatedBetLimits(gameId, period);
     }
 
-    // Handicap must be multiplied by 100.
+    // Handicap and points must be multiplied by 100.
     // 500k gas.
     function pushGameOdds(uint id, string refId, uint period,
     int handicap, int team1, int team2, int draw, uint betType,
@@ -715,8 +715,8 @@ contract BettingProvider is SafeMath, HouseOffering {
                 game.exists);
     }
 
-    function getGamePeriodBetLimits(uint id, uint period) constant returns (uint[4]) {
-        return games[id].betLimits[period].limits;
+    function getGamePeriodBetLimits(uint id, uint period) constant returns (uint[4], bool) {
+        return (games[id].betLimits[period].limits, games[id].betLimits[period].exists);
     }
 
     function getGameBettor(uint id, uint index) constant returns (address, uint) {
@@ -766,6 +766,7 @@ contract BettingProvider is SafeMath, HouseOffering {
     function getGameOdds(uint gameId, uint id) constant returns (uint betType,
     uint period, int handicap, int team1, int team2, int draw,
     uint points, int over, int under, bool isTeam1) {
+        // games[gameId].odds.odds[games[gameId].odds.oddsCount]
         Odds odds = games[gameId].odds.odds[id];
         return (odds.betType,
                 odds.period,

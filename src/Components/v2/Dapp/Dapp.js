@@ -27,7 +27,7 @@ import Casino from './Casino/Casino'
 import House from './House/House'
 import Game from './Casino/Slots/Game'
 import Slots from './Casino/Slots/Slots'
-import Sportsbook from './Sportsbook/Sportsbook'
+import Portal from './Portal/Portal'
 
 import './dapp.css'
 
@@ -163,8 +163,8 @@ class Dapp extends Component {
                         return <House/>
                     case constants.DAPP_VIEW_BALANCES:
                         return <Balances/>
-                    case constants.DAPP_VIEW_SPORTSBOOK:
-                        return <Sportsbook/>
+                    case constants.DAPP_VIEW_PORTAL:
+                        return <Portal/>
                     case constants.DAPP_VIEW_SLOTS:
                         return <Slots/>
                     case constants.DAPP_VIEW_SLOTS_GAME:
@@ -273,9 +273,9 @@ class Dapp extends Component {
                             className="menu-item"
                             style={styles.menuItem}
                             onClick={() => {
-                                self.helpers().selectView(constants.DAPP_VIEW_SPORTSBOOK)
+                                self.helpers().selectView(constants.DAPP_VIEW_PORTAL)
                             }}>
-                            <span className="fa fa-soccer-ball-o menu-icon"/>&ensp;&ensp;SPORTSBOOK
+                            <span className="fa fa-soccer-ball-o menu-icon"/>&ensp;&ensp;PORTAL
                         </MenuItem>
                         <MenuItem
                             className="menu-item"

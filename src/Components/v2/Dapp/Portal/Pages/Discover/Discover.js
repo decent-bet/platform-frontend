@@ -1,11 +1,7 @@
-/**
- * Created by user on 11/16/2017.
- */
-
 import React, {Component} from 'react'
 import {Card, Tab, Tabs} from 'material-ui'
 
-import './sportsbook.css'
+import './discover.css'
 
 const styles = {
     inkbar: {
@@ -16,7 +12,6 @@ const styles = {
         background: 'rgba(0,0,0,0)',
         borderBottom: 'solid 1px'
     },
-    button: {},
     card: (_offering) => {
         return {
             borderRadius: 8,
@@ -28,7 +23,7 @@ const styles = {
     }
 }
 
-class Sportsbook extends Component {
+class Discover extends Component {
 
     constructor(props) {
         super(props)
@@ -58,40 +53,9 @@ class Sportsbook extends Component {
         }
     }
 
-    componentWillMount = () => {
-
-    }
-
     views = () => {
         const self = this
         return {
-            navbar: () => {
-                return <nav className="navbar navbar-toggleable-md">
-                    <button className="navbar-toggler navbar-toggler-right" type="button"
-                            data-toggle="collapse" data-target="#navbar-toggler"
-                            aria-controls="navbar-toggler" aria-expanded="false">
-                        <span className="navbar-toggler-icon"/>
-                    </button>
-
-                    <div className="collapse navbar-collapse" id="navbarTogglerDemo02">
-                        <ul className="navbar-nav mr-auto mt-2 mt-md-0">
-                            <div className="container">
-                                <div className="row">
-                                    <li className="nav-item active">
-                                        <a className="nav-link" href="#">Discover</a>
-                                    </li>
-                                    <li className="nav-item">
-                                        <a className="nav-link" href="#">Sportsbetting</a>
-                                    </li>
-                                    <li className="nav-item">
-                                        <a className="nav-link" href="#">Slots</a>
-                                    </li>
-                                </div>
-                            </div>
-                        </ul>
-                    </div>
-                </nav>
-            },
             cover: () => {
                 return <div className="col-12 cover">
                     <img src={process.env.PUBLIC_URL + '/assets/img/backgrounds/sportsbook-main.png'}/>
@@ -147,10 +111,10 @@ class Sportsbook extends Component {
                     <Card
                         style={styles.card(_offering)}
                         className="clickable">
-                        <div className="row">
-                        </div>
                     </Card>
-                    <p className="mt-3 ml-2">{_offering.name}<span className="ml-3 icon fa fa-caret-right"/></p>
+                    <p className="mt-3 ml-2">
+                        {_offering.name}<span className="ml-3 icon fa fa-caret-right"/>
+                    </p>
                 </div>
             }
         }
@@ -159,8 +123,7 @@ class Sportsbook extends Component {
     render() {
         const self = this
         return (
-            <div className="sportsbook">
-                {self.views().navbar()}
+            <div className="discover">
                 <div className="container home">
                     <div className="row">
                         {self.views().cover()}
@@ -176,4 +139,4 @@ class Sportsbook extends Component {
 
 }
 
-export default Sportsbook
+export default Discover

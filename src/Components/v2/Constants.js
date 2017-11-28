@@ -18,10 +18,14 @@ export const
     /** Dapp views */
     DAPP_VIEW_BALANCES = 0,
     DAPP_VIEW_CASINO = 1,
-    DAPP_VIEW_SPORTSBOOK = 2,
+    DAPP_VIEW_PORTAL = 2,
     DAPP_VIEW_HOUSE = 3,
     DAPP_VIEW_SLOTS = 4,
     DAPP_VIEW_SLOTS_GAME = 5,
+
+    PORTAL_PAGE_DISCOVER = 'discover',
+    PORTAL_PAGE_SPORTSBOOK = 'sportsbook',
+    PORTAL_PAGE_SLOTS = 'slots',
 
     SLOTS_CHANNEL_DEPOSIT_MIN = 100,
     SLOTS_CHANNEL_DEPOSIT_MAX = 1000,

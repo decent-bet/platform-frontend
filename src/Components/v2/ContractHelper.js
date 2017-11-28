@@ -9,10 +9,12 @@ import House from '../../../build/contracts/House.json'
 import BettingProvider from '../../../build/contracts/BettingProvider.json'
 import SlotsChannelFinalizer from '../../../build/contracts/SlotsChannelFinalizer.json'
 import SlotsChannelManager from '../../../build/contracts/SlotsChannelManager.json'
+import SportsOracle from '../../../build/contracts/SportsOracle.json'
 
 import Web3 from 'web3'
 
 const async = require('async')
+const ethUnits = require('ethereum-units')
 
 const provider = new Web3.providers.HttpProvider('http://localhost:8545')
 const contract = require('truffle-contract')
@@ -21,25 +23,28 @@ const house = contract(House)
 const bettingProvider = contract(BettingProvider)
 const slotsChannelFinalizer = contract(SlotsChannelFinalizer)
 const slotsChannelManager = contract(SlotsChannelManager)
+const sportsOracle = contract(SportsOracle)
 
 decentBetToken.setProvider(provider)
 house.setProvider(provider)
 bettingProvider.setProvider(provider)
 slotsChannelFinalizer.setProvider(provider)
 slotsChannelManager.setProvider(provider)
+sportsOracle.setProvider(provider)
 
 // Get Web3 so we can get our accounts.
 const web3 = new Web3(provider)
 
 // Declaring these for later so we can chain functions on Contract objects.
 let decentBetTokenInstance, houseInstance, bettingProviderInstance, slotsChannelFinalizerInstance,
-    slotsChannelManagerInstance
+    slotsChannelManagerInstance, sportsOracleInstance
 
 const TYPE_DBET_TOKEN = 0,
-    TYPE_DBET_HOUSE = 1,
-    TYPE_DBET_BETTING_PROVIDER = 2,
-    TYPE_DBET_SLOTS_CHANNEL_FINALIZER = 3,
-    TYPE_DBET_SLOTS_CHANNEL_MANAGER = 4
+      TYPE_HOUSE = 1,
+      TYPE_BETTING_PROVIDER = 2,
+      TYPE_SLOTS_CHANNEL_FINALIZER = 3,
+      TYPE_SLOTS_CHANNEL_MANAGER = 4,
+      TYPE_SPORTS_ORACLE = 5
 
 class ContractHelper {
 
@@ -55,6 +60,14 @@ class ContractHelper {
         return slotsChannelManagerInstance
     }
 
+    getBettingProviderInstance = () => {
+        return bettingProviderInstance
+    }
+
+    getSportsOracleInstance = () => {
+        return sportsOracleInstance
+    }
+
     getHouseInstance = () => {
         return houseInstance
     }
@@ -64,19 +77,23 @@ class ContractHelper {
     }
 
     getHouseContract = (callback) => {
-        this.getContract(TYPE_DBET_HOUSE, callback)
+        this.getContract(TYPE_HOUSE, callback)
     }
 
     getBettingProviderContract = (callback) => {
-        this.getContract(TYPE_DBET_BETTING_PROVIDER, callback)
+        this.getContract(TYPE_BETTING_PROVIDER, callback)
     }
 
     getSlotsChannelManagerContract = (callback) => {
-        this.getContract(TYPE_DBET_SLOTS_CHANNEL_MANAGER, callback)
+        this.getContract(TYPE_SLOTS_CHANNEL_MANAGER, callback)
     }
 
     getSlotsChannelFinalizerContract = (callback) => {
-        this.getContract(TYPE_DBET_SLOTS_CHANNEL_FINALIZER, callback)
+        this.getContract(TYPE_SLOTS_CHANNEL_FINALIZER, callback)
+    }
+
+    getSportsOracleContract = (callback) => {
+        this.getContract(TYPE_SPORTS_ORACLE, callback)
     }
 
     getAllContracts = (callback) => {
@@ -90,25 +107,31 @@ class ContractHelper {
             },
             house: (callback) => {
                 this.getHouseContract((instance) => {
-                    self.setInstance(TYPE_DBET_HOUSE, instance)
+                    self.setInstance(TYPE_HOUSE, instance)
                     callback(null, instance)
                 })
             },
             bettingProvider: (callback) => {
                 this.getBettingProviderContract((instance) => {
-                    self.setInstance(TYPE_DBET_BETTING_PROVIDER, instance)
+                    self.setInstance(TYPE_BETTING_PROVIDER, instance)
                     callback(null, instance)
                 })
             },
             slotsChannelManager: (callback) => {
                 this.getSlotsChannelManagerContract((instance) => {
-                    self.setInstance(TYPE_DBET_SLOTS_CHANNEL_MANAGER, instance)
+                    self.setInstance(TYPE_SLOTS_CHANNEL_MANAGER, instance)
                     callback(null, instance)
                 })
             },
             slotsChannelFinalizer: (callback) => {
                 this.getSlotsChannelFinalizerContract((instance) => {
-                    self.setInstance(TYPE_DBET_SLOTS_CHANNEL_FINALIZER, instance)
+                    self.setInstance(TYPE_SLOTS_CHANNEL_FINALIZER, instance)
+                    callback(null, instance)
+                })
+            },
+            sportsOracle: (callback) => {
+                this.getSportsOracleContract((instance) => {
+                    self.setInstance(TYPE_SPORTS_ORACLE, instance)
                     callback(null, instance)
                 })
             },
@@ -123,11 +146,11 @@ class ContractHelper {
         if (!instance) {
             console.log('getContract: ' + type)
             this.getContractObject(type).deployed().then(function (_instance) {
-                console.log('Deployed ' + type + ': ' + _instance.address)
+                console.log('Deployed', type, _instance.address)
                 self.setInstance(type, _instance)
                 callback(_instance)
             }).catch(function (err) {
-                console.log('Deploy error: ' + type + ', ' + err)
+                console.log('Deploy error', type, err.message)
             })
         } else
             callback(instance)
@@ -137,14 +160,16 @@ class ContractHelper {
         switch (type) {
             case TYPE_DBET_TOKEN:
                 return decentBetToken
-            case TYPE_DBET_HOUSE:
+            case TYPE_HOUSE:
                 return house
-            case TYPE_DBET_BETTING_PROVIDER:
+            case TYPE_BETTING_PROVIDER:
                 return bettingProvider
-            case TYPE_DBET_SLOTS_CHANNEL_FINALIZER:
+            case TYPE_SLOTS_CHANNEL_FINALIZER:
                 return slotsChannelFinalizer
-            case TYPE_DBET_SLOTS_CHANNEL_MANAGER:
+            case TYPE_SLOTS_CHANNEL_MANAGER:
                 return slotsChannelManager
+            case TYPE_SPORTS_ORACLE:
+                return sportsOracle
         }
         return null
     }
@@ -153,14 +178,16 @@ class ContractHelper {
         switch (type) {
             case TYPE_DBET_TOKEN:
                 return decentBetTokenInstance
-            case TYPE_DBET_HOUSE:
+            case TYPE_HOUSE:
                 return houseInstance
-            case TYPE_DBET_BETTING_PROVIDER:
+            case TYPE_BETTING_PROVIDER:
                 return bettingProviderInstance
-            case TYPE_DBET_SLOTS_CHANNEL_FINALIZER:
+            case TYPE_SLOTS_CHANNEL_FINALIZER:
                 return slotsChannelFinalizerInstance
-            case TYPE_DBET_SLOTS_CHANNEL_MANAGER:
+            case TYPE_SLOTS_CHANNEL_MANAGER:
                 return slotsChannelManagerInstance
+            case TYPE_SPORTS_ORACLE:
+                return sportsOracleInstance
         }
         return null
     }
@@ -170,17 +197,20 @@ class ContractHelper {
             case TYPE_DBET_TOKEN:
                 decentBetTokenInstance = instance
                 break
-            case TYPE_DBET_HOUSE:
+            case TYPE_HOUSE:
                 houseInstance = instance
                 break
-            case TYPE_DBET_BETTING_PROVIDER:
+            case TYPE_BETTING_PROVIDER:
                 bettingProviderInstance = instance
                 break
-            case TYPE_DBET_SLOTS_CHANNEL_FINALIZER:
+            case TYPE_SLOTS_CHANNEL_FINALIZER:
                 slotsChannelFinalizerInstance = instance
                 break
-            case TYPE_DBET_SLOTS_CHANNEL_MANAGER:
+            case TYPE_SLOTS_CHANNEL_MANAGER:
                 slotsChannelManagerInstance = instance
+                break
+            case TYPE_SPORTS_ORACLE:
+                sportsOracleInstance = instance
                 break
         }
     }
@@ -301,16 +331,327 @@ class ContractHelper {
             },
             bettingProvider: () => {
                 return {
-                    addGame: (id, parties, odds, maxBet, startTime, endTime) => {
-                        console.log('Adding game: ' + id + ', ' + parties + ', ' + odds + ', ' + maxBet +
-                            ', ' + startTime + ', ' + endTime)
-                        return bettingProviderInstance.addGame(id, parties, odds, maxBet, startTime, endTime)
+                    /**
+                     * Getters
+                     */
+                    getGamesCount: () => {
+                        return bettingProviderInstance.gamesCount()
                     },
-                    updateGameOdds: (id, parties, odds) => {
-                        return bettingProviderInstance.updateGameOdds(id, parties, odds)
+                    getGame: (id) => {
+                        return bettingProviderInstance.getGame.call(id)
                     },
-                    updateGameOutcome: (id, outcome) => {
-                        return bettingProviderInstance.updateGameOutcome(id, outcome)
+                    getGamePeriodBetLimits: (id, period) => {
+                        return bettingProviderInstance.getGamePeriodBetLimits(id, period)
+                    },
+                    getGameBettor: (id, index) => {
+                        return bettingProviderInstance.getGameBettor(id, index)
+                    },
+                    getGameBettorBet: (id, address, betId) => {
+                        return bettingProviderInstance.getGameBettorBet(id, address, betId)
+                    },
+                    getGameBettorBetOdds: (id, address, betId) => {
+                        return bettingProviderInstance.getGameBettorBetOdds(id, address, betId)
+                    },
+                    getGameBettorBetOddsDetails: (id, address, betId) => {
+                        return bettingProviderInstance.getGameBettorBetOddsDetails(id, address, betId)
+                    },
+                    getGameOddsCount: (id) => {
+                        return bettingProviderInstance.getGameOddsCount(id)
+                    },
+                    getGameOdds: (id, oddsId) => {
+                        return bettingProviderInstance.getGameOdds(id, oddsId)
+                    },
+                    getGameOddsDetails: (id, oddsId) => {
+                        return bettingProviderInstance.getGameOddsDetails(id, oddsId)
+                    },
+                    getGameOutcome: (id, period) => {
+                        return bettingProviderInstance.getGameOutcome(id, period)
+                    },
+                    getUserBets: (address) => {
+                        return bettingProviderInstance.userBets(address)
+                    },
+                    getDepositedTokens: (address, sessionNumber) => {
+                        return bettingProviderInstance.depositedTokens(address, sessionNumber)
+                    },
+                    getSessionStats: (sessionNumber) => {
+                        return bettingProviderInstance.sessionStats(sessionNumber)
+                    },
+                    getSportsOracleAddress: () => {
+                        return bettingProviderInstance.sportsOracleAddress()
+                    },
+                    getHouseAddress: () => {
+                        return bettingProviderInstance.houseAddress()
+                    },
+                    getCurrentSession: () => {
+                        return bettingProviderInstance.currentSession()
+                    },
+                    balanceOf: (address, session) => {
+                        return bettingProviderInstance.balanceOf(address, session)
+                    },
+                    /**
+                     * Setters
+                     */
+                    setSportsOracle: (address) => {
+                        return bettingProviderInstance.setSportsOracle.sendTransaction(address, {
+                            from: window.web3.eth.defaultAccount
+                        })
+                    },
+                    changeAssistedClaimTimeOffset: (offset) => {
+                        return bettingProviderInstance.changeAssistedClaimTimeOffset.sendTransaction(offset, {
+                            from: window.web3.eth.defaultAccount
+                        })
+                    },
+                    addGame: (oracleGameId, cutOffTime, endTime) => {
+                        return bettingProviderInstance.addGame.sendTransaction(oracleGameId, cutOffTime, endTime, {
+                            from: window.web3.eth.defaultAccount
+                        })
+                    },
+                    updateGamePeriodBetLimits: (id, period, limits) => {
+                        console.log('updateGamePeriodBetLimits', id, period, limits)
+                        return bettingProviderInstance.updateGamePeriodBetLimits.sendTransaction(id, period, limits, {
+                            from: window.web3.eth.defaultAccount
+                        })
+                    },
+                    pushGameOdds: (id, refId, period, handicap, team1, team2, draw, betType, points,
+                                   over, under, isTeam1) => {
+                        console.log('pushGameOdds params', id, refId, period, handicap, team1, team2, draw,
+                            betType, points, over, under, isTeam1)
+                        return bettingProviderInstance.pushGameOdds.sendTransaction(id, refId, period, handicap,
+                            team1, team2, draw, betType, points, over, under, isTeam1, {
+                                from: window.web3.eth.defaultAccount
+                            })
+                    },
+                    updateGameOdds: (id, oddsId, handicap, team1, team2, draw, points, over, under) => {
+                        return bettingProviderInstance.updateGameOdds.sendTransaction(id, oddsId, handicap, team1,
+                            team2, draw, points, over, under, {
+                                from: window.web3.eth.defaultAccount
+                            })
+                    },
+                    updateGameOutcome: (id, period, result, team1Points, team2Points) => {
+                        return bettingProviderInstance.updateGameOutcome.sendTransaction(id, period, result,
+                            team1Points, team2Points, {
+                                from: window.web3.eth.defaultAccount
+                            })
+                    },
+                    placeBet: (gameId, oddsId, betType, choice, amount) => {
+                        return bettingProviderInstance.placeBet.sendTransaction(gameId, oddsId, betType,
+                            choice, amount, {
+                                from: window.web3.eth.defaultAccount
+                            })
+                    },
+                    claimBet: (gameId, betId, bettor) => {
+                        return bettingProviderInstance.claimBet.sendTransaction(gameId, betId, bettor, {
+                            from: window.web3.eth.defaultAccount
+                        })
+                    },
+                    /**
+                     * Events
+                     */
+                    logNewGame: (fromBlock, toBlock) => {
+                        return sportsOracleInstance.LogNewGame({}, {
+                            fromBlock: fromBlock ? fromBlock : 'latest',
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logNewGameOdds: (fromBlock, toBlock) => {
+                        return sportsOracleInstance.LogNewGameOdds({}, {
+                            fromBlock: fromBlock ? fromBlock : 'latest',
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logUpdatedGameOdds: (fromBlock, toBlock) => {
+                        return sportsOracleInstance.LogUpdatedGameOdds({}, {
+                            fromBlock: fromBlock ? fromBlock : 'latest',
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logNewBet: (fromBlock, toBlock) => {
+                        return sportsOracleInstance.LogNewBet({}, {
+                            fromBlock: fromBlock ? fromBlock : 'latest',
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logClaimedBet: (fromBlock, toBlock) => {
+                        return sportsOracleInstance.LogClaimedBet({}, {
+                            fromBlock: fromBlock ? fromBlock : 'latest',
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    deposit: (fromBlock, toBlock) => {
+                        return sportsOracleInstance.Deposit({}, {
+                            fromBlock: fromBlock ? fromBlock : 'latest',
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    withdraw: (fromBlock, toBlock) => {
+                        return sportsOracleInstance.Withdraw({}, {
+                            fromBlock: fromBlock ? fromBlock : 'latest',
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    }
+                }
+            },
+            sportsOracle: () => {
+                return {
+                    /**
+                     * Getters
+                     */
+                    getOwner: () => {
+                        return sportsOracleInstance.owner()
+                    },
+                    getBalance: () => {
+                        return this.getWrappers().token().balanceOf(sportsOracleInstance.address)
+                    },
+                    getGameUpdateCost: () => {
+                        return sportsOracleInstance.gameUpdateCost()
+                    },
+                    getProviderAcceptanceCost: () => {
+                        return sportsOracleInstance.providerAcceptanceCost()
+                    },
+                    getPayForProviderAcceptance: () => {
+                        return sportsOracleInstance.payForProviderAcceptance()
+                    },
+                    getAuthorizedAddresses: (index) => {
+                        return sportsOracleInstance.authorizedAddresses(index)
+                    },
+                    getRequestedProviderAddresses: (index) => {
+                        return sportsOracleInstance.requestedProviderAddresses(index)
+                    },
+                    getAcceptedProviderAddresses: (index) => {
+                        return sportsOracleInstance.acceptedProviderAddresses(index)
+                    },
+                    getGamesCount: () => {
+                        return sportsOracleInstance.gamesCount()
+                    },
+                    getGame: (gameId) => {
+                        return sportsOracleInstance.games(gameId)
+                    },
+                    getAvailableGamePeriods: (gameId, index) => {
+                        return sportsOracleInstance.availableGamePeriods(gameId, index)
+                    },
+                    getGameProvidersUpdateList: (gameId, index) => {
+                        return sportsOracleInstance.gameProvidersUpdateList(gameId, index)
+                    },
+                    getProviderGameToUpdate: (gameId, providerAddress) => {
+                        return sportsOracleInstance.providerGamesToUpdate(gameId, providerAddress)
+                    },
+                    getGamePeriods: (gameId, periodNumber) => {
+                        return sportsOracleInstance.gamePeriods(gameId, periodNumber)
+                    },
+                    /**
+                     * Setters
+                     */
+                    togglePayForProviderAcceptance: (enabled) => {
+                        return sportsOracleInstance.togglePayForProviderAcceptance.sendTransaction(enabled, {
+                            from: window.web3.eth.defaultAccount
+                        })
+                    },
+                    addAuthorizedAddress: (address) => {
+                        return sportsOracleInstance.addAuthorizedAddress.sendTransaction(address, {
+                            from: window.web3.eth.defaultAccount
+                        })
+                    },
+                    changeGameUpdateCost: (cost) => {
+                        cost *= ethUnits.units.ether
+                        return sportsOracleInstance.changeGameUpdateCost.sendTransaction(cost, {
+                            from: window.web3.eth.defaultAccount
+                        })
+                    },
+                    changeProviderAcceptanceCost: (cost) => {
+                        cost *= ethUnits.units.ether
+                        return sportsOracleInstance.changeProviderAcceptanceCost.sendTransaction(cost, {
+                            from: window.web3.eth.defaultAccount
+                        })
+                    },
+                    acceptProvider: (address) => {
+                        return sportsOracleInstance.acceptProvider.sendTransaction(address, {
+                            from: window.web3.eth.defaultAccount
+                        })
+                    },
+                    addGame: (refId, sportId, leagueId, startTime, endTime, availablePeriods, swarmHash) => {
+                        return sportsOracleInstance.addGame.sendTransaction(refId, sportId, leagueId, startTime, endTime,
+                            availablePeriods, swarmHash, {
+                                from: window.web3.eth.defaultAccount
+                            })
+                    },
+                    updateGameDetails: (id, swarmHash) => {
+                        return sportsOracleInstance.updateGameDetails.sendTransaction(id, swarmHash, {
+                            from: window.web3.eth.defaultAccount
+                        })
+                    },
+                    pushOutcome: (id, period, result, totalPoints, team1Points, team2Points) => {
+                        return sportsOracleInstance.pushOutcome.sendTransaction(id, period, result, totalPoints,
+                            team1Points, team2Points, {
+                                from: window.web3.eth.defaultAccount
+                            })
+                    },
+                    updateProviderOutcome: (id, providerAddress, period, result, team1Points, team2Points) => {
+                        return sportsOracleInstance.updateProviderOutcome.sendTransaction(id, providerAddress, period,
+                            result, team1Points, team2Points, {
+                                from: window.web3.eth.defaultAccount
+                            })
+                    },
+                    withdrawTokens: () => {
+                        return sportsOracleInstance.withdrawTokens().sendTransaction({
+                            from: window.web3.eth.defaultAccount
+                        })
+                    },
+                    /**
+                     * Events
+                     */
+                    logNewAuthorizedAddress: (fromBlock, toBlock) => {
+                        return sportsOracleInstance.LogNewAuthorizedAddress({}, {
+                            fromBlock: fromBlock ? fromBlock : 'latest',
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logNewAcceptedProvider: (fromBlock, toBlock) => {
+                        return sportsOracleInstance.LogNewAcceptedProvider({}, {
+                            fromBlock: fromBlock ? fromBlock : 'latest',
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logGameAdded: (fromBlock, toBlock) => {
+                        return sportsOracleInstance.LogGameAdded({}, {
+                            fromBlock: fromBlock ? fromBlock : 'latest',
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logGameDetailsUpdate: (fromBlock, toBlock) => {
+                        return sportsOracleInstance.LogGameDetailsUpdate({}, {
+                            fromBlock: fromBlock ? fromBlock : 'latest',
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logGameResult: (fromBlock, toBlock) => {
+                        return sportsOracleInstance.LogGameResult({}, {
+                            fromBlock: fromBlock ? fromBlock : 'latest',
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logUpdatedProviderOutcome: (fromBlock, toBlock) => {
+                        return sportsOracleInstance.LogUpdatedProviderOutcome({}, {
+                            fromBlock: fromBlock ? fromBlock : 'latest',
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logWithdrawal: (fromBlock, toBlock) => {
+                        return sportsOracleInstance.LogWithdrawal({}, {
+                            fromBlock: fromBlock ? fromBlock : 'latest',
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logNewGameUpdateCost: (fromBlock, toBlock) => {
+                        return sportsOracleInstance.LogNewGameUpdateCost({}, {
+                            fromBlock: fromBlock ? fromBlock : 'latest',
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logNewProviderAcceptanceCost: (fromBlock, toBlock) => {
+                        return sportsOracleInstance.LogNewProviderAcceptanceCost({}, {
+                            fromBlock: fromBlock ? fromBlock : 'latest',
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
                     }
                 }
             },
