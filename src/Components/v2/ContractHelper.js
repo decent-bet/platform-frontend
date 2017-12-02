@@ -568,14 +568,14 @@ class ContractHelper {
                             from: window.web3.eth.defaultAccount
                         })
                     },
-                    addGame: (refId, sportId, leagueId, startTime, endTime, availablePeriods, swarmHash) => {
+                    addGame: (refId, sportId, leagueId, startTime, endTime, availablePeriods, ipfsHash) => {
                         return sportsOracleInstance.addGame.sendTransaction(refId, sportId, leagueId, startTime, endTime,
-                            availablePeriods, swarmHash, {
+                            availablePeriods, ipfsHash, {
                                 from: window.web3.eth.defaultAccount
                             })
                     },
-                    updateGameDetails: (id, swarmHash) => {
-                        return sportsOracleInstance.updateGameDetails.sendTransaction(id, swarmHash, {
+                    updateGameDetails: (id, ipfsHash) => {
+                        return sportsOracleInstance.updateGameDetails.sendTransaction(id, ipfsHash, {
                             from: window.web3.eth.defaultAccount
                         })
                     },

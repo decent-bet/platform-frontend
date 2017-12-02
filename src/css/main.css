@@ -90,7 +90,9 @@ p {
 
 .btn-primary:hover,
 .btn-primary:active,
-.btn-primary:focus {
+.btn-primary:focus,
+.btn-primary.disabled,
+.btn-primary:disabled {
     background: #6a0712;
     border: none;
     color: #FFFFFF !important;

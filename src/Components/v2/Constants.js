@@ -38,4 +38,10 @@ export const
     FORMATTED_CHANNEL_STATUS_WAITING = 'Waiting for Deposit..',
     FORMATTED_CHANNEL_STATUS_DEPOSITED = 'User Deposited, Waiting for house activation..',
     FORMATTED_CHANNEL_STATUS_ACTIVATED = 'Ready to Play',
-    FORMATTED_CHANNEL_STATUS_FINALIZED = 'Channel finalized and closed'
+    FORMATTED_CHANNEL_STATUS_FINALIZED = 'Channel finalized and closed',
+
+    /** As configured in Betting Provider Contract */
+    ODDS_TYPE_SPREAD = 1,
+    ODDS_TYPE_MONEYLINE = 2,
+    ODDS_TYPE_TOTALS = 3,
+    ODDS_TYPE_TEAM_TOTALS = 4

@@ -1,3 +1,57 @@
 .dapp .portal .sportsbook {
     min-height: 100vh;
 }
+
+.dapp .portal .sportsbook .main {
+    margin-left: 5vw;
+    margin-right: 5vw;
+}
+
+.dapp .portal .sportsbook h4 {
+    text-transform: uppercase;
+    color: #f2b45c !important;
+    font-size: 1.25rem;
+    font-family: TradeGothicBold;
+}
+
+.dapp .portal .sportsbook small {
+    color: #cccccc;
+}
+
+.dapp .portal .sportsbook hr {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.dapp .portal .sportsbook .stats .val,
+.dapp .portal .sportsbook .stats .stat {
+    text-align: center;
+}
+
+.dapp .portal .sportsbook .stats .stat {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+}
+
+.dapp .portal .sportsbook .teams,
+.dapp .portal .sportsbook .game-odds .type {
+    color: #f2b45c !important;
+}
+
+.dapp .portal .sportsbook .game-odds .no-odds {
+    color: #f25557 !important;
+}
+
+.dapp .portal .sportsbook .game-odds .key {
+    margin-bottom: 10px;
+}
+
+.dapp .portal .sportsbook .game-odds .btn {
+    display: block;
+    padding: 8px 25px !important;
+    margin: 1vh 0;
+}
+
+.dapp .portal .sportsbook .bet-limits .loading p,
+.dapp .portal .sportsbook .bet-limits .key {
+    color: #f2b45c !important;
+}

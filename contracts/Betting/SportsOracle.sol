@@ -59,8 +59,8 @@ contract SportsOracle is SafeMath {
         uint startTime;
         // Ending time for this game.
         uint endTime;
-        // Swarm hash containing meta data.
-        string swarmHash;
+        // IPFS hash containing meta data.
+        string ipfsHash;
         bool exists;
     }
 
@@ -122,9 +122,9 @@ contract SportsOracle is SafeMath {
 
     event LogNewAcceptedProvider(address _address);
 
-    event LogGameAdded(uint id, string refId, uint sportId, uint leagueId, string swarmHash);
+    event LogGameAdded(uint id, string refId, uint sportId, uint leagueId, string ipfsHash);
 
-    event LogGameDetailsUpdate(uint id, string refId, string swarmHash);
+    event LogGameDetailsUpdate(uint id, string refId, string ipfsHash);
 
     event LogGameResult(uint id, string refId, uint period, int result, uint team1Points, uint team2Points);
 
@@ -283,7 +283,7 @@ contract SportsOracle is SafeMath {
 
     // Start time needs to be in advance of the actual game start time.
     function addGame(string refId, uint sportId, uint leagueId, uint startTime,
-    uint endTime, uint[] availablePeriods, string swarmHash)
+    uint endTime, uint[] availablePeriods, string ipfsHash)
     onlyAuthorized {
         Game memory game = Game({
             id : gamesCount,
@@ -292,7 +292,7 @@ contract SportsOracle is SafeMath {
             leagueId : leagueId,
             startTime : startTime,
             endTime : endTime,
-            swarmHash : swarmHash,
+            ipfsHash : ipfsHash,
             exists : true
         });
         gamesCount++;
@@ -301,15 +301,15 @@ contract SportsOracle is SafeMath {
         for(uint i = 0; i < availablePeriods.length; i++) {
             gamePeriods[game.id][availablePeriods[i]].exists = true;
         }
-        LogGameAdded(game.id, refId, sportId, leagueId, swarmHash);
+        LogGameAdded(game.id, refId, sportId, leagueId, ipfsHash);
     }
 
     // Update swarm hash containing meta-data for the game.
-    function updateGameDetails(uint id, string swarmHash)
+    function updateGameDetails(uint id, string ipfsHash)
     isValidGame(id)
     onlyAuthorized {
-        games[id].swarmHash = swarmHash;
-        LogGameDetailsUpdate(id, games[id].refId, games[id].swarmHash);
+        games[id].ipfsHash = ipfsHash;
+        LogGameDetailsUpdate(id, games[id].refId, games[id].ipfsHash);
     }
 
     // Push outcome for a game.

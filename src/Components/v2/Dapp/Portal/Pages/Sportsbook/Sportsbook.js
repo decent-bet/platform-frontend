@@ -1,9 +1,11 @@
 import React, {Component} from 'react'
 
-import {CircularProgress} from 'material-ui'
+import {Card, CircularProgress} from 'material-ui'
 
 import ArrayCache from '../../../../Base/ArrayCache'
 import Helper from '../../../../Helper'
+import SportsAPI from '../../../../Base/SportsAPI'
+
 import './sportsbook.css'
 
 const arrayCache = new ArrayCache()
@@ -11,10 +13,12 @@ const async = require('async')
 const constants = require('../../../../Constants')
 const ethUnits = require('ethereum-units')
 const helper = new Helper()
+const sportsApi = new SportsAPI()
 const swarm = require('swarm-js').at("http://swarm-gateways.net")
 
 const IPFS = require('ipfs-mini')
-const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' })
+const ipfs = new IPFS({host: 'ipfs.infura.io', port: 5001, protocol: 'https'})
+const styles = require('../../../../Base/styles').styles()
 
 class Sportsbook extends Component {
 
@@ -46,6 +50,9 @@ class Sportsbook extends Component {
                 },
                 games: {}
             },
+            leagues: {},
+            periodDescriptions: {},
+            odds: {}
         }
     }
 
@@ -147,16 +154,17 @@ class Sportsbook extends Component {
                                     endTime: data[6].toNumber(),
                                     hasEnded: data[7],
                                     exists: exists,
+                                    betLimits: {}
                                 }
                                 let bettingProvider = self.state.bettingProvider
                                 bettingProvider.games[id] = game
                                 if (exists) {
+                                    self.web3Getters().bettingProvider().gameOddsCount(id)
                                     let bettingProvider = self.state.bettingProvider
                                     bettingProvider.games[id] = game
                                     self.setState({
                                         bettingProvider: bettingProvider
                                     })
-                                    self.web3Getters().bettingProvider().gameOddsCount(id)
                                 }
                                 if (iterate && exists)
                                     self.web3Getters().bettingProvider().game((id + 1), true)
@@ -170,6 +178,7 @@ class Sportsbook extends Component {
                         })
                     },
                     gameOddsCount: (id) => {
+                        console.log('Loading game odds count', id)
                         helper.getContractHelper().getWrappers().bettingProvider()
                             .getGameOddsCount(id).then((oddsCount) => {
                             let bettingProvider = self.state.bettingProvider
@@ -181,11 +190,66 @@ class Sportsbook extends Component {
                                 }
                             game.odds.count = oddsCount.toNumber()
                             bettingProvider.games[id] = game
+                            if (oddsCount.toNumber() > 0)
+                                self.helpers().loadOddsForGame(id, oddsCount.toNumber())
                             self.setState({
                                 bettingProvider: bettingProvider
                             })
                         }).catch((err) => {
                             console.log('Error retrieving game odds count ', id, err.message)
+                        })
+                    },
+                    gameOdds: (gameId, oddsId) => {
+                        helper.getContractHelper().getWrappers().bettingProvider()
+                            .getGameOdds(gameId, oddsId).then((_odds) => {
+                            let odds = self.state.odds
+                            if (!odds.hasOwnProperty(gameId))
+                                odds[gameId] = {}
+
+                            let gameOdds = {
+                                betType: _odds[0].toNumber(),
+                                period: _odds[1].toNumber(),
+                                handicap: _odds[2].toNumber(),
+                                team1: _odds[3].toNumber(),
+                                team2: _odds[4].toNumber(),
+                                draw: _odds[5].toNumber(),
+                                points: _odds[6].toNumber(),
+                                over: _odds[7].toNumber(),
+                                under: _odds[8].toNumber(),
+                                isTeam1: _odds[9]
+                            }
+                            odds[gameId][oddsId] = gameOdds
+
+                            if (!self.state.bettingProvider.games[gameId].betLimits.hasOwnProperty(gameOdds.period))
+                                self.web3Getters().bettingProvider().betLimits(gameId, gameOdds.period)
+
+                            if (odds[gameId][oddsId].handicap != 0)
+                                odds[gameId][oddsId].handicap /= 100
+                            console.log('Loaded odds for game', gameId, oddsId, odds)
+                            self.setState({
+                                odds: odds
+                            })
+                        }).catch((err) => {
+                            console.log('Error retrieving odds ', oddsId, 'for game', gameId, err.message)
+                        })
+                    },
+                    betLimits: (gameId, period) => {
+                        helper.getContractHelper().getWrappers()
+                            .bettingProvider().getGamePeriodBetLimits(gameId, period).then((limits) => {
+                            console.log('Retrieved bet limits for game', gameId, 'period', period, ':', limits)
+                            let betLimits = limits[0]
+                            let bettingProvider = self.state.bettingProvider
+                            bettingProvider.games[gameId].betLimits[period] = {
+                                spread: betLimits[0].toNumber(),
+                                moneyline: betLimits[1].toNumber(),
+                                totals: betLimits[2].toNumber(),
+                                teamTotals: betLimits[3].toNumber(),
+                            }
+                            self.setState({
+                                bettingProvider: bettingProvider
+                            })
+                        }).catch((err) => {
+                            console.log('Error retrieving bet limits', gameId, period, err.message)
                         })
                     }
                 }
@@ -196,12 +260,15 @@ class Sportsbook extends Component {
                         console.log('Retrieving from ipfs', hash)
 
                         ipfs.catJSON(hash, (err, data) => {
-                            console.log('Retrieved data for hash', hash, err, JSON.stringify(data))
-                            if(!err) {
+                            console.log('Retrieved data for hash', hash, err, data)
+                            if (!err) {
                                 let sportsOracle = self.state.sportsOracle
                                 sportsOracle.games[gameId].team1 = data.team1
                                 sportsOracle.games[gameId].team2 = data.team2
                                 sportsOracle.games[gameId].starts = data.starts
+                                sportsOracle.games[gameId].league = data.league
+                                sportsOracle.games[gameId].periodDescriptions = data.periods
+
                                 self.setState({
                                     sportsOracle: sportsOracle
                                 })
@@ -237,7 +304,7 @@ class Sportsbook extends Component {
                         game: (id, iterate) => {
                             helper.getContractHelper().getWrappers().sportsOracle().getGame(id).then(
                                 (data) => {
-                                    let swarmHash = data[6]
+                                    let ipfsHash = data[6]
                                     let exists = data[7]
                                     let game = {
                                         id: id,
@@ -246,11 +313,11 @@ class Sportsbook extends Component {
                                         leagueId: data[3].toNumber(),
                                         startTime: data[4].toNumber(),
                                         endTime: data[5].toNumber(),
-                                        swarmHash: swarmHash,
+                                        ipfsHash: ipfsHash,
                                         exists: exists
                                     }
-                                    if (swarmHash.length > 0)
-                                        self.web3Getters().sportsOracle().metadata(id, swarmHash)
+                                    if (ipfsHash.length > 0)
+                                        self.web3Getters().sportsOracle().metadata(id, ipfsHash)
                                     if (exists) {
                                         let sportsOracle = self.state.sportsOracle
                                         sportsOracle.games[id] = game
@@ -328,7 +395,8 @@ class Sportsbook extends Component {
                                 }
                             }
 
-                            helper.getContractHelper().getWrappers().sportsOracle().getRequestedProviderAddresses(index)
+                            helper.getContractHelper().getWrappers().sportsOracle()
+                                .getRequestedProviderAddresses(index)
                                 .then((address) => {
                                     if (address != '0x')
                                         getNextRequestedProviders(address)
@@ -386,59 +454,325 @@ class Sportsbook extends Component {
                     game.id = gameId
                     games.push(game)
                 })
-                return <div className="row mt-4 pushed-games">
-                    <div className="col-12 mt-4">
-                        <h4 className="text-left">Available Games</h4>
-                        <hr/>
+                return <div className="row">
+                    <div className="col-10">
+                        <div className="row">
+                            <div className="col-12">
+                                <h4 className="text-uppercase">Available Games</h4>
+                            </div>
+                            <div className="col-8">
+                                {   Object.keys(self.state.bettingProvider.games).length > 0 &&
+                                <section>
+                                    { games.map((game, index) =>
+                                        <Card
+                                            style={styles.card}
+                                            className="mt-4">
+                                            <div className="row">
+                                                <div className="col-12">
+                                                    <div className="row">
+                                                        <div className="col-11">
+                                                            {   self.helpers().isTeamNamesAvailable(game.oracleGameId) &&
+                                                            <p className="mb-1 teams">
+                                                                {self.state.sportsOracle.games[game.oracleGameId].team1
+                                                                + ' vs ' +
+                                                                self.state.sportsOracle.games[game.oracleGameId].team2}
+                                                            </p>
+                                                            }
+                                                            {   !self.helpers().isTeamNamesAvailable(game.oracleGameId) &&
+                                                            <p className="mb-1">
+                                                                Loading team names..
+                                                            </p>
+                                                            }
+                                                        </div>
+                                                        <div className="col-1">
+                                                            <small className="float-right">
+                                                                {
+                                                                    '#' + game.oracleGameId}
+                                                            </small>
+                                                        </div>
+                                                        <div className="col-12">
+                                                            <small>
+                                                                {
+                                                                    'Cut-off time:' +
+                                                                    new Date(game.cutOffTime * 1000).toLocaleString()
+                                                                }
+                                                            </small>
+                                                            <br/>
+                                                            <small>
+                                                                {
+                                                                    'Start time:' +
+                                                                    new Date(self.helpers().getOracleGame(game.oracleGameId)
+                                                                            .startTime * 1000).toLocaleString()
+                                                                }
+                                                            </small>
+                                                            <small className="float-right">
+                                                                {self.helpers().getLeagueName(game.oracleGameId)}
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {   self.state.odds.hasOwnProperty(game.id) &&
+                                                <div className="col-12">
+                                                    <hr/>
+                                                    <p className="mt-2">Available Odds</p>
+                                                    {self.views().gameOdds(game.id)}
+                                                </div>
+                                                }
+                                                {   !self.state.odds.hasOwnProperty(game.id) &&
+                                                <div className="col-12 game-odds">
+                                                    <hr/>
+                                                    <p className="mt-2">Available Odds</p>
+                                                    {self.views().noAvailableOdds()}
+                                                </div>
+                                                }
+                                                <div className="col-12">
+                                                    <hr/>
+                                                    <p className="mt-2">Bet Limits</p>
+                                                    {self.views().betLimits(game.id)}
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    )}
+                                </section>
+                                }
+                                { Object.keys(self.state.bettingProvider.games).length == 0 &&
+                                <h3 className="text-center mt-4">No available games</h3>
+                                }
+                            </div>
+                            <div className="col-4">
+                            </div>
+                        </div>
                     </div>
-                    <div className="col-12">
-                        {   Object.keys(self.state.bettingProvider.games).length > 0 &&
-                        <table className="table table-inverse table-responsive">
-                            <thead>
-                            <tr>
-                                <th>#</th>
-                                <th className="fit">Game</th>
-                                <th className="fit">Bet Amount</th>
-                                <th className="fit">Payouts</th>
-                                <th className="fit">Odds Count</th>
-                                <th className="fit">Bet Count</th>
-                                <th className="fit">Cutoff Time</th>
-                                <th className="fit">End Time</th>
-                                <th className="fit">Status</th>
-                                <th className="fit">Periods</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            { games.map((game, index) =>
-                                <tr>
-                                    <th scope="row">{game.id}</th>
-                                    {   self.helpers().isTeamNamesAvailable(game.oracleGameId) &&
-                                    <td className="fit">
-                                        {self.state.sportsOracle.games[game.oracleGameId].team1} vs {self.state.sportsOracle.games[game.oracleGameId].team2}
-                                    </td>
-                                    }
-                                    {   !self.helpers().isTeamNamesAvailable(game.oracleGameId) &&
-                                    <td className="fit">
-                                        Loading team names..
-                                    </td>
-                                    }
-                                    <td className="fit">{game.betAmount}</td>
-                                    <td className="fit">{game.payouts}</td>
-                                    <td className="fit">{(game.odds && game.odds.count) ? game.odds.count : 0}</td>
-                                    <td className="fit">{game.betCount}</td>
-                                    <td className="fit">{new Date(game.cutOffTime * 1000).toLocaleString()}</td>
-                                    <td className="fit">{new Date(game.endTime * 1000).toLocaleString()}</td>
-                                    <td className="fit">{self.helpers().getGameStatus(game)}</td>
-                                    <td className="fit">{self.helpers().getGamePeriods(game)}</td>
-                                </tr>
+                    <div className="col-2">
+                    </div>
+                </div>
+            },
+            gameOdds: (gameId) => {
+                const odds = self.state.odds[gameId]
+                let gameOdds = {
+                    spread: [],
+                    moneyline: [],
+                    totals: [],
+                    teamTotals: [],
+                }
+
+                Object.keys(odds).forEach((oddsId) => {
+                    const _odds = odds[oddsId]
+                    if (_odds.betType == constants.ODDS_TYPE_SPREAD) {
+                        gameOdds.spread.push(_odds)
+                    } else if (_odds.betType == constants.ODDS_TYPE_MONEYLINE) {
+                        gameOdds.moneyline.push(_odds)
+                    } else if (_odds.betType == constants.ODDS_TYPE_TOTALS) {
+                        gameOdds.totals.push(_odds)
+                    } else if (_odds.betType == constants.ODDS_TYPE_TEAM_TOTALS) {
+                        gameOdds.teamTotals.push(_odds)
+                    }
+                })
+
+                return <div className="row game-odds">
+                    {   gameOdds.spread.length > 0 && self.views().spreadOdds(gameId, gameOdds) }
+                    {   gameOdds.moneyline.length > 0 && self.views().moneylineOdds(gameId, gameOdds) }
+                    {   gameOdds.totals.length > 0 && self.views().totalsOdds(gameId, gameOdds) }
+                    {   gameOdds.teamTotals.length > 0 && self.views().teamTotalsOdds(gameId, gameOdds) }
+                    {   Object.keys(odds).length == 0 && self.views().noAvailableOdds()}
+                </div>
+            },
+            spreadOdds: (gameId, gameOdds) => {
+                return <div className="col-12">
+                    <div className="row">
+                        <div className="col-3">
+                            <p className="text-center mt-1 type">SPREAD</p>
+                        </div>
+                        <div className="col-9">
+                            {   gameOdds.spread.map((_odds) =>
+                                <div className="row">
+                                    <div className="col-3">
+                                        <p className="key">Handicap</p>
+                                        <p>{self.helpers().formatOddsNumber(_odds.handicap)}</p>
+                                    </div>
+                                    <div className="col-3">
+                                        <p className="key">Home</p>
+                                        <p>{self.helpers().formatOddsNumber(_odds.team1)}</p>
+                                    </div>
+                                    <div className="col-3">
+                                        <p className="key">Away</p>
+                                        <p>{self.helpers().formatOddsNumber(_odds.team2)}</p>
+                                    </div>
+                                    <div className="col-3">
+                                        <p className="key">Period</p>
+                                        <p>{self.helpers().getPeriodDescription(gameId, _odds.period)}</p>
+                                    </div>
+                                    <div className="col-12 mt-1 mb-4">
+                                        {self.views().betNow(constants.ODDS_TYPE_SPREAD, gameId)}
+                                    </div>
+                                </div>
                             )}
-                            </tbody>
-                        </table>
-                        }
-                        { Object.keys(self.state.bettingProvider.games).length == 0 &&
-                        <h1 className="text-center">No available games</h1>
-                        }
+                        </div>
                     </div>
+                </div>
+            },
+            moneylineOdds: (gameId, gameOdds) => {
+                return <div className="col-12 mt-3">
+                    <div className="row">
+                        <div className="col-3">
+                            <p className="text-center mt-1 type">MONEYLINE</p>
+                        </div>
+                        <div className="col-9">
+                            {   gameOdds.moneyline.map((_odds) =>
+                                <div className="row">
+                                    <div className="col-3">
+                                        <p className="key">Home</p>
+                                        <p>{self.helpers().formatOddsNumber(_odds.team1)}</p>
+                                    </div>
+                                    <div className="col-3">
+                                        <p className="key">Away</p>
+                                        <p>{self.helpers().formatOddsNumber(_odds.team2)}</p>
+                                    </div>
+                                    <div className="col-3">
+                                        <p className="key">Draw</p>
+                                        <p>{self.helpers().formatOddsNumber(_odds.draw)}</p>
+                                    </div>
+                                    <div className="col-3">
+                                        <p className="key">Period</p>
+                                        <p>{self.helpers().getPeriodDescription(gameId, _odds.period)}</p>
+                                    </div>
+                                    <div className="col-12 mt-1 mb-4">
+                                        {self.views().betNow(constants.ODDS_TYPE_MONEYLINE, gameId)}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            },
+            totalsOdds: (gameId, gameOdds) => {
+                return <div className="col-12 mt-3">
+                    <div className="row">
+                        <div className="col-3">
+                            <p className="text-center mt-1 type">TOTALS</p>
+                        </div>
+                        <div className="col-9">
+                            {   gameOdds.totals.map((_odds) =>
+                                <div className="row">
+                                    <div className="col-3">
+                                        <p className="key">Points</p>
+                                        <p>{self.helpers().formatOddsNumber(_odds.points)}</p>
+                                    </div>
+                                    <div className="col-3">
+                                        <p className="key">Over</p>
+                                        <p>{self.helpers().formatOddsNumber(_odds.over)}</p>
+                                    </div>
+                                    <div className="col-3">
+                                        <p className="key">Under</p>
+                                        <p>{self.helpers().formatOddsNumber(_odds.under)}</p>
+                                    </div>
+                                    <div className="col-3">
+                                        <p className="key">Period</p>
+                                        <p>{self.helpers().getPeriodDescription(gameId, _odds.period)}</p>
+                                    </div>
+                                    <div className="col-12 mt-1 mb-4">
+                                        {self.views().betNow(constants.ODDS_TYPE_TOTALS, gameId)}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            },
+            teamTotalsOdds: (gameId, gameOdds) => {
+                return <div className="col-12 mt-3">
+                    <div className="row">
+                        <div className="col-3">
+                            <p className="text-center mt-1 type">TEAM TOTALS</p>
+                        </div>
+                        <div className="col-9">
+                            {   gameOdds.teamTotals.map((_odds) =>
+                                <div className="row mt-1">
+                                    <div className="col-2">
+                                        <p className="key">Team</p>
+                                        <p>{_odds.isTeam1 ? 'Home' : 'Away'}</p>
+                                    </div>
+                                    <div className="col-2">
+                                        <p className="key">Points</p>
+                                        <p>{self.helpers().formatOddsNumber(_odds.points)}</p>
+                                    </div>
+                                    <div className="col-2">
+                                        <p className="key">Over</p>
+                                        <p>{self.helpers().formatOddsNumber(_odds.over)}</p>
+                                    </div>
+                                    <div className="col-2">
+                                        <p className="key">Under</p>
+                                        <p>{self.helpers().formatOddsNumber(_odds.under)}</p>
+                                    </div>
+                                    <div className="col-3">
+                                        <p className="key">Period</p>
+                                        <p>{self.helpers().getPeriodDescription(gameId, _odds.period)}</p>
+                                    </div>
+                                    <div className="col-12 mt-1 mb-4">
+                                        {self.views().betNow(constants.ODDS_TYPE_TEAM_TOTALS, gameId)}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            },
+            betNow: (type, gameId) => {
+                return <button className="btn btn-sm btn-primary mx-auto"
+                               disabled={self.state.bettingProvider.games[gameId].cutOffTime <= helper.getTimestamp()}>
+                    BET NOW
+                </button>
+            },
+            noAvailableOdds: () => {
+                return <div className="col-12 mt-3">
+                    <p className="text-center mt-1 no-odds">NO ODDS AVAILABLE AT THE MOMENT</p>
+                </div>
+            },
+            betLimits: (gameId) => {
+                let betLimits = self.state.bettingProvider.games[gameId].betLimits
+
+                return <div className="col-12 bet-limits">
+                    {   Object.keys(betLimits).map((period) =>
+                        <div className="row">
+                            <div className="col-12 mb-3">
+                                <p className="text-center">
+                                    {self.helpers().getPeriodDescription(gameId, period)}
+                                </p>
+                            </div>
+                            <div className="col-3">
+                                <p className="text-center key">
+                                    SPREAD
+                                </p>
+                                <p className="text-center">
+                                    {betLimits[period].spread}
+                                </p>
+                            </div>
+                            <div className="col-3">
+                                <p className="text-center key">
+                                    MONEYLINE
+                                </p>
+                                <p className="text-center">
+                                    {betLimits[period].moneyline}
+                                </p>
+                            </div>
+                            <div className="col-3">
+                                <p className="text-center key">
+                                    TOTALS
+                                </p>
+                                <p className="text-center">
+                                    {betLimits[period].totals}
+                                </p>
+                            </div>
+                            <div className="col-3">
+                                <p className="text-center key">
+                                    TEAM TOTALS
+                                </p>
+                                <p className="text-center">
+                                    {betLimits[period].teamTotals}
+                                </p>
+                            </div>
+                        </div>
+                    )}
                 </div>
             },
             tinyLoader: () => {
@@ -475,8 +809,39 @@ class Sportsbook extends Component {
             },
             isTeamNamesAvailable: (oracleGameId) => {
                 return self.state.sportsOracle.games.hasOwnProperty(oracleGameId) &&
-                       self.state.sportsOracle.games[oracleGameId].hasOwnProperty('team1') &&
-                       self.state.sportsOracle.games[oracleGameId].hasOwnProperty('team2')
+                    self.state.sportsOracle.games[oracleGameId].hasOwnProperty('team1') &&
+                    self.state.sportsOracle.games[oracleGameId].hasOwnProperty('team2')
+            },
+            getLeagueName: (oracleGameId) => {
+                return self.state.sportsOracle.games[oracleGameId].league
+            },
+            loadOddsForGame: (gameId, oddsCount) => {
+                let i = 0
+                while (i < oddsCount) {
+                    self.web3Getters().bettingProvider().gameOdds(gameId, i)
+                    i++
+                }
+            },
+            getPeriodDescription: (gameId, period) => {
+                let oracleGameId = self.state.bettingProvider.games[gameId].oracleGameId
+                let periodDescription = 'Loading..'
+                console.log('getPeriodDescription', self.state.sportsOracle.games)
+                Object.keys(self.state.sportsOracle.games).forEach((_oracleGameId) => {
+                    if (oracleGameId == _oracleGameId) {
+                        let game = self.state.sportsOracle.games[_oracleGameId]
+                        game.periodDescriptions.forEach((_period) => {
+                            if (_period.number == period)
+                                periodDescription = _period.description
+                        })
+                    }
+                })
+                return periodDescription
+            },
+            getOracleGame: (id) => {
+                return self.state.sportsOracle.games[id]
+            },
+            formatOddsNumber: (val) => {
+                return (val > 0) ? ('+' + val) : val
             }
         }
     }
@@ -484,7 +849,7 @@ class Sportsbook extends Component {
     render() {
         const self = this
         return <div className="sportsbook">
-            <div className="container">
+            <div className="main pb-4">
                 {self.views().games()}
             </div>
         </div>
