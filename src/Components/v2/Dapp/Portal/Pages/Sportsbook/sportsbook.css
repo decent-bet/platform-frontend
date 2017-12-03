@@ -48,10 +48,10 @@
 .dapp .portal .sportsbook .game-odds .btn {
     display: block;
     padding: 8px 25px !important;
-    margin: 1vh 0;
+    margin-top: 4vh;
 }
 
 .dapp .portal .sportsbook .bet-limits .loading p,
-.dapp .portal .sportsbook .bet-limits .key {
+.dapp .portal .sportsbook .key {
     color: #f2b45c !important;
 }

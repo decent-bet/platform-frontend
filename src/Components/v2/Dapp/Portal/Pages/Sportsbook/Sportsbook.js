@@ -1,19 +1,20 @@
 import React, {Component} from 'react'
 
-import {Card, CircularProgress} from 'material-ui'
+import {Card, CircularProgress, DropDownMenu, MenuItem, TextField} from 'material-ui'
+import ConfirmationDialog from '../../../../Base/ConfirmationDialog'
 
 import ArrayCache from '../../../../Base/ArrayCache'
+import BettingReturnsCalculator from '../../Modules/BettingReturnsCalculator'
 import Helper from '../../../../Helper'
-import SportsAPI from '../../../../Base/SportsAPI'
 
 import './sportsbook.css'
 
 const arrayCache = new ArrayCache()
 const async = require('async')
+const bettingReturnsCalculator = new BettingReturnsCalculator()
 const constants = require('../../../../Constants')
 const ethUnits = require('ethereum-units')
 const helper = new Helper()
-const sportsApi = new SportsAPI()
 const swarm = require('swarm-js').at("http://swarm-gateways.net")
 
 const IPFS = require('ipfs-mini')
@@ -52,7 +53,19 @@ class Sportsbook extends Component {
             },
             leagues: {},
             periodDescriptions: {},
-            odds: {}
+            odds: {},
+            betAmounts: {},
+            dialogs: {
+                confirmBet: {
+                    open: false,
+                    title: '',
+                    message: '',
+                    selectedBet: {
+                        gameId: 0,
+                        oddsId: 0
+                    }
+                }
+            }
         }
     }
 
@@ -219,6 +232,10 @@ class Sportsbook extends Component {
                                 isTeam1: _odds[9]
                             }
                             odds[gameId][oddsId] = gameOdds
+
+                            // Default values for odds object
+                            odds[gameId][oddsId].betAmount = 0
+                            odds[gameId][oddsId].selectedChoice = constants.BET_CHOICE_TEAM1
 
                             if (!self.state.bettingProvider.games[gameId].betLimits.hasOwnProperty(gameOdds.period))
                                 self.web3Getters().bettingProvider().betLimits(gameId, gameOdds.period)
@@ -558,6 +575,8 @@ class Sportsbook extends Component {
 
                 Object.keys(odds).forEach((oddsId) => {
                     const _odds = odds[oddsId]
+                    _odds.id = oddsId
+
                     if (_odds.betType == constants.ODDS_TYPE_SPREAD) {
                         gameOdds.spread.push(_odds)
                     } else if (_odds.betType == constants.ODDS_TYPE_MONEYLINE) {
@@ -603,7 +622,7 @@ class Sportsbook extends Component {
                                         <p>{self.helpers().getPeriodDescription(gameId, _odds.period)}</p>
                                     </div>
                                     <div className="col-12 mt-1 mb-4">
-                                        {self.views().betNow(constants.ODDS_TYPE_SPREAD, gameId)}
+                                        {self.views().betNow(constants.ODDS_TYPE_SPREAD, gameId, _odds.id)}
                                     </div>
                                 </div>
                             )}
@@ -637,7 +656,7 @@ class Sportsbook extends Component {
                                         <p>{self.helpers().getPeriodDescription(gameId, _odds.period)}</p>
                                     </div>
                                     <div className="col-12 mt-1 mb-4">
-                                        {self.views().betNow(constants.ODDS_TYPE_MONEYLINE, gameId)}
+                                        {self.views().betNow(constants.ODDS_TYPE_MONEYLINE, gameId, _odds.id)}
                                     </div>
                                 </div>
                             )}
@@ -671,7 +690,7 @@ class Sportsbook extends Component {
                                         <p>{self.helpers().getPeriodDescription(gameId, _odds.period)}</p>
                                     </div>
                                     <div className="col-12 mt-1 mb-4">
-                                        {self.views().betNow(constants.ODDS_TYPE_TOTALS, gameId)}
+                                        {self.views().betNow(constants.ODDS_TYPE_TOTALS, gameId, _odds.id)}
                                     </div>
                                 </div>
                             )}
@@ -709,7 +728,7 @@ class Sportsbook extends Component {
                                         <p>{self.helpers().getPeriodDescription(gameId, _odds.period)}</p>
                                     </div>
                                     <div className="col-12 mt-1 mb-4">
-                                        {self.views().betNow(constants.ODDS_TYPE_TEAM_TOTALS, gameId)}
+                                        {self.views().betNow(constants.ODDS_TYPE_TEAM_TOTALS, gameId, _odds.id)}
                                     </div>
                                 </div>
                             )}
@@ -717,11 +736,76 @@ class Sportsbook extends Component {
                     </div>
                 </div>
             },
-            betNow: (type, gameId) => {
-                return <button className="btn btn-sm btn-primary mx-auto"
-                               disabled={self.state.bettingProvider.games[gameId].cutOffTime <= helper.getTimestamp()}>
-                    BET NOW
-                </button>
+            betNow: (type, gameId, oddsId) => {
+                return <div className="row mt-2">
+                    <div className="col-4">
+                        <TextField
+                            floatingLabelText="Bet Amount"
+                            fullWidth={true}
+                            hintStyle={{color: '#949494'}}
+                            inputStyle={styles.textField.inputStyle}
+                            floatingLabelStyle={styles.textField.floatingLabelStyle}
+                            floatingLabelFocusStyle={styles.textField.floatingLabelFocusStyle}
+                            underlineStyle={styles.textField.underlineStyle}
+                            underlineFocusStyle={styles.textField.underlineStyle}
+                            underlineDisabledStyle={styles.textField.underlineDisabledStyle}
+                            type="number"
+                            value={self.helpers().doesOddsExist(gameId, oddsId) ?
+                                self.state.odds[gameId][oddsId].betAmount : 0}
+                            onChange={(event, value) => {
+                                let odds = self.state.odds
+                                odds[gameId][oddsId].betAmount = value
+                                self.setState({
+                                    odds: odds
+                                })
+                            }}
+                        />
+                    </div>
+                    <div className="col-4">
+                        <DropDownMenu
+                            className="mx-auto mt-3"
+                            autoWidth={false}
+                            style={{width: '100%'}}
+                            value={self.helpers().doesOddsExist(gameId, oddsId) ?
+                                self.state.odds[gameId][oddsId].selectedChoice : constants.BET_CHOICE_TEAM1}
+                            onChange={(event, index, value) => {
+                                let odds = self.state.odds
+                                odds[gameId][oddsId].selectedChoice = value
+                                self.setState({
+                                    odds: odds
+                                })
+                            }}>
+                            <MenuItem
+                                value={constants.BET_CHOICE_TEAM1}
+                                primaryText={self.helpers().getTeamName(true, gameId)}
+                            />
+                            <MenuItem
+                                value={constants.BET_CHOICE_TEAM2}
+                                primaryText={self.helpers().getTeamName(false, gameId)}
+                            />
+                            {   type == constants.ODDS_TYPE_MONEYLINE &&
+                                <MenuItem
+                                    value={constants.BET_CHOICE_DRAW}
+                                    primaryText="Draw"
+                                />
+                            }
+                        </DropDownMenu>
+                    </div>
+                    <div className="col-4 pt-1">
+                        <p className="text-center key">MAX WIN</p>
+                        <p className="text-center">{self.helpers().getMaxWin(gameId, oddsId)} DBETs</p>
+                    </div>
+                    <div className="col-12">
+                        <button className="btn btn-sm btn-primary mx-auto"
+                                disabled={self.state.bettingProvider.games[gameId].cutOffTime <= helper.getTimestamp() ||
+                                          self.helpers().isEmpty(self.state.odds[gameId][oddsId].betAmount)}
+                                onClick={() => {
+
+                                }}>
+                            BET NOW
+                        </button>
+                    </div>
+                </div>
             },
             noAvailableOdds: () => {
                 return <div className="col-12 mt-3">
@@ -735,6 +819,9 @@ class Sportsbook extends Component {
                     {   Object.keys(betLimits).map((period) =>
                         <div className="row">
                             <div className="col-12 mb-3">
+                                <p className="text-center key">
+                                    PERIOD
+                                </p>
                                 <p className="text-center">
                                     {self.helpers().getPeriodDescription(gameId, period)}
                                 </p>
@@ -744,7 +831,7 @@ class Sportsbook extends Component {
                                     SPREAD
                                 </p>
                                 <p className="text-center">
-                                    {betLimits[period].spread}
+                                    {betLimits[period].spread} DBETs
                                 </p>
                             </div>
                             <div className="col-3">
@@ -752,7 +839,7 @@ class Sportsbook extends Component {
                                     MONEYLINE
                                 </p>
                                 <p className="text-center">
-                                    {betLimits[period].moneyline}
+                                    {betLimits[period].moneyline} DBETs
                                 </p>
                             </div>
                             <div className="col-3">
@@ -760,7 +847,7 @@ class Sportsbook extends Component {
                                     TOTALS
                                 </p>
                                 <p className="text-center">
-                                    {betLimits[period].totals}
+                                    {betLimits[period].totals} DBETs
                                 </p>
                             </div>
                             <div className="col-3">
@@ -768,7 +855,7 @@ class Sportsbook extends Component {
                                     TEAM TOTALS
                                 </p>
                                 <p className="text-center">
-                                    {betLimits[period].teamTotals}
+                                    {betLimits[period].teamTotals} DBETs
                                 </p>
                             </div>
                         </div>
@@ -779,6 +866,25 @@ class Sportsbook extends Component {
                 return <CircularProgress
                     size={12}
                     color={ constants.COLOR_ACCENT }
+                />
+            }
+        }
+    }
+
+    dialogs = () => {
+        const self = this
+        return {
+            confirmBet: () => {
+                return <ConfirmationDialog
+                    open={self.state.dialogs.confirmBet.open}
+                    title={self.state.dialogs.confirmBet.title}
+                    message={self.state.dialogs.confirmBet.message}
+                    onClick={() => {
+
+                    }}
+                    onClose={() => {
+
+                    }}
                 />
             }
         }
@@ -815,12 +921,14 @@ class Sportsbook extends Component {
             getLeagueName: (oracleGameId) => {
                 return self.state.sportsOracle.games[oracleGameId].league
             },
+            getTeamName: (isHome, gameId) => {
+                let oracleGameId = self.state.bettingProvider.games[gameId].oracleGameId
+                return self.state.sportsOracle.games[oracleGameId][isHome ? 'team1' : 'team2']
+            },
             loadOddsForGame: (gameId, oddsCount) => {
                 let i = 0
-                while (i < oddsCount) {
-                    self.web3Getters().bettingProvider().gameOdds(gameId, i)
-                    i++
-                }
+                while (i < oddsCount)
+                    self.web3Getters().bettingProvider().gameOdds(gameId, i++)
             },
             getPeriodDescription: (gameId, period) => {
                 let oracleGameId = self.state.bettingProvider.games[gameId].oracleGameId
@@ -837,11 +945,21 @@ class Sportsbook extends Component {
                 })
                 return periodDescription
             },
+
             getOracleGame: (id) => {
                 return self.state.sportsOracle.games[id]
             },
+            getMaxWin: (gameId, oddsId) => {
+                return bettingReturnsCalculator.getBetReturns(self.state.odds[gameId][oddsId])
+            },
             formatOddsNumber: (val) => {
                 return (val > 0) ? ('+' + val) : val
+            },
+            doesOddsExist: (gameId, oddsId) => {
+                return (self.state.odds.hasOwnProperty(gameId) && self.state.odds[gameId].hasOwnProperty(oddsId))
+            },
+            isEmpty: (val) => {
+                return (val == 0 || val == '')
             }
         }
     }

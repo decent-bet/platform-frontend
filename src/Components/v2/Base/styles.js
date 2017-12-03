@@ -16,6 +16,26 @@ export const
             buttonLabel: {
                 color: constants.COLOR_WHITE,
                 fontFamily: 'TradeGothic'
+            },
+            textField: {
+                hintStyle: {
+                    color: constants.COLOR_WHITE_DARK
+                },
+                inputStyle: {
+                    color: constants.COLOR_WHITE
+                },
+                floatingLabelStyle: {
+                    color: constants.COLOR_GOLD,
+                },
+                floatingLabelFocusStyle: {
+                    color: constants.COLOR_GOLD,
+                },
+                underlineStyle: {
+                    borderColor: constants.COLOR_GOLD
+                },
+                underlineDisabledStyle: {
+                    borderColor: constants.COLOR_WHITE_DARK
+                }
             }
         }
     }

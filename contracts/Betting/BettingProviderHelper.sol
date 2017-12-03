@@ -21,7 +21,7 @@ contract BettingProviderHelper is SafeMath {
     uint constant BET_CHOICE_TEAM2 = 3;
 
     function getSpreadOutcome(uint amount, int handicap, uint team1Points,
-    uint team2Points, uint choice) returns (uint) {
+    uint team2Points, uint choice) constant returns (uint) {
         // Handicap - Multiplied by 100
         // Hcp  ->  0.5 (50)
         // Team 1 -> -180
@@ -103,7 +103,7 @@ contract BettingProviderHelper is SafeMath {
 
     function getSpreadReturns(uint amount, int handicap,
     uint team1Points, uint team2Points, uint choice, int odds)
-    returns (uint) {
+    constant returns (uint) {
         uint spreadOutcome =
         getSpreadOutcome(amount, handicap, team1Points, team2Points,
         choice);
@@ -124,7 +124,7 @@ contract BettingProviderHelper is SafeMath {
         }
     }
 
-    function getWinnings(uint amount, int odds) returns (uint) {
+    function getWinnings(uint amount, int odds) constant returns (uint) {
         uint absOdds = (uint) (odds);
         if (odds < 0) {
             // Amount / (odds/100)
