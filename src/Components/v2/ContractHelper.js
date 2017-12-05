@@ -16,7 +16,7 @@ import Web3 from 'web3'
 const async = require('async')
 const ethUnits = require('ethereum-units')
 
-const provider = new Web3.providers.HttpProvider('http://localhost:8545')
+const provider = window.web3.currentProvider
 const contract = require('truffle-contract')
 const decentBetToken = contract(DecentBetToken)
 const house = contract(House)
@@ -33,18 +33,18 @@ slotsChannelManager.setProvider(provider)
 sportsOracle.setProvider(provider)
 
 // Get Web3 so we can get our accounts.
-const web3 = new Web3(provider)
+const web3 = window.web3
 
 // Declaring these for later so we can chain functions on Contract objects.
 let decentBetTokenInstance, houseInstance, bettingProviderInstance, slotsChannelFinalizerInstance,
     slotsChannelManagerInstance, sportsOracleInstance
 
 const TYPE_DBET_TOKEN = 0,
-      TYPE_HOUSE = 1,
-      TYPE_BETTING_PROVIDER = 2,
-      TYPE_SLOTS_CHANNEL_FINALIZER = 3,
-      TYPE_SLOTS_CHANNEL_MANAGER = 4,
-      TYPE_SPORTS_ORACLE = 5
+    TYPE_HOUSE = 1,
+    TYPE_BETTING_PROVIDER = 2,
+    TYPE_SLOTS_CHANNEL_FINALIZER = 3,
+    TYPE_SLOTS_CHANNEL_MANAGER = 4,
+    TYPE_SPORTS_ORACLE = 5
 
 class ContractHelper {
 
@@ -367,9 +367,6 @@ class ContractHelper {
                     getGameOutcome: (id, period) => {
                         return bettingProviderInstance.getGameOutcome(id, period)
                     },
-                    getUserBets: (address) => {
-                        return bettingProviderInstance.userBets(address)
-                    },
                     getDepositedTokens: (address, sessionNumber) => {
                         return bettingProviderInstance.depositedTokens(address, sessionNumber)
                     },
@@ -385,12 +382,22 @@ class ContractHelper {
                     getCurrentSession: () => {
                         return bettingProviderInstance.currentSession()
                     },
+                    getUserBets: (address, index) => {
+                        return bettingProviderInstance.getUserBets(address, index)
+                    },
                     balanceOf: (address, session) => {
+                        console.log('Retrieving sportsbook balance for', address, session)
                         return bettingProviderInstance.balanceOf(address, session)
                     },
                     /**
                      * Setters
                      */
+                    deposit: (amount) => {
+                        console.log('Depositing', amount, 'to sportsbook as', window.web3.eth.defaultAccount)
+                        return bettingProviderInstance.deposit.sendTransaction(amount, {
+                            from: window.web3.eth.defaultAccount
+                        })
+                    },
                     setSportsOracle: (address) => {
                         return bettingProviderInstance.setSportsOracle.sendTransaction(address, {
                             from: window.web3.eth.defaultAccount
@@ -434,6 +441,7 @@ class ContractHelper {
                             })
                     },
                     placeBet: (gameId, oddsId, betType, choice, amount) => {
+                        console.log('Placing bet', gameId, oddsId, betType, choice, amount)
                         return bettingProviderInstance.placeBet.sendTransaction(gameId, oddsId, betType,
                             choice, amount, {
                                 from: window.web3.eth.defaultAccount
@@ -448,43 +456,45 @@ class ContractHelper {
                      * Events
                      */
                     logNewGame: (fromBlock, toBlock) => {
-                        return sportsOracleInstance.LogNewGame({}, {
+                        return bettingProviderInstance.LogNewGame({}, {
                             fromBlock: fromBlock ? fromBlock : 'latest',
                             toBlock: toBlock ? toBlock : 'latest'
                         })
                     },
                     logNewGameOdds: (fromBlock, toBlock) => {
-                        return sportsOracleInstance.LogNewGameOdds({}, {
+                        return bettingProviderInstance.LogNewGameOdds({}, {
                             fromBlock: fromBlock ? fromBlock : 'latest',
                             toBlock: toBlock ? toBlock : 'latest'
                         })
                     },
                     logUpdatedGameOdds: (fromBlock, toBlock) => {
-                        return sportsOracleInstance.LogUpdatedGameOdds({}, {
+                        return bettingProviderInstance.LogUpdatedGameOdds({}, {
                             fromBlock: fromBlock ? fromBlock : 'latest',
                             toBlock: toBlock ? toBlock : 'latest'
                         })
                     },
                     logNewBet: (fromBlock, toBlock) => {
-                        return sportsOracleInstance.LogNewBet({}, {
+                        return bettingProviderInstance.LogNewBet({}, {
+                            _address: window.web3.eth.defaultAccount,
                             fromBlock: fromBlock ? fromBlock : 'latest',
                             toBlock: toBlock ? toBlock : 'latest'
                         })
                     },
                     logClaimedBet: (fromBlock, toBlock) => {
-                        return sportsOracleInstance.LogClaimedBet({}, {
+                        return bettingProviderInstance.LogClaimedBet({}, {
                             fromBlock: fromBlock ? fromBlock : 'latest',
                             toBlock: toBlock ? toBlock : 'latest'
                         })
                     },
-                    deposit: (fromBlock, toBlock) => {
-                        return sportsOracleInstance.Deposit({}, {
+                    logDeposit: (fromBlock, toBlock) => {
+                        return bettingProviderInstance.Deposit({}, {
+                            _address: window.web3.eth.defaultAccount,
                             fromBlock: fromBlock ? fromBlock : 'latest',
                             toBlock: toBlock ? toBlock : 'latest'
                         })
                     },
-                    withdraw: (fromBlock, toBlock) => {
-                        return sportsOracleInstance.Withdraw({}, {
+                    logWithdraw: (fromBlock, toBlock) => {
+                        return bettingProviderInstance.Withdraw({}, {
                             fromBlock: fromBlock ? fromBlock : 'latest',
                             toBlock: toBlock ? toBlock : 'latest'
                         })

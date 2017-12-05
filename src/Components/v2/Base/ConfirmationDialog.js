@@ -6,10 +6,10 @@ import React, {Component} from 'react'
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 
-import Dialog from 'material-ui/Dialog'
-import FlatButton from 'material-ui/FlatButton'
-
+import {Dialog, FlatButton} from 'material-ui'
 import Themes from './Themes'
+
+const constants = require('../Constants')
 const themes = new Themes()
 
 class ConfirmationDialog extends Component {
@@ -34,9 +34,12 @@ class ConfirmationDialog extends Component {
         const self = this
         return (
             <div>
-                <MuiThemeProvider muiTheme={themes.getAppBar()}>
+                <MuiThemeProvider muiTheme={themes.getDialog()}>
                     <Dialog
                         title={self.props.title}
+                        titleStyle={{
+                            color: constants.COLOR_GOLD
+                        }}
                         actions={<FlatButton
                             label="Ok"
                             primary={true}

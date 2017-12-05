@@ -49,6 +49,7 @@ class PurchaseCreditsDialog extends Component {
                 actions={<FlatButton
                     label="Purchase"
                     labelStyle={styles.floatingLabelStyle}
+                    disabled={self.state.amount.length == 0 || parseInt(self.state.amount) == 0}
                     primary={true}
                     onClick={ () => {
                         let amount = parseInt(self.state.amount)

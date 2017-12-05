@@ -138,6 +138,12 @@ contract BettingProvider is SafeMath, HouseOffering {
         bool exists;
     }
 
+    struct UserBet {
+        uint gameId;
+        uint betId;
+        bool exists;
+    }
+
     struct SessionStats {
         uint totalBetAmount;
         uint totalPayout;
@@ -155,7 +161,7 @@ contract BettingProvider is SafeMath, HouseOffering {
 
     // Bets placed by users.
     // userAddress => (gameId => Bet).
-    mapping (address => uint[]) public userBets;
+    mapping (address => UserBet[]) userBets;
 
     // Users need to deposit/withdraw tokens for a session with the provider before placing bets.
     // These can be withdrawn at any time.
@@ -335,6 +341,7 @@ contract BettingProvider is SafeMath, HouseOffering {
     function setSession(uint session)
     onlyHouse returns (bool) {
         currentSession = session;
+        sessionStats[currentSession].exists = true;
         return true;
     }
 
@@ -382,7 +389,6 @@ contract BettingProvider is SafeMath, HouseOffering {
     // User needs to approve contract address for amount prior to calling this function.
     function deposit(uint amount)
     isDbetsAvailable(amount) returns (bool) {
-        uint currentSession = currentSession;
         depositedTokens[msg.sender][currentSession] =
         safeAdd(depositedTokens[msg.sender][currentSession], amount);
         if(!decentBetToken.transferFrom(msg.sender, address(this), amount)) return false;
@@ -537,19 +543,15 @@ contract BettingProvider is SafeMath, HouseOffering {
         // Add the bet to user bets mapping for front-end reference.
         addNewBet(gameId, betId, oddsId, betType, choice, amount, currentSession);
 
-        // Iterate bet count for user.
-        games[gameId].bettors[msg.sender].betCount =
-        safeAdd(games[gameId].bettors[msg.sender].betCount, 1);
-
-        userBets[msg.sender].push(gameId);
-
         // Provider holds tokens for duration of the bet.
-        depositedTokens[address(this)][currentSession] =
-        safeAdd(depositedTokens[address(this)][currentSession], amount);
         depositedTokens[msg.sender][currentSession] =
         safeSub(depositedTokens[msg.sender][currentSession], amount);
+        depositedTokens[address(this)][currentSession] =
+        safeAdd(depositedTokens[address(this)][currentSession], amount);
 
         LogNewBet(gameId, oddsId, msg.sender, betId);
+
+        return true;
     }
 
     function isValidNewBet(uint gameId, uint oddsId, uint betType, uint amount) returns (bool) {
@@ -574,6 +576,16 @@ contract BettingProvider is SafeMath, HouseOffering {
             exists : true,
             claimed : false
         });
+
+        // Iterate bet count for user.
+        games[gameId].bettors[msg.sender].betCount =
+        safeAdd(games[gameId].bettors[msg.sender].betCount, 1);
+
+        userBets[msg.sender].push(UserBet({
+            gameId: gameId,
+            betId: betId,
+            exists: true
+        }));
     }
 
     // Claim winnings for a bet.
@@ -717,6 +729,10 @@ contract BettingProvider is SafeMath, HouseOffering {
 
     function getGamePeriodBetLimits(uint id, uint period) constant returns (uint[4], bool) {
         return (games[id].betLimits[period].limits, games[id].betLimits[period].exists);
+    }
+
+    function getUserBets(address user, uint index) constant returns (uint, uint, bool) {
+        return (userBets[user][index].gameId, userBets[user][index].betId, userBets[user][index].exists);
     }
 
     function getGameBettor(uint id, uint index) constant returns (address, uint) {

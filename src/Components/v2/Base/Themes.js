@@ -8,7 +8,7 @@ const constants = require('./../Constants')
 
 class Themes {
 
-    getAppBar() {
+    getAppBar = () => {
         return getMuiTheme({
             palette: {
                 textColor: '#ffffff',
@@ -24,16 +24,20 @@ class Themes {
         })
     }
 
-    getProgressBar() {
+    getDialog = () => {
         return getMuiTheme({
             palette: {
+                textColor: '#ffffff',
+                alternateTextColor: '#F0AD4E',
                 primary1Color: constants.COLOR_GOLD,
-                primary3Color: '#000000'
+                primary2Color: constants.COLOR_GOLD,
+                accent1Color: constants.COLOR_RED,
+                canvasColor: constants.COLOR_PRIMARY_DARK
             }
         })
     }
 
-    getButtons() {
+    getButtons = () => {
         return getMuiTheme({
             palette: {
                 textColor: constants.COLOR_GOLD,

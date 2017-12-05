@@ -43,7 +43,7 @@ h1, h2, h3, h4, h5, h6 {
     color: #ffffff;
 }
 
-p {
+p, th {
     font-family: 'TradeGothic', 'Lato', 'Hind', 'Oswald', 'Arial Narrow', sans-serif;
     color: #ffffff;
 }

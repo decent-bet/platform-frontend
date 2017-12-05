@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 
 import {Card, CircularProgress, DropDownMenu, MenuItem, TextField} from 'material-ui'
 import ConfirmationDialog from '../../../../Base/ConfirmationDialog'
+import DepositTokensDialog from './Dialogs/DepositTokensDialog'
 
 import ArrayCache from '../../../../Base/ArrayCache'
 import BettingReturnsCalculator from '../../Modules/BettingReturnsCalculator'
@@ -12,6 +13,7 @@ import './sportsbook.css'
 const arrayCache = new ArrayCache()
 const async = require('async')
 const bettingReturnsCalculator = new BettingReturnsCalculator()
+const BigNumber = require('bignumber.js')
 const constants = require('../../../../Constants')
 const ethUnits = require('ethereum-units')
 const helper = new Helper()
@@ -21,19 +23,28 @@ const IPFS = require('ipfs-mini')
 const ipfs = new IPFS({host: 'ipfs.infura.io', port: 5001, protocol: 'https'})
 const styles = require('../../../../Base/styles').styles()
 
+const DIALOG_CONFIRM_BET = 0, DIALOG_DEPOSIT_TOKENS = 1
+
 class Sportsbook extends Component {
 
     constructor(props) {
         super(props)
         this.state = {
             loading: true,
+            token: {
+                balance: 0
+            },
             bettingProvider: {
                 address: helper.getContractHelper().getBettingProviderInstance().address,
                 house: '0x0',
                 sportsOracle: '0x0',
                 currentSession: 0,
+                balance: 0,
+                depositedTokens: 0,
+                allowance: 0,
                 gamesCount: 0,
-                games: {}
+                games: {},
+                placedBets: {}
             },
             sportsOracle: {
                 owner: '',
@@ -58,12 +69,15 @@ class Sportsbook extends Component {
             dialogs: {
                 confirmBet: {
                     open: false,
-                    title: '',
+                    title: 'Place bet',
                     message: '',
                     selectedBet: {
                         gameId: 0,
                         oddsId: 0
                     }
+                },
+                depositTokens: {
+                    open: false
                 }
             }
         }
@@ -72,6 +86,7 @@ class Sportsbook extends Component {
     componentWillMount = () => {
         this.initBettingProviderData()
         this.initSportsOracleData()
+        this.initTokenData()
     }
 
     initBettingProviderData = () => {
@@ -79,10 +94,18 @@ class Sportsbook extends Component {
         this.web3Getters().bettingProvider().currentSession()
         this.web3Getters().bettingProvider().house()
         this.web3Getters().bettingProvider().sportsOracle()
+        this.web3Getters().bettingProvider().allowance()
+        this.web3Getters().bettingProvider().tokenBalance()
 
         /** Games */
         this.web3Getters().bettingProvider().gamesCount()
         this.web3Getters().bettingProvider().game(0, true)
+        this.web3Getters().bettingProvider().sessionStats(1)
+        this.web3Getters().bettingProvider().getUserBets(0)
+
+        /** Events */
+        this.watchers().bettingProvider().deposit()
+        this.watchers().bettingProvider().newBet()
     }
 
     initSportsOracleData = () => {
@@ -96,6 +119,10 @@ class Sportsbook extends Component {
         /** Providers */
         this.web3Getters().sportsOracle().addresses.requestedProviders(0)
         this.web3Getters().sportsOracle().addresses.acceptedProviders(0)
+    }
+
+    initTokenData = () => {
+        this.web3Getters().token().balance()
     }
 
     web3Getters = () => {
@@ -118,13 +145,62 @@ class Sportsbook extends Component {
                     currentSession: () => {
                         helper.getContractHelper().getWrappers().bettingProvider()
                             .getCurrentSession().then((session) => {
+                            let currentSession = session.toNumber()
                             let bettingProvider = self.state.bettingProvider
-                            bettingProvider.currentSession = session.toNumber()
+                            bettingProvider.currentSession = currentSession
                             self.setState({
                                 bettingProvider: bettingProvider
                             })
+                            self.web3Getters().bettingProvider().depositedTokens(currentSession)
                         }).catch((err) => {
                             console.log('Error retrieving current session', err.message)
+                        })
+                    },
+                    tokenBalance: () => {
+                        helper.getContractHelper().getWrappers().token()
+                            .balanceOf(helper.getContractHelper().getBettingProviderInstance().address)
+                            .then((balance) => {
+                                balance = helper.formatEther(balance.toString())
+                                let bettingProvider = self.state.bettingProvider
+                                bettingProvider.balance = balance
+                                console.log('Retrieved DBET balance for bettingProvider', balance)
+                                self.setState({
+                                    bettingProvider: bettingProvider
+                                })
+                            }).catch((err) => {
+                            console.log('Error retrieving token balance', err.message)
+                        })
+                    },
+                    depositedTokens: (session) => {
+                        helper.getContractHelper().getWrappers().bettingProvider()
+                            .balanceOf(helper.getWeb3().eth.defaultAccount, session)
+                            .then((balance) => {
+                                balance = helper.formatEther(balance.toString())
+                                console.log('Deposited tokens', balance)
+                                let bettingProvider = self.state.bettingProvider
+                                bettingProvider.depositedTokens = balance
+                                self.setState({
+                                    bettingProvider: bettingProvider
+                                })
+                            }).catch((err) => {
+                            console.log('Error retrieving balance', err.message)
+                        })
+                    },
+                    allowance: () => {
+                        const address = helper.getWeb3().eth.defaultAccount
+                        const bettingProvider = helper.getContractHelper().getBettingProviderInstance().address
+                        helper.getContractHelper().getWrappers().token()
+                            .allowance(address, bettingProvider)
+                            .then((allowance) => {
+                                allowance = allowance.toNumber()
+                                console.log('Retrieved allowance for', address, allowance)
+                                let bettingProvider = self.state.bettingProvider
+                                bettingProvider.allowance = allowance
+                                self.setState({
+                                    bettingProvider: bettingProvider
+                                })
+                            }).catch((err) => {
+                            console.log('Error retrieving allowance', err.message)
                         })
                     },
                     house: () => {
@@ -153,6 +229,7 @@ class Sportsbook extends Component {
                         })
                     },
                     game: (id, iterate) => {
+                        console.log('Retrieving game', id, iterate)
                         helper.getContractHelper().getWrappers().bettingProvider()
                             .getGame(id).then((data) => {
                             let exists = data[8]
@@ -160,7 +237,7 @@ class Sportsbook extends Component {
                                 let game = {
                                     oracleGameId: data[0].toNumber(),
                                     session: data[1].toNumber(),
-                                    betAmount: data[2].toFixed(0),
+                                    betAmount: data[2].div(ethUnits.units.ether).toString(),
                                     payouts: data[3].toFixed(0),
                                     betCount: data[4].toNumber(),
                                     cutOffTime: data[5].toNumber(),
@@ -179,13 +256,14 @@ class Sportsbook extends Component {
                                         bettingProvider: bettingProvider
                                     })
                                 }
-                                if (iterate && exists)
+                                if (iterate && exists) {
                                     self.web3Getters().bettingProvider().game((id + 1), true)
+                                }
                                 self.setState({
                                     bettingProvider: bettingProvider
                                 })
                             } else
-                                console.log('Reached end of provider games: ', id)
+                                console.log('Reached end of provider games', id, self.state.bettingProvider.games)
                         }).catch((err) => {
                             console.log('Error retrieving game ', id, err.message)
                         })
@@ -220,6 +298,7 @@ class Sportsbook extends Component {
                                 odds[gameId] = {}
 
                             let gameOdds = {
+                                id: oddsId,
                                 betType: _odds[0].toNumber(),
                                 period: _odds[1].toNumber(),
                                 handicap: _odds[2].toNumber(),
@@ -257,16 +336,68 @@ class Sportsbook extends Component {
                             let betLimits = limits[0]
                             let bettingProvider = self.state.bettingProvider
                             bettingProvider.games[gameId].betLimits[period] = {
-                                spread: betLimits[0].toNumber(),
-                                moneyline: betLimits[1].toNumber(),
-                                totals: betLimits[2].toNumber(),
-                                teamTotals: betLimits[3].toNumber(),
+                                spread: betLimits[0].div(ethUnits.units.ether).toNumber(),
+                                moneyline: betLimits[1].div(ethUnits.units.ether).toNumber(),
+                                totals: betLimits[2].div(ethUnits.units.ether).toNumber(),
+                                teamTotals: betLimits[3].div(ethUnits.units.ether).toNumber()
                             }
                             self.setState({
                                 bettingProvider: bettingProvider
                             })
                         }).catch((err) => {
                             console.log('Error retrieving bet limits', gameId, period, err.message)
+                        })
+                    },
+                    sessionStats: (session) => {
+                        helper.getContractHelper().getWrappers().bettingProvider()
+                            .getSessionStats(session)
+                            .then((stats) => {
+                                console.log('Retrieved session stats for session', session, stats)
+                            }).catch((err) => {
+                            console.log('Error retrieving session stats', err.message)
+                        })
+                    },
+                    getUserBets: (index) => {
+                        helper.getContractHelper().getWrappers().bettingProvider()
+                            .getUserBets(helper.getWeb3().eth.defaultAccount, index)
+                            .then((bets) => {
+                                let gameId = bets[0].toNumber()
+                                let betId = bets[1].toNumber()
+                                let exists = bets[2]
+
+                                if (exists) {
+                                    console.log('Retrieved user bets', index, gameId, betId, exists)
+                                    self.web3Getters().bettingProvider().getGameBettorBet(gameId, betId)
+                                    self.web3Getters().bettingProvider().getUserBets(index + 1)
+                                }
+                            }).catch((err) => {
+                            console.log('Error retrieving user bets', err.message)
+                        })
+                    },
+                    getGameBettorBet: (gameId, betId) => {
+                        helper.getContractHelper().getWrappers().bettingProvider()
+                            .getGameBettorBet(gameId, helper.getWeb3().eth.defaultAccount, betId)
+                            .then((_bet) => {
+                                let bet = {
+                                    oddsId: _bet[0].toNumber(),
+                                    choice: _bet[1].toNumber(),
+                                    amount: _bet[2].div(ethUnits.units.ether).toNumber(),
+                                    blockTime: _bet[3].toNumber(),
+                                    session: _bet[4].toNumber(),
+                                    claimed: _bet[5],
+                                    exists: _bet[6]
+                                }
+                                console.log('Retrieved game bet', gameId, betId, bet)
+
+                                let bettingProvider = self.state.bettingProvider
+                                if (!bettingProvider.placedBets.hasOwnProperty(gameId))
+                                    bettingProvider.placedBets[gameId] = {}
+                                bettingProvider.placedBets[gameId][betId] = bet
+                                self.setState({
+                                    bettingProvider: bettingProvider
+                                })
+                            }).catch((err) => {
+                            console.log('Error retrieving game bet', gameId, betId, err.message)
                         })
                     }
                 }
@@ -457,6 +588,86 @@ class Sportsbook extends Component {
                         }
                     }
                 }
+            },
+            token: () => {
+                return {
+                    balance: () => {
+                        helper.getContractHelper().getWrappers().token()
+                            .balanceOf(helper.getWeb3().eth.defaultAccount).then((balance) => {
+                            balance = helper.formatEther(balance.toString())
+                            let token = self.state.token
+                            token.balance = balance
+                            console.log('Retrieved DBET balance', balance)
+                            self.setState({
+                                token: token
+                            })
+                        }).catch((err) => {
+                            console.log('Error retrieving token balance', err.message)
+                        })
+                    }
+                }
+            }
+        }
+    }
+
+    watchers = () => {
+        const self = this
+        return {
+            bettingProvider: () => {
+                return {
+                    deposit: () => {
+                        helper.getContractHelper().getWrappers().bettingProvider()
+                            .logDeposit().watch((err, event) => {
+                            console.log('Deposit event', err, JSON.stringify(event))
+                        })
+                    },
+                    newBet: () => {
+                        console.log('Watching for new bets')
+                        helper.getContractHelper().getWrappers().bettingProvider()
+                            .logNewBet(0).watch((err, event) => {
+                            console.log('New bet event', err, JSON.stringify(event))
+                        })
+                    }
+                }
+            }
+        }
+    }
+
+    web3Setters = () => {
+        const self = this
+        return {
+            placeBet: (gameId, oddsId) => {
+                const oddsObj = self.state.odds[gameId][oddsId]
+
+                const betAmount = new BigNumber(oddsObj.betAmount).times(ethUnits.units.ether).toString()
+                const betType = oddsObj.betType
+                const selectedChoice = oddsObj.selectedChoice
+
+                console.log('Placing bet for', oddsObj, oddsObj.betAmount, betAmount, 'DBETs')
+
+                helper.getContractHelper().getWrappers().bettingProvider().placeBet(gameId, oddsId, betType,
+                    selectedChoice, betAmount).then((txId) => {
+                    console.log('Successfully placed bet', txId)
+                    self.helpers().toggleDialog(DIALOG_CONFIRM_BET, false)
+                }).catch((err) => {
+                    console.log('Error placing bet', err.message)
+                })
+            },
+            depositTokens: (amount) => {
+                helper.getContractHelper().getWrappers().bettingProvider().deposit(amount).then((txId) => {
+                    console.log('Successfully deposited', amount, 'DBETs', txId)
+                }).catch((err) => {
+                    console.log('Error depositing tokens', err.message)
+                })
+            },
+            approveAndDepositTokens: (amount) => {
+                let bettingProvider = helper.getContractHelper().getBettingProviderInstance().address
+                helper.getContractHelper().getWrappers().token().approve(bettingProvider, amount).then((txId) => {
+                    console.log('Successfully approved', amount, 'DBETs for ', bettingProvider, txId)
+                    self.web3Setters().depositTokens(amount)
+                }).catch((err) => {
+                    console.log('Error approving dbets', err.message)
+                })
             }
         }
     }
@@ -471,98 +682,132 @@ class Sportsbook extends Component {
                     game.id = gameId
                     games.push(game)
                 })
-                return <div className="row">
-                    <div className="col-10">
+                return <section>
+                    {   Object.keys(self.state.bettingProvider.games).length > 0 &&
+                    <section>
                         <div className="row">
                             <div className="col-12">
                                 <h4 className="text-uppercase">Available Games</h4>
                             </div>
-                            <div className="col-8">
-                                {   Object.keys(self.state.bettingProvider.games).length > 0 &&
-                                <section>
-                                    { games.map((game, index) =>
-                                        <Card
-                                            style={styles.card}
-                                            className="mt-4">
-                                            <div className="row">
-                                                <div className="col-12">
-                                                    <div className="row">
-                                                        <div className="col-11">
-                                                            {   self.helpers().isTeamNamesAvailable(game.oracleGameId) &&
-                                                            <p className="mb-1 teams">
-                                                                {self.state.sportsOracle.games[game.oracleGameId].team1
-                                                                + ' vs ' +
-                                                                self.state.sportsOracle.games[game.oracleGameId].team2}
-                                                            </p>
-                                                            }
-                                                            {   !self.helpers().isTeamNamesAvailable(game.oracleGameId) &&
-                                                            <p className="mb-1">
-                                                                Loading team names..
-                                                            </p>
-                                                            }
-                                                        </div>
-                                                        <div className="col-1">
-                                                            <small className="float-right">
-                                                                {
-                                                                    '#' + game.oracleGameId}
-                                                            </small>
-                                                        </div>
-                                                        <div className="col-12">
-                                                            <small>
-                                                                {
-                                                                    'Cut-off time:' +
-                                                                    new Date(game.cutOffTime * 1000).toLocaleString()
-                                                                }
-                                                            </small>
-                                                            <br/>
-                                                            <small>
-                                                                {
-                                                                    'Start time:' +
-                                                                    new Date(self.helpers().getOracleGame(game.oracleGameId)
-                                                                            .startTime * 1000).toLocaleString()
-                                                                }
-                                                            </small>
-                                                            <small className="float-right">
-                                                                {self.helpers().getLeagueName(game.oracleGameId)}
-                                                            </small>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {   self.state.odds.hasOwnProperty(game.id) &&
-                                                <div className="col-12">
-                                                    <hr/>
-                                                    <p className="mt-2">Available Odds</p>
-                                                    {self.views().gameOdds(game.id)}
-                                                </div>
+                        </div>
+                        { games.map((game, index) =>
+                            <Card
+                                style={styles.card}
+                                className="mt-4">
+                                <div className="row">
+                                    <div className="col-12">
+                                        <div className="row">
+                                            <div className="col-11">
+                                                {   self.helpers().isTeamNamesAvailable(game.oracleGameId) &&
+                                                <p className="mb-1 teams">
+                                                    {self.state.sportsOracle.games[game.oracleGameId].team1
+                                                    + ' vs ' +
+                                                    self.state.sportsOracle.games[game.oracleGameId].team2}
+                                                </p>
                                                 }
-                                                {   !self.state.odds.hasOwnProperty(game.id) &&
-                                                <div className="col-12 game-odds">
-                                                    <hr/>
-                                                    <p className="mt-2">Available Odds</p>
-                                                    {self.views().noAvailableOdds()}
-                                                </div>
+                                                {   !self.helpers().isTeamNamesAvailable(game.oracleGameId) &&
+                                                <p className="mb-1">
+                                                    Loading team names..
+                                                </p>
                                                 }
-                                                <div className="col-12">
-                                                    <hr/>
-                                                    <p className="mt-2">Bet Limits</p>
-                                                    {self.views().betLimits(game.id)}
-                                                </div>
                                             </div>
-                                        </Card>
-                                    )}
-                                </section>
-                                }
-                                { Object.keys(self.state.bettingProvider.games).length == 0 &&
-                                <h3 className="text-center mt-4">No available games</h3>
-                                }
-                            </div>
-                            <div className="col-4">
-                            </div>
+                                            <div className="col-1">
+                                                <small className="float-right">
+                                                    {
+                                                        '#' + game.oracleGameId}
+                                                </small>
+                                            </div>
+                                            <div className="col-12">
+                                                <small>
+                                                    {
+                                                        'Cut-off time:' +
+                                                        new Date(game.cutOffTime * 1000).toLocaleString()
+                                                    }
+                                                </small>
+                                                <br/>
+                                                <small>
+                                                    {self.helpers().getGameStartTime(game.oracleGameId)}
+                                                </small>
+                                                <small className="float-right">
+                                                    {self.helpers().getLeagueName(game.oracleGameId)}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {   self.state.odds.hasOwnProperty(game.id) &&
+                                    <div className="col-12">
+                                        <hr/>
+                                        <p className="mt-2">Available Odds</p>
+                                        {self.views().gameOdds(game.id)}
+                                    </div>
+                                    }
+                                    {   !self.state.odds.hasOwnProperty(game.id) &&
+                                    <div className="col-12 game-odds">
+                                        <hr/>
+                                        <p className="mt-2">Available Odds</p>
+                                        {self.views().noAvailableOdds()}
+                                    </div>
+                                    }
+                                    <div className="col-12">
+                                        <hr/>
+                                        <p className="mt-2">Bet Limits</p>
+                                        {self.views().betLimits(game.id)}
+                                    </div>
+                                    <div className="col-12">
+                                        <hr/>
+                                        <p className="mt-2">Bet Information</p>
+                                        <div className="row mt-4">
+                                            <div className="col-4">
+                                                <p className="text-center key">Bet Amount</p>
+                                                <p className="text-center">{game.betAmount} DBETs</p>
+                                            </div>
+                                            <div className="col-4">
+                                                <p className="text-center key">Bet Count</p>
+                                                <p className="text-center">{game.betCount}</p>
+                                            </div>
+                                            <div className="col-4">
+                                                <p className="text-center key">Your bets</p>
+                                                <p className="text-center">
+                                                    {self.state.bettingProvider.placedBets.hasOwnProperty(game.id) ?
+                                                        Object.keys(self.state.bettingProvider.placedBets[game.id]).length :
+                                                        0}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Card>
+                        )}
+                    </section>
+                    }
+                    { Object.keys(self.state.bettingProvider.games).length == 0 &&
+                    <h3 className="text-center mt-4">No available games</h3>
+                    }
+                </section>
+            },
+            stats: () => {
+                return <section>
+                    <div className="row stats">
+                        <div className="col-6">
+                            <p className="key">Current Session</p>
+                            <p>{self.state.bettingProvider.currentSession}</p>
+                        </div>
+                        <div className="col-6">
+                            <p className="key text-center">Deposited Tokens</p>
+                            <p>{self.state.bettingProvider.depositedTokens} DBETs</p>
+                            <button className="btn btn-primary btn-sm mx-auto"
+                                    onClick={() => {
+                                        self.helpers().toggleDialog(DIALOG_DEPOSIT_TOKENS, true)
+                                    }}>
+                                Deposit
+                            </button>
+                        </div>
+                        <div className="col-6">
+                            <p className="key">Sportsbook balance</p>
+                            <p>{self.state.bettingProvider.balance} DBETs</p>
                         </div>
                     </div>
-                    <div className="col-2">
-                    </div>
-                </div>
+                </section>
             },
             gameOdds: (gameId) => {
                 const odds = self.state.odds[gameId]
@@ -575,8 +820,6 @@ class Sportsbook extends Component {
 
                 Object.keys(odds).forEach((oddsId) => {
                     const _odds = odds[oddsId]
-                    _odds.id = oddsId
-
                     if (_odds.betType == constants.ODDS_TYPE_SPREAD) {
                         gameOdds.spread.push(_odds)
                     } else if (_odds.betType == constants.ODDS_TYPE_MONEYLINE) {
@@ -755,6 +998,7 @@ class Sportsbook extends Component {
                             onChange={(event, value) => {
                                 let odds = self.state.odds
                                 odds[gameId][oddsId].betAmount = value
+                                console.log('Changed betAmount', odds)
                                 self.setState({
                                     odds: odds
                                 })
@@ -784,10 +1028,10 @@ class Sportsbook extends Component {
                                 primaryText={self.helpers().getTeamName(false, gameId)}
                             />
                             {   type == constants.ODDS_TYPE_MONEYLINE &&
-                                <MenuItem
-                                    value={constants.BET_CHOICE_DRAW}
-                                    primaryText="Draw"
-                                />
+                            <MenuItem
+                                value={constants.BET_CHOICE_DRAW}
+                                primaryText="Draw"
+                            />
                             }
                         </DropDownMenu>
                     </div>
@@ -798,9 +1042,18 @@ class Sportsbook extends Component {
                     <div className="col-12">
                         <button className="btn btn-sm btn-primary mx-auto"
                                 disabled={self.state.bettingProvider.games[gameId].cutOffTime <= helper.getTimestamp() ||
-                                          self.helpers().isEmpty(self.state.odds[gameId][oddsId].betAmount)}
+                                self.helpers().isEmpty(self.state.odds[gameId][oddsId].betAmount)}
                                 onClick={() => {
-
+                                    let dialogs = self.state.dialogs
+                                    dialogs.confirmBet.message = self.helpers().getConfirmBetMessage(gameId, oddsId)
+                                    dialogs.confirmBet.selectedBet = {
+                                        gameId: gameId,
+                                        oddsId: oddsId
+                                    }
+                                    dialogs.confirmBet.open = true
+                                    self.setState({
+                                        dialogs: dialogs
+                                    })
                                 }}>
                             BET NOW
                         </button>
@@ -862,6 +1115,85 @@ class Sportsbook extends Component {
                     )}
                 </div>
             },
+            placedBets: () => {
+                return <section className="mt-4">
+                    <div className="row">
+                        <div className="col-12">
+                            <h4 className="text-uppercase">Bets placed</h4>
+                        </div>
+                        {   Object.keys(self.state.bettingProvider.placedBets).length == 0 &&
+                        <div className="col-12">
+                            <p className="text-center mt-4">No bets placed</p>
+                        </div>
+                        }
+                        {   Object.keys(self.state.bettingProvider.placedBets).length > 0 &&
+                        <div className="col-12">
+                            {   Object.keys(self.state.bettingProvider.placedBets).map((gameId) =>
+                                <div className="row">
+                                    {self.views().gameBets(gameId)}
+                                </div>
+                            )}
+                        </div>
+                        }
+                    </div>
+                </section>
+            },
+            gameBets: (gameId) => {
+                const game = self.state.bettingProvider.games[gameId]
+                return <div className="col-12">
+                    {   Object.keys(self.state.bettingProvider.placedBets).map((gameId) =>
+                        <Card
+                            style={styles.card}
+                            className="mt-4">
+                            <div className="row info">
+                                <div className="col-12">
+                                    {   self.helpers().isTeamNamesAvailable(game.oracleGameId) &&
+                                    <p className="mb-1 teams">
+                                        {self.state.sportsOracle.games[game.oracleGameId].team1
+                                        + ' vs ' +
+                                        self.state.sportsOracle.games[game.oracleGameId].team2}
+                                    </p>
+                                    }
+                                    {   !self.helpers().isTeamNamesAvailable(game.oracleGameId) &&
+                                    <p className="mb-1">
+                                        Loading team names..
+                                    </p>
+                                    }
+                                </div>
+                                <div className="col-12 mt-3">
+                                    <table className="table table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Choice</th>
+                                            <th>Bet Amount</th>
+                                            <th>Session</th>
+                                            <th>Claimed</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {   Object.keys(self.state.bettingProvider.placedBets[gameId]).map((betId) =>
+                                            <tr>
+                                                <th scope="row">{betId}</th>
+                                                <td>{self.helpers().getFormattedChoice(gameId,
+                                                    self.state.bettingProvider.placedBets[gameId][betId].choice)}
+                                                </td>
+                                                <td>
+                                                    {self.state.bettingProvider.placedBets[gameId][betId].amount} DBETs
+                                                </td>
+                                                <td>{self.state.bettingProvider.placedBets[gameId][betId].session}</td>
+                                                <td>{self.state.bettingProvider.placedBets[gameId][betId].claimed ?
+                                                    'Claimed' : 'Unclaimed'}</td>
+                                            </tr>
+                                        )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </Card>
+                    )}
+                </div>
+            },
             tinyLoader: () => {
                 return <CircularProgress
                     size={12}
@@ -880,10 +1212,33 @@ class Sportsbook extends Component {
                     title={self.state.dialogs.confirmBet.title}
                     message={self.state.dialogs.confirmBet.message}
                     onClick={() => {
-
+                        let selectedBet = self.state.dialogs.confirmBet.selectedBet
+                        let gameId = selectedBet.gameId
+                        let oddsId = selectedBet.oddsId
+                        self.web3Setters().placeBet(gameId, oddsId)
                     }}
                     onClose={() => {
-
+                        self.helpers().toggleDialog(DIALOG_CONFIRM_BET, false)
+                    }}
+                />
+            },
+            depositTokens: () => {
+                return <DepositTokensDialog
+                    open={self.state.dialogs.depositTokens.open}
+                    sessionNumber={self.state.bettingProvider.currentSession}
+                    onConfirm={(amount) => {
+                        let isAllowanceAvailable = new BigNumber(amount).times(ethUnits.units.ether)
+                            .lessThanOrEqualTo(self.state.bettingProvider.allowance)
+                        let formattedAmount = new BigNumber(amount).times(ethUnits.units.ether).toString()
+                        if (isAllowanceAvailable)
+                            self.web3Setters().depositTokens(formattedAmount)
+                        else
+                            self.web3Setters().approveAndDepositTokens(formattedAmount)
+                    }}
+                    allowance={self.state.bettingProvider.allowance}
+                    balance={self.state.token.balance}
+                    toggleDialog={(enabled) => {
+                        self.helpers().toggleDialog(DIALOG_DEPOSIT_TOKENS, enabled)
                     }}
                 />
             }
@@ -918,12 +1273,34 @@ class Sportsbook extends Component {
                     self.state.sportsOracle.games[oracleGameId].hasOwnProperty('team1') &&
                     self.state.sportsOracle.games[oracleGameId].hasOwnProperty('team2')
             },
+            getGameStartTime: (oracleGameId) => {
+                if (!helper.isUndefined(self.helpers().getOracleGame(oracleGameId)))
+                    return 'Start time:' +
+                        new Date(self.helpers().getOracleGame(oracleGameId).startTime * 1000).toLocaleString()
+                else
+                    return 'Start time: Loading..'
+            },
             getLeagueName: (oracleGameId) => {
-                return self.state.sportsOracle.games[oracleGameId].league
+                if (!helper.isUndefined(self.helpers().getOracleGame(oracleGameId)))
+                    return self.state.sportsOracle.games[oracleGameId].league
+                else
+                    return 'Loading..'
             },
             getTeamName: (isHome, gameId) => {
                 let oracleGameId = self.state.bettingProvider.games[gameId].oracleGameId
                 return self.state.sportsOracle.games[oracleGameId][isHome ? 'team1' : 'team2']
+            },
+            getFormattedChoice: (gameId, choice) => {
+                let oracleGameId = self.state.bettingProvider.games[gameId].oracleGameId
+                if (choice == constants.BET_CHOICE_TEAM1 || choice == constants.BET_CHOICE_TEAM2) {
+                    let isHome = (choice == constants.BET_CHOICE_TEAM1)
+                    return self.state.sportsOracle.games[oracleGameId][isHome ? 'team1' : 'team2']
+                } else if (choice == constants.BET_CHOICE_DRAW)
+                    return 'Draw'
+                else if (choice == constants.BET_CHOICE_OVER)
+                    return 'Over'
+                else if (choice == constants.BET_CHOICE_UNDER)
+                    return 'Under'
             },
             loadOddsForGame: (gameId, oddsCount) => {
                 let i = 0
@@ -933,7 +1310,6 @@ class Sportsbook extends Component {
             getPeriodDescription: (gameId, period) => {
                 let oracleGameId = self.state.bettingProvider.games[gameId].oracleGameId
                 let periodDescription = 'Loading..'
-                console.log('getPeriodDescription', self.state.sportsOracle.games)
                 Object.keys(self.state.sportsOracle.games).forEach((_oracleGameId) => {
                     if (oracleGameId == _oracleGameId) {
                         let game = self.state.sportsOracle.games[_oracleGameId]
@@ -945,7 +1321,26 @@ class Sportsbook extends Component {
                 })
                 return periodDescription
             },
+            toggleDialog: (type, enabled) => {
+                let dialogs = self.state.dialogs
+                if (type == DIALOG_CONFIRM_BET)
+                    dialogs.confirmBet.open = enabled
+                else if (type == DIALOG_DEPOSIT_TOKENS)
+                    dialogs.depositTokens.open = enabled
+                self.setState({
+                    dialogs: dialogs
+                })
+            },
+            getConfirmBetMessage: (gameId, oddsId) => {
+                let oddsObj = self.state.odds[gameId][oddsId]
+                let betAmount = oddsObj.betAmount
+                let selectedChoice = oddsObj.selectedChoice
 
+                return 'You are now placing a bet of ' +
+                    oddsObj.betAmount + ' DBETs for ' +
+                    self.helpers().getTeamName(true, gameId) + ' vs. ' +
+                    self.helpers().getTeamName(false, gameId) + '. Please click OK to confirm your bet'
+            },
             getOracleGame: (id) => {
                 return self.state.sportsOracle.games[id]
             },
@@ -968,7 +1363,23 @@ class Sportsbook extends Component {
         const self = this
         return <div className="sportsbook">
             <div className="main pb-4">
-                {self.views().games()}
+                <div className="row">
+                    <div className="col-10">
+                        <div className="row">
+                            <div className="col-8">
+                                {self.views().games()}
+                                {self.views().placedBets()}
+                            </div>
+                            <div className="col-4">
+                                {self.views().stats()}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col-2">
+                    </div>
+                </div>
+                {self.dialogs().confirmBet()}
+                {self.dialogs().depositTokens()}
             </div>
         </div>
     }

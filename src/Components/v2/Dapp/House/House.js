@@ -4,24 +4,21 @@
 
 import React, {Component} from 'react'
 
-import Card from 'material-ui/Card'
-import RaisedButton from 'material-ui/RaisedButton'
-
+import {Card, RaisedButton} from 'material-ui'
 import PurchaseCreditsDialog from './Dialogs/PurchaseCreditsDialog'
 
 import Helper from '../../Helper'
 
-const helper = new Helper()
+import './house.css'
 
 const BigNumber = require('bignumber.js')
 const constants = require('./../../Constants')
 const ethUnits = require('ethereum-units')
+const helper = new Helper()
 
 const DIALOG_PURCHASE_CREDITS = 0
 
 const styles = require('../../Base/styles').styles()
-
-import './house.css'
 
 class House extends Component {
 
@@ -621,15 +618,13 @@ class House extends Component {
                     open={self.state.dialogs.purchaseCredits.open}
                     sessionNumber={self.state.currentSession}
                     onConfirm={(amount) => {
-                        if (amount.length > 0) {
-                            let isAllowanceAvailable = new BigNumber(amount).times(ethUnits.units.ether)
-                                .lessThanOrEqualTo(self.state.allowance)
-                            let formattedAmount = new BigNumber(amount).times(ethUnits.units.ether).toString()
-                            if (isAllowanceAvailable)
-                                self.web3Setters().purchaseCredits(formattedAmount)
-                            else
-                                self.web3Setters().approveAndPurchaseCredits(formattedAmount)
-                        }
+                        let isAllowanceAvailable = new BigNumber(amount).times(ethUnits.units.ether)
+                            .lessThanOrEqualTo(self.state.allowance)
+                        let formattedAmount = new BigNumber(amount).times(ethUnits.units.ether).toString()
+                        if (isAllowanceAvailable)
+                            self.web3Setters().purchaseCredits(formattedAmount)
+                        else
+                            self.web3Setters().approveAndPurchaseCredits(formattedAmount)
                     }}
                     allowance={self.state.allowance}
                     balance={self.state.balance}

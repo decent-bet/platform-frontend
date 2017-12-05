@@ -55,3 +55,16 @@
 .dapp .portal .sportsbook .key {
     color: #f2b45c !important;
 }
+
+.dapp .portal .sportsbook .stats {
+    margin-top: 7vh;
+}
+
+.dapp .portal .sportsbook .stats p {
+    text-align: center;
+}
+
+.dapp .portal .sportsbook .stats button {
+    display: block;
+    padding: 7px 15px;
+}
