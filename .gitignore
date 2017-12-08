@@ -3,6 +3,7 @@
 # dependencies
 .idea/
 node_modules
+build
 
 # testing
 coverage
