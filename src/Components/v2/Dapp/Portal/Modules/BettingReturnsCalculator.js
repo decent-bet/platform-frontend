@@ -11,6 +11,7 @@ class BettingReturnsCalculator {
     getBetReturns = (oddsObj) => {
         let betAmount = oddsObj.betAmount
         let selectedOdds = this._getSelectedOdds(oddsObj)
+        console.log('getBetReturns', oddsObj, betAmount, selectedOdds)
         return this._getWinnings(betAmount, selectedOdds).toFixed(2)
     }
 
@@ -38,6 +39,7 @@ class BettingReturnsCalculator {
     }
 
     _getWinnings = (amount, odds) => {
+        console.log('_getWinnings', amount, odds)
         let absOdds = Math.abs(odds)
 
         if (odds < 0) {

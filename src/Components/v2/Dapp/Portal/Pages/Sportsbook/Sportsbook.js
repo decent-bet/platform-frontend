@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 
-import {Card, CircularProgress, DropDownMenu, MenuItem, TextField} from 'material-ui'
+import {Card, CircularProgress, DropDownMenu, Menu, MenuItem, TextField} from 'material-ui'
 import ConfirmationDialog from '../../../../Base/ConfirmationDialog'
 import DepositTokensDialog from './Dialogs/DepositTokensDialog'
 
@@ -314,13 +314,20 @@ class Sportsbook extends Component {
 
                             // Default values for odds object
                             odds[gameId][oddsId].betAmount = 0
-                            odds[gameId][oddsId].selectedChoice = constants.BET_CHOICE_TEAM1
+                            odds[gameId][oddsId].selectedChoice =
+                                (gameOdds.betType == constants.ODDS_TYPE_SPREAD ||
+                                gameOdds.betType == constants.ODDS_TYPE_MONEYLINE) ?
+                                    constants.BET_CHOICE_TEAM1 : constants.BET_CHOICE_OVER
 
                             if (!self.state.bettingProvider.games[gameId].betLimits.hasOwnProperty(gameOdds.period))
                                 self.web3Getters().bettingProvider().betLimits(gameId, gameOdds.period)
 
                             if (odds[gameId][oddsId].handicap != 0)
                                 odds[gameId][oddsId].handicap /= 100
+
+                            if (odds[gameId][oddsId].points != 0)
+                                odds[gameId][oddsId].points /= 100
+
                             console.log('Loaded odds for game', gameId, oddsId, odds)
                             self.setState({
                                 odds: odds
@@ -994,11 +1001,11 @@ class Sportsbook extends Component {
                             underlineDisabledStyle={styles.textField.underlineDisabledStyle}
                             type="number"
                             value={self.helpers().doesOddsExist(gameId, oddsId) ?
-                                self.state.odds[gameId][oddsId].betAmount : 0}
+                                self.state.odds[gameId][oddsId].betAmount : ''}
                             onChange={(event, value) => {
                                 let odds = self.state.odds
                                 odds[gameId][oddsId].betAmount = value
-                                console.log('Changed betAmount', odds)
+                                console.log('Changed betAmount', odds, gameId, oddsId)
                                 self.setState({
                                     odds: odds
                                 })
@@ -1006,6 +1013,8 @@ class Sportsbook extends Component {
                         />
                     </div>
                     <div className="col-4">
+                        {   (self.state.odds[gameId][oddsId].betType == constants.ODDS_TYPE_SPREAD ||
+                        self.state.odds[gameId][oddsId].betType == constants.ODDS_TYPE_MONEYLINE) &&
                         <DropDownMenu
                             className="mx-auto mt-3"
                             autoWidth={false}
@@ -1034,6 +1043,32 @@ class Sportsbook extends Component {
                             />
                             }
                         </DropDownMenu>
+                        }
+                        {   (self.state.odds[gameId][oddsId].betType == constants.ODDS_TYPE_TOTALS ||
+                        self.state.odds[gameId][oddsId].betType == constants.ODDS_TYPE_TEAM_TOTALS) &&
+                        <DropDownMenu
+                            className="mx-auto mt-3"
+                            autoWidth={false}
+                            style={{width: '100%'}}
+                            value={self.helpers().doesOddsExist(gameId, oddsId) ?
+                                self.state.odds[gameId][oddsId].selectedChoice : constants.BET_CHOICE_OVER}
+                            onChange={(event, index, value) => {
+                                let odds = self.state.odds
+                                odds[gameId][oddsId].selectedChoice = value
+                                self.setState({
+                                    odds: odds
+                                })
+                            }}>
+                            <MenuItem
+                                value={constants.BET_CHOICE_OVER}
+                                primaryText="Over"
+                            />
+                            <MenuItem
+                                value={constants.BET_CHOICE_UNDER}
+                                primaryText="Under"
+                            />
+                        </DropDownMenu>
+                        }
                     </div>
                     <div className="col-4 pt-1">
                         <p className="text-center key">MAX WIN</p>
@@ -1161,10 +1196,12 @@ class Sportsbook extends Component {
                                     }
                                 </div>
                                 <div className="col-12 mt-3">
-                                    <table className="table table-striped">
+                                    <table className="table table-striped table-responsive">
                                         <thead>
                                         <tr>
                                             <th>ID</th>
+                                            <th>Period</th>
+                                            <th>Odds</th>
                                             <th>Choice</th>
                                             <th>Bet Amount</th>
                                             <th>Session</th>
@@ -1172,19 +1209,9 @@ class Sportsbook extends Component {
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        {   Object.keys(self.state.bettingProvider.placedBets[gameId]).map((betId) =>
-                                            <tr>
-                                                <th scope="row">{betId}</th>
-                                                <td>{self.helpers().getFormattedChoice(gameId,
-                                                    self.state.bettingProvider.placedBets[gameId][betId].choice)}
-                                                </td>
-                                                <td>
-                                                    {self.state.bettingProvider.placedBets[gameId][betId].amount} DBETs
-                                                </td>
-                                                <td>{self.state.bettingProvider.placedBets[gameId][betId].session}</td>
-                                                <td>{self.state.bettingProvider.placedBets[gameId][betId].claimed ?
-                                                    'Claimed' : 'Unclaimed'}</td>
-                                            </tr>
+                                        {   Object.keys(self.state.bettingProvider.placedBets[gameId]).map((betId) => {
+                                                return self.views().gameBet(gameId, betId)
+                                            }
                                         )}
                                         </tbody>
                                     </table>
@@ -1193,6 +1220,19 @@ class Sportsbook extends Component {
                         </Card>
                     )}
                 </div>
+            },
+            gameBet: (gameId, betId) => {
+                const placedBet = self.state.bettingProvider.placedBets[gameId][betId]
+                const oddsObj = self.state.odds[gameId][placedBet.oddsId]
+                return <tr>
+                    <td scope="row">{betId}</td>
+                    <td>{self.helpers().getPeriodDescription(gameId, oddsObj.period)}</td>
+                    <td>{self.helpers().getFormattedOdds(gameId, placedBet.oddsId)}</td>
+                    <td>{self.helpers().getFormattedChoice(gameId, placedBet.choice)}</td>
+                    <td>{placedBet.amount} DBETs</td>
+                    <td>{placedBet.session}</td>
+                    <td>{placedBet.claimed ? 'Claimed' : 'Unclaimed'}</td>
+                </tr>
             },
             tinyLoader: () => {
                 return <CircularProgress
@@ -1302,6 +1342,36 @@ class Sportsbook extends Component {
                 else if (choice == constants.BET_CHOICE_UNDER)
                     return 'Under'
             },
+            getFormattedOddsType: (type) => {
+                switch (type) {
+                    case constants.ODDS_TYPE_SPREAD:
+                        return constants.FORMATTED_ODDS_TYPE_SPREAD
+                    case constants.ODDS_TYPE_MONEYLINE:
+                        return constants.FORMATTED_ODDS_TYPE_MONEYLINE
+                    case constants.ODDS_TYPE_TOTALS:
+                        return constants.FORMATTED_ODDS_TYPE_TOTALS
+                    case constants.ODDS_TYPE_TEAM_TOTALS:
+                        return constants.FORMATTED_ODDS_TYPE_TEAM_TOTALS
+                }
+            },
+            getFormattedOdds: (gameId, oddsId) => {
+                let oddsObj = self.state.odds[gameId][oddsId]
+                let formattedOddsType = self.helpers().getFormattedOddsType(oddsObj.betType)
+                if (oddsObj.betType == constants.ODDS_TYPE_SPREAD) {
+                    return formattedOddsType + ' - Hdp: ' + oddsObj.handicap +
+                        ', Home: ' + oddsObj.team1 +
+                        ', Away: ' + oddsObj.team2
+                } else if (oddsObj.betType == constants.ODDS_TYPE_MONEYLINE) {
+                    return formattedOddsType + ', Home: ' + oddsObj.team1 +
+                        ', Away: ' + oddsObj.team2 +
+                        ', Draw: ' + oddsObj.draw
+                } else if (oddsObj.betType == constants.ODDS_TYPE_TOTALS ||
+                    oddsObj.betType == constants.ODDS_TYPE_TEAM_TOTALS) {
+                    return formattedOddsType + ', Points: ' + oddsObj.points +
+                        ', Over: ' + oddsObj.over +
+                        ', Under: ' + oddsObj.under
+                }
+            },
             loadOddsForGame: (gameId, oddsCount) => {
                 let i = 0
                 while (i < oddsCount)
@@ -1351,7 +1421,8 @@ class Sportsbook extends Component {
                 return (val > 0) ? ('+' + val) : val
             },
             doesOddsExist: (gameId, oddsId) => {
-                return (self.state.odds.hasOwnProperty(gameId) && self.state.odds[gameId].hasOwnProperty(oddsId))
+                return (self.state.odds.hasOwnProperty(gameId) &&
+                self.state.odds[gameId].hasOwnProperty(oddsId))
             },
             isEmpty: (val) => {
                 return (val == 0 || val == '')

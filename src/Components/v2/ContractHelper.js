@@ -302,8 +302,7 @@ class ContractHelper {
                      */
                     purchaseCredits: (amount) => {
                         return houseInstance.purchaseCredits.sendTransaction(amount, {
-                            from: window.web3.eth.defaultAccount,
-                            gas: 3000000
+                            from: window.web3.eth.defaultAccount
                         })
                     },
                     /**
@@ -416,6 +415,12 @@ class ContractHelper {
                     updateGamePeriodBetLimits: (id, period, limits) => {
                         console.log('updateGamePeriodBetLimits', id, period, limits)
                         return bettingProviderInstance.updateGamePeriodBetLimits.sendTransaction(id, period, limits, {
+                            from: window.web3.eth.defaultAccount
+                        })
+                    },
+                    updateGameMaxBetLimits: (id, maxBetLimit) => {
+                        console.log('updateGamePeriodBetLimits', id, maxBetLimit)
+                        return bettingProviderInstance.updateGameMaxBetLimits.sendTransaction(id, maxBetLimit, {
                             from: window.web3.eth.defaultAccount
                         })
                     },
@@ -688,7 +693,7 @@ class ContractHelper {
 
                         return slotsChannelFinalizerInstance.finalize.call(id, userSpin.parts,
                             houseSpin.parts, userSpin.r, userSpin.s, houseSpin.r, houseSpin.s, {
-                                from: window.web3.eth.defaultAccount, gas: 3000000
+                                from: window.web3.eth.defaultAccount
                             })
                     }
                 }
@@ -729,16 +734,16 @@ class ContractHelper {
                      */
                     createChannel: (deposit) => {
                         return slotsChannelManagerInstance.createChannel.sendTransaction(deposit,
-                            {from: window.web3.eth.defaultAccount, gas: 3000000})
+                            {from: window.web3.eth.defaultAccount})
                     },
                     deposit: (amount) => {
                         return slotsChannelManagerInstance.deposit.sendTransaction(amount,
-                            {from: window.web3.eth.defaultAccount, gas: 3000000})
+                            {from: window.web3.eth.defaultAccount})
                     },
                     depositToChannel: (id, initialUserNumber, finalUserHash) => {
                         return slotsChannelManagerInstance.depositChannel.sendTransaction(id,
                             initialUserNumber, finalUserHash,
-                            {from: window.web3.eth.defaultAccount, gas: 3000000})
+                            {from: window.web3.eth.defaultAccount})
                     },
                     /**
                      * Events

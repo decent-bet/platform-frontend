@@ -97,7 +97,7 @@ contract BettingProvider is SafeMath, HouseOffering {
         // Games may go over the posted ending time. Once it has ended, this is toggled to true.
         bool hasEnded;
         // Bet limits for game periods.
-        mapping(uint => BetLimits) betLimits;
+        BetLimits betLimits;
         // Outcome of game period.
         mapping(uint => Outcome) outcomes;
         // Toggled to true if valid game.
@@ -105,9 +105,12 @@ contract BettingProvider is SafeMath, HouseOffering {
     }
 
     struct BetLimits {
-        // 0 - Spread, 1 - Moneyline, 2 - Total, 3 - Team Total
-        uint[4] limits;
-        bool exists;
+        // Bet limits for each period
+        mapping(uint => uint[4]) limits;
+        // Do limits exist for a period
+        mapping(uint => bool) exists;
+        // Max allowed bets in DBETs for a game
+        uint maxBetLimit;
     }
 
     struct Bettor {
@@ -233,6 +236,8 @@ contract BettingProvider is SafeMath, HouseOffering {
     event LogUpdatedGameOdds(uint id, uint oddsId);
 
     event LogUpdatedBetLimits(uint id, uint period);
+
+    event LogUpdatedMaxBet(uint id);
 
     event LogNewBet(uint gameId, uint oddsId, address bettor, uint betId);
 
@@ -423,6 +428,8 @@ contract BettingProvider is SafeMath, HouseOffering {
     onlyAuthorized {
         // Games count serves as ID for each game pushed to the provider
         if(!sportsOracle.addProviderGameToUpdate(oracleGameId, gamesCount)) throw;
+        // Do not allow when session is 0
+        if(currentSession == 0) throw;
         games[gamesCount] = Game({
             session: currentSession,
             oracleGameId : oracleGameId,
@@ -433,6 +440,9 @@ contract BettingProvider is SafeMath, HouseOffering {
             betCount : 0,
             cutOffTime : cutOffTime,
             endTime : endTime,
+            betLimits: BetLimits({
+                maxBetLimit: 0
+            }),
             hasEnded : false,
             exists : true
         });
@@ -444,9 +454,17 @@ contract BettingProvider is SafeMath, HouseOffering {
     onlyAuthorized
     isValidGame(gameId)
     isBeforeGameCutoff(gameId) {
-        games[gameId].betLimits[period].limits = limits;
-        games[gameId].betLimits[period].exists = true;
+        games[gameId].betLimits.limits[period] = limits;
+        games[gameId].betLimits.exists[period] = true;
         LogUpdatedBetLimits(gameId, period);
+    }
+
+    function updateGameMaxBetLimit(uint gameId, uint maxBetLimit)
+    onlyAuthorized
+    isValidGame(gameId)
+    isBeforeGameCutoff(gameId) {
+        games[gameId].betLimits.maxBetLimit = maxBetLimit;
+        LogUpdatedMaxBet(gameId);
     }
 
     // Handicap and points must be multiplied by 100.
@@ -480,12 +498,13 @@ contract BettingProvider is SafeMath, HouseOffering {
     // Updates odds for a game. Until a timeout of say 300 seconds, has passed,
     // previous odds would still be active, till new odds are enforced.
     // 300k gas.
-    function updateGameOdds(uint id, uint oddsId, int handicap, int team1,
+    function updateGameOdds(uint id, uint oddsId, uint betType, int handicap, int team1,
     int team2, int draw, uint points, int over, int under)
     onlyAuthorized
     isValidGame(id)
     isBeforeGameCutoff(id)
     returns (bool updated) {
+        games[id].odds.odds[oddsId].betType = betType;
         games[id].odds.odds[oddsId].handicap = handicap;
         games[id].odds.odds[oddsId].team1 = team1;
         games[id].odds.odds[oddsId].team2 = team2;
@@ -511,6 +530,7 @@ contract BettingProvider is SafeMath, HouseOffering {
             isPublished: true,
             settleTime: block.timestamp
         });
+
         games[id].hasEnded = true;
         return true;
     }
@@ -535,6 +555,7 @@ contract BettingProvider is SafeMath, HouseOffering {
 
         games[gameId].betAmount = safeAdd(games[gameId].betAmount, amount);
         games[gameId].betCount = safeAdd(games[gameId].betCount, 1);
+
         sessionStats[currentSession].totalBetAmount =
         safeAdd(sessionStats[currentSession].totalBetAmount, amount);
 
@@ -555,10 +576,20 @@ contract BettingProvider is SafeMath, HouseOffering {
     }
 
     function isValidNewBet(uint gameId, uint oddsId, uint betType, uint amount) returns (bool) {
-        BetLimits betLimits = games[gameId].betLimits[games[gameId].odds.odds[oddsId].period];
+        BetLimits betLimits = games[gameId].betLimits;
+        uint period = games[gameId].odds.odds[oddsId].period;
+
+        uint[4] limits = betLimits.limits[period];
+        bool exists = betLimits.exists[period];
+
         // Cannot bet more than limit for selected bet type.
-        if(!betLimits.exists || (betLimits.limits[betType] > 0 && betLimits.limits[betType] < amount))
+        if(!exists || (limits[betType] > 0 && limits[betType] < amount))
             return false;
+
+        // Cannot bet if the total bet amount for the game exceeds the max bet limit
+        if(safeAdd(games[gameId].betAmount, amount) > betLimits.maxBetLimit)
+            return false;
+
         return true;
     }
 
@@ -728,7 +759,11 @@ contract BettingProvider is SafeMath, HouseOffering {
     }
 
     function getGamePeriodBetLimits(uint id, uint period) constant returns (uint[4], bool) {
-        return (games[id].betLimits[period].limits, games[id].betLimits[period].exists);
+        return (games[id].betLimits.limits[period], games[id].betLimits.exists[period]);
+    }
+
+    function getGameMaxBetLimit(uint id) constant returns (uint) {
+        return games[id].betLimits.maxBetLimit;
     }
 
     function getUserBets(address user, uint index) constant returns (uint, uint, bool) {

@@ -1,22 +1,18 @@
 {
-  "contract_name": "AbstractSlotsHelper",
+  "contractName": "AbstractSlotsHelper",
   "abi": [
     {
       "constant": false,
-      "inputs": [
-        {
-          "name": "symbol",
-          "type": "uint256"
-        }
-      ],
-      "name": "paytable",
+      "inputs": [],
+      "name": "isSlotsHelper",
       "outputs": [
         {
           "name": "",
-          "type": "uint256"
+          "type": "bool"
         }
       ],
       "payable": false,
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -35,6 +31,7 @@
         }
       ],
       "payable": false,
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -57,33 +54,394 @@
         }
       ],
       "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "reel",
-          "type": "uint256"
-        },
-        {
-          "name": "index",
-          "type": "uint256"
-        }
-      ],
-      "name": "reels",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint8"
-        }
-      ],
-      "payable": false,
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ],
-  "unlinked_binary": "0x",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "pragma solidity ^0.4.0;\r\n\r\n\r\ncontract AbstractSlotsHelper {\r\n\r\n    function isSlotsHelper() returns (bool);\r\n    function convertReelToArray(string reel) returns (uint[5]);\r\n    function getTotalReward(uint betSize, uint[5] reelArray) returns (uint);\r\n\r\n}",
+  "sourcePath": "C:\\truffle\\decent-bet\\contracts\\Casino\\Slots\\AbstractSlotsHelper.sol",
+  "ast": {
+    "attributes": {
+      "absolutePath": "/C/truffle/decent-bet/contracts/Casino/Slots/AbstractSlotsHelper.sol",
+      "exportedSymbols": {
+        "AbstractSlotsHelper": [
+          4166
+        ]
+      }
+    },
+    "children": [
+      {
+        "attributes": {
+          "literals": [
+            "solidity",
+            "^",
+            "0.4",
+            ".0"
+          ]
+        },
+        "id": 4140,
+        "name": "PragmaDirective",
+        "src": "0:23:7"
+      },
+      {
+        "attributes": {
+          "baseContracts": [
+            null
+          ],
+          "contractDependencies": [
+            null
+          ],
+          "contractKind": "contract",
+          "documentation": null,
+          "fullyImplemented": false,
+          "linearizedBaseContracts": [
+            4166
+          ],
+          "name": "AbstractSlotsHelper",
+          "scope": 4167
+        },
+        "children": [
+          {
+            "attributes": {
+              "body": null,
+              "constant": false,
+              "implemented": false,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "isSlotsHelper",
+              "payable": false,
+              "scope": 4166,
+              "stateMutability": "nonpayable",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 4141,
+                "name": "ParameterList",
+                "src": "89:2:7"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "",
+                      "scope": 4145,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bool",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bool",
+                          "type": "bool"
+                        },
+                        "id": 4142,
+                        "name": "ElementaryTypeName",
+                        "src": "101:4:7"
+                      }
+                    ],
+                    "id": 4143,
+                    "name": "VariableDeclaration",
+                    "src": "101:4:7"
+                  }
+                ],
+                "id": 4144,
+                "name": "ParameterList",
+                "src": "100:6:7"
+              }
+            ],
+            "id": 4145,
+            "name": "FunctionDefinition",
+            "src": "67:40:7"
+          },
+          {
+            "attributes": {
+              "body": null,
+              "constant": false,
+              "implemented": false,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "convertReelToArray",
+              "payable": false,
+              "scope": 4166,
+              "stateMutability": "nonpayable",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "reel",
+                      "scope": 4154,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "string memory",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "string",
+                          "type": "string storage pointer"
+                        },
+                        "id": 4146,
+                        "name": "ElementaryTypeName",
+                        "src": "141:6:7"
+                      }
+                    ],
+                    "id": 4147,
+                    "name": "VariableDeclaration",
+                    "src": "141:11:7"
+                  }
+                ],
+                "id": 4148,
+                "name": "ParameterList",
+                "src": "140:13:7"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "",
+                      "scope": 4154,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256[5] memory",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "type": "uint256[5] storage pointer"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "uint",
+                              "type": "uint256"
+                            },
+                            "id": 4149,
+                            "name": "ElementaryTypeName",
+                            "src": "163:4:7"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "hexvalue": "35",
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "subdenomination": null,
+                              "token": "number",
+                              "type": "int_const 5",
+                              "value": "5"
+                            },
+                            "id": 4150,
+                            "name": "Literal",
+                            "src": "168:1:7"
+                          }
+                        ],
+                        "id": 4151,
+                        "name": "ArrayTypeName",
+                        "src": "163:7:7"
+                      }
+                    ],
+                    "id": 4152,
+                    "name": "VariableDeclaration",
+                    "src": "163:7:7"
+                  }
+                ],
+                "id": 4153,
+                "name": "ParameterList",
+                "src": "162:9:7"
+              }
+            ],
+            "id": 4154,
+            "name": "FunctionDefinition",
+            "src": "113:59:7"
+          },
+          {
+            "attributes": {
+              "body": null,
+              "constant": false,
+              "implemented": false,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "getTotalReward",
+              "payable": false,
+              "scope": 4166,
+              "stateMutability": "nonpayable",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "betSize",
+                      "scope": 4165,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint",
+                          "type": "uint256"
+                        },
+                        "id": 4155,
+                        "name": "ElementaryTypeName",
+                        "src": "202:4:7"
+                      }
+                    ],
+                    "id": 4156,
+                    "name": "VariableDeclaration",
+                    "src": "202:12:7"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "reelArray",
+                      "scope": 4165,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256[5] memory",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "type": "uint256[5] storage pointer"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "uint",
+                              "type": "uint256"
+                            },
+                            "id": 4157,
+                            "name": "ElementaryTypeName",
+                            "src": "216:4:7"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "hexvalue": "35",
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "subdenomination": null,
+                              "token": "number",
+                              "type": "int_const 5",
+                              "value": "5"
+                            },
+                            "id": 4158,
+                            "name": "Literal",
+                            "src": "221:1:7"
+                          }
+                        ],
+                        "id": 4159,
+                        "name": "ArrayTypeName",
+                        "src": "216:7:7"
+                      }
+                    ],
+                    "id": 4160,
+                    "name": "VariableDeclaration",
+                    "src": "216:17:7"
+                  }
+                ],
+                "id": 4161,
+                "name": "ParameterList",
+                "src": "201:33:7"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "",
+                      "scope": 4165,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint",
+                          "type": "uint256"
+                        },
+                        "id": 4162,
+                        "name": "ElementaryTypeName",
+                        "src": "244:4:7"
+                      }
+                    ],
+                    "id": 4163,
+                    "name": "VariableDeclaration",
+                    "src": "244:4:7"
+                  }
+                ],
+                "id": 4164,
+                "name": "ParameterList",
+                "src": "243:6:7"
+              }
+            ],
+            "id": 4165,
+            "name": "FunctionDefinition",
+            "src": "178:72:7"
+          }
+        ],
+        "id": 4166,
+        "name": "ContractDefinition",
+        "src": "29:226:7"
+      }
+    ],
+    "id": 4167,
+    "name": "SourceUnit",
+    "src": "0:255:7"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.18+commit.9cf6e910.Emscripten.clang"
+  },
   "networks": {},
-  "schema_version": "0.0.5",
-  "updated_at": 1504671293033
+  "schemaVersion": "1.0.1",
+  "updatedAt": "2017-12-08T17:43:10.692Z"
 }
