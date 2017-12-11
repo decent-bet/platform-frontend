@@ -244,12 +244,14 @@ class Sportsbook extends Component {
                                     endTime: data[6].toNumber(),
                                     hasEnded: data[7],
                                     exists: exists,
-                                    betLimits: {}
+                                    betLimits: {},
+                                    maxBetLimit: 0
                                 }
                                 let bettingProvider = self.state.bettingProvider
                                 bettingProvider.games[id] = game
                                 if (exists) {
                                     self.web3Getters().bettingProvider().gameOddsCount(id)
+                                    self.web3Getters().bettingProvider().maxBetLimit(id)
                                     let bettingProvider = self.state.bettingProvider
                                     bettingProvider.games[id] = game
                                     self.setState({
@@ -353,6 +355,19 @@ class Sportsbook extends Component {
                             })
                         }).catch((err) => {
                             console.log('Error retrieving bet limits', gameId, period, err.message)
+                        })
+                    },
+                    maxBetLimit: (gameId) => {
+                        helper.getContractHelper().getWrappers().bettingProvider().getGameMaxBetLimit(gameId)
+                            .then((limit) => {
+                                const maxBetLimit = helper.formatEther(limit.toString())
+                                let bettingProvider = self.state.bettingProvider
+                                bettingProvider.games[gameId].maxBetLimit = maxBetLimit
+                                self.setState({
+                                    bettingProvider: bettingProvider
+                                })
+                            }).catch((err) => {
+                            console.log('Error retrieving max bet limit', gameId)
                         })
                     },
                     sessionStats: (session) => {
@@ -690,13 +705,13 @@ class Sportsbook extends Component {
                     games.push(game)
                 })
                 return <section>
+                    <div className="row">
+                        <div className="col-12">
+                            <h4 className="text-uppercase">Available Games</h4>
+                        </div>
+                    </div>
                     {   Object.keys(self.state.bettingProvider.games).length > 0 &&
                     <section>
-                        <div className="row">
-                            <div className="col-12">
-                                <h4 className="text-uppercase">Available Games</h4>
-                            </div>
-                        </div>
                         { games.map((game, index) =>
                             <Card
                                 style={styles.card}
@@ -763,24 +778,7 @@ class Sportsbook extends Component {
                                     <div className="col-12">
                                         <hr/>
                                         <p className="mt-2">Bet Information</p>
-                                        <div className="row mt-4">
-                                            <div className="col-4">
-                                                <p className="text-center key">Bet Amount</p>
-                                                <p className="text-center">{game.betAmount} DBETs</p>
-                                            </div>
-                                            <div className="col-4">
-                                                <p className="text-center key">Bet Count</p>
-                                                <p className="text-center">{game.betCount}</p>
-                                            </div>
-                                            <div className="col-4">
-                                                <p className="text-center key">Your bets</p>
-                                                <p className="text-center">
-                                                    {self.state.bettingProvider.placedBets.hasOwnProperty(game.id) ?
-                                                        Object.keys(self.state.bettingProvider.placedBets[game.id]).length :
-                                                        0}
-                                                </p>
-                                            </div>
-                                        </div>
+                                        {self.views().betInformation(game.id)}
                                     </div>
                                 </div>
                             </Card>
@@ -788,7 +786,7 @@ class Sportsbook extends Component {
                     </section>
                     }
                     { Object.keys(self.state.bettingProvider.games).length == 0 &&
-                    <h3 className="text-center mt-4">No available games</h3>
+                    <p className="text-center mt-4">No available games</p>
                     }
                 </section>
             },
@@ -813,6 +811,14 @@ class Sportsbook extends Component {
                             <p className="key">Sportsbook balance</p>
                             <p>{self.state.bettingProvider.balance} DBETs</p>
                         </div>
+                        {   self.state.bettingProvider.depositedTokens == 0 &&
+                        <div className="col-12 mt-4">
+                            <p className="text-danger text-center text-uppercase small">
+                                Please deposit tokens into the sportsbook contract before placing any
+                                bets
+                            </p>
+                        </div>
+                        }
                     </div>
                 </section>
             },
@@ -1077,7 +1083,8 @@ class Sportsbook extends Component {
                     <div className="col-12">
                         <button className="btn btn-sm btn-primary mx-auto"
                                 disabled={self.state.bettingProvider.games[gameId].cutOffTime <= helper.getTimestamp() ||
-                                self.helpers().isEmpty(self.state.odds[gameId][oddsId].betAmount)}
+                                self.helpers().isEmpty(self.state.odds[gameId][oddsId].betAmount) || !self.state.bettingProvider.depositedTokens ||
+                                self.state.bettingProvider.depositedTokens == 0}
                                 onClick={() => {
                                     let dialogs = self.state.dialogs
                                     dialogs.confirmBet.message = self.helpers().getConfirmBetMessage(gameId, oddsId)
@@ -1101,9 +1108,19 @@ class Sportsbook extends Component {
                 </div>
             },
             betLimits: (gameId) => {
-                let betLimits = self.state.bettingProvider.games[gameId].betLimits
-
+                const betLimits = self.state.bettingProvider.games[gameId].betLimits
+                const maxBetLimit = self.state.bettingProvider.games[gameId].maxBetLimit
                 return <div className="col-12 bet-limits">
+                    <div className="row">
+                        <div className="col-12 mb-3">
+                            <p className="text-center key">
+                                MAX BET LIMIT
+                            </p>
+                            <p className="text-center">
+                                {maxBetLimit} DBETs
+                            </p>
+                        </div>
+                    </div>
                     {   Object.keys(betLimits).map((period) =>
                         <div className="row">
                             <div className="col-12 mb-3">
@@ -1148,6 +1165,27 @@ class Sportsbook extends Component {
                             </div>
                         </div>
                     )}
+                </div>
+            },
+            betInformation: (gameId) => {
+                let game = self.state.bettingProvider.games[gameId]
+                return <div className="row mt-4">
+                    <div className="col-4">
+                        <p className="text-center key">Bet Amount</p>
+                        <p className="text-center">{game.betAmount} DBETs</p>
+                    </div>
+                    <div className="col-4">
+                        <p className="text-center key">Bet Count</p>
+                        <p className="text-center">{game.betCount}</p>
+                    </div>
+                    <div className="col-4">
+                        <p className="text-center key">Your bets</p>
+                        <p className="text-center">
+                            {self.state.bettingProvider.placedBets.hasOwnProperty(game.id) ?
+                                Object.keys(self.state.bettingProvider.placedBets[game.id]).length :
+                                0}
+                        </p>
+                    </div>
                 </div>
             },
             placedBets: () => {

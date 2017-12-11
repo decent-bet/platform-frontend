@@ -342,6 +342,9 @@ class ContractHelper {
                     getGamePeriodBetLimits: (id, period) => {
                         return bettingProviderInstance.getGamePeriodBetLimits(id, period)
                     },
+                    getGameMaxBetLimit: (id) => {
+                        return bettingProviderInstance.getGameMaxBetLimit(id)
+                    },
                     getGameBettor: (id, index) => {
                         return bettingProviderInstance.getGameBettor(id, index)
                     },

@@ -3,8 +3,9 @@ pragma solidity ^0.4.11;
 import '../Token/AbstractDecentBetToken.sol';
 import './AbstractBettingProvider.sol';
 import '../Libraries/SafeMath.sol';
+import '../Libraries/TimeProvider.sol';
 
-contract SportsOracle is SafeMath {
+contract SportsOracle is SafeMath, TimeProvider {
 
     //Contracts
     AbstractDecentBetToken decentBetToken;
@@ -142,6 +143,10 @@ contract SportsOracle is SafeMath {
         owner = msg.sender;
         addAuthorizedAddress(msg.sender);
         decentBetToken = AbstractDecentBetToken(decentBetTokenAddress);
+
+        // If on local testRPC/testnet and need mock times
+        isMock = true;
+        setTimeController(msg.sender);
     }
 
     // Modifiers
@@ -173,8 +178,8 @@ contract SportsOracle is SafeMath {
 
     // Allow only valid results to be passed through to a function.
     modifier isValidResult(int result) {
-        if (result != RESULT_TEAM1_WIN || result != RESULT_DRAW ||
-        result != RESULT_TEAM2_WIN || result != RESULT_CANCELLED)
+        if (result != RESULT_TEAM1_WIN && result != RESULT_DRAW &&
+            result != RESULT_TEAM2_WIN && result != RESULT_CANCELLED)
         throw;
         _;
     }
@@ -188,15 +193,15 @@ contract SportsOracle is SafeMath {
 
     // Functions execute only if game hasn't started.
     modifier hasGameNotStarted(uint id) {
-        if (games[id].startTime <= block.timestamp)
+        if (games[id].startTime <= getTime())
         throw;
         _;
     }
 
     // Functions execute only if game has ended.
     modifier hasGameEnded(uint id) {
-        if (block.timestamp <= games[id].endTime)
-        throw;
+        if (getTime() <= games[id].endTime)
+            throw;
         _;
     }
 
@@ -327,25 +332,38 @@ contract SportsOracle is SafeMath {
             result : result,
             team1Points : team1Points,
             team2Points : team2Points,
-            settleTime: block.timestamp,
+            settleTime: getTime(),
             exists: true
         });
         LogGameResult(gameId, games[gameId].refId, period, result, team1Points, team2Points);
     }
 
     // Update the outcome in a provider contract.
-    function updateProviderOutcome(uint gameId, address provider, uint period, int result,
-    uint team1Points, uint team2Points)
+    function updateProviderOutcome(uint gameId, address provider, uint period)
     isValidGame(gameId)
-    isValidResult(result)
     hasGameEnded(gameId)
     onlyAuthorized {
         if (!providers[provider].accepted) throw;
+        // Game period must exist and outcome needs to be published
+        if (!gamePeriods[gameId][period].exists || gamePeriods[gameId][period].settleTime != 0) throw;
+
         AbstractBettingProvider bettingProvider = AbstractBettingProvider(provider);
         providerGamesToUpdate[gameId][msg.sender].updated = true;
-        if (!bettingProvider.updateGameOutcome(providerGamesToUpdate[gameId][msg.sender].gameId,
-            period, result, team1Points, team2Points)) throw;
-        LogUpdatedProviderOutcome(gameId, provider, games[gameId].refId, period, result, team1Points, team2Points);
+
+        if (!bettingProvider.updateGameOutcome(
+            providerGamesToUpdate[gameId][msg.sender].gameId,
+            period,
+            gamePeriods[gameId][period].result,
+            gamePeriods[gameId][period].team1Points,
+            gamePeriods[gameId][period].team2Points)) throw;
+
+        LogUpdatedProviderOutcome(gameId,
+                                  provider,
+                                  games[gameId].refId,
+                                  period,
+                                  gamePeriods[gameId][period].result,
+                                  gamePeriods[gameId][period].team1Points,
+                                  gamePeriods[gameId][period].team2Points);
     }
 
     // Allows the owner of the oracle to withdraw DBETs deposited in the contract.
@@ -355,6 +373,7 @@ contract SportsOracle is SafeMath {
         if (!decentBetToken.transfer(msg.sender, amount)) throw;
         LogWithdrawal(amount);
     }
+
 
     // Don't allow ETH to be sent to this contract.
     function() {
