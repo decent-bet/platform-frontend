@@ -1448,7 +1448,10 @@ class Sportsbook extends Component {
                     return 'Not Published'
                 else {
                     let outcome = self.state.bettingProvider.games[gameId].outcomes[period]
-                    return self.helpers().getFormattedChoice(gameId, outcome.result)
+                    return outcome ?
+                        self.helpers().getFormattedChoice(gameId, outcome.result) + ', ' +
+                        outcome.team1Points + ':' + outcome.team2Points :
+                        'Loading..'
                 }
             },
             getWinnings: (gameId, oddsObj, choice, betAmount) => {
@@ -1457,15 +1460,23 @@ class Sportsbook extends Component {
                     return 'Not Published'
                 else {
                     let outcome = self.state.bettingProvider.games[gameId].outcomes[period]
-                    let result = outcome.result
-                    if (choice == result)
-                        return bettingReturnsCalculator.getBetReturns(oddsObj, choice, betAmount) + ' DBETs'
-                    else
-                        return '0 DBETs'
+
+                    if (outcome) {
+                        let result = outcome.result
+                        if ((oddsObj.betType == constants.ODDS_TYPE_SPREAD ||
+                            oddsObj.betType == constants.ODDS_TYPE_MONEYLINE && choice == result) ||
+                            oddsObj.betType == constants.ODDS_TYPE_TOTALS ||
+                            oddsObj.betType == constants.ODDS_TYPE_TEAM_TOTALS)
+                            return bettingReturnsCalculator.getBetReturns(oddsObj, choice, betAmount) + ' DBETs'
+                        else
+                            return '0 DBETs'
+                    } else
+                        return 'Loading..'
                 }
             },
             isGameOutcomeAvailable: (gameId, period) => {
-                return self.state.bettingProvider.games[gameId].outcomes[period].isPublished
+                let outcome = self.state.bettingProvider.games[gameId].outcomes[period]
+                return outcome ? outcome.isPublished : 'Loading..'
             },
             getFormattedOddsType: (type) => {
                 switch (type) {
@@ -1508,10 +1519,11 @@ class Sportsbook extends Component {
                 Object.keys(self.state.sportsOracle.games).forEach((_oracleGameId) => {
                     if (oracleGameId == _oracleGameId) {
                         let game = self.state.sportsOracle.games[_oracleGameId]
-                        game.periodDescriptions.forEach((_period) => {
-                            if (_period.number == period)
-                                periodDescription = _period.description
-                        })
+                        if (game)
+                            game.periodDescriptions.forEach((_period) => {
+                                if (_period.number == period)
+                                    periodDescription = _period.description
+                            })
                     }
                 })
                 return periodDescription
