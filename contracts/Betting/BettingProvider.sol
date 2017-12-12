@@ -435,6 +435,9 @@ contract BettingProvider is HouseOffering, SafeMath, TimeProvider {
         if(!sportsOracle.addProviderGameToUpdate(oracleGameId, gamesCount)) throw;
         // Do not allow when session is 0
         if(currentSession == 0) throw;
+        // Games can only be added if they are a minimum of 4 hours in the future
+        if(cutOffTime < getTime() + 4 hours) throw;
+
         games[gamesCount] = Game({
             session: currentSession,
             oracleGameId : oracleGameId,
@@ -726,7 +729,7 @@ contract BettingProvider is HouseOffering, SafeMath, TimeProvider {
 
     // Returns the winnings based on american format odds (+100/-100)
     function getWinnings(uint amount, int odds) constant returns (uint) {
-        uint absOdds = (uint) (odds * -1);
+        uint absOdds = (odds < 0) ? ((uint) (odds * -1)) : ((uint) (odds));
         if(odds < 0) {
             // Amount / (odds/100)
             return safeDiv(safeMul(amount, 100), absOdds);

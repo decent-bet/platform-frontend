@@ -125,7 +125,7 @@ contract BettingProviderHelper is SafeMath {
     }
 
     function getWinnings(uint amount, int odds) constant returns (uint) {
-        uint absOdds = (uint) (odds * -1);
+        uint absOdds = (odds < 0) ? ((uint) (odds * -1)) : ((uint) (odds));
         if(odds < 0) {
             // Amount / (odds/100)
             return safeDiv(safeMul(amount, 100), absOdds);

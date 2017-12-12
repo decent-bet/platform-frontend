@@ -415,6 +415,7 @@ class Sportsbook extends Component {
                                     console.log('Retrieved user bets', index, gameId, betId, exists)
                                     self.web3Getters().bettingProvider().getGameBettorBet(gameId, betId)
                                     self.web3Getters().bettingProvider().getGameBettorBetOdds(gameId, betId)
+                                    self.web3Getters().bettingProvider().getBetReturns(gameId, betId)
                                     self.web3Getters().bettingProvider().getUserBets(index + 1)
                                 }
                             }).catch((err) => {
@@ -451,13 +452,25 @@ class Sportsbook extends Component {
                         helper.getContractHelper().getWrappers().bettingProvider()
                             .getGameBettorBetOdds(gameId, helper.getWeb3().eth.defaultAccount, betId)
                             .then((odds) => {
+                                odds = {
+                                    betType: odds[0].toNumber(),
+                                    period: odds[1].toNumber(),
+                                    handicap: odds[2].toNumber(),
+                                    team1: odds[3].toNumber(),
+                                    team2: odds[4].toNumber(),
+                                    draw: odds[5].toNumber(),
+                                    points: odds[6].toNumber(),
+                                    over: odds[7].toNumber(),
+                                    under: odds[8].toNumber(),
+                                    isTeam1: odds[9]
+                                }
                                 console.log('Retrieved game bet odds', gameId, betId, odds)
                             })
                     },
                     getBetReturns: (gameId, betId) => {
                         helper.getContractHelper().getWrappers().bettingProvider().getBetReturns(gameId, betId,
                             helper.getWeb3().eth.defaultAccount).then((returns) => {
-                            console.log('Get bet returns', returns.toNumber())
+                            console.log('Retrieved bet returns', gameId, betId, returns.toNumber())
                         })
                     }
                 }
@@ -1320,10 +1333,12 @@ class Sportsbook extends Component {
                         <td>{placedBet.session}</td>
                         <td>{placedBet.claimed ? 'Claimed' : 'Unclaimed'}</td>
                         <td>{self.helpers().getGameOutcome(gameId, oddsObj.period)}</td>
-                        <td>{self.helpers().getWinnings(gameId, oddsObj, placedBet.choice, placedBet.amount)}</td>
+                        <td>{self.helpers().getWinnings(gameId, oddsObj, placedBet)} DBETs</td>
                         <td>
                             <button className="btn btn-primary btn-sm"
-                                    disabled={!self.helpers().isGameOutcomeAvailable(gameId, oddsObj.period)}
+                                    disabled={!self.helpers().isGameOutcomeAvailable(gameId, oddsObj.period) ||
+                                               self.helpers().getWinnings(gameId, oddsObj, placedBet) == 0 ||
+                                               placedBet.claimed}
                                     onClick={() => {
                                         self.web3Setters().claimBet(gameId, betId)
                                     }}>
@@ -1450,28 +1465,48 @@ class Sportsbook extends Component {
                     let outcome = self.state.bettingProvider.games[gameId].outcomes[period]
                     return outcome ?
                         self.helpers().getFormattedChoice(gameId, outcome.result) + ', ' +
-                        outcome.team1Points + ':' + outcome.team2Points :
+                        outcome.team1Points + ':' + outcome.team2Points +
+                        ', Total: ' + outcome.totalPoints :
                         'Loading..'
                 }
             },
-            getWinnings: (gameId, oddsObj, choice, betAmount) => {
+            getWinnings: (gameId, oddsObj, placedBet) => {
                 let period = oddsObj.period
                 if (!self.helpers().isGameOutcomeAvailable(gameId, period))
-                    return 'Not Published'
+                    return 0
                 else {
                     let outcome = self.state.bettingProvider.games[gameId].outcomes[period]
 
                     if (outcome) {
+                        let choice = placedBet.choice
+                        let betAmount = placedBet.amount
+
                         let result = outcome.result
-                        if ((oddsObj.betType == constants.ODDS_TYPE_SPREAD ||
-                            oddsObj.betType == constants.ODDS_TYPE_MONEYLINE && choice == result) ||
+                        if ((oddsObj.betType == constants.ODDS_TYPE_MONEYLINE && choice == result) ||
                             oddsObj.betType == constants.ODDS_TYPE_TOTALS ||
                             oddsObj.betType == constants.ODDS_TYPE_TEAM_TOTALS)
-                            return bettingReturnsCalculator.getBetReturns(oddsObj, choice, betAmount) + ' DBETs'
-                        else
-                            return '0 DBETs'
+                            return bettingReturnsCalculator.getMaxReturns(oddsObj, choice, betAmount)
+
+                        else if (oddsObj.betType == constants.ODDS_TYPE_SPREAD) {
+
+                            let isWinningBet = ((choice == constants.BET_CHOICE_TEAM1 &&
+                            (outcome.team1Points + oddsObj.handicap > outcome.team2Points)) ||
+                            (choice == constants.BET_CHOICE_TEAM2 &&
+                            (outcome.team2Points + oddsObj.handicap > outcome.team1Points)))
+
+                            if (isWinningBet) {
+                                let teamOdds = (choice == constants.BET_CHOICE_TEAM1) ?
+                                    oddsObj.team1 : oddsObj.team2
+
+                                return bettingReturnsCalculator.getSpreadReturns(betAmount,
+                                        oddsObj.handicap, outcome.team1Points, outcome.team2Points,
+                                        placedBet.choice, teamOdds).toFixed(2)
+                            } else
+                                return 0
+                        } else
+                            return 0
                     } else
-                        return 'Loading..'
+                        return 0
                 }
             },
             isGameOutcomeAvailable: (gameId, period) => {
@@ -1519,7 +1554,7 @@ class Sportsbook extends Component {
                 Object.keys(self.state.sportsOracle.games).forEach((_oracleGameId) => {
                     if (oracleGameId == _oracleGameId) {
                         let game = self.state.sportsOracle.games[_oracleGameId]
-                        if (game)
+                        if (game && game.periodDescriptions)
                             game.periodDescriptions.forEach((_period) => {
                                 if (_period.number == period)
                                     periodDescription = _period.description
@@ -1553,7 +1588,7 @@ class Sportsbook extends Component {
             },
             getMaxWin: (gameId, oddsId) => {
                 let oddsObj = self.state.odds[gameId][oddsId]
-                return bettingReturnsCalculator.getBetReturns(oddsObj, oddsObj.selectedChoice, oddsObj.betAmount)
+                return bettingReturnsCalculator.getMaxReturns(oddsObj, oddsObj.selectedChoice, oddsObj.betAmount)
             },
             formatOddsNumber: (val) => {
                 return (val > 0) ? ('+' + val) : val
