@@ -345,13 +345,13 @@ contract SportsOracle is SafeMath, TimeProvider {
     onlyAuthorized {
         if (!providers[provider].accepted) throw;
         // Game period must exist and outcome needs to be published
-        if (!gamePeriods[gameId][period].exists || gamePeriods[gameId][period].settleTime != 0) throw;
+        if (!gamePeriods[gameId][period].exists || gamePeriods[gameId][period].settleTime == 0) throw;
 
         AbstractBettingProvider bettingProvider = AbstractBettingProvider(provider);
-        providerGamesToUpdate[gameId][msg.sender].updated = true;
+        providerGamesToUpdate[gameId][provider].updated = true;
 
         if (!bettingProvider.updateGameOutcome(
-            providerGamesToUpdate[gameId][msg.sender].gameId,
+            providerGamesToUpdate[gameId][provider].gameId,
             period,
             gamePeriods[gameId][period].result,
             gamePeriods[gameId][period].team1Points,
@@ -374,6 +374,9 @@ contract SportsOracle is SafeMath, TimeProvider {
         LogWithdrawal(amount);
     }
 
+    function getProviderGameId(uint gameId, address provider) constant returns (uint id) {
+        return providerGamesToUpdate[gameId][provider].gameId;
+    }
 
     // Don't allow ETH to be sent to this contract.
     function() {

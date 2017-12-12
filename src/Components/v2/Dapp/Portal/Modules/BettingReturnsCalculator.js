@@ -8,17 +8,14 @@ const helper = new Helper()
  */
 class BettingReturnsCalculator {
 
-    getBetReturns = (oddsObj) => {
-        let betAmount = oddsObj.betAmount
-        let selectedOdds = this._getSelectedOdds(oddsObj)
-        console.log('getBetReturns', oddsObj, betAmount, selectedOdds)
-        return this._getWinnings(betAmount, selectedOdds).toFixed(2)
+    getBetReturns = (oddsObj, choice, betAmount) => {
+        let odds = this._getSelectedOdds(choice, oddsObj)
+        return this._getWinnings(betAmount, odds).toFixed(2)
     }
 
-    _getSelectedOdds = (oddsObj) => {
-        let selectedChoice = oddsObj.selectedChoice
+    _getSelectedOdds = (choice, oddsObj) => {
         let selectedOdds
-        switch(selectedChoice) {
+        switch(choice) {
             case constants.BET_CHOICE_TEAM1:
                 selectedOdds = oddsObj.team1
                 break

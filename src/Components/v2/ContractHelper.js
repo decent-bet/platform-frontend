@@ -387,6 +387,9 @@ class ContractHelper {
                     getUserBets: (address, index) => {
                         return bettingProviderInstance.getUserBets(address, index)
                     },
+                    getBetReturns: (gameId, betId, bettor) => {
+                        return bettingProviderInstance.getBetReturns(gameId, betId, bettor)
+                    },
                     balanceOf: (address, session) => {
                         console.log('Retrieving sportsbook balance for', address, session)
                         return bettingProviderInstance.balanceOf(address, session)

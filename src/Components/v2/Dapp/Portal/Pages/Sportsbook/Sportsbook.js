@@ -176,7 +176,6 @@ class Sportsbook extends Component {
                             .balanceOf(helper.getWeb3().eth.defaultAccount, session)
                             .then((balance) => {
                                 balance = helper.formatEther(balance.toString())
-                                console.log('Deposited tokens', balance)
                                 let bettingProvider = self.state.bettingProvider
                                 bettingProvider.depositedTokens = balance
                                 self.setState({
@@ -245,6 +244,7 @@ class Sportsbook extends Component {
                                     hasEnded: data[7],
                                     exists: exists,
                                     betLimits: {},
+                                    outcomes: {},
                                     maxBetLimit: 0
                                 }
                                 let bettingProvider = self.state.bettingProvider
@@ -324,6 +324,9 @@ class Sportsbook extends Component {
                             if (!self.state.bettingProvider.games[gameId].betLimits.hasOwnProperty(gameOdds.period))
                                 self.web3Getters().bettingProvider().betLimits(gameId, gameOdds.period)
 
+                            if (!self.state.bettingProvider.games[gameId].outcomes.hasOwnProperty(gameOdds.period))
+                                self.web3Getters().bettingProvider().outcomes(gameId, gameOdds.period)
+
                             if (odds[gameId][oddsId].handicap != 0)
                                 odds[gameId][oddsId].handicap /= 100
 
@@ -370,6 +373,27 @@ class Sportsbook extends Component {
                             console.log('Error retrieving max bet limit', gameId)
                         })
                     },
+                    outcomes: (gameId, period) => {
+                        helper.getContractHelper().getWrappers().bettingProvider().getGameOutcome(gameId, period)
+                            .then((outcome) => {
+                                outcome = {
+                                    result: outcome[0].toNumber(),
+                                    totalPoints: outcome[1].toNumber(),
+                                    team1Points: outcome[2].toNumber(),
+                                    team2Points: outcome[3].toNumber(),
+                                    isPublished: outcome[4],
+                                    settleTime: outcome[5].toNumber(),
+                                }
+                                console.log('Retrieved outcome for game', gameId, period, outcome)
+                                let bettingProvider = self.state.bettingProvider
+                                bettingProvider.games[gameId].outcomes[period] = outcome
+                                self.setState({
+                                    bettingProvider: bettingProvider
+                                })
+                            }).catch((err) => {
+                            console.log('Error retrieving outcomes', gameId, period, err.message)
+                        })
+                    },
                     sessionStats: (session) => {
                         helper.getContractHelper().getWrappers().bettingProvider()
                             .getSessionStats(session)
@@ -390,6 +414,7 @@ class Sportsbook extends Component {
                                 if (exists) {
                                     console.log('Retrieved user bets', index, gameId, betId, exists)
                                     self.web3Getters().bettingProvider().getGameBettorBet(gameId, betId)
+                                    self.web3Getters().bettingProvider().getGameBettorBetOdds(gameId, betId)
                                     self.web3Getters().bettingProvider().getUserBets(index + 1)
                                 }
                             }).catch((err) => {
@@ -420,6 +445,19 @@ class Sportsbook extends Component {
                                 })
                             }).catch((err) => {
                             console.log('Error retrieving game bet', gameId, betId, err.message)
+                        })
+                    },
+                    getGameBettorBetOdds: (gameId, betId) => {
+                        helper.getContractHelper().getWrappers().bettingProvider()
+                            .getGameBettorBetOdds(gameId, helper.getWeb3().eth.defaultAccount, betId)
+                            .then((odds) => {
+                                console.log('Retrieved game bet odds', gameId, betId, odds)
+                            })
+                    },
+                    getBetReturns: (gameId, betId) => {
+                        helper.getContractHelper().getWrappers().bettingProvider().getBetReturns(gameId, betId,
+                            helper.getWeb3().eth.defaultAccount).then((returns) => {
+                            console.log('Get bet returns', returns.toNumber())
                         })
                     }
                 }
@@ -668,27 +706,35 @@ class Sportsbook extends Component {
                 console.log('Placing bet for', oddsObj, oddsObj.betAmount, betAmount, 'DBETs')
 
                 helper.getContractHelper().getWrappers().bettingProvider().placeBet(gameId, oddsId, betType,
-                    selectedChoice, betAmount).then((txId) => {
-                    console.log('Successfully placed bet', txId)
+                    selectedChoice, betAmount).then((txHash) => {
+                    console.log('Successfully placed bet', txHash)
                     self.helpers().toggleDialog(DIALOG_CONFIRM_BET, false)
                 }).catch((err) => {
                     console.log('Error placing bet', err.message)
                 })
             },
             depositTokens: (amount) => {
-                helper.getContractHelper().getWrappers().bettingProvider().deposit(amount).then((txId) => {
-                    console.log('Successfully deposited', amount, 'DBETs', txId)
+                helper.getContractHelper().getWrappers().bettingProvider().deposit(amount).then((txHash) => {
+                    console.log('Successfully deposited', amount, 'DBETs', txHash)
                 }).catch((err) => {
                     console.log('Error depositing tokens', err.message)
                 })
             },
             approveAndDepositTokens: (amount) => {
                 let bettingProvider = helper.getContractHelper().getBettingProviderInstance().address
-                helper.getContractHelper().getWrappers().token().approve(bettingProvider, amount).then((txId) => {
-                    console.log('Successfully approved', amount, 'DBETs for ', bettingProvider, txId)
+                helper.getContractHelper().getWrappers().token().approve(bettingProvider, amount).then((txHash) => {
+                    console.log('Successfully approved', amount, 'DBETs for ', bettingProvider, txHash)
                     self.web3Setters().depositTokens(amount)
                 }).catch((err) => {
                     console.log('Error approving dbets', err.message)
+                })
+            },
+            claimBet: (gameId, betId) => {
+                helper.getContractHelper().getWrappers().bettingProvider()
+                    .claimBet(gameId, betId, helper.getWeb3().eth.defaultAccount).then((txHash) => {
+                    console.log('Successfully sent claim bet tx', txHash)
+                }).catch((err) => {
+                    console.log('Error sending claim bet tx', err.message)
                 })
             }
         }
@@ -798,7 +844,7 @@ class Sportsbook extends Component {
                             <p>{self.state.bettingProvider.currentSession}</p>
                         </div>
                         <div className="col-6">
-                            <p className="key text-center">Deposited Tokens</p>
+                            <p className="key text-center">Your Session Balance</p>
                             <p>{self.state.bettingProvider.depositedTokens} DBETs</p>
                             <button className="btn btn-primary btn-sm mx-auto"
                                     onClick={() => {
@@ -1082,9 +1128,11 @@ class Sportsbook extends Component {
                     </div>
                     <div className="col-12">
                         <button className="btn btn-sm btn-primary mx-auto"
-                                disabled={self.state.bettingProvider.games[gameId].cutOffTime <= helper.getTimestamp() ||
-                                self.helpers().isEmpty(self.state.odds[gameId][oddsId].betAmount) || !self.state.bettingProvider.depositedTokens ||
-                                self.state.bettingProvider.depositedTokens == 0}
+                                disabled={
+                                    self.state.bettingProvider.games[gameId].cutOffTime <= helper.getTimestamp() ||
+                                    self.helpers().isEmpty(self.state.odds[gameId][oddsId].betAmount) ||
+                                    !self.state.bettingProvider.depositedTokens ||
+                                    self.state.bettingProvider.depositedTokens == 0}
                                 onClick={() => {
                                     let dialogs = self.state.dialogs
                                     dialogs.confirmBet.message = self.helpers().getConfirmBetMessage(gameId, oddsId)
@@ -1244,6 +1292,9 @@ class Sportsbook extends Component {
                                             <th>Bet Amount</th>
                                             <th>Session</th>
                                             <th>Claimed</th>
+                                            <th>Result</th>
+                                            <th>Winnings</th>
+                                            <th>Options</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -1270,6 +1321,17 @@ class Sportsbook extends Component {
                     <td>{placedBet.amount} DBETs</td>
                     <td>{placedBet.session}</td>
                     <td>{placedBet.claimed ? 'Claimed' : 'Unclaimed'}</td>
+                    <td>{self.helpers().getGameOutcome(gameId, oddsObj.period)}</td>
+                    <td>{self.helpers().getWinnings(gameId, oddsObj, placedBet.choice, placedBet.amount)}</td>
+                    <td>
+                        <button className="btn btn-primary btn-sm"
+                                disabled={!self.helpers().isGameOutcomeAvailable(gameId, oddsObj.period)}
+                                onClick={() => {
+                                    self.web3Setters().claimBet(gameId, betId)
+                                }}>
+                            Claim Winnings
+                        </button>
+                    </td>
                 </tr>
             },
             tinyLoader: () => {
@@ -1380,6 +1442,30 @@ class Sportsbook extends Component {
                 else if (choice == constants.BET_CHOICE_UNDER)
                     return 'Under'
             },
+            getGameOutcome: (gameId, period) => {
+                if (!self.helpers().isGameOutcomeAvailable(gameId, period))
+                    return 'Not Published'
+                else {
+                    let outcome = self.state.bettingProvider.games[gameId].outcomes[period]
+                    return self.helpers().getFormattedChoice(gameId, outcome.result)
+                }
+            },
+            getWinnings: (gameId, oddsObj, choice, betAmount) => {
+                let period = oddsObj.period
+                if (!self.helpers().isGameOutcomeAvailable(gameId, period))
+                    return 'Not Published'
+                else {
+                    let outcome = self.state.bettingProvider.games[gameId].outcomes[period]
+                    let result = outcome.result
+                    if (choice == result)
+                        return bettingReturnsCalculator.getBetReturns(oddsObj, choice, betAmount) + ' DBETs'
+                    else
+                        return '0 DBETs'
+                }
+            },
+            isGameOutcomeAvailable: (gameId, period) => {
+                return self.state.bettingProvider.games[gameId].outcomes[period].isPublished
+            },
             getFormattedOddsType: (type) => {
                 switch (type) {
                     case constants.ODDS_TYPE_SPREAD:
@@ -1453,7 +1539,8 @@ class Sportsbook extends Component {
                 return self.state.sportsOracle.games[id]
             },
             getMaxWin: (gameId, oddsId) => {
-                return bettingReturnsCalculator.getBetReturns(self.state.odds[gameId][oddsId])
+                let oddsObj = self.state.odds[gameId][oddsId]
+                return bettingReturnsCalculator.getBetReturns(oddsObj, oddsObj.selectedChoice, oddsObj.betAmount)
             },
             formatOddsNumber: (val) => {
                 return (val > 0) ? ('+' + val) : val
