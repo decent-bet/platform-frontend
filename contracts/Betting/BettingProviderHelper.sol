@@ -125,18 +125,17 @@ contract BettingProviderHelper is SafeMath {
     }
 
     function getWinnings(uint amount, int odds) constant returns (uint) {
-        uint absOdds = (uint) (odds);
-        if (odds < 0) {
+        uint absOdds = (uint) (odds * -1);
+        if(odds < 0) {
             // Amount / (odds/100)
-            return safeDiv(amount, safeDiv(absOdds, 100));
-        }
-        else if (odds > 0) {
+            return safeDiv(safeMul(amount, 100), absOdds);
+        } else if(odds > 0) {
             // Amount * (odds/100)
-            return safeMul(amount, safeDiv(absOdds, 100));
-        }
-        else if (odds == 0) {
+            return safeDiv(safeMul(amount, absOdds), 100);
+        } else if(odds == 0) {
             return amount;
         }
+        return 0;
     }
 
 }
