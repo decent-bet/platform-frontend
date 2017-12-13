@@ -34,7 +34,7 @@ If you'd like to initialize the platform manually, follow the [Manual Initializa
 
 ## Run platform and admin dapps
 
-Once contracts have been deployed to the local network and the platform has been initialized. You can now run both the Platform and Admin frontends by heading to their directories and running.
+Once contracts have been deployed to the local network and the platform has been initialized. You can now run both the Platform and Admin dapps by heading to their directories and running.
 
 ```
 npm run start
@@ -186,7 +186,7 @@ After placing bets, you would usually now wait for the current time to pass the 
 To get around this during development, all 3 contracts - house, sports oracle and betting provider have a **Set Time** option
 which allows you to set the current time for each of the contracts.
 
-Now, in the **Sports Oracle** page of the Admin frontend, scroll down to the **Time** section and 
+Now, in the **Sports Oracle** page of the Admin dapp, scroll down to the **Time** section and 
 click on the **Set Time** button. Select a date and time **after** the end time specified for the pushed game.
 
 You can repeat the same process in the **Betting Provider** page, the button can be found in the first section of the page.
