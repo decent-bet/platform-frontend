@@ -25,8 +25,8 @@ https://geth.ethereum.org/downloads/
 2. **Create a directory to store private chain data**
     
     The new directory will be used to store all new chain data. 
+    
     ```
-        Linux/Windows
         mkdir geth-private
     ```
     
@@ -34,6 +34,7 @@ https://geth.ethereum.org/downloads/
 
     Every chain requires a genesis block to start from. Navigate to your chain's directory and
     create a genesis.json file with the following parameters
+    
     ```
     {
         "nonce": "0x0000000000000042",
@@ -57,9 +58,10 @@ https://geth.ethereum.org/downloads/
         }
     }
     ```
+    
     The following fields require some customization depending on your setup.
     
-    1. Alloc: Alloc is used to pre-allocated Ether to addresses. You can enter any address for
+    1. Alloc: Alloc is used to pre-allocate Ether to addresses. You can enter any address for
     which you own private keys to.
     
     2. config.chainID: Due to how geth and web3 works, it requires your chain ID and network ID to 
@@ -85,7 +87,7 @@ https://geth.ethereum.org/downloads/
     geth --datadir="ethdata" init genesis.json
     ```
     
-    You should see something like this
+    You should see output along the lines of this
     
     ```
     INFO [10-20|21:00:32] Starting P2P networking
@@ -163,7 +165,7 @@ the original mining node.
 
 2. **Add as a peer to the main node**
    To add the node as a peer to the main node, type in **admin.nodeInfo** and you
-   should see something like this
+   should see output along these lines
    
    ```
    {

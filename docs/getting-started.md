@@ -2,24 +2,12 @@
 
 ## Pre-requisites
 
-To begin working with the platform, you will need to have truffle and TestRPC installed for local development
+To begin working with the platform, you will need to have truffle and [Geth](https://geth.ethereum.org/downloads/) installed for local development
 
     npm install -g truffle // Version 3.0.5+ required.
-    npm install -g ethereumjs-testrpc
     
-Make sure you're running a local testRPC instance when you're working with the platform locally. 
-Using a predefined mnemonic for your testRPC instance is encouraged and makes it easier to work with
-State Channels that require private keys from authorized addressess to sign messages on behalf of the house.
-Without a predefined mnemonic, the private key would have to be replaced every time TestRPC is restarted.
-
-Also, changing the gas limit to reflect the current mainnet gas limit is required since some of the contracts
-require upwards of 6M+ gas and will return an out of gas exception if deployed on a TestRPC instance with the default
-gas limit being 4.7M.
-
-To run a testRPC instance with a predefined mnemonic and 6.7M gas, run the following command
-
-    testrpc --mnemonic "<YOUR MNEMONIC>" -l 6720000
-
+Make sure you're [running a private network](https://github.com/decent-bet/platform-frontend/blob/master/docs/setting-up-a-private-network.md) 
+when you're working with the platform locally.
     
 ## Setting up
 
@@ -34,7 +22,10 @@ instance.
 
     truffle migrate
 
-Use the resulting build files in _Platfrom Frontend_, _Admin Frontend_ and _Games API_.
+Use the resulting build files in [Platform Frontend](https://github.com/decent-bet/platform-frontend), 
+[Admin Frontend](https://github.com/decent-bet/admin-frontend) and [Games Api](https://github.com/decent-bet/games-api). 
+Alternatively, scripts can be used to migrate contracts to the network and copy the 
+resulting build files to the respective project directories.
 
 ## Frontend
 
