@@ -30,11 +30,11 @@ perform the following tasks
 
 To initialize the platform for development purposes in an automated fashion, head to the [initialization script](https://github.com/decent-bet/platform-contracts-init) repository and follow the instructions mentioned there.
 
-If you'd like to initialize the platform manually, follow the [Manual Initialization](#manual-platform-initialization) Instructions.
+If you'd like to initialize the platform manually, follow the [Manual Initialization](#manual-platform-initialization) instructions mentioned below.
 
 ## Run platform and admin dapps
 
-Once contracts have been deployed to the local network and the platform has been initialized. You can now run both the Platform and Admin frontends by heading to their directories and running
+Once contracts have been deployed to the local network and the platform has been initialized. You can now run both the Platform and Admin frontends by heading to their directories and running.
 
 ```
 npm run start
@@ -112,7 +112,7 @@ You should now see a form to add the game along with available odds for the matc
 
 The end time field needs to be manually entered for now. This will be replaced with a date/time picker in the near future.
 
-After entering the end time field, click on the "ADD GAME TO ORACLE" button to push the game to the sports oracle contract.
+After entering the end time field, click on the **Add Game to Oracle** button to push the game to the sports oracle contract.
 
 ## Push game to provider
 
@@ -125,25 +125,22 @@ Click on the "Push Game" button in the row for the pushed game. You will now see
 Enter the cut-off time for the game (time before which bets can be placed) and click on the push button. By default, the cut-off time field is filled at 1000 seconds 
 or ~18 minutes prior to the game's start time. Time entry fields will be replaced with a date/time picker.
 
-* Update game limits
+Once the game has been pushed (refresh after transaction has been mined on to the network), you should see the game show up under "Pushed games". 
+Click on the "Update Bet Limits" and you should see a dialog show up with the following forms
 
-    Once the game has been pushed (refresh after transaction has been mined on to the network), you should see the game show up under "Pushed games". 
-    
-    Click on the "Update Bet Limits" and you should see a dialog show up with the following forms
-
-* Update Max Bet Limits
+* **Update Max Bet Limits**
 
     This field allows you to update the maximum amount of DBETs that can be bet into the selected game.
     
     **Max bet limits have to be set before a user is able to bet on the game.**
 
-### Update Period Limits
+* **Update Period Limits**
 
-This fields allows you to update the maximum amount of DBETs that can be bet into different bet types for a selected period in the selected game.
+    This fields allows you to update the maximum amount of DBETs that can be bet into different bet types for a selected period in the selected game.
+    
+    To fill in the period limits, you can refer to the limits provided by Pinnacle which can be found if you scroll to the bottom of the Dialog. 
 
-To fill in the period limits, you can refer to the limits provided by Pinnacle which can be found if you scroll to the bottom of the Dialog. 
-
-Push both max bet and period limits before continuing to the next step.
+**Push both max bet and period limits before continuing to the next step.**
 
 ## Push game odds
 
@@ -157,7 +154,7 @@ the **Odds count** column under **Pushed Games** should increment by 1 for every
 
 ## Deposit tokens into Sports book
 
-Once odds have been pushed, users can finally bet on the game, provided the current time has not exceeded the cut-off time of the game. 
+Once odds have been pushed, users can finally bet on the game provided the current time has not exceeded the cut-off time of the game. 
 
 To begin betting however, users will have to deposit tokens into the Sportsbook contract. To do so, open the Platform frontend and 
 to the right you should see **Your Session Balance** along with a **Deposit** button.
@@ -169,7 +166,7 @@ you should see **Your Session Balance** show an updated balance.
 
 ## Bet on game
 
-After depositing tokens into the contract, you are now able to bet on games.
+After depositing tokens into the contract, you will now be able to bet on games.
 
 If you've followed the steps above, you should now see games that have been added to the provider contract along
 with it's corresponding odds. 
@@ -177,7 +174,7 @@ with it's corresponding odds.
 Select any of the odds forms and enter the amount of DBETs you'd like to bet along with your preferred choice - 
 Either Home/Away/Win or Over/Under for Totals based odds.
 
-Once you've done the above, click the **Bet Now** button and send the transaction to the network.
+Once you've done the above, click the **Bet Now** button to send the transaction to the network.
 
 After the transaction has been mined on to a block, you should now see your bet show up under the **Bets Placed** 
 section at the bottom of the page along with details of the bet.
@@ -217,7 +214,7 @@ The above step pushes the result to the oracle contract, this now will need to b
 To do so, click on the **Update Provider Outcome** button. You should now see a dialog with the outcomes pushed to the contract
 along with the providers available. 
 
-For now, since Decent.bet will be the only provider on the network you should see only a single provider.
+For now, since ***Decent.bet*** will be the only provider on the network you should see only a single provider.
 
 To update an outcome, click the checkbox for an outcome and then the provider. Once done, click on the **Push to Provider** button.
 
