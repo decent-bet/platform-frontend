@@ -125,17 +125,17 @@ Click on the "Push Game" button in the row for the pushed game. You will now see
 Enter the cut-off time for the game (time before which bets can be placed) and click on the push button. By default, the cut-off time field is filled at 1000 seconds 
 or ~18 minutes prior to the game's start time. Time entry fields will be replaced with a date/time picker.
 
-## Update game limits
+* Update game limits
 
-Once the game has been pushed (refresh after transaction has been mined on to the network), you should see the game show up under "Pushed games". 
+    Once the game has been pushed (refresh after transaction has been mined on to the network), you should see the game show up under "Pushed games". 
+    
+    Click on the "Update Bet Limits" and you should see a dialog show up with the following forms
 
-Click on the "Update Bet Limits" and you should see a dialog show up with the following forms
+* Update Max Bet Limits
 
-### Update Max Bet Limits
-
-This field allows you to update the maximum amount of DBETs that can be bet into the selected game.
-
-**This field needs to be filled out before a user is able to bet on the game.**
+    This field allows you to update the maximum amount of DBETs that can be bet into the selected game.
+    
+    **Max bet limits have to be set before a user is able to bet on the game.**
 
 ### Update Period Limits
 
@@ -277,4 +277,4 @@ with the machines. If you're using MetaMask, every spin will require you to expl
 confirm signing a message. This will be unnecessary once the platform gets ported to a desktop app 
 and handles private keys on it's own.
 
-### Close Channel
+## Close Channel
