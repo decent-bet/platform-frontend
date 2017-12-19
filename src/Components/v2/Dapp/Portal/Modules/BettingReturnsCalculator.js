@@ -10,7 +10,7 @@ class BettingReturnsCalculator {
 
     getMaxReturns = (oddsObj, choice, betAmount) => {
         let odds = this._getSelectedOdds(choice, oddsObj)
-        return this._getWinnings(betAmount, odds)
+        return this._getWinnings(betAmount, odds).toFixed(2)
     }
 
     getSpreadReturns = (amount, handicap, team1Points, team2Points, choice, odds) => {

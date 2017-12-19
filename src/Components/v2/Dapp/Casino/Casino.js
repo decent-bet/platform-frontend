@@ -1,10 +1,6 @@
-/**
- * Created by user on 9/6/2017.
- */
-
 import React, {Component} from 'react'
 
-import Card from 'material-ui/Card'
+import {Card} from 'material-ui'
 
 import Helper from '../../Helper'
 

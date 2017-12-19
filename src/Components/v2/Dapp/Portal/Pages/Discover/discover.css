@@ -1,39 +1,39 @@
-.dapp .portal .discover .home {
+.portal .discover .home {
     background: #12161e;
     min-height: 100vh;
 }
 
-.dapp .portal .discover .home .cover img {
+.portal .discover .home .cover img {
     width: 100%;
     object-fit: contain;
     cursor: pointer;
 }
 
-.dapp .portal .discover .home .col-12 {
+.portal .discover .home .col-12 {
     padding: 0;
 }
 
-.dapp .portal .discover .home .top-right {
+.portal .discover .home .top-right {
     height: 60px;
     border-bottom: solid 1px;
 }
 
-.dapp .portal .discover .home .top-right p {
+.portal .discover .home .top-right p {
     font-size: 14px;
     padding-top: 18px;
 }
 
-.dapp .portal .discover .icon {
+.portal .discover .icon {
     color: #f2b45c;
 }
 
-.dapp .portal .discover .offering p {
+.portal .discover .offering p {
     text-transform: uppercase;
     font-size: 0.8rem;
     color: #fefefe;
 }
 
-.dapp .portal .discover .offering img {
+.portal .discover .offering img {
     height: 115px;
     width: 100%;
     object-fit: contain;

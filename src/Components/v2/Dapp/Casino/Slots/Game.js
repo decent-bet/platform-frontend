@@ -14,7 +14,7 @@ import SlotsChannelHandler from './Libraries/SlotsChannelHandler'
 
 const async = require('async')
 const constants = require('../../../Constants')
-const styles = require('../../../Base/styles')
+const styles = require('../../../Base/styles').styles()
 
 const helper = new Helper()
 const slotsChannelHandler = new SlotsChannelHandler()

@@ -18,9 +18,9 @@ class Helper {
     }
 
     getWeb3 = () => {
-        if (!window.web3.eth.defaultAccount)
-            window.web3.eth.defaultAccount = window.web3.eth.accounts[0]
-        return window.web3
+        if (!window.web3Object.eth.defaultAccount)
+            window.web3Object.eth.defaultAccount = window.web3Object.eth.accounts[0]
+        return window.web3Object
     }
 
     getContractHelper = () => {
@@ -29,21 +29,6 @@ class Helper {
 
     getTimestamp = () => {
         return Math.round(new Date().getTime() / 1000)
-    }
-
-    getTimestampMillis = () => {
-        return new Date().getTime()
-    }
-
-    formatHeading = (string) => {
-        let formattedString = ''
-        for (let i = 0; i < string.length; i++) {
-            if (string[i] == '_')
-                formattedString += '&ensp;';
-            else
-                formattedString += string[i].toUpperCase() + ' '
-        }
-        return this.Htmlify(formattedString)
     }
 
     Htmlify(html) {
@@ -73,20 +58,6 @@ class Helper {
 
     isUndefined = (object) => {
         return typeof object == 'undefined'
-    }
-
-    fixLargeNumber = (num) => {
-        let str = '';
-        do {
-            let a = num % 10;
-            num = Math.trunc(num / 10);
-            str = a + str;
-        } while (num > 0)
-        return str;
-    }
-
-    intToHex = (number) => {
-        return ethJsUtil.bufferToHex(ethJsUtil.setLengthLeft(number, 32))
     }
 
     duplicate = (obj) => {

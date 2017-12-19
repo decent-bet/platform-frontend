@@ -24,6 +24,16 @@ class Themes {
         })
     }
 
+    getButtons = () => {
+        return getMuiTheme({
+            palette: {
+                textColor: constants.COLOR_GOLD,
+                alternateTextColor: constants.COLOR_GOLD,
+                primary1Color: constants.COLOR_GOLD,
+            }
+        })
+    }
+
     getDialog = () => {
         return getMuiTheme({
             palette: {
@@ -37,12 +47,15 @@ class Themes {
         })
     }
 
-    getButtons = () => {
+    getSnackbar() {
         return getMuiTheme({
             palette: {
-                textColor: constants.COLOR_GOLD,
-                alternateTextColor: constants.COLOR_GOLD,
-                primary1Color: constants.COLOR_GOLD,
+                textColor: constants.COLOR_PRIMARY,
+                alternateTextColor: constants.COLOR_WHITE,
+                primary1Color: constants.COLOR_PRIMARY,
+                primary2Color: constants.COLOR_PRIMARY_DARK,
+                accent1Color: constants.COLOR_RED,
+                canvasColor: constants.COLOR_PRIMARY
             }
         })
     }

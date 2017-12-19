@@ -9,6 +9,8 @@ contract TimeProvider {
 
     address public timeController;
 
+    event LogUpdatedTime(uint time);
+
     modifier onlyTimeController() {
         if(msg.sender != timeController) throw;
         _;
@@ -20,6 +22,7 @@ contract TimeProvider {
 
     function setTime(uint time) onlyTimeController {
         mockTime = time;
+        LogUpdatedTime(time);
     }
 
     function setTimeController(address _timeController) internal {
