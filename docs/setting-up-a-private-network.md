@@ -90,15 +90,13 @@ https://geth.ethereum.org/downloads/
     You should see output along the lines of this
     
     ```
-    INFO [10-20|21:00:32] Starting P2P networking
-    INFO [10-20|21:00:32] RLPx listener up                         self="enode://d6c
-    bf22b62f71431b42591bb802e68740c4fc2c1840943ee5901bf427b1e8bb8099cfee694875794aa8
-    53ffe53dad87ffc2c0aee1642c5c0e95b58f585cab581@[::]:30303?discport=0"
-    INFO [10-20|21:00:32] IPC endpoint opened: \\.\pipe\geth.ipc
-    INFO [10-20|21:00:32] HTTP endpoint opened: http://localhost:8545
-    INFO [10-20|21:00:32] WebSocket endpoint opened: ws://127.0.0.1:8546
-    Welcome to the Geth JavaScript console!
-    >
+    INFO [12-22|18:21:04] Allocated cache and file handles         database={$PWD}/ethdata/geth/chaindata cache=16 handles=16
+    INFO [12-22|18:21:04] Writing custom genesis block 
+    INFO [12-22|18:21:04] Successfully wrote genesis state         database=chaindata                           hash=289277…571306
+    INFO [12-22|18:21:04] Allocated cache and file handles         database={$PWD}/ethdata/geth/lightchaindata cache=16 handles=16
+    INFO [12-22|18:21:04] Writing custom genesis block 
+    INFO [12-22|18:21:04] Successfully wrote genesis state         database=lightchaindata                      hash=289277…571306
+
     ```
     
 6. **Start your chain**
@@ -158,10 +156,16 @@ the original mining node.
 
 1. **Setting up your chain**
    Follow steps 2-7 from the above instructions in a unique directory meant 
-   for your peer node.
+   for your peer node. 
+
+   Note that you should use the same genenis.json file created in step 3 here.
    
    In step 6, make sure you use a port that's different from the one running on your
    main node, which's usually 30303.
+
+   ```
+   geth --port=30304 --datadir="ethdata" --networkid 10 --nodiscover console
+   ```
 
 2. **Add as a peer to the main node**
    To add the node as a peer to the main node, type in **admin.nodeInfo** and you
