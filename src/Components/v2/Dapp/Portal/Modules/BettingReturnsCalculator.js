@@ -128,7 +128,6 @@ class BettingReturnsCalculator {
     }
 
     _getWinnings = (amount, odds) => {
-        console.log('_getWinnings', amount, odds)
         let absOdds = Math.abs(odds)
 
         if (odds < 0) {

@@ -1,12 +1,8 @@
-/**
- * Created by user on 4/20/2017.
- */
-
 import React from 'react'
 
-const ethUnits = require('ethereum-units')
-const ethJsUtil = require('ethereumjs-util')
+import EventBus from 'eventing-bus'
 
+const ethUnits = require('ethereum-units')
 const BigNumber = require('bignumber.js')
 
 const IS_DEV = true
@@ -44,7 +40,7 @@ class Helper {
     }
 
     formatEther = (ether) => {
-        return new BigNumber(ether).dividedBy(this.getEtherInWei()).toFixed(0)
+        return new BigNumber(ether).dividedBy(this.getEtherInWei()).toFixed(2)
     }
 
     roundDecimals = (number, decimals) => {
@@ -62,6 +58,10 @@ class Helper {
 
     duplicate = (obj) => {
         return JSON.parse(JSON.stringify(obj))
+    }
+
+    toggleSnackbar = (message) => {
+        EventBus.publish('showSnackbar', message)
     }
 
 }
