@@ -13,7 +13,7 @@
 
     <script type="text/javascript" src="js/jquery-2.0.3.min.js"></script>
     <script type="text/javascript" src="js/web3.min.js"></script>
-    <script type="text/javascript" src="js/MetaMaskLoader.js"></script>
+    <script type="text/javascript" src="js/Web3Loader.js"></script>
     <script type="text/javascript" src="js/createjs-2013.12.12.min.js"></script>
     <script type="text/javascript" src="js/ctl_utils.js"></script>
     <script type="text/javascript" src="js/sprite_lib.js"></script>
@@ -39,7 +39,7 @@
 <body ondragstart="return false;" ondrop="return false;">
 <div style="position: fixed; background-color: transparent; top: 0px; left: 0px; width: 100%; height: 100%"></div>
 <script>
-    setOnLoadMetaMaskListener(function () {
+    setOnLoadWeb3Listener(function () {
         $(document).ready(function () {
             var balances = parent.window.slotsController().balances()
             console.log('Slot balances', balances.user)

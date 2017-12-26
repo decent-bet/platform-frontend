@@ -1,7 +1,3 @@
-/**
- * Created by user on 10/3/2017.
- */
-
 import DecentAPI from '../../../../Base/DecentAPI'
 import Helper from '../../../../Helper'
 
@@ -286,7 +282,7 @@ export default class SlotsChannelHandler {
 
                         let msg = self.helpers().getTightlyPackedSpin(nonSignatureSpin)
 
-                        let msgHash = helper.getContractHelper().getWeb3().sha3(msg)
+                        let msgHash = helper.getWeb3().sha3(msg)
 
                         console.log('Tightly packed spin', msg)
                         console.log('msgHash', msgHash)

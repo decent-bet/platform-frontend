@@ -14,8 +14,6 @@ class Helper {
     }
 
     getWeb3 = () => {
-        if (!window.web3Object.eth.defaultAccount)
-            window.web3Object.eth.defaultAccount = window.web3Object.eth.accounts[0]
         return window.web3Object
     }
 

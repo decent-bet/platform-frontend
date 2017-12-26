@@ -11,22 +11,18 @@ import Web3 from 'web3'
 import KeyHandler from './KeyHandler'
 import ContractHelper from '../ContractHelper'
 
-const Accounts = require('web3-eth-accounts')
 const constants = require('../Constants')
 const keyHandler = new KeyHandler()
 
-let accounts
-
 let initWeb3 = () => {
     const httpProvider = constants.PROVIDER_URL
-    accounts = new Accounts(httpProvider)
 
     let provider = new Web3.providers.HttpProvider(httpProvider)
     let defaultAccount
 
     window.web3Object = new Web3(provider)
     if (keyHandler.isLoggedIn())
-        window.web3Object.eth.defaultAccount = keyHandler.getAddress()
+        window.web3Object.eth.defaultAccount = keyHandler.getAddress().toLowerCase()
     console.log('window.web3Object.eth.defaultAccount', window.web3Object.eth.defaultAccount)
 
     const contractHelper = new ContractHelper()

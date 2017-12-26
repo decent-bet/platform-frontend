@@ -1,7 +1,3 @@
-/**
- * Created by user on 9/6/2017.
- */
-
 import React, {Component} from 'react'
 
 import {Card, CircularProgress, FlatButton, MuiThemeProvider} from 'material-ui'
@@ -9,6 +5,7 @@ import {Card, CircularProgress, FlatButton, MuiThemeProvider} from 'material-ui'
 import GetSlotsChipsDialog from './Dialogs/GetSlotsChipsDialog'
 import NewChannelDialog from './Dialogs/NewChannelDialog'
 
+import EventBus from 'eventing-bus'
 import Helper from '../../../Helper'
 import SlotsChannelHandler from './Libraries/SlotsChannelHandler'
 import Themes from '../../../Base/Themes'
@@ -58,10 +55,23 @@ class Slots extends Component {
 
     componentWillMount = () => {
         this.initData()
-        this.initWatchers()
     }
 
     initData = () => {
+        if (window.web3Loaded) {
+            this.initWeb3Data()
+            this.initWatchers()
+        } else {
+            let web3Loaded = EventBus.on('web3Loaded', () => {
+                this.initWeb3Data()
+                this.initWatchers()
+                // Unregister callback
+                web3Loaded()
+            })
+        }
+    }
+
+    initWeb3Data = () => {
         this.web3Getters().currentSession()
         this.web3Getters().allowance()
     }

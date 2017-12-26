@@ -1,0 +1,105 @@
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+::-webkit-scrollbar {
+    width: 8px; /* for vertical scrollbars */
+    height: 8px; /* for horizontal scrollbars */
+}
+
+::-webkit-scrollbar-track {
+    background: rgb(47, 49, 62);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #f2b45c;
+}
+
+.color-gold {
+    color: #f2b45c !important;
+}
+
+.dashboard {
+    min-height: 100vh;
+    background: linear-gradient(
+            rgba(0, 0, 0, 0.55),
+            rgba(0, 0, 0, 0.55)
+    ),
+    url('../../../../../public/assets/img/backgrounds/platform.PNG');
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.dashboard .appbar {
+    background: linear-gradient(to bottom, #323232 0%, #3F3F3F 40%, #1C1C1C 150%), linear-gradient(to top, rgba(255, 255, 255, 0.40) 0%, rgba(0, 0, 0, 0.25) 200%);
+    background-blend-mode: multiply;
+}
+
+.dashboard h1,
+.dashboard h2,
+.dashboard h3,
+.dashboard h4,
+.dashboard h5 {
+    color: #ffffff;
+    font-family: GothamLight;
+}
+
+.dashboard .appbar-title .logo {
+    width: 110px;
+    object-fit: contain;
+}
+
+.dashboard .drawer .logo {
+    height: 150px;
+    width: 80%;
+    object-fit: contain;
+    margin: 20px auto 20px auto;
+    display: block;
+}
+
+.dashboard .menu-item:hover {
+    background: #292b2c !important;
+    font-weight: bold !important;
+}
+
+.dashboard .menu-icon {
+    color: #f2b45c !important;
+    width: 32px;
+}
+
+.dashboard .main {
+    padding-top: 60px;
+}
+
+.dashboard .details .logo {
+    height: 95px;
+    width: 95px;
+    display: block;
+    margin: 0 auto 10px auto;
+}
+
+.dashboard .details p {
+    color: #3a4182;
+}
+
+.dashboard .event-card img {
+    height: 225px;
+    width: 225px;
+    object-fit: cover;
+}
+
+.dashboard .games .game:hover {
+    background: #3a4182;
+    color: #ffffff;
+}
+
+.scrollbar {
+    overflow-y: scroll;
+}
+
+.dashboard #sidebar-wrapper::-webkit-scrollbar {
+    width: 1px;
+}

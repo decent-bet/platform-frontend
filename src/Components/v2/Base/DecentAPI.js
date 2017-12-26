@@ -1,9 +1,8 @@
-/**
- * Created by user on 6/14/2017.
- */
 import Helper from '../Helper'
+import KeyHandler from '../Base/KeyHandler'
 
 const helper = new Helper()
+const keyHandler = new KeyHandler()
 
 const LOCAL_URL = 'http://localhost:3010/api'
 const PUBLIC_URL = 'http://35.176.87.201:3010/api'
@@ -79,21 +78,26 @@ class DecentAPI {
         /*
          * Sign a string and return (hash, v, r, s) used by ecrecover to regenerate the user's address;
          */
-        let msgHash = window.web3.sha3(text);
-        console.log('Signing ' + msgHash + ' as ' + window.web3.eth.defaultAccount)
-        window.web3.eth.sign(window.web3.eth.defaultAccount, msgHash, (err, sgn) => {
-            if (!err) {
-                const {v, r, s} = ethUtil.fromRpcSig(sgn)
-                console.log('v: ' + v + ', r: ' + sgn.slice(0, 66) + ', s: ' + '0x' + sgn.slice(66, 130))
-                let m = ethUtil.toBuffer(msgHash)
-                let pub = ethUtil.ecrecover(m, v, r, s)
-                let adr = '0x' + ethUtil.pubToAddress(pub).toString('hex')
-                if (adr !== window.web3.eth.defaultAccount) throw new Error("I guess this doesn't fix it.")
-                console.log("Ta-da! " + adr + ', ' + window.web3.version.api)
-                callback(false, {msgHash: msgHash, sig: sgn});
-            } else
-                callback(true, err)
-        });
+        let msgHash = ethUtil.sha3(text)
+        let privateKey = ethUtil.toBuffer(keyHandler.get())
+
+        console.log('Signing', text, msgHash, 'as', helper.getWeb3().eth.defaultAccount,
+            ethUtil.isValidPrivate(privateKey))
+
+        const {v, r, s} = ethUtil.ecsign(msgHash, privateKey)
+        const sgn = ethUtil.toRpcSig(v, r, s)
+
+        console.log('v: ' + v + ', r: ' + sgn.slice(0, 66) + ', s: ' + '0x' + sgn.slice(66, 130))
+
+        let m = ethUtil.toBuffer(msgHash)
+        let pub = ethUtil.ecrecover(m, v, r, s)
+        let adr = '0x' + ethUtil.pubToAddress(pub).toString('hex')
+
+        console.log('Generated sign address', adr, helper.getWeb3().eth.defaultAccount)
+
+        if (adr !== helper.getWeb3().eth.defaultAccount) throw new Error("Invalid address for signed message")
+
+        callback(false, {msgHash: msgHash, sig: sgn})
     }
 
     getSpinBuffer = (spin) => {

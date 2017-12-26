@@ -1,13 +1,10 @@
-/**
- * Created by user on 10/5/2017.
- */
-
 import React, {Component} from 'react'
 
 import {Card, FlatButton} from 'material-ui'
 
 const queryString = require('query-string')
 
+import EventBus from 'eventing-bus'
 import Helper from '../../../Helper'
 import Iframe from '../../../Base/Iframe'
 import SlotsChannelHandler from './Libraries/SlotsChannelHandler'
@@ -38,8 +35,21 @@ class Game extends Component {
     }
 
     componentWillMount() {
-        this.initChannel()
-        this.initWatchers()
+        this.initData()
+    }
+
+    initData = () => {
+        if (window.web3Loaded) {
+            this.initChannel()
+            this.initWatchers()
+        } else {
+            let web3Loaded = EventBus.on('web3Loaded', () => {
+                this.initChannel()
+                this.initWatchers()
+                // Unregister callback
+                web3Loaded()
+            })
+        }
     }
 
     initChannel = () => {
