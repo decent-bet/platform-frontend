@@ -1,9 +1,3 @@
-/**
- * Created by user on 4/12/2017.
- */
-
-const ethUtil = require('ethereumjs-util')
-
 import DecentBetToken from '../../../build/contracts/TestDecentBetToken.json'
 import House from '../../../build/contracts/House.json'
 import BettingProvider from '../../../build/contracts/BettingProvider.json'
@@ -11,33 +5,18 @@ import SlotsChannelFinalizer from '../../../build/contracts/SlotsChannelFinalize
 import SlotsChannelManager from '../../../build/contracts/SlotsChannelManager.json'
 import SportsOracle from '../../../build/contracts/SportsOracle.json'
 
-import Web3 from 'web3'
-
 const async = require('async')
-const ethUnits = require('ethereum-units')
-
-const provider = window.web3.currentProvider
 const contract = require('truffle-contract')
-const decentBetToken = contract(DecentBetToken)
-const house = contract(House)
-const bettingProvider = contract(BettingProvider)
-const slotsChannelFinalizer = contract(SlotsChannelFinalizer)
-const slotsChannelManager = contract(SlotsChannelManager)
-const sportsOracle = contract(SportsOracle)
+const ethUnits = require('ethereum-units')
+const ethUtil  = require('ethereumjs-util')
 
-decentBetToken.setProvider(provider)
-house.setProvider(provider)
-bettingProvider.setProvider(provider)
-slotsChannelFinalizer.setProvider(provider)
-slotsChannelManager.setProvider(provider)
-sportsOracle.setProvider(provider)
+let web3
+let provider
 
-// Get Web3 so we can get our accounts.
-const web3 = window.web3
+let bettingProvider, decentBetToken, house, houseOffering, slotsChannelManager, slotsChannelFinalizer, sportsOracle
 
-// Declaring these for later so we can chain functions on Contract objects.
-let decentBetTokenInstance, houseInstance, bettingProviderInstance, slotsChannelFinalizerInstance,
-    slotsChannelManagerInstance, sportsOracleInstance
+let bettingProviderInstance, decentBetTokenInstance, houseInstance, slotsChannelManagerInstance,
+    slotsChannelFinalizerInstance, sportsOracleInstance
 
 const TYPE_DBET_TOKEN = 0,
     TYPE_HOUSE = 1,
@@ -48,8 +27,23 @@ const TYPE_DBET_TOKEN = 0,
 
 class ContractHelper {
 
-    getWeb3 = () => {
-        return web3
+    constructor() {
+        web3 = window.web3Object
+        provider = window.web3Object.currentProvider
+
+        bettingProvider = contract(BettingProvider)
+        decentBetToken = contract(DecentBetToken)
+        house = contract(House)
+        slotsChannelFinalizer = contract(SlotsChannelFinalizer)
+        slotsChannelManager = contract(SlotsChannelManager)
+        sportsOracle = contract(SportsOracle)
+
+        bettingProvider.setProvider(provider)
+        decentBetToken.setProvider(provider)
+        house.setProvider(provider)
+        slotsChannelFinalizer.setProvider(provider)
+        slotsChannelManager.setProvider(provider)
+        sportsOracle.setProvider(provider)
     }
 
     getTokenInstance = () => {
@@ -224,23 +218,23 @@ class ContractHelper {
                     /** Getters */
                     allowance: (owner, spender) => {
                         return decentBetTokenInstance.allowance.call(owner, spender, {
-                            from: window.web3.eth.defaultAccount,
+                            from: window.web3Object.eth.defaultAccount,
                         })
                     },
                     balanceOf: (address) => {
                         return decentBetTokenInstance.balanceOf.call(address, {
-                            from: window.web3.eth.defaultAccount,
+                            from: window.web3Object.eth.defaultAccount,
                         })
                     },
                     /** Setters */
                     approve: (address, value) => {
                         return decentBetTokenInstance.approve.sendTransaction(address, value, {
-                            from: window.web3.eth.defaultAccount,
+                            from: window.web3Object.eth.defaultAccount,
                         })
                     },
                     faucet: () => {
                         return decentBetTokenInstance.faucet.sendTransaction({
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount
                         })
                     },
                     /**
@@ -276,7 +270,7 @@ class ContractHelper {
                     },
                     getUserCreditsForSession: (sessionNumber, address) => {
                         return houseInstance.getUserCreditsForSession.call(sessionNumber, address, {
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount
                         })
                     },
                     getAuthorizedAddresses: (index) => {
@@ -302,7 +296,8 @@ class ContractHelper {
                      */
                     purchaseCredits: (amount) => {
                         return houseInstance.purchaseCredits.sendTransaction(amount, {
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount,
+                            gas: 5000000
                         })
                     },
                     /**
@@ -310,7 +305,7 @@ class ContractHelper {
                      */
                     logPurchasedCredits: (sessionNumber, fromBlock, toBlock) => {
                         return houseInstance.LogPurchasedCredits({
-                            creditHolder: window.web3.eth.defaultAccount,
+                            creditHolder: window.web3Object.eth.defaultAccount,
                             session: sessionNumber
                         }, {
                             fromBlock: fromBlock ? fromBlock : 0,
@@ -319,7 +314,7 @@ class ContractHelper {
                     },
                     logLiquidateCredits: (sessionNumber, fromBlock, toBlock) => {
                         return houseInstance.LogLiquidateCredits({
-                            creditHolder: window.web3.eth.defaultAccount,
+                            creditHolder: window.web3Object.eth.defaultAccount,
                             session: sessionNumber
                         }, {
                             fromBlock: fromBlock ? fromBlock : 0,
@@ -384,6 +379,9 @@ class ContractHelper {
                     getCurrentSession: () => {
                         return bettingProviderInstance.currentSession()
                     },
+                    getTime: () => {
+                        return bettingProviderInstance.getTime()
+                    },
                     getUserBets: (address, index) => {
                         return bettingProviderInstance.getUserBets(address, index)
                     },
@@ -398,36 +396,42 @@ class ContractHelper {
                      * Setters
                      */
                     deposit: (amount) => {
-                        console.log('Depositing', amount, 'to sportsbook as', window.web3.eth.defaultAccount)
+                        console.log('Depositing', amount, 'to sportsbook as', window.web3Object.eth.defaultAccount)
                         return bettingProviderInstance.deposit.sendTransaction(amount, {
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount,
+                            gas: 5000000
                         })
                     },
                     setSportsOracle: (address) => {
                         return bettingProviderInstance.setSportsOracle.sendTransaction(address, {
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount,
+                            gas: 5000000
                         })
                     },
                     changeAssistedClaimTimeOffset: (offset) => {
                         return bettingProviderInstance.changeAssistedClaimTimeOffset.sendTransaction(offset, {
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount,
+                            gas: 5000000
                         })
                     },
                     addGame: (oracleGameId, cutOffTime, endTime) => {
                         return bettingProviderInstance.addGame.sendTransaction(oracleGameId, cutOffTime, endTime, {
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount,
+                            gas: 5000000
                         })
                     },
                     updateGamePeriodBetLimits: (id, period, limits) => {
                         console.log('updateGamePeriodBetLimits', id, period, limits)
                         return bettingProviderInstance.updateGamePeriodBetLimits.sendTransaction(id, period, limits, {
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount,
+                            gas: 5000000
                         })
                     },
                     updateGameMaxBetLimits: (id, maxBetLimit) => {
                         console.log('updateGamePeriodBetLimits', id, maxBetLimit)
                         return bettingProviderInstance.updateGameMaxBetLimits.sendTransaction(id, maxBetLimit, {
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount,
+                            gas: 5000000
                         })
                     },
                     pushGameOdds: (id, refId, period, handicap, team1, team2, draw, betType, points,
@@ -436,31 +440,36 @@ class ContractHelper {
                             betType, points, over, under, isTeam1)
                         return bettingProviderInstance.pushGameOdds.sendTransaction(id, refId, period, handicap,
                             team1, team2, draw, betType, points, over, under, isTeam1, {
-                                from: window.web3.eth.defaultAccount
+                                from: window.web3Object.eth.defaultAccount,
+                                gas: 5000000
                             })
                     },
                     updateGameOdds: (id, oddsId, handicap, team1, team2, draw, points, over, under) => {
                         return bettingProviderInstance.updateGameOdds.sendTransaction(id, oddsId, handicap, team1,
                             team2, draw, points, over, under, {
-                                from: window.web3.eth.defaultAccount
+                                from: window.web3Object.eth.defaultAccount,
+                                gas: 5000000
                             })
                     },
                     updateGameOutcome: (id, period, result, team1Points, team2Points) => {
                         return bettingProviderInstance.updateGameOutcome.sendTransaction(id, period, result,
                             team1Points, team2Points, {
-                                from: window.web3.eth.defaultAccount
+                                from: window.web3Object.eth.defaultAccount,
+                                gas: 5000000
                             })
                     },
                     placeBet: (gameId, oddsId, betType, choice, amount) => {
                         console.log('Placing bet', gameId, oddsId, betType, choice, amount)
                         return bettingProviderInstance.placeBet.sendTransaction(gameId, oddsId, betType,
                             choice, amount, {
-                                from: window.web3.eth.defaultAccount
+                                from: window.web3Object.eth.defaultAccount,
+                                gas: 5000000
                             })
                     },
                     claimBet: (gameId, betId, bettor) => {
                         return bettingProviderInstance.claimBet.sendTransaction(gameId, betId, bettor, {
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount,
+                            gas: 5000000
                         })
                     },
                     /**
@@ -484,28 +493,47 @@ class ContractHelper {
                             toBlock: toBlock ? toBlock : 'latest'
                         })
                     },
+                    logUpdatedMaxBet: (fromBlock, toBlock) => {
+                        return bettingProviderInstance.LogUpdatedMaxBet({}, {
+                            fromBlock: fromBlock ? fromBlock : 'latest',
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logUpdatedBetLimits: (fromBlock, toBlock) => {
+                        return bettingProviderInstance.LogUpdatedBetLimits({}, {
+                            fromBlock: fromBlock ? fromBlock : 'latest',
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
                     logNewBet: (fromBlock, toBlock) => {
                         return bettingProviderInstance.LogNewBet({}, {
-                            _address: window.web3.eth.defaultAccount,
+                            bettor: window.web3Object.eth.defaultAccount,
                             fromBlock: fromBlock ? fromBlock : 'latest',
                             toBlock: toBlock ? toBlock : 'latest'
                         })
                     },
                     logClaimedBet: (fromBlock, toBlock) => {
                         return bettingProviderInstance.LogClaimedBet({}, {
+                            bettor: window.web3Object.eth.defaultAccount,
                             fromBlock: fromBlock ? fromBlock : 'latest',
                             toBlock: toBlock ? toBlock : 'latest'
                         })
                     },
                     logDeposit: (fromBlock, toBlock) => {
                         return bettingProviderInstance.Deposit({}, {
-                            _address: window.web3.eth.defaultAccount,
+                            _address: window.web3Object.eth.defaultAccount,
                             fromBlock: fromBlock ? fromBlock : 'latest',
                             toBlock: toBlock ? toBlock : 'latest'
                         })
                     },
                     logWithdraw: (fromBlock, toBlock) => {
                         return bettingProviderInstance.Withdraw({}, {
+                            fromBlock: fromBlock ? fromBlock : 'latest',
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logUpdatedTime: (fromBlock, toBlock) => {
+                        return bettingProviderInstance.LogUpdatedTime({}, {
                             fromBlock: fromBlock ? fromBlock : 'latest',
                             toBlock: toBlock ? toBlock : 'latest'
                         })
@@ -559,62 +587,75 @@ class ContractHelper {
                     getGamePeriods: (gameId, periodNumber) => {
                         return sportsOracleInstance.gamePeriods(gameId, periodNumber)
                     },
+                    getTime: () => {
+                        return sportsOracleInstance.getTime()
+                    },
                     /**
                      * Setters
                      */
                     togglePayForProviderAcceptance: (enabled) => {
                         return sportsOracleInstance.togglePayForProviderAcceptance.sendTransaction(enabled, {
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount,
+                            gas: 5000000
                         })
                     },
                     addAuthorizedAddress: (address) => {
                         return sportsOracleInstance.addAuthorizedAddress.sendTransaction(address, {
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount,
+                            gas: 5000000
                         })
                     },
                     changeGameUpdateCost: (cost) => {
                         cost *= ethUnits.units.ether
                         return sportsOracleInstance.changeGameUpdateCost.sendTransaction(cost, {
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount,
+                            gas: 5000000
                         })
                     },
                     changeProviderAcceptanceCost: (cost) => {
                         cost *= ethUnits.units.ether
                         return sportsOracleInstance.changeProviderAcceptanceCost.sendTransaction(cost, {
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount,
+                            gas: 5000000
                         })
                     },
                     acceptProvider: (address) => {
                         return sportsOracleInstance.acceptProvider.sendTransaction(address, {
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount,
+                            gas: 5000000
                         })
                     },
                     addGame: (refId, sportId, leagueId, startTime, endTime, availablePeriods, ipfsHash) => {
                         return sportsOracleInstance.addGame.sendTransaction(refId, sportId, leagueId, startTime, endTime,
                             availablePeriods, ipfsHash, {
-                                from: window.web3.eth.defaultAccount
+                                from: window.web3Object.eth.defaultAccount,
+                                gas: 5000000
                             })
                     },
                     updateGameDetails: (id, ipfsHash) => {
                         return sportsOracleInstance.updateGameDetails.sendTransaction(id, ipfsHash, {
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount,
+                            gas: 5000000
                         })
                     },
                     pushOutcome: (id, period, result, totalPoints, team1Points, team2Points) => {
                         return sportsOracleInstance.pushOutcome.sendTransaction(id, period, result, totalPoints,
                             team1Points, team2Points, {
-                                from: window.web3.eth.defaultAccount
+                                from: window.web3Object.eth.defaultAccount,
+                                gas: 5000000
                             })
                     },
                     updateProviderOutcome: (id, providerAddress, period, result, team1Points, team2Points) => {
                         return sportsOracleInstance.updateProviderOutcome.sendTransaction(id, providerAddress, period,
                             result, team1Points, team2Points, {
-                                from: window.web3.eth.defaultAccount
+                                from: window.web3Object.eth.defaultAccount,
+                                gas: 5000000
                             })
                     },
                     withdrawTokens: () => {
                         return sportsOracleInstance.withdrawTokens().sendTransaction({
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount,
+                            gas: 5000000
                         })
                     },
                     /**
@@ -673,6 +714,12 @@ class ContractHelper {
                             fromBlock: fromBlock ? fromBlock : 'latest',
                             toBlock: toBlock ? toBlock : 'latest'
                         })
+                    },
+                    logUpdatedTime: (fromBlock, toBlock) => {
+                        return sportsOracleInstance.LogUpdatedTime({}, {
+                            fromBlock: fromBlock ? fromBlock : 'latest',
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
                     }
                 }
             },
@@ -699,7 +746,7 @@ class ContractHelper {
 
                         return slotsChannelFinalizerInstance.finalize.call(id, userSpin.parts,
                             houseSpin.parts, userSpin.r, userSpin.s, houseSpin.r, houseSpin.s, {
-                                from: window.web3.eth.defaultAccount
+                                from: window.web3Object.eth.defaultAccount
                             })
                     }
                 }
@@ -711,28 +758,28 @@ class ContractHelper {
                      */
                     getChannelInfo: (id) => {
                         return slotsChannelManagerInstance.getChannelInfo.call(id, {
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount
                         })
                     },
                     getChannelHashes: (id) => {
                         return slotsChannelManagerInstance.getChannelHashes.call(id, {
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount
                         })
                     },
                     checkSig: (id, msgHash, sign, turn) => {
                         console.log('Checksig', id, msgHash, sign, turn)
                         return slotsChannelManagerInstance.checkSig.call(id, msgHash, sign, turn, {
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount
                         })
                     },
                     balanceOf: (address, session) => {
                         return slotsChannelManagerInstance.balanceOf.call(address, session, {
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount
                         })
                     },
                     currentSession: () => {
                         return slotsChannelManagerInstance.currentSession.call({
-                            from: window.web3.eth.defaultAccount
+                            from: window.web3Object.eth.defaultAccount
                         })
                     },
                     /**
@@ -740,23 +787,26 @@ class ContractHelper {
                      */
                     createChannel: (deposit) => {
                         return slotsChannelManagerInstance.createChannel.sendTransaction(deposit,
-                            {from: window.web3.eth.defaultAccount})
+                            {from: window.web3Object.eth.defaultAccount,
+                            gas: 5000000})
                     },
                     deposit: (amount) => {
                         return slotsChannelManagerInstance.deposit.sendTransaction(amount,
-                            {from: window.web3.eth.defaultAccount})
+                            {from: window.web3Object.eth.defaultAccount,
+                                gas: 5000000})
                     },
                     depositToChannel: (id, initialUserNumber, finalUserHash) => {
                         return slotsChannelManagerInstance.depositChannel.sendTransaction(id,
                             initialUserNumber, finalUserHash,
-                            {from: window.web3.eth.defaultAccount})
+                            {from: window.web3Object.eth.defaultAccount,
+                                gas: 5000000})
                     },
                     /**
                      * Events
                      */
                     logNewChannel: (fromBlock, toBlock) => {
                         return slotsChannelManagerInstance.LogNewChannel({
-                            user: window.web3.eth.defaultAccount
+                            user: window.web3Object.eth.defaultAccount
                         }, {
                             fromBlock: fromBlock ? fromBlock : 0,
                             toBlock: toBlock ? toBlock : 'latest'
@@ -764,7 +814,7 @@ class ContractHelper {
                     },
                     logChannelDeposit: (fromBlock, toBlock) => {
                         return slotsChannelManagerInstance.LogChannelDeposit({
-                            user: window.web3.eth.defaultAccount
+                            user: window.web3Object.eth.defaultAccount
                         }, {
                             fromBlock: fromBlock ? fromBlock : 0,
                             toBlock: toBlock ? toBlock : 'latest'
@@ -772,7 +822,7 @@ class ContractHelper {
                     },
                     logChannelActivate: (fromBlock, toBlock) => {
                         return slotsChannelManagerInstance.LogChannelActivate({
-                            user: window.web3.eth.defaultAccount
+                            user: window.web3Object.eth.defaultAccount
                         }, {
                             fromBlock: fromBlock ? fromBlock : 0,
                             toBlock: toBlock ? toBlock : 'latest'
@@ -780,7 +830,7 @@ class ContractHelper {
                     },
                     logChannelFinalized: (fromBlock, toBlock) => {
                         return slotsChannelManagerInstance.LogChannelFinalized({
-                            user: window.web3.eth.defaultAccount
+                            user: window.web3Object.eth.defaultAccount
                         }, {
                             fromBlock: fromBlock ? fromBlock : 0,
                             toBlock: toBlock ? toBlock : 'latest'
@@ -788,7 +838,7 @@ class ContractHelper {
                     },
                     logDeposit: (fromBlock, toBlock) => {
                         return slotsChannelManagerInstance.LogDeposit({
-                            _address: window.web3.eth.defaultAccount
+                            _address: window.web3Object.eth.defaultAccount
                         }, {
                             fromBlock: fromBlock ? fromBlock : 0,
                             toBlock: toBlock ? toBlock : 'latest'

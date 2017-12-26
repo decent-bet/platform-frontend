@@ -22,37 +22,37 @@ input::-webkit-inner-spin-button {
     color: #f2b45c !important;
 }
 
-.dapp {
+.dashboard {
     min-height: 100vh;
     background: linear-gradient(
             rgba(0, 0, 0, 0.55),
             rgba(0, 0, 0, 0.55)
     ),
-    url('../../../../public/assets/img/backgrounds/platform.PNG');
+    url('../../../../../public/assets/img/backgrounds/platform.PNG');
     background-size: cover;
     background-attachment: fixed;
 }
 
-.dapp .appbar {
+.dashboard .appbar {
     background: linear-gradient(to bottom, #323232 0%, #3F3F3F 40%, #1C1C1C 150%), linear-gradient(to top, rgba(255, 255, 255, 0.40) 0%, rgba(0, 0, 0, 0.25) 200%);
     background-blend-mode: multiply;
 }
 
-.dapp h1,
-.dapp h2,
-.dapp h3,
-.dapp h4,
-.dapp h5 {
+.dashboard h1,
+.dashboard h2,
+.dashboard h3,
+.dashboard h4,
+.dashboard h5 {
     color: #ffffff;
     font-family: GothamLight;
 }
 
-.dapp .appbar-title .logo {
+.dashboard .appbar-title .logo {
     width: 110px;
     object-fit: contain;
 }
 
-.dapp .drawer .logo {
+.dashboard .drawer .logo {
     height: 150px;
     width: 80%;
     object-fit: contain;
@@ -60,38 +60,38 @@ input::-webkit-inner-spin-button {
     display: block;
 }
 
-.dapp .menu-item:hover {
+.dashboard .menu-item:hover {
     background: #292b2c !important;
     font-weight: bold !important;
 }
 
-.dapp .menu-icon {
+.dashboard .menu-icon {
     color: #f2b45c !important;
     width: 32px;
 }
 
-.dapp .main {
+.dashboard .main {
     padding-top: 60px;
 }
 
-.dapp .details .logo {
+.dashboard .details .logo {
     height: 95px;
     width: 95px;
     display: block;
     margin: 0 auto 10px auto;
 }
 
-.dapp .details p {
+.dashboard .details p {
     color: #3a4182;
 }
 
-.dapp .event-card img {
+.dashboard .event-card img {
     height: 225px;
     width: 225px;
     object-fit: cover;
 }
 
-.dapp .games .game:hover {
+.dashboard .games .game:hover {
     background: #3a4182;
     color: #ffffff;
 }
@@ -100,6 +100,6 @@ input::-webkit-inner-spin-button {
     overflow-y: scroll;
 }
 
-.dapp #sidebar-wrapper::-webkit-scrollbar {
+.dashboard #sidebar-wrapper::-webkit-scrollbar {
     width: 1px;
 }

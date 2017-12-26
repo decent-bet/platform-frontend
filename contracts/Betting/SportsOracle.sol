@@ -129,7 +129,7 @@ contract SportsOracle is SafeMath, TimeProvider {
 
     event LogGameResult(uint id, string refId, uint period, int result, uint team1Points, uint team2Points);
 
-    event LogUpdatedProviderOutcome(uint id, address provider, string refId, uint period, int result,
+    event LogUpdatedProviderOutcome(uint id, address provider, uint providerGameId, string refId, uint period, int result,
         uint team1Points, uint team2Points);
 
     event LogWithdrawal(uint amount);
@@ -359,6 +359,7 @@ contract SportsOracle is SafeMath, TimeProvider {
 
         LogUpdatedProviderOutcome(gameId,
                                   provider,
+                                  providerGamesToUpdate[gameId][provider].gameId,
                                   games[gameId].refId,
                                   period,
                                   gamePeriods[gameId][period].result,

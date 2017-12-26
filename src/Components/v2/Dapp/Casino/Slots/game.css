@@ -1,5 +1,6 @@
 .slots-game {
     min-height: 105vh;
+    padding-top: 10vh;
 }
 
 .slots-game table {

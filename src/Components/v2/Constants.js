@@ -1,27 +1,35 @@
-/**
- * Created by user on 2/23/2017.
- */
-
 export const
     /** Colors */
     COLOR_PRIMARY = '#292b2c',
     COLOR_PRIMARY_DARK = '#10121e',
+    COLOR_PRIMARY_DARK_TRANSLUCENT = 'rgba(16, 18, 30, 0.95)',
     COLOR_PRIMARY_LIGHT = '#A49FCF',
     COLOR_ACCENT = '#ff4e64',
     COLOR_ACCENT_DARK = '#932d3a',
     COLOR_RED = "#ff4e64",
     COLOR_WHITE = '#FFFFFF',
+    COLOR_GREY = '#bdc1c2',
     COLOR_WHITE_DARK = '#949494',
     COLOR_BLACK = '#000000',
     COLOR_GOLD = '#f2b45c',
+    COLOR_TRANSPARENT = 'rgba(0, 0, 0, 0)',
 
-    /** Dapp views */
-    DAPP_VIEW_BALANCES = 0,
-    DAPP_VIEW_CASINO = 1,
-    DAPP_VIEW_PORTAL = 2,
-    DAPP_VIEW_HOUSE = 3,
-    DAPP_VIEW_SLOTS = 4,
-    DAPP_VIEW_SLOTS_GAME = 5,
+    /** Views */
+    VIEW_BALANCES = '/balances',
+    VIEW_CASINO = '/casino',
+    VIEW_PORTAL = '/portal',
+    VIEW_HOUSE = '/house',
+    VIEW_SLOTS = '/slots',
+    VIEW_SLOTS_GAME = '/slots/game',
+    VIEW_LOGIN = '/login',
+
+    VIEW_DEFAULT = VIEW_PORTAL,
+
+    PROVIDER_URL = 'http://localhost:8545',
+
+    /** Login types **/
+    LOGIN_PRIVATE_KEY = 0,
+    LOGIN_MNEMONIC = 1,
 
     PORTAL_PAGE_DISCOVER = 'discover',
     PORTAL_PAGE_SPORTSBOOK = 'sportsbook',

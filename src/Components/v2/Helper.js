@@ -1,12 +1,8 @@
-/**
- * Created by user on 4/20/2017.
- */
-
 import React from 'react'
 
-const ethUnits = require('ethereum-units')
-const ethJsUtil = require('ethereumjs-util')
+import EventBus from 'eventing-bus'
 
+const ethUnits = require('ethereum-units')
 const BigNumber = require('bignumber.js')
 
 const IS_DEV = true
@@ -18,9 +14,7 @@ class Helper {
     }
 
     getWeb3 = () => {
-        if (!window.web3.eth.defaultAccount)
-            window.web3.eth.defaultAccount = window.web3.eth.accounts[0]
-        return window.web3
+        return window.web3Object
     }
 
     getContractHelper = () => {
@@ -29,21 +23,6 @@ class Helper {
 
     getTimestamp = () => {
         return Math.round(new Date().getTime() / 1000)
-    }
-
-    getTimestampMillis = () => {
-        return new Date().getTime()
-    }
-
-    formatHeading = (string) => {
-        let formattedString = ''
-        for (let i = 0; i < string.length; i++) {
-            if (string[i] == '_')
-                formattedString += '&ensp;';
-            else
-                formattedString += string[i].toUpperCase() + ' '
-        }
-        return this.Htmlify(formattedString)
     }
 
     Htmlify(html) {
@@ -59,7 +38,7 @@ class Helper {
     }
 
     formatEther = (ether) => {
-        return new BigNumber(ether).dividedBy(this.getEtherInWei()).toFixed(0)
+        return new BigNumber(ether).dividedBy(this.getEtherInWei()).toFixed(2)
     }
 
     roundDecimals = (number, decimals) => {
@@ -75,22 +54,12 @@ class Helper {
         return typeof object == 'undefined'
     }
 
-    fixLargeNumber = (num) => {
-        let str = '';
-        do {
-            let a = num % 10;
-            num = Math.trunc(num / 10);
-            str = a + str;
-        } while (num > 0)
-        return str;
-    }
-
-    intToHex = (number) => {
-        return ethJsUtil.bufferToHex(ethJsUtil.setLengthLeft(number, 32))
-    }
-
     duplicate = (obj) => {
         return JSON.parse(JSON.stringify(obj))
+    }
+
+    toggleSnackbar = (message) => {
+        EventBus.publish('showSnackbar', message)
     }
 
 }

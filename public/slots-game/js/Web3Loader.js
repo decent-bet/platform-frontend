@@ -1,7 +1,3 @@
-/**
- * Created by user on 7/4/2017.
- */
-
 /* global web3 */
 /**
  *  NOTE: DO NOT remove the line above. ESLint will throw undef errors if this line is removed since web3 is injected
@@ -11,21 +7,19 @@
 
 var callback
 
-var initMetaMask = function () {
+var initWeb3 = function () {
     if (callback) {
-        window.web3 = parent.window.web3;
+        window.web3 = parent.window.web3Object;
         window.contractHelper = parent.window.contractHelper
-        console.log('Initialized contract helper: ' + window.contractHelper.getTokenInstance().address)
-        window.web3.eth.defaultAccount = window.web3.eth.accounts[0]
         callback()
     }
 }
 
 window.addEventListener('load', function () {
-    initMetaMask()
+    initWeb3()
 })
 
-var setOnLoadMetaMaskListener = function (_callback) {
+var setOnLoadWeb3Listener = function (_callback) {
     callback = _callback
 }
 

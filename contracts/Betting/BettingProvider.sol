@@ -242,7 +242,7 @@ contract BettingProvider is HouseOffering, SafeMath, TimeProvider {
 
     event LogNewBet(uint gameId, uint oddsId, address bettor, uint betId);
 
-    event LogClaimedBet(uint gameId, uint oddsId, address bettor,
+    event LogClaimedBet(uint gameId, uint oddsId, uint session, address bettor,
     address assistedClaimant, uint betId, uint payout);
 
     event Deposit(address _address, uint amount, uint session, uint balance);
@@ -672,7 +672,8 @@ contract BettingProvider is HouseOffering, SafeMath, TimeProvider {
         safeAdd(sessionStats[currentSession].totalPayout, betReturns);
 
         LogClaimedBet(gameId, games[gameId].bettors[bettor].bets[betId].oddsId,
-        bettor, (bettor != msg.sender) ? msg.sender : address(0x0), betId, betReturns);
+                      currentSession, bettor,
+                      (bettor != msg.sender) ? msg.sender : address(0x0), betId, betReturns);
     }
 
     // Internal calls

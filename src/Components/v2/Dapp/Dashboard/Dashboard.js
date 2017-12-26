@@ -1,35 +1,26 @@
-/**
- * Created by user on 8/20/2017.
- */
-
 import React, {Component} from 'react'
 
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
+import {AppBar, Drawer, MenuItem, MuiThemeProvider} from 'material-ui'
 
-import AppBar from 'material-ui/AppBar'
-import Drawer from 'material-ui/Drawer'
-import MenuItem from 'material-ui/MenuItem'
+import EventBus from 'eventing-bus'
 
-import Themes from '../Base/Themes'
-import Loading from '../Base/Loading'
+import Balances from '../Balances/Balances'
+import Casino   from '../Casino/Casino'
+import House    from '../House/House'
+import Game     from '../Casino/Slots/Game'
+import Slots    from '../Casino/Slots/Slots'
+import Portal   from '../Portal/Portal'
 
-import ContractHelper from '../ContractHelper'
-import Helper from '../Helper'
+import './dashboard.css'
 
-const contractHelper = new ContractHelper()
+import Helper from '../../Helper'
+import Loading from '../../Base/Loading'
+import Themes from '../../Base/Themes'
+
 const helper = new Helper()
 const themes = new Themes()
 
-const constants = require('./../Constants')
-
-import Balances from './Balances/Balances'
-import Casino from './Casino/Casino'
-import House from './House/House'
-import Game from './Casino/Slots/Game'
-import Slots from './Casino/Slots/Slots'
-import Portal from './Portal/Portal'
-
-import './dapp.css'
+const constants = require('../../Constants')
 
 const styles = {
     menuItem: {
@@ -40,7 +31,7 @@ const styles = {
     }
 }
 
-class Dapp extends Component {
+class Dashboard extends Component {
 
     constructor(props) {
         super(props)
@@ -51,16 +42,29 @@ class Dapp extends Component {
             drawer: {
                 open: false
             },
-            selectedView: this.props.route.view
+            selectedView: props.view
         }
     }
 
     componentWillMount = () => {
         this.initData()
-        this.initWatchers()
     }
 
     initData = () => {
+        if (window.web3Loaded) {
+            this.initWeb3Data()
+            this.initWatchers()
+        } else {
+            let web3Loaded = EventBus.on('web3Loaded', () => {
+                this.initWeb3Data()
+                this.initWatchers()
+                // Unregister callback
+                web3Loaded()
+            })
+        }
+    }
+
+    initWeb3Data = () => {
         this.web3Getters().ethereumNetwork()
         this.web3Getters().balances()
     }
@@ -81,11 +85,12 @@ class Dapp extends Component {
                 })
             },
             balances: () => {
-                contractHelper.getWrappers().token().balanceOf(helper.getWeb3().eth.defaultAccount).then((balance) => {
-                    self.setState({
-                        balance: balance
+                helper.getContractHelper().getWrappers().token()
+                    .balanceOf(helper.getWeb3().eth.defaultAccount).then((balance) => {
+                        self.setState({
+                            balance: balance
+                        })
                     })
-                })
             }
         }
     }
@@ -94,9 +99,10 @@ class Dapp extends Component {
         const self = this
         return {
             faucet: () => {
-                contractHelper.getWrappers().token().faucet().then((tx) => {
-                    console.log('Sent faucet tx', tx)
-                })
+                helper.getContractHelper().getWrappers().token()
+                    .faucet().then((tx) => {
+                        console.log('Sent faucet tx', tx)
+                    })
             }
         }
     }
@@ -157,17 +163,17 @@ class Dapp extends Component {
             },
             getSelectedView: () => {
                 switch (self.state.selectedView) {
-                    case constants.DAPP_VIEW_CASINO:
+                    case constants.VIEW_CASINO:
                         return <Casino/>
-                    case constants.DAPP_VIEW_HOUSE:
+                    case constants.VIEW_HOUSE:
                         return <House/>
-                    case constants.DAPP_VIEW_BALANCES:
+                    case constants.VIEW_BALANCES:
                         return <Balances/>
-                    case constants.DAPP_VIEW_PORTAL:
+                    case constants.VIEW_PORTAL:
                         return <Portal/>
-                    case constants.DAPP_VIEW_SLOTS:
+                    case constants.VIEW_SLOTS:
                         return <Slots/>
-                    case constants.DAPP_VIEW_SLOTS_GAME:
+                    case constants.VIEW_SLOTS_GAME:
                         return <Game/>
                 }
             },
@@ -257,7 +263,7 @@ class Dapp extends Component {
                             className="menu-item"
                             style={styles.menuItem}
                             onClick={() => {
-                                self.helpers().selectView(constants.DAPP_VIEW_BALANCES)
+                                self.helpers().selectView(constants.VIEW_BALANCES)
                             }}>
                             <span className="fa fa-money menu-icon"/>&ensp;&ensp;BALANCES
                         </MenuItem>
@@ -265,7 +271,7 @@ class Dapp extends Component {
                             className="menu-item"
                             style={styles.menuItem}
                             onClick={() => {
-                                self.helpers().selectView(constants.DAPP_VIEW_CASINO)
+                                self.helpers().selectView(constants.VIEW_CASINO)
                             }}>
                             <span className="fa fa-gamepad menu-icon"/>&ensp;&ensp;CASINO
                         </MenuItem>
@@ -273,7 +279,7 @@ class Dapp extends Component {
                             className="menu-item"
                             style={styles.menuItem}
                             onClick={() => {
-                                self.helpers().selectView(constants.DAPP_VIEW_PORTAL)
+                                self.helpers().selectView(constants.VIEW_PORTAL)
                             }}>
                             <span className="fa fa-soccer-ball-o menu-icon"/>&ensp;&ensp;PORTAL
                         </MenuItem>
@@ -281,7 +287,7 @@ class Dapp extends Component {
                             className="menu-item"
                             style={styles.menuItem}
                             onClick={() => {
-                                self.helpers().selectView(constants.DAPP_VIEW_HOUSE)
+                                self.helpers().selectView(constants.VIEW_HOUSE)
                             }}>
                             <span className="fa fa-home menu-icon"/>&ensp;&ensp;HOUSE
                         </MenuItem>
@@ -294,7 +300,7 @@ class Dapp extends Component {
     render() {
         const self = this
         return <MuiThemeProvider muiTheme={themes.getAppBar()}>
-            <div className="dapp">
+            <div className="dashboard">
                 { self.views().appbar() }
                 { self.views().top() }
                 { self.views().drawer() }
@@ -304,4 +310,4 @@ class Dapp extends Component {
 
 }
 
-export default Dapp
+export default Dashboard

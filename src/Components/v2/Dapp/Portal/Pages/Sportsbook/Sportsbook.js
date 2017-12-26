@@ -6,6 +6,7 @@ import DepositTokensDialog from './Dialogs/DepositTokensDialog'
 
 import ArrayCache from '../../../../Base/ArrayCache'
 import BettingReturnsCalculator from '../../Modules/BettingReturnsCalculator'
+import EventBus from 'eventing-bus'
 import Helper from '../../../../Helper'
 
 import './sportsbook.css'
@@ -35,7 +36,7 @@ class Sportsbook extends Component {
                 balance: 0
             },
             bettingProvider: {
-                address: helper.getContractHelper().getBettingProviderInstance().address,
+                address: '',
                 house: '0x0',
                 sportsOracle: '0x0',
                 currentSession: 0,
@@ -44,7 +45,8 @@ class Sportsbook extends Component {
                 allowance: 0,
                 gamesCount: 0,
                 games: {},
-                placedBets: {}
+                placedBets: {},
+                time: null
             },
             sportsOracle: {
                 owner: '',
@@ -60,7 +62,8 @@ class Sportsbook extends Component {
                     requestedProviderAddresses: [],
                     acceptedProviderAddresses: [],
                 },
-                games: {}
+                games: {},
+                time: null
             },
             leagues: {},
             periodDescriptions: {},
@@ -84,6 +87,22 @@ class Sportsbook extends Component {
     }
 
     componentWillMount = () => {
+        this.initData()
+    }
+
+    initData = () => {
+        if (window.web3Loaded) {
+            this.initWeb3Data()
+        } else {
+            let web3Loaded = EventBus.on('web3Loaded', () => {
+                this.initWeb3Data()
+                // Unregister callback
+                web3Loaded()
+            })
+        }
+    }
+
+    initWeb3Data = () => {
         this.initBettingProviderData()
         this.initSportsOracleData()
         this.initTokenData()
@@ -91,11 +110,13 @@ class Sportsbook extends Component {
 
     initBettingProviderData = () => {
         /** Details */
+        this.web3Getters().bettingProvider().address()
         this.web3Getters().bettingProvider().currentSession()
         this.web3Getters().bettingProvider().house()
         this.web3Getters().bettingProvider().sportsOracle()
         this.web3Getters().bettingProvider().allowance()
         this.web3Getters().bettingProvider().tokenBalance()
+        this.web3Getters().bettingProvider().getTime()
 
         /** Games */
         this.web3Getters().bettingProvider().gamesCount()
@@ -106,9 +127,19 @@ class Sportsbook extends Component {
         /** Events */
         this.watchers().bettingProvider().deposit()
         this.watchers().bettingProvider().newBet()
+        this.watchers().bettingProvider().updatedMaxBet()
+        this.watchers().bettingProvider().claimedBet()
+        this.watchers().bettingProvider().newGame()
+        this.watchers().bettingProvider().newGameOdds()
+        this.watchers().bettingProvider().updatedBetLimits()
+        this.watchers().bettingProvider().updatedGameOdds()
+        this.watchers().bettingProvider().updatedTime()
     }
 
     initSportsOracleData = () => {
+        /** Time */
+        this.web3Getters().sportsOracle().getTime()
+
         /** Games */
         this.web3Getters().sportsOracle().games.count()
         this.web3Getters().sportsOracle().games.game(0, true)
@@ -119,6 +150,11 @@ class Sportsbook extends Component {
         /** Providers */
         this.web3Getters().sportsOracle().addresses.requestedProviders(0)
         this.web3Getters().sportsOracle().addresses.acceptedProviders(0)
+
+        /** Events */
+        this.watchers().sportsOracle().gameAdded()
+        this.watchers().sportsOracle().updatedProviderOutcome()
+        this.watchers().sportsOracle().updatedTime()
     }
 
     initTokenData = () => {
@@ -140,6 +176,13 @@ class Sportsbook extends Component {
                             })
                         }).catch((err) => {
                             console.log('Error retrieving games count for the provider', err.message)
+                        })
+                    },
+                    address: () => {
+                        self.setState({
+                            bettingProvider: Object.assign(self.state.bettingProvider, {
+                                address: helper.getContractHelper().getBettingProviderInstance().address
+                            })
                         })
                     },
                     currentSession: () => {
@@ -472,14 +515,22 @@ class Sportsbook extends Component {
                             helper.getWeb3().eth.defaultAccount).then((returns) => {
                             console.log('Retrieved bet returns', gameId, betId, returns.toNumber())
                         })
+                    },
+                    getTime: () => {
+                        helper.getContractHelper().getWrappers().bettingProvider().getTime().then((time) => {
+                            console.log('Retrieved betting provider time', time.toNumber())
+                            self.setState({
+                                bettingProvider: Object.assign(self.state.bettingProvider, {
+                                    time: time.toNumber()
+                                })
+                            })
+                        })
                     }
                 }
             },
             sportsOracle: () => {
                 return {
                     metadata: (gameId, hash) => {
-                        console.log('Retrieving from ipfs', hash)
-
                         ipfs.catJSON(hash, (err, data) => {
                             if (!err) {
                                 console.log('Retrieved data for hash', hash, err, data)
@@ -659,6 +710,16 @@ class Sportsbook extends Component {
                                 cacheAcceptedProviders()
                             })
                         }
+                    },
+                    getTime: () => {
+                        helper.getContractHelper().getWrappers().sportsOracle().getTime().then((time) => {
+                            console.log('Retrieved sports oracle time', time.toNumber())
+                            self.setState({
+                                sportsOracle: Object.assign(self.state.sportsOracle, {
+                                    time: time.toNumber()
+                                })
+                            })
+                        })
                     }
                 }
             },
@@ -691,14 +752,172 @@ class Sportsbook extends Component {
                     deposit: () => {
                         helper.getContractHelper().getWrappers().bettingProvider()
                             .logDeposit().watch((err, event) => {
-                            console.log('Deposit event', err, JSON.stringify(event))
+                            console.log('Deposit event', err, event)
+                            const amount = event.args.amount.toString()
+                            const session = event.args.session.toNumber()
+
+                            helper.toggleSnackbar('DBETs deposited into sportsbook contract - ' +
+                                helper.formatEther(amount)  + ' DBETs')
+
+                            self.web3Getters().bettingProvider().tokenBalance()
+                            self.web3Getters().bettingProvider().depositedTokens(session)
                         })
                     },
                     newBet: () => {
                         console.log('Watching for new bets')
                         helper.getContractHelper().getWrappers().bettingProvider()
-                            .logNewBet(0).watch((err, event) => {
-                            console.log('New bet event', err, JSON.stringify(event))
+                            .logNewBet().watch((err, event) => {
+                                console.log('New bet event', err, JSON.stringify(event))
+                                let gameId = event.args.gameId.toNumber()
+                                let betId = event.args.betId.toNumber()
+
+                                let home = self.helpers().getTeamName(true, gameId)
+                                let away = self.helpers().getTeamName(false, gameId)
+
+                                helper.toggleSnackbar('New bet placed for game - ' +
+                                    home + ' vs. ' + away)
+
+                                self.web3Getters().bettingProvider().getUserBets(betId)
+                            })
+                    },
+                    newGame: () => {
+                        helper.getContractHelper().getWrappers().bettingProvider()
+                            .logNewGame().watch((err, event) => {
+                            console.log('New game event', err, JSON.stringify(event))
+
+                            helper.toggleSnackbar('New game available for betting')
+
+                            let id = event.args.id.toNumber()
+                            this.web3Getters().bettingProvider().game(id, false)
+                        })
+                    },
+                    newGameOdds: () => {
+                        helper.getContractHelper().getWrappers().bettingProvider()
+                            .logNewGameOdds().watch((err, event) => {
+                            console.log('New game odds event', err, JSON.stringify(event))
+                            let gameId = event.args.id.toNumber()
+                            let oddsId = event.args.oddsId.toNumber()
+
+                            let home = self.helpers().getTeamName(true, gameId)
+                            let away = self.helpers().getTeamName(false, gameId)
+
+                            helper.toggleSnackbar('New odds available for betting - ' + home + ' vs. ' + away)
+
+                            self.web3Getters().bettingProvider().gameOddsCount(gameId)
+                        })
+                    },
+                    updatedGameOdds: () => {
+                        helper.getContractHelper().getWrappers().bettingProvider()
+                            .logUpdatedGameOdds().watch((err, event) => {
+                            console.log('Updated game odds event', err, JSON.stringify(event))
+                            let gameId = event.args.id.toNumber()
+                            let oddsId = event.args.oddsId.toNumber()
+
+                            let home = self.helpers().getTeamName(true, gameId)
+                            let away = self.helpers().getTeamName(false, gameId)
+
+                            helper.toggleSnackbar('Odds updated for game - ' + home + ' vs. ' + away)
+
+                            self.web3Getters().bettingProvider().gameOddsCount(gameId)
+                        })
+                    },
+                    updatedMaxBet: () => {
+                        helper.getContractHelper().getWrappers().bettingProvider()
+                            .logUpdatedMaxBet().watch((err, event) => {
+                                console.log('Updated max bet event', err, JSON.stringify(event))
+                                let gameId = event.args.id.toNumber()
+
+                                let home = self.helpers().getTeamName(true, gameId)
+                                let away = self.helpers().getTeamName(false, gameId)
+
+                                helper.toggleSnackbar('Updated max bet for game - ' + home + ' vs. ' + away)
+
+                                self.web3Getters().bettingProvider().maxBetLimit(gameId)
+                            })
+                    },
+                    updatedBetLimits: () => {
+                        helper.getContractHelper().getWrappers().bettingProvider()
+                            .logUpdatedBetLimits().watch((err, event) => {
+                            console.log('Updated bet limits event', err, JSON.stringify(event))
+                            let gameId = event.args.id.toNumber()
+                            let period = event.args.period.toNumber()
+
+                            let home = self.helpers().getTeamName(true, gameId)
+                            let away = self.helpers().getTeamName(false, gameId)
+
+                            helper.toggleSnackbar('Updated bet limits for game - ' + home + ' vs. ' + away)
+
+                            if (!self.state.bettingProvider.games[gameId].betLimits.hasOwnProperty(period))
+                                self.web3Getters().bettingProvider().betLimits(gameId, period)
+                        })
+                    },
+                    claimedBet: () => {
+                        helper.getContractHelper().getWrappers().bettingProvider()
+                            .logClaimedBet().watch((err, event) => {
+                            console.log('Claimed bet event', err, JSON.stringify(event))
+                            let gameId = event.args.gameId.toNumber()
+                            let session = event.args.session.toNumber()
+
+                            let home = self.helpers().getTeamName(true, gameId)
+                            let away = self.helpers().getTeamName(false, gameId)
+
+                            helper.toggleSnackbar('Claimed bet for game - ' + home + ' vs. ' + away)
+
+                            self.web3Getters().bettingProvider().tokenBalance()
+                            self.web3Getters().bettingProvider().depositedTokens(session)
+                            self.web3Getters().bettingProvider().getUserBets(0)
+                        })
+                    },
+                    updatedTime: () => {
+                        helper.getContractHelper().getWrappers().bettingProvider()
+                            .logUpdatedTime().watch((err, event) => {
+                                console.log('Updated provider time event', err, event)
+                                let time = event.args.time.toNumber()
+                                self.setState({
+                                    bettingProvider: Object.assign(self.state.bettingProvider, {
+                                        time: time
+                                    })
+                                })
+                            })
+                    }
+                }
+            },
+            sportsOracle: () => {
+                return {
+                    gameAdded: () => {
+                        helper.getContractHelper().getWrappers().sportsOracle()
+                            .logGameAdded().watch((err, event) => {
+                            console.log('Game added event', err, JSON.stringify(event))
+                            let id = event.args.id.toNumber()
+                            this.web3Getters().sportsOracle().games.game(id, false)
+                        })
+                    },
+                    updatedProviderOutcome: () => {
+                        helper.getContractHelper().getWrappers().sportsOracle()
+                            .logUpdatedProviderOutcome().watch((err, event) => {
+                            console.log('Updated provider outcome event', err, JSON.stringify(event))
+                            let providerGameId = event.args.providerGameId.toNumber()
+                            let period = event.args.period.toNumber()
+
+                            let home = self.helpers().getTeamName(true, providerGameId)
+                            let away = self.helpers().getTeamName(false, providerGameId)
+
+                            helper.toggleSnackbar('Results pushed for game - ' + home + ' vs. ' + away)
+
+                            if (!self.state.bettingProvider.games[providerGameId].outcomes.hasOwnProperty(period))
+                                self.web3Getters().bettingProvider().outcomes(providerGameId, period)
+                        })
+                    },
+                    updatedTime: () => {
+                        helper.getContractHelper().getWrappers().sportsOracle()
+                            .logUpdatedTime().watch((err, event) => {
+                            console.log('Updated oracle time event', err, event)
+                            let time = event.args.time.toNumber()
+                            self.setState({
+                                bettingProvider: Object.assign(self.state.bettingProvider, {
+                                    time: time
+                                })
+                            })
                         })
                     }
                 }
@@ -745,6 +964,12 @@ class Sportsbook extends Component {
             claimBet: (gameId, betId) => {
                 helper.getContractHelper().getWrappers().bettingProvider()
                     .claimBet(gameId, betId, helper.getWeb3().eth.defaultAccount).then((txHash) => {
+                    let bettingProvider = self.state.bettingProvider
+                    let bet = bettingProvider.placedBets[gameId][betId]
+                    bet.claimed = true
+                    self.setState({
+                        bettingProvider: bettingProvider
+                    })
                     console.log('Successfully sent claim bet tx', txHash)
                 }).catch((err) => {
                     console.log('Error sending claim bet tx', err.message)
@@ -764,17 +989,24 @@ class Sportsbook extends Component {
                     games.push(game)
                 })
                 return <section>
-                    <div className="row">
-                        <div className="col-12">
-                            <h4 className="text-uppercase">Available Games</h4>
-                        </div>
-                    </div>
-                    {   Object.keys(self.state.bettingProvider.games).length > 0 &&
                     <section>
-                        { games.map((game, index) =>
-                            <Card
-                                style={styles.card}
-                                className="mt-4">
+                        <Card
+                            style={styles.card}
+                            className="mt-4 p-4">
+                            <div className="row">
+                                <div className="col-12">
+                                    <h4 className="text-uppercase">Available Games</h4>
+                                    <hr/>
+                                </div>
+                            </div>
+                            { Object.keys(self.state.bettingProvider.games).length == 0 &&
+                                <div className="row">
+                                    <div className="col-12 mt-4">
+                                        <p className="text-center">No games available</p>
+                                    </div>
+                                </div>
+                            }
+                            { Object.keys(self.state.bettingProvider.games).length > 0 && games.map((game, index) =>
                                 <div className="row">
                                     <div className="col-12">
                                         <div className="row">
@@ -799,6 +1031,17 @@ class Sportsbook extends Component {
                                                 </small>
                                             </div>
                                             <div className="col-12">
+                                                {self.helpers().isGameBettingPeriodOver(game.id) &&
+                                                <small className="badge badge-danger text-uppercase">
+                                                    Bets Ended
+                                                </small>
+                                                }
+                                                {!self.helpers().isGameBettingPeriodOver(game.id) &&
+                                                <small className="badge badge-success text-uppercase">
+                                                    Bets Running
+                                                </small>
+                                                }
+                                                <br/>
                                                 <small>
                                                     {
                                                         'Cut-off time:' +
@@ -839,46 +1082,57 @@ class Sportsbook extends Component {
                                         <p className="mt-2">Bet Information</p>
                                         {self.views().betInformation(game.id)}
                                     </div>
+                                    {   index != games.length - 1 &&
+                                    <div className="col-12">
+                                        <hr/>
+                                    </div>
+                                    }
                                 </div>
-                            </Card>
-                        )}
+                            )}
+                        </Card>
                     </section>
-                    }
-                    { Object.keys(self.state.bettingProvider.games).length == 0 &&
-                    <p className="text-center mt-4">No available games</p>
-                    }
                 </section>
             },
             stats: () => {
                 return <section>
-                    <div className="row stats">
-                        <div className="col-6">
-                            <p className="key">Current Session</p>
-                            <p>{self.state.bettingProvider.currentSession}</p>
+                    <Card
+                        style={styles.card}
+                        className="mt-4 p-4">
+                        <div className="row stats">
+                            <div className="col-12 mb-4">
+                                <h4 className="text-uppercase text-center">Sportsbook Stats</h4>
+                            </div>
+                            <div className="col-6">
+                                <p className="key">Current Session</p>
+                                <p>{self.state.bettingProvider.currentSession}</p>
+                            </div>
+                            <div className="col-6">
+                                <p className="key text-center">Your Session Balance</p>
+                                <p>{self.state.bettingProvider.depositedTokens} DBETs</p>
+                                <button className="btn btn-primary btn-sm mx-auto px-2"
+                                        onClick={() => {
+                                            self.helpers().toggleDialog(DIALOG_DEPOSIT_TOKENS, true)
+                                        }}>
+                                    Deposit
+                                </button>
+                                <button className="btn btn-primary btn-sm mx-auto mt-2">
+                                    Withdraw
+                                </button>
+                            </div>
+                            <div className="col-6">
+                                <p className="key">Sportsbook balance</p>
+                                <p>{self.state.bettingProvider.balance} DBETs</p>
+                            </div>
+                            {   self.state.bettingProvider.depositedTokens == 0 &&
+                            <div className="col-12 mt-4">
+                                <p className="text-danger text-center text-uppercase small">
+                                    Please deposit tokens into the sportsbook contract before placing any
+                                    bets
+                                </p>
+                            </div>
+                            }
                         </div>
-                        <div className="col-6">
-                            <p className="key text-center">Your Session Balance</p>
-                            <p>{self.state.bettingProvider.depositedTokens} DBETs</p>
-                            <button className="btn btn-primary btn-sm mx-auto"
-                                    onClick={() => {
-                                        self.helpers().toggleDialog(DIALOG_DEPOSIT_TOKENS, true)
-                                    }}>
-                                Deposit
-                            </button>
-                        </div>
-                        <div className="col-6">
-                            <p className="key">Sportsbook balance</p>
-                            <p>{self.state.bettingProvider.balance} DBETs</p>
-                        </div>
-                        {   self.state.bettingProvider.depositedTokens == 0 &&
-                        <div className="col-12 mt-4">
-                            <p className="text-danger text-center text-uppercase small">
-                                Please deposit tokens into the sportsbook contract before placing any
-                                bets
-                            </p>
-                        </div>
-                        }
-                    </div>
+                    </Card>
                 </section>
             },
             gameOdds: (gameId) => {
@@ -936,9 +1190,11 @@ class Sportsbook extends Component {
                                         <p className="key">Period</p>
                                         <p>{self.helpers().getPeriodDescription(gameId, _odds.period)}</p>
                                     </div>
+                                    {   !self.helpers().isGameBettingPeriodOver(gameId) &&
                                     <div className="col-12 mt-1 mb-4">
                                         {self.views().betNow(constants.ODDS_TYPE_SPREAD, gameId, _odds.id)}
                                     </div>
+                                    }
                                 </div>
                             )}
                         </div>
@@ -970,9 +1226,11 @@ class Sportsbook extends Component {
                                         <p className="key">Period</p>
                                         <p>{self.helpers().getPeriodDescription(gameId, _odds.period)}</p>
                                     </div>
+                                    {   !self.helpers().isGameBettingPeriodOver(gameId) &&
                                     <div className="col-12 mt-1 mb-4">
                                         {self.views().betNow(constants.ODDS_TYPE_MONEYLINE, gameId, _odds.id)}
                                     </div>
+                                    }
                                 </div>
                             )}
                         </div>
@@ -1004,9 +1262,11 @@ class Sportsbook extends Component {
                                         <p className="key">Period</p>
                                         <p>{self.helpers().getPeriodDescription(gameId, _odds.period)}</p>
                                     </div>
+                                    {   !self.helpers().isGameBettingPeriodOver(gameId) &&
                                     <div className="col-12 mt-1 mb-4">
                                         {self.views().betNow(constants.ODDS_TYPE_TOTALS, gameId, _odds.id)}
                                     </div>
+                                    }
                                 </div>
                             )}
                         </div>
@@ -1043,7 +1303,11 @@ class Sportsbook extends Component {
                                         <p>{self.helpers().getPeriodDescription(gameId, _odds.period)}</p>
                                     </div>
                                     <div className="col-12 mt-1 mb-4">
-                                        {self.views().betNow(constants.ODDS_TYPE_TEAM_TOTALS, gameId, _odds.id)}
+                                        {   !self.helpers().isGameBettingPeriodOver(gameId) &&
+                                        <div className="col-12 mt-1 mb-4">
+                                            {self.views().betNow(constants.ODDS_TYPE_TEAM_TOTALS, gameId, _odds.id)}
+                                        </div>
+                                        }
                                     </div>
                                 </div>
                             )}
@@ -1065,6 +1329,8 @@ class Sportsbook extends Component {
                             underlineFocusStyle={styles.textField.underlineStyle}
                             underlineDisabledStyle={styles.textField.underlineDisabledStyle}
                             type="number"
+                            disabled={self.state.bettingProvider.time != null &&
+                            self.state.bettingProvider.games[gameId].cutOffTime <= self.state.bettingProvider.time}
                             value={self.helpers().doesOddsExist(gameId, oddsId) ?
                                 self.state.odds[gameId][oddsId].betAmount : ''}
                             onChange={(event, value) => {
@@ -1143,7 +1409,8 @@ class Sportsbook extends Component {
                         <button className="btn btn-sm btn-primary mx-auto"
                                 disabled={
                                     self.state.bettingProvider.games[gameId].cutOffTime <= helper.getTimestamp() ||
-                                    self.helpers().isEmpty(self.state.odds[gameId][oddsId].betAmount) || !self.state.bettingProvider.depositedTokens ||
+                                    self.helpers().isEmpty(self.state.odds[gameId][oddsId].betAmount) ||
+                                    !self.state.bettingProvider.depositedTokens ||
                                     self.state.bettingProvider.depositedTokens == 0}
                                 onClick={() => {
                                     let dialogs = self.state.dialogs
@@ -1250,25 +1517,30 @@ class Sportsbook extends Component {
             },
             placedBets: () => {
                 return <section className="mt-4">
-                    <div className="row">
-                        <div className="col-12">
-                            <h4 className="text-uppercase">Bets placed</h4>
+                    <Card
+                        style={styles.card}
+                        className="mt-4 p-4">
+                        <div className="row">
+                            <div className="col-12">
+                                <h4 className="text-uppercase">Bets placed</h4>
+                                <hr/>
+                            </div>
+                            {   Object.keys(self.state.bettingProvider.placedBets).length == 0 &&
+                            <div className="col-12">
+                                <p className="text-center mt-4">No bets placed</p>
+                            </div>
+                            }
+                            {   Object.keys(self.state.bettingProvider.placedBets).length > 0 &&
+                            <div className="col-12">
+                                {   Object.keys(self.state.bettingProvider.placedBets).map((gameId) =>
+                                    <div className="row">
+                                        {self.views().gameBets(gameId)}
+                                    </div>
+                                )}
+                            </div>
+                            }
                         </div>
-                        {   Object.keys(self.state.bettingProvider.placedBets).length == 0 &&
-                        <div className="col-12">
-                            <p className="text-center mt-4">No bets placed</p>
-                        </div>
-                        }
-                        {   Object.keys(self.state.bettingProvider.placedBets).length > 0 &&
-                        <div className="col-12">
-                            {   Object.keys(self.state.bettingProvider.placedBets).map((gameId) =>
-                                <div className="row">
-                                    {self.views().gameBets(gameId)}
-                                </div>
-                            )}
-                        </div>
-                        }
-                    </div>
+                    </Card>
                 </section>
             },
             gameBets: (gameId) => {
@@ -1276,7 +1548,7 @@ class Sportsbook extends Component {
                 return <div className="col-12">
                     <Card
                         style={styles.card}
-                        className="mt-4">
+                        className="mt-4 p-4">
                         <div className="row info">
                             <div className="col-12">
                                 {   self.helpers().isTeamNamesAvailable(game.oracleGameId) &&
@@ -1337,8 +1609,8 @@ class Sportsbook extends Component {
                         <td>
                             <button className="btn btn-primary btn-sm"
                                     disabled={!self.helpers().isGameOutcomeAvailable(gameId, oddsObj.period) ||
-                                               self.helpers().getWinnings(gameId, oddsObj, placedBet) == 0 ||
-                                               placedBet.claimed}
+                                    self.helpers().getWinnings(gameId, oddsObj, placedBet) == 0 ||
+                                    placedBet.claimed}
                                     onClick={() => {
                                         self.web3Setters().claimBet(gameId, betId)
                                     }}>
@@ -1499,8 +1771,8 @@ class Sportsbook extends Component {
                                     oddsObj.team1 : oddsObj.team2
 
                                 return bettingReturnsCalculator.getSpreadReturns(betAmount,
-                                        oddsObj.handicap, outcome.team1Points, outcome.team2Points,
-                                        placedBet.choice, teamOdds).toFixed(2)
+                                    oddsObj.handicap, outcome.team1Points, outcome.team2Points,
+                                    placedBet.choice, teamOdds).toFixed(2)
                             } else
                                 return 0
                         } else
@@ -1599,6 +1871,11 @@ class Sportsbook extends Component {
             },
             isEmpty: (val) => {
                 return (val == 0 || val == '')
+            },
+            isGameBettingPeriodOver: (id) => {
+                let game = self.state.bettingProvider.games[id]
+                return self.state.bettingProvider.time != null &&
+                    game.cutOffTime < self.state.bettingProvider.time
             }
         }
     }
