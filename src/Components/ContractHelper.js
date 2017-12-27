@@ -1,9 +1,9 @@
-import DecentBetToken from '../../../build/contracts/TestDecentBetToken.json'
-import House from '../../../build/contracts/House.json'
-import BettingProvider from '../../../build/contracts/BettingProvider.json'
-import SlotsChannelFinalizer from '../../../build/contracts/SlotsChannelFinalizer.json'
-import SlotsChannelManager from '../../../build/contracts/SlotsChannelManager.json'
-import SportsOracle from '../../../build/contracts/SportsOracle.json'
+import DecentBetToken from '../../build/contracts/TestDecentBetToken.json'
+import House from '../../build/contracts/House.json'
+import BettingProvider from '../../build/contracts/BettingProvider.json'
+import SlotsChannelFinalizer from '../../build/contracts/SlotsChannelFinalizer.json'
+import SlotsChannelManager from '../../build/contracts/SlotsChannelManager.json'
+import SportsOracle from '../../build/contracts/SportsOracle.json'
 
 const async = require('async')
 const contract = require('truffle-contract')

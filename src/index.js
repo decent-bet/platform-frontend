@@ -5,12 +5,12 @@ import {Router, Route, IndexRoute, browserHistory} from 'react-router'
 import injectTapEventPlugin from 'react-tap-event-plugin'
 injectTapEventPlugin()
 
-import App from './Components/v2/Dapp/App'
-import Dashboard from './Components/v2/Dapp/Dashboard/Dashboard'
-import Login from './Components/v2/Dapp/Login/Login'
+import App from './Components/Dapp/App'
+import Dashboard from './Components/Dapp/Dashboard/Dashboard'
+import Login from './Components/Dapp/Login/Login'
 
-import KeyHandler from './Components/v2/Base/KeyHandler'
-import Web3Loader from './Components/v2/Base/Web3Loader'
+import KeyHandler from './Components/Base/KeyHandler'
+import Web3Loader from './Components/Base/Web3Loader'
 
 import './css/bootstrap.min.css'
 import './css/font-awesome.min.css'
@@ -19,7 +19,7 @@ import './css/main.css'
 const keyHandler = new KeyHandler()
 const web3Loader = new Web3Loader()
 
-const constants = require('./Components/v2/Constants')
+const constants = require('./Components/Constants')
 
 let replaceUrl = (url) => {
     if (window.history.replaceState)

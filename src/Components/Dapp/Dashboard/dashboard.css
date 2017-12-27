@@ -28,7 +28,7 @@ input::-webkit-inner-spin-button {
             rgba(0, 0, 0, 0.55),
             rgba(0, 0, 0, 0.55)
     ),
-    url('../../../../../public/assets/img/backgrounds/platform.PNG');
+    url('../../../../public/assets/img/backgrounds/platform.PNG');
     background-size: cover;
     background-attachment: fixed;
 }
