@@ -2,6 +2,8 @@ import React, {Component} from 'react'
 
 import {AppBar, Drawer, MenuItem, MuiThemeProvider} from 'material-ui'
 
+import {browserHistory} from 'react-router'
+
 import EventBus from 'eventing-bus'
 
 import Balances from '../Balances/Balances'
@@ -290,7 +292,14 @@ class Dashboard extends Component {
                                 self.helpers().selectView(constants.VIEW_HOUSE)
                             }}>
                             <span className="fa fa-home menu-icon"/>&ensp;&ensp;HOUSE
-                        </MenuItem>
+                        </MenuItem> 
+                        <MenuItem
+                            className="menu-item"
+                            onClick={() => {
+                                browserHistory.push('/logout')
+                            }}>
+                            <span className="fa fa-sign-out menu-icon"/>&ensp;&ensp;LOGOUT
+                        </MenuItem> 
                     </div>
                 </Drawer>
             }
