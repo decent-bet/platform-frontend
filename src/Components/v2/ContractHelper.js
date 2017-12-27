@@ -402,6 +402,13 @@ class ContractHelper {
                             gas: 5000000
                         })
                     },
+                    withdraw: (amount, session) => {
+                        console.log('Withdraw', amount, 'from sportsbook as', window.web3Object.eth.defaultAccount)
+                        return bettingProviderInstance.withdraw.sendTransaction(amount, session, {
+                            from: window.web3Object.eth.defaultAccount,
+                            gas: 5000000
+                        })
+                    },
                     setSportsOracle: (address) => {
                         return bettingProviderInstance.setSportsOracle.sendTransaction(address, {
                             from: window.web3Object.eth.defaultAccount,

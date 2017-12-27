@@ -3,6 +3,7 @@ import React, {Component} from 'react'
 import {Card, CircularProgress, DropDownMenu, Menu, MenuItem, TextField} from 'material-ui'
 import ConfirmationDialog from '../../../../Base/ConfirmationDialog'
 import DepositTokensDialog from './Dialogs/DepositTokensDialog'
+import WithdrawTokensDialog from './Dialogs/WithdrawTokensDialog'
 
 import ArrayCache from '../../../../Base/ArrayCache'
 import BettingReturnsCalculator from '../../Modules/BettingReturnsCalculator'
@@ -24,7 +25,7 @@ const IPFS = require('ipfs-mini')
 const ipfs = new IPFS({host: 'ipfs.infura.io', port: 5001, protocol: 'https'})
 const styles = require('../../../../Base/styles').styles()
 
-const DIALOG_CONFIRM_BET = 0, DIALOG_DEPOSIT_TOKENS = 1
+const DIALOG_CONFIRM_BET = 0, DIALOG_DEPOSIT_TOKENS = 1, DIALOG_WITHDRAW_TOKENS = 2
 
 class Sportsbook extends Component {
 
@@ -80,6 +81,9 @@ class Sportsbook extends Component {
                     }
                 },
                 depositTokens: {
+                    open: false
+                },
+                withdrawTokens: {
                     open: false
                 }
             }
@@ -952,6 +956,13 @@ class Sportsbook extends Component {
                     console.log('Error depositing tokens', err.message)
                 })
             },
+            withdrawTokens: (amount, session) => {
+                helper.getContractHelper().getWrappers().bettingProvider().withdraw(amount, session).then((txHash) => {
+                    console.log('Successfully withdrawed', amount, 'DBETs', txHash)
+                }).catch((err) => {
+                    console.log('Error withdrawing tokens', err.message)
+                })
+            },
             approveAndDepositTokens: (amount) => {
                 let bettingProvider = helper.getContractHelper().getBettingProviderInstance().address
                 helper.getContractHelper().getWrappers().token().approve(bettingProvider, amount).then((txHash) => {
@@ -1110,12 +1121,15 @@ class Sportsbook extends Component {
                                 <p className="key text-center">Your Session Balance</p>
                                 <p>{self.state.bettingProvider.depositedTokens} DBETs</p>
                                 <button className="btn btn-primary btn-sm mx-auto px-2"
-                                        onClick={() => {
-                                            self.helpers().toggleDialog(DIALOG_DEPOSIT_TOKENS, true)
-                                        }}>
+                                    onClick={() => {
+                                        self.helpers().toggleDialog(DIALOG_DEPOSIT_TOKENS, true)
+                                    }}>
                                     Deposit
                                 </button>
-                                <button className="btn btn-primary btn-sm mx-auto mt-2">
+                                <button className="btn btn-primary btn-sm mx-auto mt-2" 
+                                    onClick={() => {
+                                        self.helpers().toggleDialog(DIALOG_WITHDRAW_TOKENS, true)
+                                    }}>
                                     Withdraw
                                 </button>
                             </div>
@@ -1668,6 +1682,20 @@ class Sportsbook extends Component {
                         self.helpers().toggleDialog(DIALOG_DEPOSIT_TOKENS, enabled)
                     }}
                 />
+            },
+            withdrawTokens: () => {
+                return <WithdrawTokensDialog
+                    open={self.state.dialogs.withdrawTokens.open}
+                    sessionNumber={self.state.bettingProvider.currentSession}
+                    onConfirm={(amount) => {
+                        let formattedAmount = new BigNumber(amount).times(ethUnits.units.ether).toString()
+                        self.web3Setters().withdrawTokens(formattedAmount, self.state.bettingProvider.currentSession)
+                    }}
+                    balance={self.state.bettingProvider.depositedTokens}
+                    toggleDialog={(enabled) => {
+                        self.helpers().toggleDialog(DIALOG_WITHDRAW_TOKENS, enabled)
+                    }}
+                />
             }
         }
     }
@@ -1837,13 +1865,18 @@ class Sportsbook extends Component {
             },
             toggleDialog: (type, enabled) => {
                 let dialogs = self.state.dialogs
-                if (type == DIALOG_CONFIRM_BET)
-                    dialogs.confirmBet.open = enabled
-                else if (type == DIALOG_DEPOSIT_TOKENS)
-                    dialogs.depositTokens.open = enabled
-                self.setState({
-                    dialogs: dialogs
-                })
+                switch (type) {
+                    case DIALOG_CONFIRM_BET:
+                        dialogs.confirmBet.open = enabled
+                        break
+                    case DIALOG_DEPOSIT_TOKENS:
+                        dialogs.depositTokens.open = enabled
+                        break
+                    case DIALOG_WITHDRAW_TOKENS:
+                        dialogs.withdrawTokens.open = enabled
+                        break
+                }
+                self.setState({ dialogs: dialogs })
             },
             getConfirmBetMessage: (gameId, oddsId) => {
                 let oddsObj = self.state.odds[gameId][oddsId]
@@ -1901,6 +1934,7 @@ class Sportsbook extends Component {
                 </div>
                 {self.dialogs().confirmBet()}
                 {self.dialogs().depositTokens()}
+                {self.dialogs().withdrawTokens()}
             </div>
         </div>
     }
