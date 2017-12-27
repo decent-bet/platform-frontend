@@ -207,6 +207,15 @@ class Dashboard extends Component {
                     }
                     iconElementRight={
                         <div>
+                            <span className="btn btn-sm"
+                                style={{
+                                    fontSize: 12,
+                                    marginTop: 12.5,
+                                    marginRight: 10,
+                                    fontFamily: 'Lato',
+                                    color: constants.COLOR_WHITE
+                                }}>Address: {helper.getWeb3().eth.defaultAccount}
+                            </span>
                             <button className="btn btn-sm btn-primary hvr-fade"
                                     style={{
                                         fontSize: 12,
@@ -217,7 +226,7 @@ class Dashboard extends Component {
                                     }}
                                     onClick={ () => {
                                         self.web3Setters().faucet()
-                                    }}>{ 'Claim Faucet'}
+                                    }}>{'Claim Faucet'}
                             </button>
                             <button className="btn btn-sm btn-primary hvr-fade"
                                     style={{
