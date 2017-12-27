@@ -22,15 +22,6 @@ const themes = new Themes()
 
 const constants = require('../../Constants')
 
-const styles = {
-    menuItem: {
-        color: constants.COLOR_WHITE,
-        fontFamily: 'GothamLight',
-        fontSize: 17,
-        padding: '10px 0 10px 0'
-    }
-}
-
 class Dashboard extends Component {
 
     constructor(props) {
@@ -260,32 +251,28 @@ class Dashboard extends Component {
                     </div>
                     <div>
                         <MenuItem
-                            className="menu-item"
-                            style={styles.menuItem}
+                            className={self.state.selectedView === constants.VIEW_BALANCES ? "menu-item selected" : "menu-item" }
                             onClick={() => {
                                 self.helpers().selectView(constants.VIEW_BALANCES)
                             }}>
                             <span className="fa fa-money menu-icon"/>&ensp;&ensp;BALANCES
                         </MenuItem>
                         <MenuItem
-                            className="menu-item"
-                            style={styles.menuItem}
+                            className={self.state.selectedView === constants.VIEW_CASINO ? "menu-item selected" : "menu-item" }
                             onClick={() => {
                                 self.helpers().selectView(constants.VIEW_CASINO)
                             }}>
                             <span className="fa fa-gamepad menu-icon"/>&ensp;&ensp;CASINO
                         </MenuItem>
                         <MenuItem
-                            className="menu-item"
-                            style={styles.menuItem}
+                            className={self.state.selectedView === constants.VIEW_PORTAL ? "menu-item selected" : "menu-item" }
                             onClick={() => {
                                 self.helpers().selectView(constants.VIEW_PORTAL)
                             }}>
                             <span className="fa fa-soccer-ball-o menu-icon"/>&ensp;&ensp;PORTAL
                         </MenuItem>
                         <MenuItem
-                            className="menu-item"
-                            style={styles.menuItem}
+                            className={self.state.selectedView === constants.VIEW_HOUSE ? "menu-item selected" : "menu-item" }
                             onClick={() => {
                                 self.helpers().selectView(constants.VIEW_HOUSE)
                             }}>

@@ -60,9 +60,18 @@ input::-webkit-inner-spin-button {
     display: block;
 }
 
+.dashboard .menu-item: {
+    color: #FFF;
+    font-family: 'GothamLight';
+    font-size: 17;
+    padding: '10px 0 10px 0';
+}
+
+.dashboard .menu-item.selected {
+    font-family: GothamBold !important;
+}
 .dashboard .menu-item:hover {
     background: #292b2c !important;
-    font-weight: bold !important;
 }
 
 .dashboard .menu-icon {
