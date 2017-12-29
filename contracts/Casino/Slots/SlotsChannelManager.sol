@@ -346,13 +346,13 @@ contract SlotsChannelManager is SlotsImplementation, HouseOffering, SafeMath, Ut
     }
 
     // Allows only the house and player to proceed
-    function isParticipant(uint id, address _address) internal returns (bool) {
+    function isParticipant(uint id, address _address) returns (bool) {
         return (!house.authorized(msg.sender) && msg.sender != players[id][false]);
     }
 
     // Sets the final spin for the channel
     function setFinal(uint id, uint userBalance, uint houseBalance, uint nonce, bool turn) external {
-        if(msg.sender != slotsChannelFinalizer) revert();
+        if(!isParticipant(id, msg.sender)) revert();
 
         address user = players[id][false];
         address house = players[id][true];

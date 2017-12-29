@@ -730,7 +730,7 @@ class ContractHelper {
                         userSpin = self.getSpinParts(userSpin)
                         houseSpin = self.getSpinParts(houseSpin)
 
-                        console.log('Finalize', id, typeof id)
+                        console.log('Finalize', id, typeof id, window.web3Object.eth.defaultAccount)
 
                         let logKeys = (spin) => {
                             Object.keys(spin).forEach((key) => {
@@ -744,9 +744,10 @@ class ContractHelper {
                             houseSpin.parts + '\", \"' + userSpin.r + '\", \"' + userSpin.s + '\", \"' +
                             houseSpin.r + '\", \"' + houseSpin.s + '\"')
 
-                        return slotsChannelFinalizerInstance.finalize.call(id, userSpin.parts,
+                        return slotsChannelFinalizerInstance.finalize.sendTransaction(id, userSpin.parts,
                             houseSpin.parts, userSpin.r, userSpin.s, houseSpin.r, houseSpin.s, {
-                                from: window.web3Object.eth.defaultAccount
+                                from: window.web3Object.eth.defaultAccount,
+                                gas: 6700000
                             })
                     }
                 }
