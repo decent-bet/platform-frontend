@@ -81,6 +81,7 @@ class Slots extends Component {
         this.watchers().channelDeposit()
         this.watchers().channelActivate()
         this.watchers().channelFinalized()
+        this.watchers().claimChannelTokens()
         this.watchers().deposit()
     }
 
@@ -93,15 +94,16 @@ class Slots extends Component {
                     if (err)
                         console.log('New channel event error', err)
                     else {
-                        let id = event.args.id
+                        let id = event.args.id.toNumber()
                         console.log('New channel event', event.args)
                         let channels = self.state.channels
                         if (!channels.hasOwnProperty(id)) {
-                            channels[id] = event.args
+                            channels[id] = {}
                             channels[id].status = constants.CHANNEL_STATUS_WAITING
                             console.log('Channels', channels)
-                        } else
-                            channels[id].initialDeposit = event.args.initialDeposit
+                        }
+
+                        channels[id].initialDeposit = event.args.initialDeposit.toString()
                         self.setState({
                             channels: channels
                         })
@@ -115,10 +117,10 @@ class Slots extends Component {
                         console.log('Deposit channel event error', err)
                     else {
                         console.log('Deposit channel event', event.args)
-                        let id = event.args.id
+                        let id = event.args.id.toNumber()
                         let channels = self.state.channels
                         if (!channels.hasOwnProperty(id))
-                            channels[id] = event.args
+                            channels[id] = {}
                         if (channels[id].status !== constants.CHANNEL_STATUS_ACTIVATED &&
                             channels[id].status !== constants.CHANNEL_STATUS_FINALIZED)
                             channels[id].status = constants.CHANNEL_STATUS_DEPOSITED
@@ -135,10 +137,10 @@ class Slots extends Component {
                         console.log('Activate channel event error', err)
                     else {
                         console.log('Activate channel event', event.args)
-                        let id = event.args.id
+                        let id = event.args.id.toString()
                         let channels = self.state.channels
                         if (!channels.hasOwnProperty(id))
-                            channels[id] = event.args
+                            channels[id] = {}
                         if (channels[id].status !== constants.CHANNEL_STATUS_FINALIZED)
                             channels[id].status = constants.CHANNEL_STATUS_ACTIVATED
                         self.setState({
@@ -154,11 +156,32 @@ class Slots extends Component {
                         console.log('Finalized channel event error', err)
                     else {
                         console.log('Finalized channel event', event.args)
-                        let id = event.args.id
+                        let id = event.args.id.toNumber()
                         let channels = self.state.channels
                         if (!channels.hasOwnProperty(id))
-                            channels[id] = event.args
+                            channels[id] = {}
                         channels[id].status = constants.CHANNEL_STATUS_FINALIZED
+                        self.setState({
+                            channels: channels
+                        })
+                    }
+                })
+            },
+            claimChannelTokens: () => {
+                helper.getContractHelper().getWrappers().slotsChannelManager()
+                    .logClaimChannelTokens().watch((err, event) => {
+                    if (err)
+                        console.log('Claim channel tokens event error', err)
+                    else {
+                        console.log('Claim channel tokens event', event.args)
+                        let id = event.args.id.toNumber()
+                        let isHouse = event.args.isHouse
+                        let channels = self.state.channels
+                        if (!channels.hasOwnProperty(id))
+                            channels[id] = {}
+                        if (!channels[id].hasOwnProperty('claimed'))
+                            channels[id].claimed = {}
+                        channels[id].claimed[isHouse] = true
                         self.setState({
                             channels: channels
                         })
@@ -239,7 +262,7 @@ class Slots extends Component {
             },
             depositToChannel: (id) => {
                 console.log('Depositing to channel',
-                    id, 'with deposit', self.state.channels[id].initialDeposit.toString())
+                    id, 'with deposit', self.state.channels[id].initialDeposit)
                 slotsChannelHandler.getChannelDepositParams(id, (err, params) => {
                     let initialUserNumber = params.initialUserNumber
                     let finalUserHash = params.finalUserHash
@@ -357,10 +380,12 @@ class Slots extends Component {
                         <button className="btn btn-sm btn-primary hvr-fade float-right"
                                 style={styles.button}>
                             Slots chips:
-                            <span className="ml-1">{(self.state.currentSession >= 0 &&
-                            self.state.balances[self.state.currentSession] >= 0) ?
+                            <span className="ml-1">{
+                                (self.state.currentSession >= 0 &&
+                                self.state.balances[self.state.currentSession] >= 0) ?
                                 (helper.getWeb3().fromWei(self.state.balances[self.state.currentSession]) + ' DBETs') :
-                                self.views().tinyLoader()}
+                                self.views().tinyLoader()
+                            }
                             </span>
                         </button>
                         {/** Slots chips are merely DBETs that're deposited into the Slots Channel Manager contract
@@ -415,14 +440,14 @@ class Slots extends Component {
                                                 self.state.channels.hasOwnProperty(id) &&
                                                 self.state.channels[id].hasOwnProperty('initialDeposit') ?
                                                     helper.getWeb3().fromWei(self.state.channels[id]
-                                                        .initialDeposit.toString()) :
+                                                        .initialDeposit) :
                                                     self.views().tinyLoader()
                                             } DBETs
                                         </p>
                                     </td>
                                     <td>
-                                        <p>{ self.helpers()
-                                            .getFormattedChannelStatus(self.state.channels[id].status) }</p>
+                                        <p>{ self.helpers().getFormattedChannelStatus(self.state.channels[id].status) }
+                                        </p>
                                     </td>
                                     <MuiThemeProvider muiTheme={themes.getButtons()}>
                                         <td>
@@ -433,11 +458,21 @@ class Slots extends Component {
                                                 onClick={() => {
                                                     self.web3Setters().depositToChannel(id)
                                                 }}/>
+
                                             <FlatButton
                                                 label="Play"
                                                 className="ml-4"
-                                                disabled={self.state.channels[id].status !==
-                                                constants.CHANNEL_STATUS_ACTIVATED}
+                                                disabled={self.state.channels[id].status !== constants.CHANNEL_STATUS_ACTIVATED}
+                                                href={'/slots/game?id=' + id}/>
+
+                                            <FlatButton
+                                                label="Claim DBETs"
+                                                disabled={
+                                                    !(self.state.channels[id].status == constants.CHANNEL_STATUS_FINALIZED &&
+                                                      self.state.channels[id].hasOwnProperty('claimed') &&
+                                                      !self.state.channels[id].claimed[false])
+                                                }
+                                                className="ml-4"
                                                 href={'/slots/game?id=' + id}/>
                                         </td>
                                     </MuiThemeProvider>

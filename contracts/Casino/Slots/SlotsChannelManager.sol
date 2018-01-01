@@ -58,10 +58,10 @@ contract SlotsChannelManager is SlotsImplementation, HouseOffering, SafeMath, Ut
     mapping (uint => Channel) channels;
 
     // Amount of DBETs deposited by user and house for a channel.
-    mapping (uint => mapping(address => uint)) public channelDeposits;
+    mapping (uint => mapping(bool => uint)) public channelDeposits;
 
     // Finalized balances for user and house for a channel.
-    mapping (uint => mapping(address => uint)) public finalBalances;
+    mapping (uint => mapping(bool => uint)) public finalBalances;
 
     // Addresses of the players involved - false = user, true = house for a channel.
     mapping (uint => mapping(bool => address)) public players;
@@ -80,11 +80,11 @@ contract SlotsChannelManager is SlotsImplementation, HouseOffering, SafeMath, Ut
 
     event LogChannelActivate(uint id, address user, string finalSeedHash, string finalReelHash);
 
+    event LogClaimChannelTokens(uint id, bool isHouse, uint timestamp);
+
     event LogDeposit(address _address, uint amount, uint session, uint balance);
 
     event LogWithdraw(address _address, uint amount, uint session, uint balance);
-
-    event LogClaimChannelTokens(bool isHouse, uint timestamp);
 
     /* Constructor */
 
@@ -290,8 +290,8 @@ contract SlotsChannelManager is SlotsImplementation, HouseOffering, SafeMath, Ut
         channels[id].initialUserNumber = _initialUserNumber;
         channels[id].finalUserHash = _finalUserHash;
         channels[id].ready = true;
-        transferTokensToChannel(id, msg.sender);
-        LogChannelDeposit(id, players[id][true], _finalUserHash);
+        transferTokensToChannel(id, false);
+        LogChannelDeposit(id, players[id][false], _finalUserHash);
         return true;
     }
 
@@ -301,8 +301,8 @@ contract SlotsChannelManager is SlotsImplementation, HouseOffering, SafeMath, Ut
     isPlayer(id)
     isUserReady(id)
     isNotActivated(id) {
-        uint deposit = channelDeposits[id][msg.sender];
-        channelDeposits[id][msg.sender] = 0;
+        uint deposit = channelDeposits[id][false];
+        channelDeposits[id][false] = 0;
         depositedTokens[msg.sender][channels[id].session] =
         safeAdd(depositedTokens[msg.sender][channels[id].session], channels[id].initialDeposit);
     }
@@ -323,15 +323,17 @@ contract SlotsChannelManager is SlotsImplementation, HouseOffering, SafeMath, Ut
         channels[id].finalSeedHash = _finalSeedHash;
         channels[id].activated = true;
         players[id][true] = msg.sender;
-        transferTokensToChannel(id, houseAddress);
+        transferTokensToChannel(id, true);
         LogChannelActivate(id, players[id][true], _finalSeedHash, _finalReelHash);
         return true;
     }
 
     // Transfers tokens to a channel.
-    function transferTokensToChannel(uint id, address _address) private {
-        channelDeposits[id][_address] =
-        safeAdd(channelDeposits[id][_address], channels[id].initialDeposit);
+    function transferTokensToChannel(uint id, bool isHouse) private {
+        // Transfer from house address instead of authorized addresses sending txs on behalf of the house
+        address _address = isHouse ? houseAddress : players[id][false];
+        channelDeposits[id][isHouse] =
+        safeAdd(channelDeposits[id][isHouse], channels[id].initialDeposit);
         depositedTokens[_address][channels[id].session] =
         safeSub(depositedTokens[_address][channels[id].session], channels[id].initialDeposit);
     }
@@ -350,22 +352,20 @@ contract SlotsChannelManager is SlotsImplementation, HouseOffering, SafeMath, Ut
     }
 
     // Allows only the house and player to proceed
-    function isParticipant(uint id, address _address) returns (bool) {
-        return (!house.authorized(msg.sender) && msg.sender != players[id][false]);
+    function isParticipant(uint id, address _address) constant returns (bool) {
+        return (house.authorized(_address) || _address == players[id][false]);
     }
 
     // Sets the final spin for the channel
     function setFinal(uint id, uint userBalance, uint houseBalance, uint nonce, bool turn) external {
         if(msg.sender != address(slotsChannelFinalizer)) throw;
 
-        address user = players[id][false];
-        address house = players[id][true];
-        finalBalances[id][user] = userBalance;
-        finalBalances[id][house] = houseBalance;
+        finalBalances[id][false] = userBalance;
+        finalBalances[id][true] = houseBalance;
         channels[id].finalNonce = nonce;
         channels[id].finalTurn = turn;
-        channels[id].endTime = block.timestamp + 5 minutes;
-        // Set at 5 minutes only for Testnet
+        channels[id].endTime = block.timestamp + 1 minutes;
+        // Set at 1 minute only for Testnet
         if (!channels[id].finalized) channels[id].finalized = true;
         LogChannelFinalized(id, turn);
     }
@@ -377,14 +377,18 @@ contract SlotsChannelManager is SlotsImplementation, HouseOffering, SafeMath, Ut
         bool isHouse = (players[id][true] == msg.sender);
 
         if (isChannelClosed(id)) {
-            uint256 amount = finalBalances[id][msg.sender];
+            uint256 amount = finalBalances[id][isHouse];
             if (amount > 0) {
-                finalBalances[id][msg.sender] = 0;
-                channelDeposits[id][msg.sender] = 0;
-                depositedTokens[msg.sender][channels[id].session] =
-                safeAdd(depositedTokens[msg.sender][channels[id].session], amount);
+                finalBalances[id][isHouse] = 0;
+                channelDeposits[id][isHouse] = 0;
 
-                LogClaimChannelTokens(isHouse, block.timestamp);
+                // Deposit to the house address instead of authorized addresses sending txs on behalf of the house
+                address _address = isHouse ? houseAddress : msg.sender;
+
+                depositedTokens[_address][channels[id].session] =
+                safeAdd(depositedTokens[_address][channels[id].session], amount);
+
+                LogClaimChannelTokens(id, isHouse, block.timestamp);
             }
         }
     }

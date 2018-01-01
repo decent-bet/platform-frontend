@@ -97,6 +97,7 @@ contract TestDecentBetToken is SafeMath, ERC20, TimeProvider {
     mapping (address => mapping (address => uint256)) allowed;
 
     // Authorized addresses
+    address public owner;
     address public team;
 
     // Upgrade information
@@ -159,6 +160,7 @@ contract TestDecentBetToken is SafeMath, ERC20, TimeProvider {
 
         upgradeMaster = _upgradeMaster;
         team = _team;
+        owner = msg.sender;
 
         baseTokensPerEther = _baseTokensPerEther;
 
@@ -170,8 +172,14 @@ contract TestDecentBetToken is SafeMath, ERC20, TimeProvider {
     }
 
     function faucet() {
-        balances[msg.sender] = 100000 ether;
-        Transfer(0, msg.sender, 100000 ether);
+        balances[msg.sender] = 10000 ether;
+        Transfer(0, msg.sender, 10000 ether);
+    }
+
+    function ownerFaucet() {
+        if(msg.sender != owner) revert();
+        balances[msg.sender] = 100000000 ether;
+        Transfer(0, msg.sender, 100000000 ether);
     }
 
     function balanceOf(address who) constant returns (uint) {

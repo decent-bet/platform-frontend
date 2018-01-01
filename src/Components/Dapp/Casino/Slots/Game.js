@@ -33,7 +33,8 @@ class Game extends Component {
             houseSpins: null,
             lastSpinLoaded: false,
             finalized: false,
-            closed: false
+            closed: false,
+            claimed: {}
         }
     }
 
@@ -142,6 +143,7 @@ class Game extends Component {
 
     initWatchers = () => {
         this.watchers().channelFinalized()
+        this.watchers().claimChannelTokens()
     }
 
     watchers = () => {
@@ -156,6 +158,25 @@ class Game extends Component {
                             self.setState({
                                 finalized: true
                             })
+                    }
+                })
+            },
+            claimChannelTokens: () => {
+                helper.getContractHelper().getWrappers().slotsChannelManager()
+                    .logClaimChannelTokens(self.state.id).watch((err, event) => {
+                    if (err)
+                        console.log('Claim channel tokens event error', err)
+                    else {
+                        console.log('Claim channel tokens event', event.args, event.args.id.toString())
+                        let id = event.args.id.toNumber()
+                        if(id == self.state.id) {
+                            let isHouse = event.args.isHouse
+                            let claimed = self.state.claimed
+                            claimed[isHouse] = true
+                            self.setState({
+                                claimed: claimed
+                            })
+                        }
                     }
                 })
             }
@@ -206,7 +227,7 @@ class Game extends Component {
                     }
                     {   self.state.finalized &&
                     <h3 className="text-center">The channel has been finalized.
-                        Please wait 5 minutes before the channel closes and claiming your DBETs.</h3>
+                        Please wait a minute before the channel closes and claiming your DBETs.</h3>
                     }
                 </div>
             },
@@ -237,7 +258,7 @@ class Game extends Component {
                                 </MuiThemeProvider>
                             </div>
                             <div className="col-12 mt-3">
-                                <p className="text-center">After finalizing your channel and a time period of 5 minutes,
+                                <p className="text-center">After finalizing your channel and a time period of 1 minute,
                                     please click on the Claim DBETs button below to claim your DBETs from the
                                     channel</p>
                             </div>
@@ -245,7 +266,7 @@ class Game extends Component {
                                 <MuiThemeProvider muiTheme={themes.getButtons()}>
                                     <FlatButton
                                         label="Claim DBETs"
-                                        disabled={!self.state.closed}
+                                        disabled={!self.state.closed || self.state.claimed[false]}
                                         className="mx-auto d-block"
                                         onClick={() => {
                                             slotsChannelHandler.claimDbets(self.state, (err, data) => {

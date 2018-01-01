@@ -5,6 +5,7 @@ import {AppBar, Drawer, MenuItem, MuiThemeProvider} from 'material-ui'
 import {browserHistory} from 'react-router'
 
 import EventBus from 'eventing-bus'
+import KeyHandler from '../../Base/KeyHandler'
 
 import Balances from '../Balances/Balances'
 import Casino   from '../Casino/Casino'
@@ -20,9 +21,11 @@ import Loading from '../../Base/Loading'
 import Themes from '../../Base/Themes'
 
 const helper = new Helper()
+const keyHandler = new KeyHandler()
 const themes = new Themes()
 
 const constants = require('../../Constants')
+const styles = require('../../Base/styles').styles()
 
 class Dashboard extends Component {
 
@@ -292,6 +295,7 @@ class Dashboard extends Component {
                         <MenuItem
                             className="menu-item"
                             onClick={() => {
+                                keyHandler.clear()
                                 browserHistory.push('/logout')
                             }}>
                             <span className="fa fa-sign-out menu-icon"/>&ensp;&ensp;LOGOUT

@@ -795,6 +795,11 @@ class ContractHelper {
                             from: window.web3Object.eth.defaultAccount
                         })
                     },
+                    finalBalances: (id, isHouse) => {
+                        return slotsChannelManagerInstance.finalBalances.call(id, isHouse, {
+                            from: window.web3Object.eth.defaultAccount
+                        })
+                    },
                     /**
                      * Setters
                      */
@@ -839,6 +844,7 @@ class ContractHelper {
                         })
                     },
                     logChannelActivate: (fromBlock, toBlock) => {
+                        console.log('logChannelActivate', window.web3Object.eth.defaultAccount)
                         return slotsChannelManagerInstance.LogChannelActivate({
                             user: window.web3Object.eth.defaultAccount
                         }, {
@@ -850,6 +856,13 @@ class ContractHelper {
                         return slotsChannelManagerInstance.LogChannelFinalized({
                             id: id
                         }, {
+                            fromBlock: fromBlock ? fromBlock : 0,
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logClaimChannelTokens: (id, fromBlock, toBlock) => {
+                        const filter = (id ? {id: id} : {})
+                        return slotsChannelManagerInstance.LogClaimChannelTokens(filter, {
                             fromBlock: fromBlock ? fromBlock : 0,
                             toBlock: toBlock ? toBlock : 'latest'
                         })
