@@ -1,6 +1,7 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
 # dependencies
+.gitignore
 .idea/
 node_modules
 build
@@ -16,7 +17,6 @@ installed_contracts
 todos
 .node-xmlhttprequest-sync-13220
 truffle-readme.md
-
 
 # misc
 .DS_Store

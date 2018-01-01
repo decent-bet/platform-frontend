@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 
-import {Card, FlatButton} from 'material-ui'
+import {Card, FlatButton, MuiThemeProvider} from 'material-ui'
 
 const queryString = require('query-string')
 
@@ -8,10 +8,11 @@ import EventBus from 'eventing-bus'
 import Helper from '../../../Helper'
 import Iframe from '../../../Base/Iframe'
 import SlotsChannelHandler from './Libraries/SlotsChannelHandler'
+import Themes from '../../../Base/Themes'
 
 const async = require('async')
-const constants = require('../../../Constants')
 const styles = require('../../../Base/styles').styles()
+const themes = new Themes()
 
 const helper = new Helper()
 const slotsChannelHandler = new SlotsChannelHandler()
@@ -30,7 +31,9 @@ class Game extends Component {
             hashes: null,
             nonce: null,
             houseSpins: null,
-            lastSpinLoaded: false
+            lastSpinLoaded: false,
+            finalized: false,
+            closed: false
         }
     }
 
@@ -73,6 +76,7 @@ class Game extends Component {
                         console.log('Channel details', data)
                         self.setState({
                             info: data.info,
+                            closed: data.closed,
                             hashes: data.hashes
                         })
                         cb(false)
@@ -145,9 +149,13 @@ class Game extends Component {
         return {
             channelFinalized: () => {
                 helper.getContractHelper().getWrappers().slotsChannelManager()
-                    .logChannelFinalized().watch((err, event) => {
-                    console.log('Finalized event', err, event)
+                    .logChannelFinalized(self.state.id).watch((err, event) => {
                     if (!err) {
+                        let id = event.args.id.toNumber()
+                        if (self.state.id == id)
+                            self.setState({
+                                finalized: true
+                            })
                     }
                 })
             }
@@ -186,6 +194,7 @@ class Game extends Component {
         return {
             game: () => {
                 return <div className="col-12 mx-auto">
+                    {   !self.state.finalized &&
                     <Iframe
                         id="slots-iframe"
                         url={ process.env.PUBLIC_URL + '/slots-game' }
@@ -194,6 +203,11 @@ class Game extends Component {
                         display="initial"
                         position="relative"
                         allowFullScreen/>
+                    }
+                    {   self.state.finalized &&
+                    <h3 className="text-center">The channel has been finalized.
+                        Please wait 5 minutes before the channel closes and claiming your DBETs.</h3>
+                    }
                 </div>
             },
             channelOptions: () => {
@@ -204,22 +218,42 @@ class Game extends Component {
                                 <h3 className="text-center text-uppercase mb-3">Channel Options</h3>
                             </div>
                             <div className="col-12 mt-3">
-                                <p className="text-center">To end a channel and withdraw your DBETs, click on the 'Close
+                                <p className="text-center">To finalize a channel allowing you to withdraw your DBETs,
+                                    click on the 'Close
                                     Channel' button below</p>
                             </div>
                             <div className="col-12">
-                                <FlatButton
-                                    label="Close Channel"
-                                    className="mx-auto d-block"
-                                    labelStyle={{
-                                        color: constants.COLOR_GOLD
-                                    }}
-                                    onClick={() => {
-                                        slotsChannelHandler.closeChannel(self.state, (err, data) => {
-                                            console.log('Close channel callback', err, data)
-                                        })
-                                    }}
-                                />
+                                <MuiThemeProvider muiTheme={themes.getButtons()}>
+                                    <FlatButton
+                                        label="Close Channel"
+                                        disabled={self.state.finalized}
+                                        className="mx-auto d-block"
+                                        onClick={() => {
+                                            slotsChannelHandler.closeChannel(self.state, (err, data) => {
+                                                console.log('Close channel callback', err, data)
+                                            })
+                                        }}
+                                    />
+                                </MuiThemeProvider>
+                            </div>
+                            <div className="col-12 mt-3">
+                                <p className="text-center">After finalizing your channel and a time period of 5 minutes,
+                                    please click on the Claim DBETs button below to claim your DBETs from the
+                                    channel</p>
+                            </div>
+                            <div className="col-12">
+                                <MuiThemeProvider muiTheme={themes.getButtons()}>
+                                    <FlatButton
+                                        label="Claim DBETs"
+                                        disabled={!self.state.closed}
+                                        className="mx-auto d-block"
+                                        onClick={() => {
+                                            slotsChannelHandler.claimDbets(self.state, (err, data) => {
+                                                console.log('Claim DBETs callback', err, data)
+                                            })
+                                        }}
+                                    />
+                                </MuiThemeProvider>
                             </div>
                         </div>
                     </Card>

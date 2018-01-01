@@ -783,6 +783,11 @@ class ContractHelper {
                             from: window.web3Object.eth.defaultAccount
                         })
                     },
+                    isChannelClosed: (id) => {
+                        return slotsChannelManagerInstance.isChannelClosed.call(id, {
+                            from: window.web3Object.eth.defaultAccount
+                        })
+                    },
                     /**
                      * Setters
                      */
@@ -799,6 +804,11 @@ class ContractHelper {
                     depositToChannel: (id, initialUserNumber, finalUserHash) => {
                         return slotsChannelManagerInstance.depositChannel.sendTransaction(id,
                             initialUserNumber, finalUserHash,
+                            {from: window.web3Object.eth.defaultAccount,
+                                gas: 5000000})
+                    },
+                    claim: (id) => {
+                        return slotsChannelManagerInstance.claim.sendTransaction(id,
                             {from: window.web3Object.eth.defaultAccount,
                                 gas: 5000000})
                     },
@@ -829,9 +839,9 @@ class ContractHelper {
                             toBlock: toBlock ? toBlock : 'latest'
                         })
                     },
-                    logChannelFinalized: (fromBlock, toBlock) => {
+                    logChannelFinalized: (id, fromBlock, toBlock) => {
                         return slotsChannelManagerInstance.LogChannelFinalized({
-                            user: window.web3Object.eth.defaultAccount
+                            id: id
                         }, {
                             fromBlock: fromBlock ? fromBlock : 0,
                             toBlock: toBlock ? toBlock : 'latest'

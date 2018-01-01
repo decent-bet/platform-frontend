@@ -74,7 +74,7 @@ contract SlotsChannelManager is SlotsImplementation, HouseOffering, SafeMath, Ut
     /* Events */
     event LogNewChannel(uint id, address user, uint initialDeposit);
 
-    event LogChannelFinalized(uint id, address user);
+    event LogChannelFinalized(uint id, bool isHouse);
 
     event LogChannelDeposit(uint id, address user, string finalUserHash);
 
@@ -83,6 +83,8 @@ contract SlotsChannelManager is SlotsImplementation, HouseOffering, SafeMath, Ut
     event LogDeposit(address _address, uint amount, uint session, uint balance);
 
     event LogWithdraw(address _address, uint amount, uint session, uint balance);
+
+    event LogClaimChannelTokens(bool isHouse, uint timestamp);
 
     /* Constructor */
 
@@ -166,9 +168,8 @@ contract SlotsChannelManager is SlotsImplementation, HouseOffering, SafeMath, Ut
     /* Functions */
     function createChannel(uint initialDeposit) {
         // Deposit in DBETs. Use ether since 1 DBET = 18 Decimals i.e same as ether decimals.
-        if(initialDeposit < MIN_DEPOSIT || initialDeposit > MAX_DEPOSIT)
-        throw;
-            channels[channelCount] = Channel({
+        if(initialDeposit < MIN_DEPOSIT || initialDeposit > MAX_DEPOSIT) throw;
+        channels[channelCount] = Channel({
             ready: false,
             activated: false,
             finalized: false,
@@ -190,11 +191,14 @@ contract SlotsChannelManager is SlotsImplementation, HouseOffering, SafeMath, Ut
     }
 
     // Helper function to return channel information for the frontend
-    function getChannelInfo(uint id) constant returns (address, bool, bool, uint) {
+    function getChannelInfo(uint id) constant returns (address, bool, bool, bool, uint, uint, uint) {
         return (players[id][false],
                 channels[id].ready,
                 channels[id].activated,
-                channels[id].initialDeposit);
+                channels[id].finalized,
+                channels[id].initialDeposit,
+                channels[id].finalNonce,
+                channels[id].endTime);
     }
 
     // Helper function to return hashes used for the frontend/backend
@@ -352,7 +356,7 @@ contract SlotsChannelManager is SlotsImplementation, HouseOffering, SafeMath, Ut
 
     // Sets the final spin for the channel
     function setFinal(uint id, uint userBalance, uint houseBalance, uint nonce, bool turn) external {
-        if(!isParticipant(id, msg.sender)) revert();
+        if(msg.sender != address(slotsChannelFinalizer)) throw;
 
         address user = players[id][false];
         address house = players[id][true];
@@ -360,30 +364,33 @@ contract SlotsChannelManager is SlotsImplementation, HouseOffering, SafeMath, Ut
         finalBalances[id][house] = houseBalance;
         channels[id].finalNonce = nonce;
         channels[id].finalTurn = turn;
-        channels[id].endTime = block.timestamp + 1 hours;
+        channels[id].endTime = block.timestamp + 5 minutes;
+        // Set at 5 minutes only for Testnet
         if (!channels[id].finalized) channels[id].finalized = true;
-        LogChannelFinalized(id, players[id][turn]);
+        LogChannelFinalized(id, turn);
     }
 
     // Allows player/house to claim DBETs after the channel has closed
     function claim(uint id) {
         if(!isParticipant(id, msg.sender)) revert();
 
-        address sender = players[id][false] == msg.sender ? msg.sender : players[id][true];
+        bool isHouse = (players[id][true] == msg.sender);
 
         if (isChannelClosed(id)) {
-            uint256 amount = finalBalances[id][sender];
+            uint256 amount = finalBalances[id][msg.sender];
             if (amount > 0) {
-                finalBalances[id][sender] = 0;
-                channelDeposits[id][sender] = 0;
-                depositedTokens[sender][channels[id].session] =
-                safeAdd(depositedTokens[sender][channels[id].session], amount);
+                finalBalances[id][msg.sender] = 0;
+                channelDeposits[id][msg.sender] = 0;
+                depositedTokens[msg.sender][channels[id].session] =
+                safeAdd(depositedTokens[msg.sender][channels[id].session], amount);
+
+                LogClaimChannelTokens(isHouse, block.timestamp);
             }
         }
     }
 
     // Utility function to check whether the channel has closed
-    function isChannelClosed(uint id) private returns (bool) {
+    function isChannelClosed(uint id) constant returns (bool) {
         return channels[id].finalized && block.timestamp > channels[id].endTime;
     }
 

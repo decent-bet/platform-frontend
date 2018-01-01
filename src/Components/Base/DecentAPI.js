@@ -38,6 +38,7 @@ class DecentAPI {
          */
         let encryptedSpin = cryptoJs.AES.encrypt(JSON.stringify(spin), aesKey).toString()
         let url = BASE_URL + '/casino/channels/slots/' + address + '/spin'
+
         let options = {
             url: url,
             method: 'POST',
@@ -49,6 +50,7 @@ class DecentAPI {
         }
         // console.log('Sending spin: ' + JSON.stringify(options.body) + ' to house')
         request(options, (err, response, body) => {
+            console.log('Spin', err, body)
             callback(err, body)
         })
     }

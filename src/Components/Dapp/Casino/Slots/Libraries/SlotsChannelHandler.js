@@ -61,17 +61,28 @@ export default class SlotsChannelHandler {
                     let playerAddress = info[0]
                     let ready = info[1]
                     let activated = info[2]
-                    let initialDeposit = info[3]
+                    let finalized = info[3]
+                    let initialDeposit = info[4]
                     let exists = (playerAddress == '0x0')
                     cb(false, {
                         exists: exists,
                         playerAddress: playerAddress,
                         ready: ready,
                         activated: activated,
-                        initialDeposit: initialDeposit
+                        initialDeposit: initialDeposit,
+                        finalized: finalized
                     })
                 }).catch((err) => {
                     console.log('Error retrieving channel details', err.message)
+                    cb(true, err.message)
+                })
+            },
+            closed: (cb) => {
+                helper.getContractHelper().getWrappers().slotsChannelManager()
+                .isChannelClosed(id).then((closed) => {
+                    cb(false, closed)
+                }).catch((err) => {
+                    console.log('Error retrieving is channel closed', err.message)
                     cb(true, err.message)
                 })
             },
@@ -107,6 +118,7 @@ export default class SlotsChannelHandler {
         const self = this
         decentApi.getLastSpin(id, (err, result) => {
             if (!err) {
+                console.log('getLastSpin', result)
                 let encryptedSpin = result.userSpin
                 let houseSpin = result.houseSpin
                 let nonce = result.nonce + 1
@@ -195,10 +207,25 @@ export default class SlotsChannelHandler {
                     .then((txHash) => {
                         callback(false, txHash)
                     }).catch((err) => {
-                        callback(false, ('Error closing channel' + ', ' + err.message))
+                        callback(true, ('Error closing channel' + ', ' + err.message))
                     })
             } else if (callback)
                 callback(true, 'Error generating user spin')
+        })
+    }
+
+    /**
+     * Allows users to claim DBETs from a closed channel
+     * @param state
+     * @param callback
+     */
+    claimDbets = (state, callback) => {
+        let id = state.id
+        helper.getContractHelper().getWrappers().slotsChannelManager()
+            .claim(id).then((txHash) => {
+            callback(false, txHash)
+        }).catch((err) => {
+            callback(true, ('Error sending claim DBETs tx ' + err.message))
         })
     }
 

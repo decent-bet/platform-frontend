@@ -1,6 +1,3 @@
-let utils = require("../test/utils/utils.js")
-utils.setWeb3(web3)
-
 const MultiSigWallet = artifacts.require("MultiSigWallet")
 const DecentBetToken = artifacts.require("TestDecentBetToken")
 const UpgradeAgent = artifacts.require("TestUpgradeAgent")
@@ -18,18 +15,21 @@ module.exports = function (deployer, network) {
     let decentBetMultisig
     let upgradeMaster, agentOwner
     let startTime, endTime
-    let accounts = web3.eth.accounts.slice(0, 3)
-    let signaturesRequired = 2
+    let accounts = ['0xf2d6ff4adf714d994e1bfba2568432c1c8b6f257']
+
+    let signaturesRequired = 1
     let token, wallet, upgradeAgent, team, house, bettingProvider, bettingProviderHelper, sportsOracle,
         ecVerify, slotsHelper, slotsChannelFinalizer, slotsChannelManager
-    console.log('Network: ' + network + ', startBlock: ' + web3.eth.blockNumber)
-    if (network == 'testnet' || network == 'development') {
+
+    console.log('Deploying with network', network)
+
+    if (network == 'rinkeby' || network == 'development') {
 
         const timestamp = Math.round(new Date().getTime() / 1000)
         deployer.deploy(MultiSigWallet, accounts, signaturesRequired).then(function (instance) {
             wallet = instance
-            upgradeMaster = web3.eth.accounts[0]
-            team = web3.eth.accounts[0]
+            upgradeMaster = accounts[0]
+            team = accounts[0]
             agentOwner = upgradeMaster
             decentBetMultisig = MultiSigWallet.address
 
@@ -88,7 +88,7 @@ module.exports = function (deployer, network) {
             console.log('Deployed Slots Channel Finalizer')
             slotsChannelFinalizer = instance
             return deployer.deploy(SlotsChannelManager, house.address, token.address, slotsHelper.address,
-                                   slotsChannelFinalizer.address)
+                slotsChannelFinalizer.address)
         }).then(function () {
             return SlotsChannelManager.deployed()
         }).then(function (instance) {
@@ -123,10 +123,6 @@ module.exports = function (deployer, network) {
             return DecentBetToken.deployed()
         }).then(function (instance) {
             token = instance
-            //   functionData = utils.getFunctionEncoding('UpgradeAgent(address)',[token.address])
-            //   return web3.eth.estimateGas({data:functionData})
-            // }).then(function(gasEstimate){
-            //   console.log(gasEstimate)
             gasEstimate = 2000000
             return deployer.deploy(UpgradeAgent, token.address, {
                 from: agentOwner,
