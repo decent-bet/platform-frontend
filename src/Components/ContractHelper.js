@@ -813,6 +813,14 @@ class ContractHelper {
                             {from: window.web3Object.eth.defaultAccount,
                                 gas: 5000000})
                     },
+                    withdraw: (amount, session) => {
+                        console.log('Withdraw', amount, 'from slots channel manager as',
+                                    window.web3Object.eth.defaultAccount)
+                        return slotsChannelManagerInstance.withdraw.sendTransaction(amount, session, {
+                            from: window.web3Object.eth.defaultAccount,
+                            gas: 5000000
+                        })
+                    },
                     depositToChannel: (id, initialUserNumber, finalUserHash) => {
                         return slotsChannelManagerInstance.depositChannel.sendTransaction(id,
                             initialUserNumber, finalUserHash,
@@ -869,6 +877,14 @@ class ContractHelper {
                     },
                     logDeposit: (fromBlock, toBlock) => {
                         return slotsChannelManagerInstance.LogDeposit({
+                            _address: window.web3Object.eth.defaultAccount
+                        }, {
+                            fromBlock: fromBlock ? fromBlock : 0,
+                            toBlock: toBlock ? toBlock : 'latest'
+                        })
+                    },
+                    logWithdraw: (fromBlock, toBlock) => {
+                        return slotsChannelManagerInstance.LogWithdraw({
                             _address: window.web3Object.eth.defaultAccount
                         }, {
                             fromBlock: fromBlock ? fromBlock : 0,
