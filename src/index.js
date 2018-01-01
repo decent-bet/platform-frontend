@@ -40,19 +40,14 @@ ReactDOM.render(
                     return <Login/>
                 }
             }}/>
-            <Route path={constants.VIEW_PORTAL} component={() => {
-                return <Dashboard
-                    view={constants.VIEW_PORTAL}
-                />
-            }}/>
             <Route path={constants.VIEW_CASINO} component={() => {
                 return <Dashboard
                     view={constants.VIEW_CASINO}
                 />
             }}/>
-            <Route path={constants.VIEW_PORTAL} component={() => {
+            <Route path={constants.VIEW_HOUSE} component={() => {
                 return <Dashboard
-                    view={constants.VIEW_PORTAL}
+                    view={constants.VIEW_HOUSE}
                 />
             }}/>
             <Route path={constants.VIEW_SLOTS} component={() => {

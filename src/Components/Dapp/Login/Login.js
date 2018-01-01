@@ -135,7 +135,7 @@ class Login extends Component {
             },
             loginButton: () => {
                 return <div className={"col-10 col-md-8 mx-auto login-button " +
-                        (!self.helpers().isValidCredentials() ? 'disabled' : '')}
+                                        (!self.helpers().isValidCredentials() ? 'disabled' : '')}
                                     onClick={() => {
                                         if (self.helpers().isValidCredentials())
                                             self.actions().login()
