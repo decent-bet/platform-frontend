@@ -130,8 +130,8 @@ contract SlotsChannelManager is SlotsImplementation, HouseOffering, SafeMath, Ut
     }
 
     // Allows functions to execute only if users have "amount" tokens in their depositedTokens balance.
-    modifier isTokensAvailable(uint amount) {
-        if (depositedTokens[msg.sender][currentSession] < amount) throw;
+    modifier isTokensAvailable(uint amount, uint session) {
+        if (depositedTokens[msg.sender][session] < amount) throw;
         _;
     }
 
@@ -259,7 +259,7 @@ contract SlotsChannelManager is SlotsImplementation, HouseOffering, SafeMath, Ut
     // Withdraw DBETS from contract to sender address.
     function withdraw(uint amount, uint session)
     isValidPriorSession(session)
-    isTokensAvailable(amount) returns (bool) {
+    isTokensAvailable(amount, session) returns (bool) {
         depositedTokens[msg.sender][session] = safeSub(depositedTokens[msg.sender][session], amount);
         if(!decentBetToken.transfer(msg.sender, amount)) return false;
         LogWithdraw(msg.sender, amount, session, depositedTokens[msg.sender][session]);

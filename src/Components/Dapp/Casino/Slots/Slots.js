@@ -4,6 +4,7 @@ import {Card, CircularProgress, FlatButton, MuiThemeProvider} from 'material-ui'
 
 import GetSlotsChipsDialog from './Dialogs/GetSlotsChipsDialog'
 import NewChannelDialog from './Dialogs/NewChannelDialog'
+import WithdrawSlotsChipsDialog from './Dialogs/WithdrawSlotsChipsDialog'
 
 import EventBus from 'eventing-bus'
 import Helper from '../../../Helper'
@@ -30,7 +31,7 @@ styles.button = {
     color: constants.COLOR_WHITE
 }
 
-const DIALOG_NEW_CHANNEL = 0, DIALOG_GET_CHIPS = 1
+const DIALOG_NEW_CHANNEL = 0, DIALOG_GET_CHIPS = 1, DIALOG_WITHDRAW_CHIPS = 2
 
 class Slots extends Component {
 
@@ -47,6 +48,9 @@ class Slots extends Component {
                     open: false
                 },
                 getChips: {
+                    open: false
+                },
+                withdrawChips: {
                     open: false
                 }
             }
@@ -83,6 +87,7 @@ class Slots extends Component {
         this.watchers().channelFinalized()
         this.watchers().claimChannelTokens()
         this.watchers().deposit()
+        this.watchers().withdraw()
     }
 
     watchers = () => {
@@ -198,6 +203,17 @@ class Slots extends Component {
                         self.web3Getters().balanceOf(event.args.session.toNumber())
                     }
                 })
+            },
+            withdraw: () => {
+                helper.getContractHelper().getWrappers().slotsChannelManager()
+                    .logWithdraw().watch((err, event) => {
+                    if (err)
+                        console.log('Withdraw event error', err)
+                    else {
+                        console.log('Withdraw event', event.args)
+                        self.web3Getters().balanceOf(event.args.session.toNumber())
+                    }
+                })
             }
         }
     }
@@ -295,6 +311,13 @@ class Slots extends Component {
                 }).catch((err) => {
                     console.log('Error sending deposit tx', err.message)
                 })
+            },
+            withdraw: (amount, session) => {
+                helper.getContractHelper().getWrappers().slotsChannelManager().withdraw(amount, session).then((tx) => {
+                    console.log('Successfully sent withdraw tx', tx)
+                }).catch((err) => {
+                    console.log('Error sending withdraw tx', err.message)
+                })
             }
         }
     }
@@ -307,8 +330,10 @@ class Slots extends Component {
                 let dialogs = self.state.dialogs
                 if (dialog === DIALOG_NEW_CHANNEL)
                     dialogs.newChannel.open = open
-                if (dialog === DIALOG_GET_CHIPS)
+                else if (dialog === DIALOG_GET_CHIPS)
                     dialogs.getChips.open = open
+                else if (dialog === DIALOG_WITHDRAW_CHIPS)
+                    dialogs.withdrawChips.open = open
                 self.setState({
                     dialogs: dialogs
                 })
@@ -377,19 +402,26 @@ class Slots extends Component {
             slotChannelsCard: () => {
                 return <div className="row channels">
                     <div className="col-12">
+                        {/** Slots chips are merely DBETs that're deposited into the Slots Channel Manager contract
+                         and can be withdrawn at any time*/}
                         <button className="btn btn-sm btn-primary hvr-fade float-right"
                                 style={styles.button}>
                             Slots chips:
                             <span className="ml-1">{
                                 (self.state.currentSession >= 0 &&
                                 self.state.balances[self.state.currentSession] >= 0) ?
-                                (helper.getWeb3().fromWei(self.state.balances[self.state.currentSession]) + ' DBETs') :
-                                self.views().tinyLoader()
+                                    (helper.getWeb3().fromWei(self.state.balances[self.state.currentSession]) + ' DBETs') :
+                                    self.views().tinyLoader()
                             }
                             </span>
                         </button>
-                        {/** Slots chips are merely DBETs that're deposited into the Slots Channel Manager contract
-                         and can be withdrawn at any time*/}
+                        <button className="btn btn-sm btn-primary hvr-fade float-right text"
+                                style={styles.button}
+                                onClick={() => {
+                                    self.helpers().toggleDialog(DIALOG_WITHDRAW_CHIPS, true)
+                                }}>
+                            Withdraw Chips
+                        </button>
                         <button className="btn btn-sm btn-primary hvr-fade float-right text"
                                 style={styles.button}
                                 onClick={() => {
@@ -469,8 +501,7 @@ class Slots extends Component {
                                                 label="Claim DBETs"
                                                 disabled={
                                                     !(self.state.channels[id].status == constants.CHANNEL_STATUS_FINALIZED &&
-                                                      self.state.channels[id].hasOwnProperty('claimed') &&
-                                                      !self.state.channels[id].claimed[false])
+                                                    self.state.channels[id].hasOwnProperty('claimed') && !self.state.channels[id].claimed[false])
                                                 }
                                                 className="ml-4"
                                                 href={'/slots/game?id=' + id}/>
@@ -529,6 +560,25 @@ class Slots extends Component {
                         self.helpers().toggleDialog(DIALOG_GET_CHIPS, open)
                     }}
                 />
+            },
+            withdrawSlotsChips: () => {
+                return <WithdrawSlotsChipsDialog
+                    open={self.state.dialogs.withdrawChips.open}
+                    balance={(self.state.currentSession >= 0 &&
+                            self.state.balances[self.state.currentSession] >= 0) ?
+                            (helper.getWeb3().fromWei(self.state.balances[self.state.currentSession])) :
+                            null}
+                    onWithdrawChips={(amount) => {
+                        console.log('onWithdrawChips', amount, self.state.balances[self.state.currentSession])
+                        let balance = new BigNumber(self.state.balances[self.state.currentSession])
+                        if (balance.greaterThanOrEqualTo(amount))
+                            self.web3Setters().withdraw(amount.toString(), self.state.currentSession)
+                        self.helpers().toggleDialog(DIALOG_WITHDRAW_CHIPS, false)
+                    }}
+                    toggleDialog={(open) => {
+                        self.helpers().toggleDialog(DIALOG_WITHDRAW_CHIPS, open)
+                    }}
+                />
             }
         }
     }
@@ -543,6 +593,7 @@ class Slots extends Component {
                 { self.views().slotChannelsCard() }
                 { self.dialogs().newChannel() }
                 { self.dialogs().getSlotsChips() }
+                { self.dialogs().withdrawSlotsChips() }
             </div>
         </div>
     }
