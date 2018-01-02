@@ -296,7 +296,7 @@ class Dashboard extends Component {
                             className="menu-item"
                             onClick={() => {
                                 keyHandler.clear()
-                                browserHistory.push('/logout')
+                                browserHistory.push(constants.VIEW_LOGIN)
                             }}>
                             <span className="fa fa-sign-out menu-icon"/>&ensp;&ensp;LOGOUT
                         </MenuItem> 

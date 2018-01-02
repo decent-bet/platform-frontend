@@ -26,52 +26,36 @@ let replaceUrl = (url) => {
         window.history.replaceState('', document.title, url)
 }
 
+function requireAuth(nextState, replace) {
+  if (!keyHandler.isLoggedIn()) {
+    browserHistory.push(constants.VIEW_LOGIN)
+  }
+}
+
 ReactDOM.render(
     <Router history={browserHistory}>
         <Route path="/" component={App}>
-            <IndexRoute component={() => {
-                if (keyHandler.isLoggedIn()) {
-                    web3Loader.init()
-                    return <Dashboard
-                        view={constants.VIEW_DEFAULT}
-                    />
-                } else {
-                    replaceUrl(constants.VIEW_LOGIN)
-                    return <Login/>
-                }
+            <IndexRoute onEnter={requireAuth} component={() => {
+                web3Loader.init()
+                return <Dashboard view={constants.VIEW_DEFAULT} />
             }}/>
-            <Route path={constants.VIEW_PORTAL} component={() => {
-                return <Dashboard
-                    view={constants.VIEW_PORTAL}
-                />
+            <Route path={constants.VIEW_PORTAL} onEnter={requireAuth} component={() => {
+                return <Dashboard view={constants.VIEW_PORTAL} />
             }}/>
-            <Route path={constants.VIEW_CASINO} component={() => {
-                return <Dashboard
-                    view={constants.VIEW_CASINO}
-                />
+            <Route path={constants.VIEW_CASINO} onEnter={requireAuth} component={() => {
+                return <Dashboard view={constants.VIEW_CASINO} />
             }}/>
-            <Route path={constants.VIEW_PORTAL} component={() => {
-                return <Dashboard
-                    view={constants.VIEW_PORTAL}
-                />
+            <Route path={constants.VIEW_PORTAL} onEnter={requireAuth} component={() => {
+                return <Dashboard view={constants.VIEW_PORTAL} />
             }}/>
-            <Route path={constants.VIEW_SLOTS} component={() => {
-                return <Dashboard
-                    view={constants.VIEW_SLOTS}
-                />
+            <Route path={constants.VIEW_SLOTS} onEnter={requireAuth} component={() => {
+                return <Dashboard view={constants.VIEW_SLOTS} />
             }}/>
-            <Route path={constants.VIEW_SLOTS_GAME} component={() => {
-                return <Dashboard
-                    view={constants.VIEW_SLOTS_GAME}
-                />
+            <Route path={constants.VIEW_SLOTS_GAME} onEnter={requireAuth} component={() => {
+                return <Dashboard view={constants.VIEW_SLOTS_GAME} />
             }}/>
-            <Route path="/logout" component={() => {
-                keyHandler.clear()
-                replaceUrl(constants.VIEW_LOGIN)
-                return <Login/>
-            }}/>
-            <Route path="*" component={() => {
-                window.location = "/"
+            <Route path={constants.VIEW_LOGIN} component={() => {
+                return <Login />
             }}/>
         </Route>
     </Router>,
