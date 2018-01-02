@@ -89,7 +89,7 @@ export default class SlotsChannelHandler {
             hashes: (cb) => {
                 helper.getContractHelper().getWrappers().slotsChannelManager()
                     .getChannelHashes(id).then((hashes) => {
-                    console.log('Hashes', hashes)
+                    console.log('Hashes', hashes, id)
                     cb(false, {
                         finalUserHash: hashes[0],
                         initialUserNumber: hashes[1],
@@ -118,7 +118,7 @@ export default class SlotsChannelHandler {
         const self = this
         decentApi.getLastSpin(id, (err, result) => {
             if (!err) {
-                console.log('getLastSpin', result)
+                console.log('getLastSpin', result, hashes)
                 let encryptedSpin = result.userSpin
                 let houseSpin = result.houseSpin
                 let nonce = result.nonce + 1
@@ -396,6 +396,8 @@ export default class SlotsChannelHandler {
                 })
             },
             isValidInitialUserNumber: (aesKey, initialUserNumber, finalUserHash) => {
+                console.log('isValidInitialUserNumber: aesKey', aesKey, 'initialUserNumber', initialUserNumber,
+                    'finalUserHash', finalUserHash)
                 initialUserNumber = cryptoJs.AES.decrypt(initialUserNumber, aesKey).toString(cryptoJs.enc.Utf8)
                 console.log('Unencrypted initial user number: ', initialUserNumber)
                 let userHashes = self.helpers().getUserHashes(initialUserNumber)

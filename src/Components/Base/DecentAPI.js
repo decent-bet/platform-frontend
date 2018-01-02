@@ -5,7 +5,7 @@ const helper = new Helper()
 const keyHandler = new KeyHandler()
 
 const LOCAL_URL = 'http://localhost:3010/api'
-const PUBLIC_URL = 'http://35.176.87.201:3010/api'
+const PUBLIC_URL = 'http://35.176.104.210:3010/api'
 
 const BASE_URL = helper.isDev() ? LOCAL_URL : PUBLIC_URL
 
@@ -83,7 +83,7 @@ class DecentAPI {
         let msgHash = ethUtil.sha3(text)
         let privateKey = ethUtil.toBuffer(keyHandler.get())
 
-        console.log('Signing', text, msgHash, 'as', helper.getWeb3().eth.defaultAccount,
+        console.log('Signing', text, ethUtil.bufferToHex(msgHash), 'as', helper.getWeb3().eth.defaultAccount,
             ethUtil.isValidPrivate(privateKey))
 
         const {v, r, s} = ethUtil.ecsign(msgHash, privateKey)
@@ -96,6 +96,8 @@ class DecentAPI {
         let adr = '0x' + ethUtil.pubToAddress(pub).toString('hex')
 
         console.log('Generated sign address', adr, helper.getWeb3().eth.defaultAccount)
+
+        console.log('Generated msgHash', msgHash, 'Sign', sgn)
 
         if (adr !== helper.getWeb3().eth.defaultAccount) throw new Error("Invalid address for signed message")
 
