@@ -128,6 +128,7 @@ class Game extends Component {
                 balances: () => {
                     let lastHouseSpin = self.state.houseSpins[self.state.houseSpins.length - 1]
                     let nonce = self.state.nonce
+                    console.log('Balances', nonce)
                     let userBalance = ((nonce == 1) ? (self.state.info.initialDeposit) :
                         lastHouseSpin.userBalance)
                     let houseBalance = ((nonce == 1) ? (self.state.info.initialDeposit) :
@@ -250,8 +251,8 @@ class Game extends Component {
                                         disabled={self.state.finalized}
                                         className="mx-auto d-block"
                                         onClick={() => {
-                                            slotsChannelHandler.closeChannel(self.state, (err, data) => {
-                                                console.log('Close channel callback', err, data)
+                                            slotsChannelHandler.finalizeChannel(self.state, (err, data) => {
+                                                console.log('Finalize channel callback', err, data)
                                             })
                                         }}
                                     />
