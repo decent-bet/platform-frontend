@@ -23,7 +23,7 @@ export const
     VIEW_SLOTS_GAME = '/slots/game',
     VIEW_LOGIN = '/login',
 
-    VIEW_DEFAULT = VIEW_PORTAL,
+    VIEW_DEFAULT = VIEW_CASINO,
 
     PROVIDER_URL = 'http://localhost:8545',
 
