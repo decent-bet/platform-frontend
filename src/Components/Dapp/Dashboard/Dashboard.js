@@ -159,14 +159,14 @@ class Dashboard extends Component {
             },
             getSelectedView: () => {
                 switch (self.state.selectedView) {
-                    case constants.VIEW_CASINO:
-                        return <Casino/>
-                    case constants.VIEW_HOUSE:
-                        return <House/>
                     case constants.VIEW_BALANCES:
                         return <Balances/>
+                    case constants.VIEW_CASINO:
+                        return <Casino/>
                     case constants.VIEW_PORTAL:
                         return <Portal/>
+                    case constants.VIEW_HOUSE:
+                        return <House/>
                     case constants.VIEW_SLOTS:
                         return <Slots/>
                     case constants.VIEW_SLOTS_GAME:
@@ -175,6 +175,9 @@ class Dashboard extends Component {
             },
             selectView: (view) => {
                 if (view == self.state.selectedView) return
+
+                browserHistory.push(view)
+                
                 self.setState({
                     selectedView: view,
                     drawer: {
