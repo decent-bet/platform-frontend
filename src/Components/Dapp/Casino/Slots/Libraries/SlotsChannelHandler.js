@@ -89,7 +89,7 @@ export default class SlotsChannelHandler {
             hashes: (cb) => {
                 helper.getContractHelper().getWrappers().slotsChannelManager()
                     .getChannelHashes(id).then((hashes) => {
-                    console.log('Hashes', hashes)
+                    console.log('Hashes', hashes, id)
                     cb(false, {
                         finalUserHash: hashes[0],
                         initialUserNumber: hashes[1],
@@ -118,7 +118,7 @@ export default class SlotsChannelHandler {
         const self = this
         decentApi.getLastSpin(id, (err, result) => {
             if (!err) {
-                console.log('getLastSpin', result)
+                console.log('getLastSpin', result, hashes)
                 let encryptedSpin = result.userSpin
                 let houseSpin = result.houseSpin
                 let nonce = result.nonce + 1
@@ -192,11 +192,12 @@ export default class SlotsChannelHandler {
     }
 
     /**
-     * Closes a channel allowing users to claim DBETs
+     * Finalizes a channel allowing users to claim DBETs
      * @param state
      * @param callback
      */
-    closeChannel = (state, callback) => {
+    finalizeChannel = (state, callback) => {
+        const self = this
         let id = state.id
         let betSize = helper.convertToEther(1)
         this.helpers().getSpin(betSize, state, (err, userSpin) => {
@@ -205,12 +206,27 @@ export default class SlotsChannelHandler {
                 helper.getContractHelper().getWrappers().slotsChannelFinalizer()
                     .finalize(id, userSpin, lastHouseSpin)
                     .then((txHash) => {
+                        self.notifyFinalizeToHouse(id, userSpin, state.aesKey)
                         callback(false, txHash)
                     }).catch((err) => {
                         callback(true, ('Error closing channel' + ', ' + err.message))
                     })
             } else if (callback)
                 callback(true, 'Error generating user spin')
+        })
+    }
+
+    /**
+     * After sending a finalize channel tx on the Ethereum network let the state channel API know that
+     * the transaction was sent to make sure future spins aren't processed.
+     * @param id
+     * @param userSpin
+     * @param aesKey
+     */
+    notifyFinalizeToHouse = (id, userSpin, aesKey) => {
+        /** Notify house about finalize channel tx */
+        decentApi.finalizeChannel(id, userSpin, aesKey, (err, message) => {
+            console.log(err ? ('Error notifying finalize to house: ' + message) : 'Notified finalize to house')
         })
     }
 
@@ -342,23 +358,35 @@ export default class SlotsChannelHandler {
                         let userBalance, houseBalance
 
                         userBalance = (payout == 0) ?
-                            (new BigNumber(userSpin.userBalance).minus(betSize).toFixed()) :
-                            (new BigNumber(userSpin.userBalance).plus(payout).minus(betSize).toFixed())
+                            (new BigNumber(userSpin.userBalance).minus(betSize)) :
+                            (new BigNumber(userSpin.userBalance).plus(payout).minus(betSize))
                         houseBalance = (payout == 0) ?
-                            (new BigNumber(userSpin.houseBalance).plus(betSize).toFixed()) :
-                            (new BigNumber(userSpin.houseBalance).minus(payout).plus(betSize).toFixed())
+                            (new BigNumber(userSpin.houseBalance).plus(betSize)) :
+                            (new BigNumber(userSpin.houseBalance).minus(payout).plus(betSize))
+
+                        // Balances below 0 should be corrected to 0 to ensure no party receives more tokens than
+                        // what is available in the created channel.
+                        if (userBalance.lessThanOrEqualTo(0)) {
+                            houseBalance = houseBalance.add(userBalance)
+                            userBalance = new BigNumber(0)
+                        } else if (houseBalance.lessThanOrEqualTo(0)) {
+                            userBalance = userBalance.add(houseBalance)
+                            houseBalance = new BigNumber(0)
+                        }
+
+                        userBalance = userBalance.toFixed()
+                        houseBalance = houseBalance.toFixed()
 
                         if (new BigNumber(houseSpin.betSize).lessThan(helper.convertToEther(1)) ||
                             new BigNumber(houseSpin.betSize).greaterThan(helper.convertToEther(5)))
                             callback(true, 'Invalid betSize')
                         else if (houseSpin.userBalance !== userBalance ||
-                            houseSpin.houseBalance !== houseBalance) {
+                                 houseSpin.houseBalance !== houseBalance) {
                             console.log('Invalid balances', houseSpin.userBalance, userBalance,
                                 houseSpin.houseBalance, houseBalance)
                             callback(true, 'Invalid balances', houseSpin.userBalance, userBalance,
                                 houseSpin.houseBalance, houseBalance)
-                        }
-                        else
+                        } else
                             callback(false)
                     },
                     /**
@@ -396,6 +424,8 @@ export default class SlotsChannelHandler {
                 })
             },
             isValidInitialUserNumber: (aesKey, initialUserNumber, finalUserHash) => {
+                console.log('isValidInitialUserNumber: aesKey', aesKey, 'initialUserNumber', initialUserNumber,
+                    'finalUserHash', finalUserHash)
                 initialUserNumber = cryptoJs.AES.decrypt(initialUserNumber, aesKey).toString(cryptoJs.enc.Utf8)
                 console.log('Unencrypted initial user number: ', initialUserNumber)
                 let userHashes = self.helpers().getUserHashes(initialUserNumber)

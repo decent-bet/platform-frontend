@@ -82,10 +82,6 @@ class Slots extends Component {
 
     initWatchers = () => {
         this.watchers().newChannel()
-        this.watchers().channelDeposit()
-        this.watchers().channelActivate()
-        this.watchers().channelFinalized()
-        this.watchers().claimChannelTokens()
         this.watchers().deposit()
         this.watchers().withdraw()
     }
@@ -100,96 +96,106 @@ class Slots extends Component {
                         console.log('New channel event error', err)
                     else {
                         let id = event.args.id.toNumber()
-                        console.log('New channel event', event.args)
-                        let channels = self.state.channels
-                        if (!channels.hasOwnProperty(id)) {
-                            channels[id] = {}
-                            channels[id].status = constants.CHANNEL_STATUS_WAITING
-                            console.log('Channels', channels)
-                        }
+                        let user = event.args.user.toString()
+                        console.log('New channel event', id, user, helper.getWeb3().eth.defaultAccount)
 
-                        channels[id].initialDeposit = event.args.initialDeposit.toString()
-                        self.setState({
-                            channels: channels
-                        })
+                        if(user == helper.getWeb3().eth.defaultAccount) {
+                            let channels = self.state.channels
+                            if (!channels.hasOwnProperty(id)) {
+                                channels[id] = {}
+                                channels[id].status = constants.CHANNEL_STATUS_WAITING
+                                console.log('Channels', channels)
+                            }
+
+                            channels[id].initialDeposit = event.args.initialDeposit.toString()
+                            self.setState({
+                                channels: channels
+                            })
+
+                            this.watchers().channelDeposit(id)
+                            this.watchers().channelActivate(id)
+                            this.watchers().channelFinalized(id)
+                            this.watchers().claimChannelTokens(id)
+                        }
                     }
                 })
             },
-            channelDeposit: () => {
+            channelDeposit: (id) => {
                 helper.getContractHelper().getWrappers().slotsChannelManager()
-                    .logChannelDeposit().watch((err, event) => {
+                    .logChannelDeposit(id).watch((err, event) => {
                     if (err)
                         console.log('Deposit channel event error', err)
                     else {
-                        console.log('Deposit channel event', event.args)
-                        let id = event.args.id.toNumber()
+                        let _id = event.args.id.toString()
+                        console.log('Deposit channel event', event.args, _id, id)
                         let channels = self.state.channels
-                        if (!channels.hasOwnProperty(id))
-                            channels[id] = {}
-                        if (channels[id].status !== constants.CHANNEL_STATUS_ACTIVATED &&
-                            channels[id].status !== constants.CHANNEL_STATUS_FINALIZED)
-                            channels[id].status = constants.CHANNEL_STATUS_DEPOSITED
-                        self.setState({
-                            channels: channels
-                        })
+                        if (channels.hasOwnProperty(_id)) {
+                            if (channels[_id].status !== constants.CHANNEL_STATUS_ACTIVATED &&
+                                channels[_id].status !== constants.CHANNEL_STATUS_FINALIZED)
+                                channels[_id].status = constants.CHANNEL_STATUS_DEPOSITED
+                            self.setState({
+                                channels: channels
+                            })
+                        }
                     }
                 })
             },
-            channelActivate: () => {
+            channelActivate: (id) => {
                 helper.getContractHelper().getWrappers().slotsChannelManager()
-                    .logChannelActivate().watch((err, event) => {
+                    .logChannelActivate(id).watch((err, event) => {
                     if (err)
                         console.log('Activate channel event error', err)
                     else {
-                        console.log('Activate channel event', event.args)
-                        let id = event.args.id.toString()
+                        let _id = event.args.id.toString()
+                        console.log('Activate channel event', event.args, _id, id)
                         let channels = self.state.channels
-                        if (!channels.hasOwnProperty(id))
-                            channels[id] = {}
-                        if (channels[id].status !== constants.CHANNEL_STATUS_FINALIZED)
-                            channels[id].status = constants.CHANNEL_STATUS_ACTIVATED
-                        self.setState({
-                            channels: channels
-                        })
+                        if (channels.hasOwnProperty(_id)) {
+                            if (channels[_id].status !== constants.CHANNEL_STATUS_FINALIZED)
+                                channels[_id].status = constants.CHANNEL_STATUS_ACTIVATED
+                            self.setState({
+                                channels: channels
+                            })
+                        }
                     }
                 })
             },
-            channelFinalized: () => {
+            channelFinalized: (id) => {
                 helper.getContractHelper().getWrappers().slotsChannelManager()
-                    .logChannelFinalized().watch((err, event) => {
+                    .logChannelFinalized(id).watch((err, event) => {
                     if (err)
                         console.log('Finalized channel event error', err)
                     else {
                         console.log('Finalized channel event', event.args)
-                        let id = event.args.id.toNumber()
+                        let _id = event.args.id.toString()
+                        console.log('Finalized channel event', event.args, _id, id)
                         let channels = self.state.channels
-                        if (!channels.hasOwnProperty(id))
-                            channels[id] = {}
-                        channels[id].status = constants.CHANNEL_STATUS_FINALIZED
-                        self.setState({
-                            channels: channels
-                        })
+                        if (channels.hasOwnProperty(_id)) {
+                            channels[_id].status = constants.CHANNEL_STATUS_FINALIZED
+                            self.setState({
+                                channels: channels
+                            })
+                        }
                     }
                 })
             },
-            claimChannelTokens: () => {
+            claimChannelTokens: (id) => {
                 helper.getContractHelper().getWrappers().slotsChannelManager()
-                    .logClaimChannelTokens().watch((err, event) => {
+                    .logClaimChannelTokens(id).watch((err, event) => {
                     if (err)
                         console.log('Claim channel tokens event error', err)
                     else {
                         console.log('Claim channel tokens event', event.args)
-                        let id = event.args.id.toNumber()
+                        let _id = event.args.id.toString()
                         let isHouse = event.args.isHouse
                         let channels = self.state.channels
-                        if (!channels.hasOwnProperty(id))
-                            channels[id] = {}
-                        if (!channels[id].hasOwnProperty('claimed'))
-                            channels[id].claimed = {}
-                        channels[id].claimed[isHouse] = true
-                        self.setState({
-                            channels: channels
-                        })
+                        if (channels.hasOwnProperty(_id)) {
+                            if (!channels[_id].hasOwnProperty('claimed'))
+                                channels[_id].claimed = {}
+                            channels[_id].claimed[isHouse] = true
+                            self.setState({
+                                channels: channels
+                            })
+                        }
                     }
                 })
             },
@@ -272,6 +278,7 @@ class Slots extends Component {
                 console.log('Creating channel with deposit', deposit)
                 helper.getContractHelper().getWrappers().slotsChannelManager().createChannel(deposit).then((tx) => {
                     console.log('Successfully sent create channel tx', tx)
+                    helper.toggleSnackbar('Successfully sent create channel transaction')
                 }).catch((err) => {
                     console.log('Error creating new channel', err.message)
                 })
@@ -283,10 +290,12 @@ class Slots extends Component {
                     let initialUserNumber = params.initialUserNumber
                     let finalUserHash = params.finalUserHash
 
+                    console.log('Depositing to channel with hashes', initialUserNumber, finalUserHash)
                     helper.getContractHelper().getWrappers().slotsChannelManager()
                         .depositToChannel(id, initialUserNumber, finalUserHash).then((tx) => {
                         console.log('Successfully sent deposit to channel', id, ' - tx',
                             initialUserNumber, finalUserHash, tx)
+                        helper.toggleSnackbar('Successfully sent deposit transaction to channel')
                     }).catch((err) => {
                         console.log('Error sending deposit to channel', err.message)
                     })
@@ -300,6 +309,7 @@ class Slots extends Component {
                         amount).then((tx) => {
                     console.log('Successfully sent approve tx', tx)
                     self.web3Setters().deposit(amount)
+                    helper.toggleSnackbar('Successfully sent approve transaction')
                 }).catch((err) => {
                     console.log('Error sending approve tx', err.message)
                 })
@@ -308,6 +318,7 @@ class Slots extends Component {
                 console.log('Depositing', amount, 'to Slots Channel Manager')
                 helper.getContractHelper().getWrappers().slotsChannelManager().deposit(amount).then((tx) => {
                     console.log('Successfully sent deposit tx', tx)
+                    helper.toggleSnackbar('Successfully sent deposit transaction')
                 }).catch((err) => {
                     console.log('Error sending deposit tx', err.message)
                 })
@@ -315,6 +326,7 @@ class Slots extends Component {
             withdraw: (amount, session) => {
                 helper.getContractHelper().getWrappers().slotsChannelManager().withdraw(amount, session).then((tx) => {
                     console.log('Successfully sent withdraw tx', tx)
+                    helper.toggleSnackbar('Successfully sent withdraw transaction')
                 }).catch((err) => {
                     console.log('Error sending withdraw tx', err.message)
                 })
@@ -501,7 +513,7 @@ class Slots extends Component {
                                                 label="Claim DBETs"
                                                 disabled={
                                                     !(self.state.channels[id].status == constants.CHANNEL_STATUS_FINALIZED &&
-                                                    self.state.channels[id].hasOwnProperty('claimed') && !self.state.channels[id].claimed[false])
+                                                    !self.state.channels[id].hasOwnProperty('claimed'))
                                                 }
                                                 className="ml-4"
                                                 href={'/slots/game?id=' + id}/>
@@ -535,7 +547,6 @@ class Slots extends Component {
                 return <NewChannelDialog
                     open={self.state.dialogs.newChannel.open}
                     onCreateChannel={(deposit) => {
-                        console.log('onCreateChannel')
                         self.web3Setters().createChannel(deposit.toString())
                         self.helpers().toggleDialog(DIALOG_NEW_CHANNEL, false)
                     }}

@@ -5,7 +5,7 @@ import EventBus from 'eventing-bus'
 const ethUnits = require('ethereum-units')
 const BigNumber = require('bignumber.js')
 
-const IS_DEV = true
+const IS_DEV = false
 
 class Helper {
 

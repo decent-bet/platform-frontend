@@ -843,18 +843,20 @@ class ContractHelper {
                             toBlock: toBlock ? toBlock : 'latest'
                         })
                     },
-                    logChannelDeposit: (fromBlock, toBlock) => {
+                    logChannelDeposit: (id, fromBlock, toBlock) => {
                         return slotsChannelManagerInstance.LogChannelDeposit({
-                            user: window.web3Object.eth.defaultAccount
+                            user: window.web3Object.eth.defaultAccount,
+                            id: id
                         }, {
                             fromBlock: fromBlock ? fromBlock : 0,
                             toBlock: toBlock ? toBlock : 'latest'
                         })
                     },
-                    logChannelActivate: (fromBlock, toBlock) => {
+                    logChannelActivate: (id, fromBlock, toBlock) => {
                         console.log('logChannelActivate', window.web3Object.eth.defaultAccount)
                         return slotsChannelManagerInstance.LogChannelActivate({
-                            user: window.web3Object.eth.defaultAccount
+                            user: window.web3Object.eth.defaultAccount,
+                            id: id
                         }, {
                             fromBlock: fromBlock ? fromBlock : 0,
                             toBlock: toBlock ? toBlock : 'latest'
