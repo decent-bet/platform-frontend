@@ -129,14 +129,14 @@ class Slots extends Component {
                         let _id = event.args.id.toString()
                         console.log('Deposit channel event', event.args, _id, id)
                         let channels = self.state.channels
-                        if (!channels.hasOwnProperty(_id))
-                            channels[_id] = {}
-                        if (channels[_id].status !== constants.CHANNEL_STATUS_ACTIVATED &&
-                            channels[_id].status !== constants.CHANNEL_STATUS_FINALIZED)
-                            channels[_id].status = constants.CHANNEL_STATUS_DEPOSITED
-                        self.setState({
-                            channels: channels
-                        })
+                        if (channels.hasOwnProperty(_id)) {
+                            if (channels[_id].status !== constants.CHANNEL_STATUS_ACTIVATED &&
+                                channels[_id].status !== constants.CHANNEL_STATUS_FINALIZED)
+                                channels[_id].status = constants.CHANNEL_STATUS_DEPOSITED
+                            self.setState({
+                                channels: channels
+                            })
+                        }
                     }
                 })
             },
@@ -149,13 +149,13 @@ class Slots extends Component {
                         let _id = event.args.id.toString()
                         console.log('Activate channel event', event.args, _id, id)
                         let channels = self.state.channels
-                        if (!channels.hasOwnProperty(_id))
-                            channels[_id] = {}
-                        if (channels[_id].status !== constants.CHANNEL_STATUS_FINALIZED)
-                            channels[_id].status = constants.CHANNEL_STATUS_ACTIVATED
-                        self.setState({
-                            channels: channels
-                        })
+                        if (channels.hasOwnProperty(_id)) {
+                            if (channels[_id].status !== constants.CHANNEL_STATUS_FINALIZED)
+                                channels[_id].status = constants.CHANNEL_STATUS_ACTIVATED
+                            self.setState({
+                                channels: channels
+                            })
+                        }
                     }
                 })
             },
@@ -169,12 +169,12 @@ class Slots extends Component {
                         let _id = event.args.id.toString()
                         console.log('Finalized channel event', event.args, _id, id)
                         let channels = self.state.channels
-                        if (!channels.hasOwnProperty(_id))
-                            channels[_id] = {}
-                        channels[_id].status = constants.CHANNEL_STATUS_FINALIZED
-                        self.setState({
-                            channels: channels
-                        })
+                        if (channels.hasOwnProperty(_id)) {
+                            channels[_id].status = constants.CHANNEL_STATUS_FINALIZED
+                            self.setState({
+                                channels: channels
+                            })
+                        }
                     }
                 })
             },
@@ -188,14 +188,14 @@ class Slots extends Component {
                         let _id = event.args.id.toString()
                         let isHouse = event.args.isHouse
                         let channels = self.state.channels
-                        if (!channels.hasOwnProperty(_id))
-                            channels[_id] = {}
-                        if (!channels[_id].hasOwnProperty('claimed'))
-                            channels[_id].claimed = {}
-                        channels[_id].claimed[isHouse] = true
-                        self.setState({
-                            channels: channels
-                        })
+                        if (channels.hasOwnProperty(_id)) {
+                            if (!channels[_id].hasOwnProperty('claimed'))
+                                channels[_id].claimed = {}
+                            channels[_id].claimed[isHouse] = true
+                            self.setState({
+                                channels: channels
+                            })
+                        }
                     }
                 })
             },
@@ -278,6 +278,7 @@ class Slots extends Component {
                 console.log('Creating channel with deposit', deposit)
                 helper.getContractHelper().getWrappers().slotsChannelManager().createChannel(deposit).then((tx) => {
                     console.log('Successfully sent create channel tx', tx)
+                    helper.toggleSnackbar('Successfully sent create channel transaction')
                 }).catch((err) => {
                     console.log('Error creating new channel', err.message)
                 })
@@ -294,6 +295,7 @@ class Slots extends Component {
                         .depositToChannel(id, initialUserNumber, finalUserHash).then((tx) => {
                         console.log('Successfully sent deposit to channel', id, ' - tx',
                             initialUserNumber, finalUserHash, tx)
+                        helper.toggleSnackbar('Successfully sent deposit transaction to channel')
                     }).catch((err) => {
                         console.log('Error sending deposit to channel', err.message)
                     })
@@ -307,6 +309,7 @@ class Slots extends Component {
                         amount).then((tx) => {
                     console.log('Successfully sent approve tx', tx)
                     self.web3Setters().deposit(amount)
+                    helper.toggleSnackbar('Successfully sent approve transaction')
                 }).catch((err) => {
                     console.log('Error sending approve tx', err.message)
                 })
@@ -315,6 +318,7 @@ class Slots extends Component {
                 console.log('Depositing', amount, 'to Slots Channel Manager')
                 helper.getContractHelper().getWrappers().slotsChannelManager().deposit(amount).then((tx) => {
                     console.log('Successfully sent deposit tx', tx)
+                    helper.toggleSnackbar('Successfully sent deposit transaction')
                 }).catch((err) => {
                     console.log('Error sending deposit tx', err.message)
                 })
@@ -322,6 +326,7 @@ class Slots extends Component {
             withdraw: (amount, session) => {
                 helper.getContractHelper().getWrappers().slotsChannelManager().withdraw(amount, session).then((tx) => {
                     console.log('Successfully sent withdraw tx', tx)
+                    helper.toggleSnackbar('Successfully sent withdraw transaction')
                 }).catch((err) => {
                     console.log('Error sending withdraw tx', err.message)
                 })
@@ -508,7 +513,7 @@ class Slots extends Component {
                                                 label="Claim DBETs"
                                                 disabled={
                                                     !(self.state.channels[id].status == constants.CHANNEL_STATUS_FINALIZED &&
-                                                    self.state.channels[id].hasOwnProperty('claimed') && !self.state.channels[id].claimed[false])
+                                                    !self.state.channels[id].hasOwnProperty('claimed'))
                                                 }
                                                 className="ml-4"
                                                 href={'/slots/game?id=' + id}/>
@@ -542,7 +547,6 @@ class Slots extends Component {
                 return <NewChannelDialog
                     open={self.state.dialogs.newChannel.open}
                     onCreateChannel={(deposit) => {
-                        console.log('onCreateChannel')
                         self.web3Setters().createChannel(deposit.toString())
                         self.helpers().toggleDialog(DIALOG_NEW_CHANNEL, false)
                     }}

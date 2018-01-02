@@ -252,6 +252,9 @@ class Game extends Component {
                                         className="mx-auto d-block"
                                         onClick={() => {
                                             slotsChannelHandler.finalizeChannel(self.state, (err, data) => {
+                                                helper.toggleSnackbar(err ?
+                                                    'Error sending finalize channel transaction' :
+                                                    'Successfully sent finalize channel transaction')
                                                 console.log('Finalize channel callback', err, data)
                                             })
                                         }}
@@ -272,6 +275,8 @@ class Game extends Component {
                                         onClick={() => {
                                             slotsChannelHandler.claimDbets(self.state, (err, data) => {
                                                 console.log('Claim DBETs callback', err, data)
+                                                helper.toggleSnackbar(err ? 'Error sending claim DBETs transaction' :
+                                                                            'Successfully sent claim DBETs transaction')
                                             })
                                         }}
                                     />
