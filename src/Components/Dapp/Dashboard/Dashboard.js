@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 
-import {AppBar, Drawer, MenuItem, MuiThemeProvider} from 'material-ui'
+import {AppBar, Drawer, FlatButton, MenuItem, MuiThemeProvider} from 'material-ui'
+import {CopyToClipboard} from 'react-copy-to-clipboard'
 
 import {browserHistory} from 'react-router'
 
@@ -40,7 +41,7 @@ class Dashboard extends Component {
                 open: false
             },
             selectedView: props.view,
-            web3Loaded: false,
+            web3Loaded: true,
             dialogs: {
                 web3NotLoaded: {
                     open: true
@@ -64,6 +65,13 @@ class Dashboard extends Component {
                 web3Loaded()
             })
         }
+
+        let web3NotLoaded = EventBus.on('web3NotLoaded', () => {
+            self.setState({
+                web3Loaded: false
+            })
+            web3NotLoaded()
+        })
     }
 
     onWeb3Loaded = () => {
@@ -208,40 +216,34 @@ class Dashboard extends Component {
                         </div>
                     }
                     iconElementRight={
-                        <div>
-                            <span className="btn btn-sm"
-                                  style={{
-                                      fontSize: 12,
-                                      marginTop: 12.5,
-                                      marginRight: 10,
-                                      fontFamily: 'Lato',
-                                      color: constants.COLOR_WHITE
-                                  }}>Address: {helper.getWeb3().eth.defaultAccount}
-                            </span>
-                            <button className="btn btn-sm btn-primary hvr-fade"
-                                    style={{
-                                        fontSize: 12,
-                                        marginTop: 12.5,
-                                        marginRight: 10,
-                                        fontFamily: 'Lato',
-                                        color: constants.COLOR_WHITE
-                                    }}
-                                    onClick={ () => {
-                                        self.web3Setters().faucet()
-                                    }}>{'Claim Faucet'}
-                            </button>
-                            <button className="btn btn-sm btn-primary hvr-fade"
-                                    style={{
-                                        fontSize: 12,
-                                        marginTop: 12.5,
-                                        marginRight: 10,
-                                        fontFamily: 'Lato',
-                                        color: constants.COLOR_WHITE
-                                    }}>{ 'Balance: ' + self.helpers().getFormattedBalance() + ' DBETs' }
-                            </button>
-                        </div>
+                        self.views().appbarOptions()
                     }
                 />
+            },
+            appbarOptions: () => {
+                return <div>
+                    <FlatButton
+                        className="hidden-md-down mr-2"
+                        label={
+                            <CopyToClipboard text={self.state.address}
+                                             onCopy={() =>
+                                                 helper.toggleSnackbar('Copied address to clipboard')
+                                             }>
+                                <span>Address: {self.state.address}</span>
+                            </CopyToClipboard>}
+                        labelStyle={styles.addressLabel}
+                    />
+                    <button className="btn btn-sm btn-primary hvr-fade"
+                            style={styles.appbarButton}
+                            onClick={ () => {
+                                self.web3Setters().faucet()
+                            }}>{'Claim Faucet'}
+                    </button>
+                    <button className="btn btn-sm btn-primary hvr-fade"
+                            style={styles.appbarButton}>
+                        { 'Balance: ' + self.helpers().getFormattedBalance() + ' DBETs' }
+                    </button>
+                </div>
             },
             top: () => {
                 return <div className="main">

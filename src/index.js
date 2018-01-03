@@ -26,6 +26,11 @@ let replaceUrl = (url) => {
         window.history.replaceState('', document.title, url)
 }
 
+let redirectToLogin = () => {
+    replaceUrl(constants.VIEW_LOGIN)
+    return <Login/>
+}
+
 ReactDOM.render(
     <Router history={browserHistory}>
         <Route path="/" component={App}>
@@ -35,35 +40,48 @@ ReactDOM.render(
                     return <Dashboard
                         view={constants.VIEW_DEFAULT}
                     />
-                } else {
-                    replaceUrl(constants.VIEW_LOGIN)
-                    return <Login/>
-                }
+                } else
+                    return redirectToLogin()
             }}/>
             <Route path={constants.VIEW_PORTAL} component={() => {
-                return <Dashboard
-                    view={constants.VIEW_PORTAL}
-                />
+                if (keyHandler.isLoggedIn())
+                    return <Dashboard
+                        view={constants.VIEW_PORTAL}
+                    />
+                else
+                    return redirectToLogin()
             }}/>
             <Route path={constants.VIEW_CASINO} component={() => {
-                return <Dashboard
-                    view={constants.VIEW_CASINO}
-                />
+                if (keyHandler.isLoggedIn())
+                    return <Dashboard
+                        view={constants.VIEW_CASINO}
+                    />
+                else
+                    return redirectToLogin()
             }}/>
             <Route path={constants.VIEW_PORTAL} component={() => {
-                return <Dashboard
-                    view={constants.VIEW_PORTAL}
-                />
+                if (keyHandler.isLoggedIn())
+                    return <Dashboard
+                        view={constants.VIEW_PORTAL}
+                    />
+                else
+                    return redirectToLogin()
             }}/>
             <Route path={constants.VIEW_SLOTS} component={() => {
-                return <Dashboard
-                    view={constants.VIEW_SLOTS}
-                />
+                if (keyHandler.isLoggedIn())
+                    return <Dashboard
+                        view={constants.VIEW_SLOTS}
+                    />
+                else
+                    return redirectToLogin()
             }}/>
             <Route path={constants.VIEW_SLOTS_GAME} component={() => {
-                return <Dashboard
-                    view={constants.VIEW_SLOTS_GAME}
-                />
+                if (keyHandler.isLoggedIn())
+                    return <Dashboard
+                        view={constants.VIEW_SLOTS_GAME}
+                    />
+                else
+                    return redirectToLogin()
             }}/>
             <Route path="/logout" component={() => {
                 keyHandler.clear()
