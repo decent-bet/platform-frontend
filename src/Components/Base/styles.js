@@ -16,9 +16,16 @@ export const styles = () => {
             position: 'fixed',
             top: 0
         },
+        appbarButton: {
+            fontSize: 12,
+            marginTop: 5,
+            marginRight: 10,
+            fontFamily: 'Lato',
+            color: constants.COLOR_WHITE
+        },
         addressLabel: {
-            fontFamily: 'Inconsolata',
-            fontSize: '0.95rem',
+            fontFamily: 'TradeGothic',
+            fontSize: '0.75rem',
             letterSpacing: '1px',
             textTransform: 'none'
         },

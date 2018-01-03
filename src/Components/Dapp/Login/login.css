@@ -85,20 +85,11 @@
     font-size: 1.35rem;
 }
 
-.login .create-account p {
-    margin-top: 10px;
-    color: rgb(115, 109, 111);
-    font-family: 'Lato';
-    font-size: 1.2rem;
-}
-
-.login .create-account span {
-    text-decoration: none;
-    color: #FFFFFF;
+.login .generate p {
     cursor: pointer;
 }
 
-.login .create-account span:hover {
+.login .generate p:hover {
     font-weight: bold;
 }
 

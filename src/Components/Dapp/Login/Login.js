@@ -23,7 +23,7 @@ class Login extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            login: constants.LOGIN_MNEMONIC,
+            login: constants.LOGIN_PRIVATE_KEY,
             key: '',
             mnemonic: '',
             dialogs: {
@@ -51,7 +51,7 @@ class Login extends Component {
                 try {
                     const wallet = new Wallet(self.state.key)
                     keyHandler.set(wallet.privateKey, wallet.address)
-                    browserHistory.push(constants.VIEW_DEFAULT)
+                    window.location = '/'
                 } catch (e) {
                     self.helpers().toggleErrorDialog(true, 'Error',
                         'Invalid private key. Please make sure you\'re entering a valid private key')
@@ -61,10 +61,27 @@ class Login extends Component {
                 try {
                     const wallet = Wallet.fromMnemonic(self.state.mnemonic)
                     keyHandler.set(wallet.privateKey, wallet.address)
-                    browserHistory.push(constants.VIEW_DEFAULT)
+                    window.location = '/'
                 } catch (e) {
                     self.helpers().toggleErrorDialog(true, 'Error',
                         'Invalid mnemonic. Please make sure you\'re entering a valid mnemonic')
+                }
+            },
+            generateMnemonic: () => {
+                let mnemonic = bip39.generateMnemonic()
+                self.setState({
+                    mnemonic: mnemonic
+                })
+            },
+            generatePrivateKey: () => {
+                try {
+                    let mnemonic = bip39.generateMnemonic()
+                    const wallet = Wallet.fromMnemonic(mnemonic)
+                    self.setState({
+                        key: wallet.privateKey
+                    })
+                } catch (e) {
+                    console.log('Error generating private key', e.message)
                 }
             }
         }
@@ -104,7 +121,7 @@ class Login extends Component {
             enterCredentials: () => {
                 return <div className="col-10 col-md-8 mx-auto enter-credentials">
                     <div className="row">
-                        <div className="col-12 my-4">
+                        <div className="col-12 mt-4 mb-2">
                             <TextField
                                 type="text"
                                 fullWidth={true}
@@ -130,16 +147,26 @@ class Login extends Component {
                                 onKeyPress={self.helpers().loginWithKeyPress}
                             />
                         </div>
+                        {   self.state.login == constants.LOGIN_MNEMONIC &&
+                        <div className="col-12 mb-2 generate">
+                            <p className="text-center" onClick={self.actions().generateMnemonic}>Generate passphrase</p>
+                        </div>
+                        }
+                        {   self.state.login == constants.LOGIN_PRIVATE_KEY &&
+                        <div className="col-12 mb-2 generate">
+                            <p className="text-center" onClick={self.actions().generatePrivateKey}>Generate private key</p>
+                        </div>
+                        }
                     </div>
                 </div>
             },
             loginButton: () => {
                 return <div className={"col-10 col-md-8 mx-auto login-button " +
-                                        (!self.helpers().isValidCredentials() ? 'disabled' : '')}
-                                    onClick={() => {
-                                        if (self.helpers().isValidCredentials())
-                                            self.actions().login()
-                                    }}>
+                (!self.helpers().isValidCredentials() ? 'disabled' : '')}
+                            onClick={() => {
+                                if (self.helpers().isValidCredentials())
+                                    self.actions().login()
+                            }}>
                     <p className="text-center"><i className="fa fa-key mr-2"/> Login</p>
                 </div>
             }
