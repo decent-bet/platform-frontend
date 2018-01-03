@@ -1,7 +1,7 @@
 ## Decent.bet Slots Alpha Setup Instructions
 
 The decent.bet slots alpha runs on the Rinkeby test network. 
-For now, we recommend that you setup your own local geth node to use the platform by following the instructions below
+For now since the frontend requires nodes with account management enabled, we recommend that you setup your own local geth node to use the platform by following the instructions below.
 
 ### Setting up a local Rinkeby node
 
