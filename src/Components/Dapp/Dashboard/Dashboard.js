@@ -121,6 +121,10 @@ class Dashboard extends Component {
                 helper.getContractHelper().getWrappers().token()
                     .faucet().then((tx) => {
                     console.log('Sent faucet tx', tx)
+                    helper.toggleSnackbar('Successfully sent faucet transaction')
+                }).catch((err) => {
+                    helper.toggleSnackbar('Error sending faucet transaction')
+                    console.log('Error sending faucet tx', err.message)
                 })
             }
         }
