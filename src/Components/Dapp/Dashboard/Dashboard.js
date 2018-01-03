@@ -7,13 +7,16 @@ import {browserHistory} from 'react-router'
 import EventBus from 'eventing-bus'
 import KeyHandler from '../../Base/KeyHandler'
 
+import Balances from '../Balances/Balances'
 import Casino   from '../Casino/Casino'
 import House    from '../House/House'
 import Game     from '../Casino/Slots/Game'
 import Slots    from '../Casino/Slots/Slots'
+import Portal   from '../Portal/Portal'
 
 import './dashboard.css'
 
+import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import Helper from '../../Helper'
 import Loading from '../../Base/Loading'
 import Themes from '../../Base/Themes'
@@ -36,7 +39,13 @@ class Dashboard extends Component {
             drawer: {
                 open: false
             },
-            selectedView: props.view
+            selectedView: props.view,
+            web3Loaded: false,
+            dialogs: {
+                web3NotLoaded: {
+                    open: true
+                }
+            }
         }
     }
 
@@ -45,17 +54,25 @@ class Dashboard extends Component {
     }
 
     initData = () => {
+        const self = this
         if (window.web3Loaded) {
-            this.initWeb3Data()
-            this.initWatchers()
+            self.onWeb3Loaded()
         } else {
             let web3Loaded = EventBus.on('web3Loaded', () => {
-                this.initWeb3Data()
-                this.initWatchers()
+                self.onWeb3Loaded()
                 // Unregister callback
                 web3Loaded()
             })
         }
+    }
+
+    onWeb3Loaded = () => {
+        console.log('onWeb3Loaded')
+        this.setState({
+            web3Loaded: true
+        })
+        this.initWeb3Data()
+        this.initWatchers()
     }
 
     initWeb3Data = () => {
@@ -81,10 +98,10 @@ class Dashboard extends Component {
             balances: () => {
                 helper.getContractHelper().getWrappers().token()
                     .balanceOf(helper.getWeb3().eth.defaultAccount).then((balance) => {
-                        self.setState({
-                            balance: balance
-                        })
+                    self.setState({
+                        balance: balance
                     })
+                })
             }
         }
     }
@@ -95,8 +112,8 @@ class Dashboard extends Component {
             faucet: () => {
                 helper.getContractHelper().getWrappers().token()
                     .faucet().then((tx) => {
-                        console.log('Sent faucet tx', tx)
-                    })
+                    console.log('Sent faucet tx', tx)
+                })
             }
         }
     }
@@ -155,18 +172,6 @@ class Dashboard extends Component {
                     drawer: drawer
                 })
             },
-            getSelectedView: () => {
-                switch (self.state.selectedView) {
-                    case constants.VIEW_CASINO:
-                        return <Casino/>
-                    case constants.VIEW_HOUSE:
-                        return <House/>
-                    case constants.VIEW_SLOTS:
-                        return <Slots/>
-                    case constants.VIEW_SLOTS_GAME:
-                        return <Game/>
-                }
-            },
             selectView: (view) => {
                 if (view == self.state.selectedView) return
                 self.setState({
@@ -205,13 +210,13 @@ class Dashboard extends Component {
                     iconElementRight={
                         <div>
                             <span className="btn btn-sm"
-                                style={{
-                                    fontSize: 12,
-                                    marginTop: 12.5,
-                                    marginRight: 10,
-                                    fontFamily: 'Lato',
-                                    color: constants.COLOR_WHITE
-                                }}>Address: {helper.getWeb3().eth.defaultAccount}
+                                  style={{
+                                      fontSize: 12,
+                                      marginTop: 12.5,
+                                      marginRight: 10,
+                                      fontFamily: 'Lato',
+                                      color: constants.COLOR_WHITE
+                                  }}>Address: {helper.getWeb3().eth.defaultAccount}
                             </span>
                             <button className="btn btn-sm btn-primary hvr-fade"
                                     style={{
@@ -240,7 +245,7 @@ class Dashboard extends Component {
             },
             top: () => {
                 return <div className="main">
-                    { self.helpers().getSelectedView() }
+                    { self.views().selected() }
                 </div>
             },
             drawer: () => {
@@ -259,14 +264,28 @@ class Dashboard extends Component {
                     </div>
                     <div>
                         <MenuItem
+                            className={self.state.selectedView === constants.VIEW_BALANCES ? "menu-item selected" : "menu-item" }
+                            onClick={() => {
+                                self.helpers().selectView(constants.VIEW_BALANCES)
+                            }}>
+                            <span className="fa fa-money menu-icon"/>&ensp;&ensp;BALANCES
+                        </MenuItem>
+                        <MenuItem
                             className={(self.state.selectedView === constants.VIEW_CASINO ||
-                                        self.state.selectedView === constants.VIEW_SLOTS ||
-                                        self.state.selectedView === constants.VIEW_SLOTS_GAME) ?
-                                        "menu-item selected" : "menu-item" }
+                            self.state.selectedView === constants.VIEW_SLOTS ||
+                            self.state.selectedView === constants.VIEW_SLOTS_GAME) ?
+                                "menu-item selected" : "menu-item" }
                             onClick={() => {
                                 self.helpers().selectView(constants.VIEW_CASINO)
                             }}>
                             <span className="fa fa-gamepad menu-icon"/>&ensp;&ensp;CASINO
+                        </MenuItem>
+                        <MenuItem
+                            className={self.state.selectedView === constants.VIEW_PORTAL ? "menu-item selected" : "menu-item" }
+                            onClick={() => {
+                                self.helpers().selectView(constants.VIEW_PORTAL)
+                            }}>
+                            <span className="fa fa-soccer-ball-o menu-icon"/>&ensp;&ensp;PORTAL
                         </MenuItem>
                         <MenuItem
                             className={self.state.selectedView === constants.VIEW_HOUSE ? "menu-item selected" : "menu-item" }
@@ -274,7 +293,7 @@ class Dashboard extends Component {
                                 self.helpers().selectView(constants.VIEW_HOUSE)
                             }}>
                             <span className="fa fa-home menu-icon"/>&ensp;&ensp;HOUSE
-                        </MenuItem> 
+                        </MenuItem>
                         <MenuItem
                             className="menu-item"
                             onClick={() => {
@@ -282,9 +301,51 @@ class Dashboard extends Component {
                                 browserHistory.push('/logout')
                             }}>
                             <span className="fa fa-sign-out menu-icon"/>&ensp;&ensp;LOGOUT
-                        </MenuItem> 
+                        </MenuItem>
                     </div>
                 </Drawer>
+            },
+            selected: () => {
+                switch (self.state.selectedView) {
+                    case constants.VIEW_CASINO:
+                        return <Casino/>
+                    case constants.VIEW_HOUSE:
+                        return <House/>
+                    case constants.VIEW_BALANCES:
+                        return <Balances/>
+                    case constants.VIEW_PORTAL:
+                        return <Portal/>
+                    case constants.VIEW_SLOTS:
+                        return <Slots/>
+                    case constants.VIEW_SLOTS_GAME:
+                        return <Game/>
+                }
+            },
+            web3NotLoaded: () => {
+                return <div className="container">
+                    <div className="row" style={{
+                        paddingTop: '45vh'
+                    }}>
+                        <div className="col">
+                            <h3 className="text-center">Oops, looks like you don't have a local Rinkeby node setup.
+                                Please set one up with an open RPC port @ 8545 and try again.</h3>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    }
+
+    dialogs = () => {
+        const self = this
+        return {
+            web3NotLoaded: () => {
+                return <ConfirmationDialog
+                    open={self.state.dialogs.web3NotLoaded.open}
+                    title="Not connected to Web3 Provider"
+                    message={"Looks like you aren't connected to a local Rinkeby node. " +
+                    "Please setup a local node with an open RPC port @ 8545 and try again."}
+                />
             }
         }
     }
@@ -293,9 +354,18 @@ class Dashboard extends Component {
         const self = this
         return <MuiThemeProvider muiTheme={themes.getAppBar()}>
             <div className="dashboard">
-                { self.views().appbar() }
-                { self.views().top() }
-                { self.views().drawer() }
+                {   self.state.web3Loaded &&
+                <section>
+                    { self.views().appbar() }
+                    { self.views().top() }
+                    { self.views().drawer() }
+                </section>
+                }
+                {   !self.state.web3Loaded &&
+                <section>
+                    {self.dialogs().web3NotLoaded()}
+                </section>
+                }
             </div>
         </MuiThemeProvider>
     }
