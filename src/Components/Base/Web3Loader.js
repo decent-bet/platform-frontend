@@ -18,20 +18,36 @@ let initWeb3 = () => {
     const httpProvider = constants.PROVIDER_URL
 
     let provider = new Web3.providers.HttpProvider(httpProvider)
-    let defaultAccount
+    let loopCheckConnection
 
     window.web3Object = new Web3(provider)
-    if (keyHandler.isLoggedIn())
-        window.web3Object.eth.defaultAccount = keyHandler.getAddress().toLowerCase()
-    console.log('window.web3Object.eth.defaultAccount', window.web3Object.eth.defaultAccount)
 
-    const contractHelper = new ContractHelper()
-    contractHelper.getAllContracts((err, token) => {
-        console.log('getAllContracts: ', err, window.web3Object.eth.defaultAccount, window.web3Object.eth.accounts[0])
-        window.contractHelper = contractHelper
-        window.web3Loaded = true
-        EventBus.publish('web3Loaded')
-    })
+    let proceedIfConnected = () => {
+        if (keyHandler.isLoggedIn())
+            window.web3Object.eth.defaultAccount = keyHandler.getAddress().toLowerCase()
+
+        const contractHelper = new ContractHelper()
+        contractHelper.getAllContracts((err, token) => {
+            window.contractHelper = contractHelper
+            window.web3Loaded = true
+            EventBus.publish('web3Loaded')
+        })
+    }
+
+    let checkConnection = () => {
+        console.log('Checking for provider connection..')
+        if (window.web3Object.isConnected()) {
+            console.log('Connected to provider..')
+            proceedIfConnected()
+            clearTimeout(loopCheckConnection)
+        } else {
+            console.log('Not connected to provider..')
+            EventBus.publish('web3NotConnected')
+            loopCheckConnection = setTimeout(checkConnection, 10000)
+        }
+    }
+
+    checkConnection()
 }
 
 class Web3Loader {

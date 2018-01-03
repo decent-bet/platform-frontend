@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 
 import {Card, CircularProgress, DropDownMenu, Menu, MenuItem, TextField} from 'material-ui'
-import ConfirmationDialog from '../../../../Base/ConfirmationDialog'
+import ConfirmationDialog from '../../../../Base/Dialogs/ConfirmationDialog'
 import DepositTokensDialog from './Dialogs/DepositTokensDialog'
 import WithdrawTokensDialog from './Dialogs/WithdrawTokensDialog'
 
