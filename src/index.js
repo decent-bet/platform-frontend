@@ -43,26 +43,10 @@ ReactDOM.render(
                 } else
                     return redirectToLogin()
             }}/>
-            <Route path={constants.VIEW_PORTAL} component={() => {
-                if (keyHandler.isLoggedIn())
-                    return <Dashboard
-                        view={constants.VIEW_PORTAL}
-                    />
-                else
-                    return redirectToLogin()
-            }}/>
             <Route path={constants.VIEW_CASINO} component={() => {
                 if (keyHandler.isLoggedIn())
                     return <Dashboard
                         view={constants.VIEW_CASINO}
-                    />
-                else
-                    return redirectToLogin()
-            }}/>
-            <Route path={constants.VIEW_PORTAL} component={() => {
-                if (keyHandler.isLoggedIn())
-                    return <Dashboard
-                        view={constants.VIEW_PORTAL}
                     />
                 else
                     return redirectToLogin()

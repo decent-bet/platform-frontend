@@ -8,12 +8,10 @@ import {browserHistory} from 'react-router'
 import EventBus from 'eventing-bus'
 import KeyHandler from '../../Base/KeyHandler'
 
-import Balances from '../Balances/Balances'
 import Casino   from '../Casino/Casino'
 import House    from '../House/House'
 import Game     from '../Casino/Slots/Game'
 import Slots    from '../Casino/Slots/Slots'
-import Portal   from '../Portal/Portal'
 
 import './dashboard.css'
 
@@ -266,13 +264,6 @@ class Dashboard extends Component {
                     </div>
                     <div>
                         <MenuItem
-                            className={self.state.selectedView === constants.VIEW_BALANCES ? "menu-item selected" : "menu-item" }
-                            onClick={() => {
-                                self.helpers().selectView(constants.VIEW_BALANCES)
-                            }}>
-                            <span className="fa fa-money menu-icon"/>&ensp;&ensp;BALANCES
-                        </MenuItem>
-                        <MenuItem
                             className={(self.state.selectedView === constants.VIEW_CASINO ||
                             self.state.selectedView === constants.VIEW_SLOTS ||
                             self.state.selectedView === constants.VIEW_SLOTS_GAME) ?
@@ -281,13 +272,6 @@ class Dashboard extends Component {
                                 self.helpers().selectView(constants.VIEW_CASINO)
                             }}>
                             <span className="fa fa-gamepad menu-icon"/>&ensp;&ensp;CASINO
-                        </MenuItem>
-                        <MenuItem
-                            className={self.state.selectedView === constants.VIEW_PORTAL ? "menu-item selected" : "menu-item" }
-                            onClick={() => {
-                                self.helpers().selectView(constants.VIEW_PORTAL)
-                            }}>
-                            <span className="fa fa-soccer-ball-o menu-icon"/>&ensp;&ensp;PORTAL
                         </MenuItem>
                         <MenuItem
                             className={self.state.selectedView === constants.VIEW_HOUSE ? "menu-item selected" : "menu-item" }
@@ -313,10 +297,6 @@ class Dashboard extends Component {
                         return <Casino/>
                     case constants.VIEW_HOUSE:
                         return <House/>
-                    case constants.VIEW_BALANCES:
-                        return <Balances/>
-                    case constants.VIEW_PORTAL:
-                        return <Portal/>
                     case constants.VIEW_SLOTS:
                         return <Slots/>
                     case constants.VIEW_SLOTS_GAME:
