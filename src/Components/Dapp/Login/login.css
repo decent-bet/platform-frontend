@@ -1,7 +1,7 @@
 .login {
     min-height: 100vh;
-    background: #12151a;
-    background-size: contain;
+    background: url('../../../../public/assets/img/backgrounds/login-slots-alpha.jpg');
+    background-size: cover;
 }
 
 .login .logo {
