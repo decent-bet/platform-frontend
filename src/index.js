@@ -40,29 +40,14 @@ ReactDOM.render(
                     return <Login/>
                 }
             }}/>
-            <Route path={constants.VIEW_PORTAL} component={() => {
+            <Route path={constants.VIEW_SPORTSBOOK} component={() => {
                 return <Dashboard
-                    view={constants.VIEW_PORTAL}
+                    view={constants.VIEW_SPORTSBOOK}
                 />
             }}/>
-            <Route path={constants.VIEW_CASINO} component={() => {
+            <Route path={constants.VIEW_SPORTSBOOK} component={() => {
                 return <Dashboard
-                    view={constants.VIEW_CASINO}
-                />
-            }}/>
-            <Route path={constants.VIEW_PORTAL} component={() => {
-                return <Dashboard
-                    view={constants.VIEW_PORTAL}
-                />
-            }}/>
-            <Route path={constants.VIEW_SLOTS} component={() => {
-                return <Dashboard
-                    view={constants.VIEW_SLOTS}
-                />
-            }}/>
-            <Route path={constants.VIEW_SLOTS_GAME} component={() => {
-                return <Dashboard
-                    view={constants.VIEW_SLOTS_GAME}
+                    view={constants.VIEW_SPORTSBOOK}
                 />
             }}/>
             <Route path="/logout" component={() => {
