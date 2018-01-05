@@ -230,6 +230,9 @@ class Game extends Component {
                     <h3 className="text-center">The channel has been finalized.
                         Please wait a minute before the channel closes and claiming your DBETs.</h3>
                     }
+                    {   self.state.finalized &&
+                    <p className="lead">Final Balance: { slotsController().balances().user }</p>
+                    }
                 </div>
             },
             channelOptions: () => {
