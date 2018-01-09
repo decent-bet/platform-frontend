@@ -39,17 +39,8 @@ ReactDOM.render(
                 web3Loader.init()
                 return <Dashboard view={constants.VIEW_DEFAULT} />
             }}/>
-            <Route path={constants.VIEW_CASINO} onEnter={requireAuth} component={() => {
-                return <Dashboard view={constants.VIEW_CASINO} />
-            }}/>
             <Route path={constants.VIEW_HOUSE} onEnter={requireAuth} component={() => {
                 return <Dashboard view={constants.VIEW_HOUSE} />
-            }}/>
-            <Route path={constants.VIEW_SLOTS} onEnter={requireAuth} component={() => {
-                return <Dashboard view={constants.VIEW_SLOTS} />
-            }}/>
-            <Route path={constants.VIEW_SLOTS_GAME} onEnter={requireAuth} component={() => {
-                return <Dashboard view={constants.VIEW_SLOTS_GAME} />
             }}/>
             <Route path={constants.VIEW_LOGIN} component={() => {
                 return <Login />
