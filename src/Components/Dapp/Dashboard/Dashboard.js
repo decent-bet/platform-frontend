@@ -270,20 +270,6 @@ class Dashboard extends Component {
                     </div>
                     <div>
                         <MenuItem
-                            className={self.state.selectedView === constants.VIEW_BALANCES ? "menu-item selected" : "menu-item" }
-                            onClick={() => {
-                                self.helpers().selectView(constants.VIEW_BALANCES)
-                            }}>
-                            <span className="fa fa-money menu-icon"/>&ensp;&ensp;BALANCES
-                        </MenuItem>
-                        <MenuItem
-                            className={self.state.selectedView === constants.VIEW_CASINO ? "menu-item selected" : "menu-item" }
-                            onClick={() => {
-                                self.helpers().selectView(constants.VIEW_CASINO)
-                            }}>
-                            <span className="fa fa-gamepad menu-icon"/>&ensp;&ensp;CASINO
-                        </MenuItem>
-                        <MenuItem
                             className={self.state.selectedView === constants.VIEW_SPORTSBOOK ? "menu-item selected" : "menu-item" }
                             onClick={() => {
                                 self.helpers().selectView(constants.VIEW_SPORTSBOOK)
