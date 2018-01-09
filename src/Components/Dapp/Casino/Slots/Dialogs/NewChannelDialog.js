@@ -74,8 +74,8 @@ class NewChannelDialog extends Component {
                                 })
                             }}
                         />
-                        <small className="text-white">Enter the amount of DBETs you would like to deposit
-                            into the new slots channel (100 - 1000 DBETs).
+                        <small className="text-white">Enter the amount of chips you would like to deposit 
+                            into the new slots channel (100 - 1000 chips).
                         </small>
                     </div>
                 </div>
