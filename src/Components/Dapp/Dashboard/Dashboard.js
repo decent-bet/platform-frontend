@@ -75,7 +75,6 @@ class Dashboard extends Component {
     }
 
     onWeb3Loaded = () => {
-        console.log('onWeb3Loaded')
         this.setState({
             web3Loaded: true
         })
@@ -186,6 +185,7 @@ class Dashboard extends Component {
             },
             selectView: (view) => {
                 if (view == self.state.selectedView) return
+                browserHistory.push(view)
                 self.setState({
                     selectedView: view,
                     drawer: {
