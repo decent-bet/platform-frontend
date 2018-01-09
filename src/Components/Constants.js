@@ -17,13 +17,13 @@ export const
     /** Views */
     VIEW_BALANCES = '/balances',
     VIEW_CASINO = '/casino',
-    VIEW_PORTAL = '/portal',
+    VIEW_SPORTSBOOK = '/sportsbook',
     VIEW_HOUSE = '/house',
     VIEW_SLOTS = '/slots',
     VIEW_SLOTS_GAME = '/slots/game',
     VIEW_LOGIN = '/login',
 
-    VIEW_DEFAULT = VIEW_CASINO,
+    VIEW_DEFAULT = VIEW_SPORTSBOOK,
 
     PROVIDER_URL = 'http://localhost:8545',
 

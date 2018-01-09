@@ -39,8 +39,10 @@ ReactDOM.render(
                 web3Loader.init()
                 return <Dashboard view={constants.VIEW_DEFAULT} />
             }}/>
-            <Route path={constants.VIEW_HOUSE} onEnter={requireAuth} component={() => {
-                return <Dashboard view={constants.VIEW_HOUSE} />
+            <Route path={constants.VIEW_SPORTSBOOK} component={() => {
+                return <Dashboard
+                    view={constants.VIEW_SPORTSBOOK}
+                />
             }}/>
             <Route path={constants.VIEW_LOGIN} component={() => {
                 return <Login />
