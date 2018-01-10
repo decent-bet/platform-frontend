@@ -25,7 +25,7 @@ class Balances extends Component {
                 currentSession: 0,
                 balance: 0
             },
-            slotsProvider: {
+            slotsChannelManager: {
                 currentSession: 0,
                 balance: 0
             }
@@ -50,7 +50,7 @@ class Balances extends Component {
 
     initWeb3Data = () => {
         this.web3Getters().bettingProvider().currentSession()
-        this.web3Getters().slotsProvider().currentSession()
+        this.web3Getters().slotsChannelManager().currentSession()
     }
 
     web3Getters = () => {
@@ -97,15 +97,15 @@ class Balances extends Component {
                     }
                 }
             },
-            slotsProvider: () => {
+            slotsChannelManager: () => {
                 return {
                     currentSession: () => {
                         slotsContract.currentSession().then((session) => {
-                            let sp = self.state.slotsProvider
+                            let sp = self.state.slotsChannelManager
                             
                             sp.currentSession = session.toNumber()
                             self.setState({
-                                slotsProvider: sp
+                                slotsChannelManager: sp
                             })
                             /** Init data that depends on current session */
                             self.web3Getters().balanceOf()
@@ -115,13 +115,13 @@ class Balances extends Component {
                         })
                     },
                     balanceOf: () => {
-                        slotsContract.balanceOf(self.state.address, self.state.slotsProvider.currentSession)
+                        slotsContract.balanceOf(self.state.address, self.state.slotsChannelManager.currentSession)
                         .then((balance) => {
-                            let sp = self.state.slotsProvider
+                            let sp = self.state.slotsChannelManager
 
                             sp.balance = balance.toNumber()
                             self.setState({
-                                slotsProvider: sp
+                                slotsChannelManager: sp
                             })
 
                         }).catch((err) => {
@@ -138,8 +138,9 @@ class Balances extends Component {
         return {
             header: () => {
                 return (
-                    <div className="header">
+                    <div className="header mb-4">
                         <h1 className="text-center">DECENT<span className="color-gold">.BET</span> BALANCES</h1>
+                        <p className="lead text-uppercase text-center">Balances from different house offerings</p>
                     </div>
                 )
             },
@@ -153,7 +154,7 @@ class Balances extends Component {
                                         <div className="col">
                                             <h4 className="header">SLOTS</h4>
                                             <h4 className="stat mt-3">
-                                                { this.state.slotsProvider.balance }
+                                                { this.state.slotsChannelManager.balance }
                                             </h4>
                                         </div>
                                     </div>
