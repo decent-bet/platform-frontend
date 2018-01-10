@@ -21,12 +21,11 @@ class Balances extends Component {
         super(props)
         this.state = {
             address: helper.getWeb3().eth.defaultAccount,
+            currentSession: 0,
             bettingProvider: {
-                currentSession: 0,
                 balance: 0
             },
             slotsChannelManager: {
-                currentSession: 0,
                 balance: 0
             }
         }
@@ -49,74 +48,52 @@ class Balances extends Component {
     }
 
     initWeb3Data = () => {
-        this.web3Getters().bettingProvider().currentSession()
-        this.web3Getters().slotsChannelManager().currentSession()
+        this.web3Getters().houseProvider().currentSession()
     }
 
     web3Getters = () => {
         const self = this
 
-        let tokenContract = helper.getContractHelper().getWrappers().token()
+        let houseContract = helper.getContractHelper().getWrappers().house()
         let slotsContract = helper.getContractHelper().getWrappers().slotsChannelManager()
         let sportsBookContract = helper.getContractHelper().getWrappers().bettingProvider()
 
         return {
-            bettingProvider: () => {
+            houseProvider: () => {
                 return {
                     currentSession: () => {
-                        sportsBookContract.getCurrentSession().then((session) => {
-                            let bp = self.state.bettingProvider
-
-                            bp.currentSession = session.toNumber()
+                        houseContract.getCurrentSession().then((session) => {
                             self.setState({
-                                bettingProvider: bp
+                                currentSession: session.toNumber()
                             })
 
-                            /** Init data that depends on current session */
-                            self.web3Getters().tokenBalance()
-
-                        }).catch((err) => {
-                            console.log('Error retrieving current session', err.message)
+                            self.web3Getters().bettingProvider().currentBalance(session)
+                            self.web3Getters().slotsChannelManager().currentBalance(session)
                         })
-                    },
-                    tokenBalance: () => {
-                        tokenContract.balanceOf(helper.getContractHelper().getBettingProviderInstance().address)
-                        .then((balance) => {
-                            balance = helper.formatEther(balance.toString())
-
+                    }
+                }
+            },
+            bettingProvider: () => {
+                return {
+                    currentBalance: (session) => {
+                        sportsBookContract.balanceOf(self.state.address, session).then((balance) => {
                             let bp = self.state.bettingProvider
                             
                             bp.balance = balance.toNumber()
                             self.setState({
                                 bettingProvider: bp
                             })
-
+                        
                         }).catch((err) => {
-                            console.log('Error retrieving token balance', err.message)
+                            console.log('Error retrieving sportsBook balance', err.message)
                         })
                     }
                 }
             },
             slotsChannelManager: () => {
                 return {
-                    currentSession: () => {
-                        slotsContract.currentSession().then((session) => {
-                            let sp = self.state.slotsChannelManager
-                            
-                            sp.currentSession = session.toNumber()
-                            self.setState({
-                                slotsChannelManager: sp
-                            })
-                            /** Init data that depends on current session */
-                            self.web3Getters().balanceOf()
-
-                        }).catch((err) => {
-                            console.log('Error retrieving current session', err.message)
-                        })
-                    },
-                    balanceOf: () => {
-                        slotsContract.balanceOf(self.state.address, self.state.slotsChannelManager.currentSession)
-                        .then((balance) => {
+                    currentBalance: (session) => {
+                        slotsContract.balanceOf(self.state.address, session).then((balance) => {
                             let sp = self.state.slotsChannelManager
 
                             sp.balance = balance.toNumber()
