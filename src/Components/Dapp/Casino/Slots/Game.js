@@ -229,7 +229,7 @@ class Game extends Component {
                     {   self.state.finalized &&
                         <Card style={styles.card} className="p-4">
                             <h3 className="text-center">The channel has been finalized. Please wait a minute before the channel closes and claiming your DBETs.</h3>
-                            <p className="lead text-center">Final Balance: { window.slotsController().balances().user() }</p>        
+                            <p className="lead text-center mt-2">Final Balance: { window.slotsController().balances().user() }</p>        
                         </Card>
                     }
                 </div>
