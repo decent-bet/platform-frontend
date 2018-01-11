@@ -78,12 +78,12 @@ class Balances extends Component {
                     currentBalance: (session) => {
                         sportsBookContract.balanceOf(self.state.address, session).then((balance) => {
                             let bp = self.state.bettingProvider
-                            
+
                             bp.balance = balance.toNumber()
                             self.setState({
                                 bettingProvider: bp
                             })
-                        
+
                         }).catch((err) => {
                             console.log('Error retrieving sportsBook balance', err.message)
                         })
@@ -117,11 +117,22 @@ class Balances extends Component {
                 return (
                     <div className="header mb-4">
                         <h1 className="text-center">DECENT<span className="color-gold">.BET</span> BALANCES</h1>
-                        <p className="lead text-uppercase text-center">Balances from different house offerings</p>
+                        <p className="lead text-uppercase text-center">Balances from available house offerings</p>
                     </div>
                 )
             },
-            houseOffering: () => {
+            currentSession: () => {
+                return (
+                    <div className="row mt-4 current-session">
+                        <div className="col pull-right">
+                            <p className="text-right">
+                                CURRENT SESSION <span className="session">{this.state.currentSession}</span>
+                            </p>
+                        </div>
+                    </div>
+                )
+            },
+            balances: () => {
                 return (
                     <div className="row stats">
                         <div className="col-4 text-center hvr-float">
@@ -131,7 +142,7 @@ class Balances extends Component {
                                         <div className="col">
                                             <h4 className="header">SLOTS</h4>
                                             <h4 className="stat mt-3">
-                                                { this.state.slotsChannelManager.balance }
+                                                { helper.formatEther(this.state.slotsChannelManager.balance) } DBETs
                                             </h4>
                                         </div>
                                     </div>
@@ -146,7 +157,7 @@ class Balances extends Component {
                                         <div className="col">
                                             <h4 className="header">SPORTBOOK</h4>
                                             <h4 className="stat mt-3">
-                                                { this.state.bettingProvider.balance }
+                                                { helper.formatEther(this.state.bettingProvider.balance) } DBETs
                                             </h4>
                                         </div>
                                     </div>
@@ -166,7 +177,8 @@ class Balances extends Component {
             <div className="balances">
                 <div className="container">
                     { self.views().header() }
-                    { self.views().houseOffering() }
+                    { self.views().currentSession() }
+                    { self.views().balances() }
                 </div>
             </div>
         )
