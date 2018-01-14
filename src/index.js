@@ -69,8 +69,7 @@ ReactDOM.render(
             }}/>
             <Route path="/logout" component={() => {
                 keyHandler.clear()
-                replaceUrl(constants.VIEW_LOGIN)
-                return <Login/>
+                redirectToLogin()
             }}/>
             <Route path="*" component={() => {
                 window.location = "/"
