@@ -15,12 +15,12 @@ module.exports = {
             host: "localhost",
             port: 8545,
             network_id: "*", // Match any network id,
-            from: "0xf2d6ff4adf714d994e1bfba2568432c1c8b6f257"
+            from: provider.address
         },
         rinkeby: {
             provider: provider,
             network_id: 4,
-            from: "0xf2d6ff4adf714d994e1bfba2568432c1c8b6f257",
+            from: provider.address,
             gas: "6721975",
             gasPrice: "100000000000"
         }
