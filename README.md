@@ -22,22 +22,30 @@ To work with the platform, you'll have to deploy the contract to a locally runni
     testrpc --mnemonic "mimic soda meat inmate cup someone labor odor invest scout fat ketchup" -l 6732810
     ```
     
-2. Migrate contracts to TestRPC
+2. Add a .env file to the current directory with the following variables
+
+    ```
+    MNEMONIC='<MNEMONIC TO DEPLOY CONTRACTS AND CONTROL THE PLATFORM>'
+    INFURA_KEY='<REGISTERED INFURA KEY>'
+    DEFAULT_ACCOUNT='<DEFAULT ACCOUNT LINKED TO YOUR MNEMONIC>'
+    ```
+    
+3. Migrate contracts to TestRPC
 
     ```
     truffle migrate
     ```
     
-3. Run the webpack server for front-end hot reloading. For now, smart contract changes must be manually recompiled and migrated.
+4. Run the webpack server for front-end hot reloading. For now, smart contract changes must be manually recompiled and migrated.
 
     ```
     npm run start
     ```
 
-4. To build the application for production, use the build command. A production build will be in the build_webpack folder.
+5. To build the application for production, use the build command. A production build will be in the build_webpack folder.
 
     ```
     npm run build
     ```
 
-5. Deploy the build files using a simple express server and [pm2](https://github.com/Unitech/pm2) or [serve](https://github.com/zeit/serve)
+6. Deploy the build files using a simple express server and [pm2](https://github.com/Unitech/pm2) or [serve](https://github.com/zeit/serve)
