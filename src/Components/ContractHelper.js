@@ -1309,7 +1309,7 @@ class ContractHelper {
     }
 
     signAndSendRawTransaction = Promise.promisify((privateKey, to, gasPrice, gas, data, callback) => {
-        window.web3Object.eth.getTransactionCount(window.web3Object.eth.defaultAccount, (err, count) => {
+        window.web3Object.eth.getTransactionCount(window.web3Object.eth.defaultAccount, 'latest', (err, count) => {
             console.log('Tx count', err, count)
             if (!err) {
                 let nonce = nonceHandler.get(count)
@@ -1330,7 +1330,10 @@ class ContractHelper {
                 ethAccounts.signTransaction(tx, privateKey, (err, res) => {
                     console.log('Signed raw tx', err, res ? res.rawTransaction : '')
                     if (!err)
-                        web3.eth.sendRawTransaction(res.rawTransaction, callback)
+                        web3.eth.sendRawTransaction(res.rawTransaction, (err, res) => {
+                            nonceHandler.set(nonce)
+                            callback(err, res)
+                        })
                     else
                         callback(true, 'Error signing transaction')
                 })
