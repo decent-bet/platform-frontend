@@ -1,7 +1,12 @@
 .login {
     min-height: 100vh;
-    background: #12151a;
-    background-size: contain;
+    background:
+            linear-gradient(
+                    rgba(0, 0, 0, 0.55),
+                    rgba(0, 0, 0, 0.55)
+            ),
+            url('../../../../public/assets/img/backgrounds/login-sportsbook-testnet.jpg');
+    background-size: cover;
 }
 
 .login .logo {
