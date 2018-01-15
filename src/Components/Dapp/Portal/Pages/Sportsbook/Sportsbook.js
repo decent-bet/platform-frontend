@@ -1135,7 +1135,7 @@ class Sportsbook extends Component {
                             </div>
                             <div className="col-6">
                                 <p className="key">Sportsbook balance</p>
-                                <p>{self.state.bettingProvider.balance} DBETs</p>
+                                <p>{helper.commafy(self.state.bettingProvider.balance)} DBETs</p>
                             </div>
                             {   self.state.bettingProvider.depositedTokens == 0 &&
                             <div className="col-12 mt-4">

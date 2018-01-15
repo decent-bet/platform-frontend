@@ -58,6 +58,10 @@ class Helper {
         return JSON.parse(JSON.stringify(obj))
     }
 
+    commafy = (number) => {
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+    }
+
     toggleSnackbar = (message) => {
         EventBus.publish('showSnackbar', message)
     }
