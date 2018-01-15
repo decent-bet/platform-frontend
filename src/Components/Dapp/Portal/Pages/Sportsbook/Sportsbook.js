@@ -156,6 +156,7 @@ class Sportsbook extends Component {
         this.web3Getters().sportsOracle().addresses.acceptedProviders(0)
 
         /** Events */
+
         this.watchers().sportsOracle().gameAdded()
         this.watchers().sportsOracle().updatedProviderOutcome()
         this.watchers().sportsOracle().updatedTime()
@@ -163,6 +164,9 @@ class Sportsbook extends Component {
 
     initTokenData = () => {
         this.web3Getters().token().balance()
+
+        this.watchers().token().transferFrom()
+        this.watchers().token().transferTo()
     }
 
     web3Getters = () => {
@@ -295,7 +299,10 @@ class Sportsbook extends Component {
                                     maxBetLimit: 0
                                 }
                                 let bettingProvider = self.state.bettingProvider
-                                bettingProvider.games[id] = game
+                                if (bettingProvider.games.hasOwnProperty(id))
+                                    bettingProvider.games[id] = Object.assign(bettingProvider.games[id], game)
+                                else
+                                    bettingProvider.games[id] = game
                                 if (exists) {
                                     self.web3Getters().bettingProvider().gameOddsCount(id)
                                     self.web3Getters().bettingProvider().maxBetLimit(id)
@@ -751,6 +758,26 @@ class Sportsbook extends Component {
     watchers = () => {
         const self = this
         return {
+            token: () => {
+                return {
+                    transferFrom: () => {
+                        helper.getContractHelper().getWrappers().token()
+                            .logTransfer(self.state.address, true).watch((err, event) => {
+                            console.log('transferFrom', err, JSON.stringify(event))
+                            if (!err)
+                                self.web3Getters().token().balance()
+                        })
+                    },
+                    transferTo: () => {
+                        helper.getContractHelper().getWrappers().token()
+                            .logTransfer(self.state.address, false).watch((err, event) => {
+                            console.log('transferTo', err, JSON.stringify(event))
+                            if (!err)
+                                self.web3Getters().token().balance()
+                        })
+                    }
+                }
+            },
             bettingProvider: () => {
                 return {
                     deposit: () => {
@@ -761,7 +788,7 @@ class Sportsbook extends Component {
                             const session = event.args.session.toNumber()
 
                             helper.toggleSnackbar('DBETs deposited into sportsbook contract - ' +
-                                helper.formatEther(amount)  + ' DBETs')
+                                helper.formatEther(amount) + ' DBETs')
 
                             self.web3Getters().bettingProvider().tokenBalance()
                             self.web3Getters().bettingProvider().depositedTokens(session)
@@ -771,18 +798,23 @@ class Sportsbook extends Component {
                         console.log('Watching for new bets')
                         helper.getContractHelper().getWrappers().bettingProvider()
                             .logNewBet().watch((err, event) => {
-                                console.log('New bet event', err, JSON.stringify(event))
-                                let gameId = event.args.gameId.toNumber()
-                                let betId = event.args.betId.toNumber()
+                            console.log('New bet event', err, JSON.stringify(event))
+                            let gameId = event.args.gameId.toNumber()
+                            let betId = event.args.betId.toNumber()
 
-                                let home = self.helpers().getTeamName(true, gameId)
-                                let away = self.helpers().getTeamName(false, gameId)
+                            let home = self.helpers().getTeamName(true, gameId)
+                            let away = self.helpers().getTeamName(false, gameId)
 
-                                helper.toggleSnackbar('New bet placed for game - ' +
-                                    home + ' vs. ' + away)
+                            helper.toggleSnackbar('New bet placed for game - ' +
+                                home + ' vs. ' + away)
 
-                                self.web3Getters().bettingProvider().getUserBets(betId)
-                            })
+                            self.web3Getters().bettingProvider().game(gameId, false)
+                            self.web3Getters().bettingProvider().getUserBets(betId)
+
+                            self.web3Getters().bettingProvider().tokenBalance()
+                            self.web3Getters().bettingProvider()
+                                .depositedTokens(self.state.bettingProvider.currentSession)
+                        })
                     },
                     newGame: () => {
                         helper.getContractHelper().getWrappers().bettingProvider()
@@ -828,16 +860,16 @@ class Sportsbook extends Component {
                     updatedMaxBet: () => {
                         helper.getContractHelper().getWrappers().bettingProvider()
                             .logUpdatedMaxBet().watch((err, event) => {
-                                console.log('Updated max bet event', err, JSON.stringify(event))
-                                let gameId = event.args.id.toNumber()
+                            console.log('Updated max bet event', err, JSON.stringify(event))
+                            let gameId = event.args.id.toNumber()
 
-                                let home = self.helpers().getTeamName(true, gameId)
-                                let away = self.helpers().getTeamName(false, gameId)
+                            let home = self.helpers().getTeamName(true, gameId)
+                            let away = self.helpers().getTeamName(false, gameId)
 
-                                helper.toggleSnackbar('Updated max bet for game - ' + home + ' vs. ' + away)
+                            helper.toggleSnackbar('Updated max bet for game - ' + home + ' vs. ' + away)
 
-                                self.web3Getters().bettingProvider().maxBetLimit(gameId)
-                            })
+                            self.web3Getters().bettingProvider().maxBetLimit(gameId)
+                        })
                     },
                     updatedBetLimits: () => {
                         helper.getContractHelper().getWrappers().bettingProvider()
@@ -875,14 +907,14 @@ class Sportsbook extends Component {
                     updatedTime: () => {
                         helper.getContractHelper().getWrappers().bettingProvider()
                             .logUpdatedTime().watch((err, event) => {
-                                console.log('Updated provider time event', err, event)
-                                let time = event.args.time.toNumber()
-                                self.setState({
-                                    bettingProvider: Object.assign(self.state.bettingProvider, {
-                                        time: time
-                                    })
+                            console.log('Updated provider time event', err, event)
+                            let time = event.args.time.toNumber()
+                            self.setState({
+                                bettingProvider: Object.assign(self.state.bettingProvider, {
+                                    time: time
                                 })
                             })
+                        })
                     }
                 }
             },
@@ -935,7 +967,7 @@ class Sportsbook extends Component {
             placeBet: (gameId, oddsId) => {
                 const oddsObj = self.state.odds[gameId][oddsId]
 
-                const betAmount = new BigNumber(oddsObj.betAmount).times(ethUnits.units.ether).toString()
+                const betAmount = new BigNumber(oddsObj.betAmount).times(ethUnits.units.ether).toFixed()
                 const betType = oddsObj.betType
                 const selectedChoice = oddsObj.selectedChoice
 
@@ -944,32 +976,41 @@ class Sportsbook extends Component {
                 helper.getContractHelper().getWrappers().bettingProvider().placeBet(gameId, oddsId, betType,
                     selectedChoice, betAmount).then((txHash) => {
                     console.log('Successfully placed bet', txHash)
+                    helper.toggleSnackbar('Successfully sent place bet transaction')
                     self.helpers().toggleDialog(DIALOG_CONFIRM_BET, false)
                 }).catch((err) => {
                     console.log('Error placing bet', err.message)
+                    helper.toggleSnackbar('Error sending place bet transaction')
                 })
             },
             depositTokens: (amount) => {
                 helper.getContractHelper().getWrappers().bettingProvider().deposit(amount).then((txHash) => {
                     console.log('Successfully deposited', amount, 'DBETs', txHash)
+                    helper.toggleSnackbar('Successfully sent deposit transaction')
                 }).catch((err) => {
                     console.log('Error depositing tokens', err.message)
+                    helper.toggleSnackbar('Error sending deposit transaction')
                 })
             },
             withdrawTokens: (amount, session) => {
                 helper.getContractHelper().getWrappers().bettingProvider().withdraw(amount, session).then((txHash) => {
                     console.log('Successfully withdrawed', amount, 'DBETs', txHash)
+                    helper.toggleSnackbar('Successfully sent withdraw transaction')
                 }).catch((err) => {
                     console.log('Error withdrawing tokens', err.message)
+                    helper.toggleSnackbar('Error sending withdraw transaction')
                 })
             },
             approveAndDepositTokens: (amount) => {
                 let bettingProvider = helper.getContractHelper().getBettingProviderInstance().address
+                console.log('approveAndDepositTokens', amount, typeof amount)
                 helper.getContractHelper().getWrappers().token().approve(bettingProvider, amount).then((txHash) => {
                     console.log('Successfully approved', amount, 'DBETs for ', bettingProvider, txHash)
+                    helper.toggleSnackbar('Successfully sent approve transaction')
                     self.web3Setters().depositTokens(amount)
                 }).catch((err) => {
                     console.log('Error approving dbets', err.message)
+                    helper.toggleSnackbar('Error sending approve transaction')
                 })
             },
             claimBet: (gameId, betId) => {
@@ -982,8 +1023,10 @@ class Sportsbook extends Component {
                         bettingProvider: bettingProvider
                     })
                     console.log('Successfully sent claim bet tx', txHash)
+                    helper.toggleSnackbar('Successfully sent claim bet transaction')
                 }).catch((err) => {
                     console.log('Error sending claim bet tx', err.message)
+                    helper.toggleSnackbar('Error sending claim bet transaction')
                 })
             }
         }
@@ -1011,11 +1054,11 @@ class Sportsbook extends Component {
                                 </div>
                             </div>
                             { Object.keys(self.state.bettingProvider.games).length == 0 &&
-                                <div className="row">
-                                    <div className="col-12 mt-4">
-                                        <p className="text-center">No games available</p>
-                                    </div>
+                            <div className="row">
+                                <div className="col-12 mt-4">
+                                    <p className="text-center">No games available</p>
                                 </div>
+                            </div>
                             }
                             { Object.keys(self.state.bettingProvider.games).length > 0 && games.map((game, index) =>
                                 <div className="row">
@@ -1121,15 +1164,15 @@ class Sportsbook extends Component {
                                 <p className="key text-center">Your Session Balance</p>
                                 <p>{self.state.bettingProvider.depositedTokens} DBETs</p>
                                 <button className="btn btn-primary btn-sm mx-auto px-2"
-                                    onClick={() => {
-                                        self.helpers().toggleDialog(DIALOG_DEPOSIT_TOKENS, true)
-                                    }}>
+                                        onClick={() => {
+                                            self.helpers().toggleDialog(DIALOG_DEPOSIT_TOKENS, true)
+                                        }}>
                                     Deposit
                                 </button>
-                                <button className="btn btn-primary btn-sm mx-auto mt-2" 
-                                    onClick={() => {
-                                        self.helpers().toggleDialog(DIALOG_WITHDRAW_TOKENS, true)
-                                    }}>
+                                <button className="btn btn-primary btn-sm mx-auto mt-2"
+                                        onClick={() => {
+                                            self.helpers().toggleDialog(DIALOG_WITHDRAW_TOKENS, true)
+                                        }}>
                                     Withdraw
                                 </button>
                             </div>
@@ -1424,6 +1467,8 @@ class Sportsbook extends Component {
                                 disabled={
                                     self.state.bettingProvider.games[gameId].cutOffTime <= helper.getTimestamp() ||
                                     self.helpers().isEmpty(self.state.odds[gameId][oddsId].betAmount) ||
+                                    self.helpers().exceedsMaxBetAmount(gameId, oddsId) ||
+                                    self.helpers().exceedsBetLimits(gameId, oddsId) ||
                                     !self.state.bettingProvider.depositedTokens ||
                                     self.state.bettingProvider.depositedTokens == 0}
                                 onClick={() => {
@@ -1670,7 +1715,7 @@ class Sportsbook extends Component {
                     onConfirm={(amount) => {
                         let isAllowanceAvailable = new BigNumber(amount).times(ethUnits.units.ether)
                             .lessThanOrEqualTo(self.state.bettingProvider.allowance)
-                        let formattedAmount = new BigNumber(amount).times(ethUnits.units.ether).toString()
+                        let formattedAmount = new BigNumber(amount).times(ethUnits.units.ether).toFixed()
                         if (isAllowanceAvailable)
                             self.web3Setters().depositTokens(formattedAmount)
                         else
@@ -1780,29 +1825,18 @@ class Sportsbook extends Component {
                     if (outcome) {
                         let choice = placedBet.choice
                         let betAmount = placedBet.amount
+                        console.log('getWinnings', outcome, placedBet, oddsObj)
 
-                        let result = outcome.result
-                        if ((oddsObj.betType == constants.ODDS_TYPE_MONEYLINE && choice == result) ||
-                            oddsObj.betType == constants.ODDS_TYPE_TOTALS ||
-                            oddsObj.betType == constants.ODDS_TYPE_TEAM_TOTALS)
-                            return bettingReturnsCalculator.getMaxReturns(oddsObj, choice, betAmount)
+                        if (self.helpers().isWinningBet(gameId, oddsObj, placedBet)) {
+                            let teamOdds = (choice == constants.BET_CHOICE_TEAM1) ?
+                                oddsObj.team1 : oddsObj.team2
 
-                        else if (oddsObj.betType == constants.ODDS_TYPE_SPREAD) {
-
-                            let isWinningBet = ((choice == constants.BET_CHOICE_TEAM1 &&
-                            (outcome.team1Points + oddsObj.handicap > outcome.team2Points)) ||
-                            (choice == constants.BET_CHOICE_TEAM2 &&
-                            (outcome.team2Points + oddsObj.handicap > outcome.team1Points)))
-
-                            if (isWinningBet) {
-                                let teamOdds = (choice == constants.BET_CHOICE_TEAM1) ?
-                                    oddsObj.team1 : oddsObj.team2
-
+                            if (oddsObj.betType == constants.ODDS_TYPE_SPREAD)
                                 return bettingReturnsCalculator.getSpreadReturns(betAmount,
                                     oddsObj.handicap, outcome.team1Points, outcome.team2Points,
                                     placedBet.choice, teamOdds).toFixed(2)
-                            } else
-                                return 0
+                            else
+                                return bettingReturnsCalculator.getMaxReturns(oddsObj, choice, betAmount)
                         } else
                             return 0
                     } else
@@ -1876,7 +1910,7 @@ class Sportsbook extends Component {
                         dialogs.withdrawTokens.open = enabled
                         break
                 }
-                self.setState({ dialogs: dialogs })
+                self.setState({dialogs: dialogs})
             },
             getConfirmBetMessage: (gameId, oddsId) => {
                 let oddsObj = self.state.odds[gameId][oddsId]
@@ -1905,10 +1939,76 @@ class Sportsbook extends Component {
             isEmpty: (val) => {
                 return (val == 0 || val == '')
             },
+            exceedsMaxBetAmount: (gameId, oddsId) => {
+                let totalBetAmount = parseInt(self.state.odds[gameId][oddsId].betAmount) +
+                    parseInt(self.state.bettingProvider.games[gameId].betAmount)
+                let maxBetLimit = parseInt(self.state.bettingProvider.games[gameId].maxBetLimit)
+                return totalBetAmount > maxBetLimit
+            },
+            exceedsBetLimits: (gameId, oddsId) => {
+                let betAmount = parseInt(self.state.odds[gameId][oddsId].betAmount)
+                let betType = self.state.odds[gameId][oddsId].betType
+                let period = self.state.odds[gameId][oddsId].period
+                let betLimits = self.state.bettingProvider.games[gameId].betLimits[period]
+                let limit
+                if (betType == constants.ODDS_TYPE_SPREAD)
+                    limit = betLimits.spread
+                else if (betType == constants.ODDS_TYPE_MONEYLINE)
+                    limit = betLimits.moneyline
+                else if (betType == constants.ODDS_TYPE_TOTALS)
+                    limit = betLimits.totals
+                else if (betType == constants.ODDS_TYPE_TEAM_TOTALS)
+                    limit = betLimits.teamTotals
+                console.log('exceedsBetLimits', betAmount, limit, betAmount > limit)
+                return betAmount > limit
+            },
             isGameBettingPeriodOver: (id) => {
                 let game = self.state.bettingProvider.games[id]
                 return self.state.bettingProvider.time != null &&
                     game.cutOffTime < self.state.bettingProvider.time
+            },
+            isWinningBet: (gameId, oddsObj, placedBet) => {
+                let period = oddsObj.period
+                let outcome = self.state.bettingProvider.games[gameId].outcomes[period]
+                let choice = placedBet.choice
+                let result = outcome.result
+
+                if (oddsObj.betType == constants.ODDS_TYPE_SPREAD) {
+                    return ((choice == constants.BET_CHOICE_TEAM1 &&
+                            (outcome.team1Points + oddsObj.handicap > outcome.team2Points)) ||
+                            (choice == constants.BET_CHOICE_TEAM2 &&
+                            (outcome.team2Points + oddsObj.handicap > outcome.team1Points)))
+                } else {
+                    if ((oddsObj.betType == constants.ODDS_TYPE_MONEYLINE && choice == result) ||
+                        oddsObj.betType == constants.ODDS_TYPE_TEAM_TOTALS)
+                        return true
+                    else if (oddsObj.betType == constants.ODDS_TYPE_TOTALS &&
+                        outcome.totalPoints > oddsObj.points &&
+                        placedBet.choice == constants.BET_CHOICE_OVER)
+                        return true
+                    else if (oddsObj.betType == constants.ODDS_TYPE_TOTALS &&
+                        outcome.totalPoints < oddsObj.points &&
+                        placedBet.choice == constants.BET_CHOICE_UNDER)
+                        return true
+                    else if (oddsObj.betType == constants.ODDS_TYPE_TEAM_TOTALS &&
+                        outcome.team1Points > oddsObj.team1 &&
+                        placedBet.choice == constants.BET_CHOICE_OVER)
+                        return true
+                    else if (oddsObj.betType == constants.ODDS_TYPE_TEAM_TOTALS &&
+                        outcome.team1Points < oddsObj.team1 &&
+                        placedBet.choice == constants.BET_CHOICE_UNDER)
+                        return true
+                    else if (oddsObj.betType == constants.ODDS_TYPE_TEAM_TOTALS &&
+                        outcome.team2Points > oddsObj.team2 &&
+                        placedBet.choice == constants.BET_CHOICE_OVER)
+                        return true
+                    else if (oddsObj.betType == constants.ODDS_TYPE_TEAM_TOTALS &&
+                        outcome.team2Points < oddsObj.team2 &&
+                        placedBet.choice == constants.BET_CHOICE_UNDER)
+                        return true
+                    else
+                        return false
+                }
             }
         }
     }

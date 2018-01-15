@@ -590,6 +590,10 @@ contract BettingProvider is HouseOffering, SafeMath, TimeProvider {
         uint[4] limits = betLimits.limits[period];
         bool exists = betLimits.exists[period];
 
+        // Amount can't be 0
+        if(amount == 0)
+            return false;
+
         // Cannot bet more than limit for selected bet type.
         if(!exists || (limits[betType] > 0 && limits[betType] < amount))
             return false;
