@@ -5,10 +5,20 @@ import SlotsChannelFinalizer from '../../build/contracts/SlotsChannelFinalizer.j
 import SlotsChannelManager from '../../build/contracts/SlotsChannelManager.json'
 import SportsOracle from '../../build/contracts/SportsOracle.json'
 
+import KeyHandler from './Base/KeyHandler'
+
+const constants = require('./Constants')
+
 const async = require('async')
 const contract = require('truffle-contract')
 const ethUnits = require('ethereum-units')
 const ethUtil  = require('ethereumjs-util')
+const ethAbi = require('web3-eth-abi')
+const EthAccounts = require('web3-eth-accounts')
+const Promise = require('bluebird')
+
+const keyHandler = new KeyHandler()
+const ethAccounts = new EthAccounts(constants.PROVIDER_URL)
 
 let web3
 let provider
@@ -228,14 +238,45 @@ class ContractHelper {
                     },
                     /** Setters */
                     approve: (address, value) => {
-                        return decentBetTokenInstance.approve.sendTransaction(address, value, {
-                            from: window.web3Object.eth.defaultAccount,
-                        })
+                        let encodedFunctionCall = ethAbi.encodeFunctionCall({
+                            name: 'approve',
+                            type: 'function',
+                            inputs: [
+                                {
+                                    name: 'spender',
+                                    type: 'address'
+                                },
+                                {
+                                    name: 'value',
+                                    type: 'uint256'
+                                }
+                            ]
+                        }, [address, value])
+
+                        return self.signAndSendRawTransaction(
+                            keyHandler.get(),
+                            decentBetTokenInstance.address,
+                            null,
+                            5000000,
+                            encodedFunctionCall
+                        )
                     },
                     faucet: () => {
-                        return decentBetTokenInstance.faucet.sendTransaction({
-                            from: window.web3Object.eth.defaultAccount
-                        })
+                        console.log('Sending faucet tx')
+
+                        let encodedFunctionCall = ethAbi.encodeFunctionCall({
+                            name: 'faucet',
+                            type: 'function',
+                            inputs: []
+                        }, [])
+
+                        return self.signAndSendRawTransaction(
+                            keyHandler.get(),
+                            decentBetTokenInstance.address,
+                            null,
+                            5000000,
+                            encodedFunctionCall
+                        )
                     },
                     /**
                      * Events
@@ -397,87 +438,376 @@ class ContractHelper {
                      */
                     deposit: (amount) => {
                         console.log('Depositing', amount, 'to sportsbook as', window.web3Object.eth.defaultAccount)
-                        return bettingProviderInstance.deposit.sendTransaction(amount, {
-                            from: window.web3Object.eth.defaultAccount,
-                            gas: 5000000
-                        })
+                        
+                        let encodedFunctionCall = ethAbi.encodeFunctionCall({
+                            name: 'deposit',
+                            type: 'function',
+                            inputs: [
+                                {
+                                    name: 'amount',
+                                    type: 'uint256'
+                                }
+                            ]
+                        }, [amount])
+
+                        return self.signAndSendRawTransaction(
+                            keyHandler.get(),
+                            bettingProviderInstance.address,
+                            null,
+                            5000000,
+                            encodedFunctionCall
+                        )
                     },
                     withdraw: (amount, session) => {
                         console.log('Withdraw', amount, 'from sportsbook as', window.web3Object.eth.defaultAccount)
-                        return bettingProviderInstance.withdraw.sendTransaction(amount, session, {
-                            from: window.web3Object.eth.defaultAccount,
-                            gas: 5000000
-                        })
+                        
+                        let encodedFunctionCall = ethAbi.encodeFunctionCall({
+                            name: 'withdraw',
+                            type: 'function',
+                            inputs: [
+                                {
+                                    name: 'amount',
+                                    type: 'uint256'
+                                },
+                                {
+                                    name: 'session',
+                                    type: 'uint256'
+                                }
+                            ]
+                        }, [amount, session])
+
+                        return self.signAndSendRawTransaction(
+                            keyHandler.get(),
+                            bettingProviderInstance.address,
+                            null,
+                            5000000,
+                            encodedFunctionCall
+                        )
                     },
                     setSportsOracle: (address) => {
-                        return bettingProviderInstance.setSportsOracle.sendTransaction(address, {
-                            from: window.web3Object.eth.defaultAccount,
-                            gas: 5000000
-                        })
+                        let encodedFunctionCall = ethAbi.encodeFunctionCall({
+                            name: 'setSportsOracle',
+                            type: 'function',
+                            inputs: [
+                                {
+                                    name: '_address',
+                                    type: 'address'
+                                }
+                            ]
+                        }, [address])
+
+                        return self.signAndSendRawTransaction(
+                            keyHandler.get(),
+                            bettingProviderInstance.address,
+                            null,
+                            5000000,
+                            encodedFunctionCall
+                        )
                     },
                     changeAssistedClaimTimeOffset: (offset) => {
-                        return bettingProviderInstance.changeAssistedClaimTimeOffset.sendTransaction(offset, {
-                            from: window.web3Object.eth.defaultAccount,
-                            gas: 5000000
-                        })
+                        let encodedFunctionCall = ethAbi.encodeFunctionCall({
+                            name: 'changeAssistedClaimTimeOffset',
+                            type: 'function',
+                            inputs: [
+                                {
+                                    name: 'offset',
+                                    type: 'uint256'
+                                }
+                            ]
+                        }, [offset])
+
+                        return self.signAndSendRawTransaction(
+                            keyHandler.get(),
+                            bettingProviderInstance.address,
+                            null,
+                            5000000,
+                            encodedFunctionCall
+                        )
                     },
                     addGame: (oracleGameId, cutOffTime, endTime) => {
-                        return bettingProviderInstance.addGame.sendTransaction(oracleGameId, cutOffTime, endTime, {
-                            from: window.web3Object.eth.defaultAccount,
-                            gas: 5000000
-                        })
+                        let encodedFunctionCall = ethAbi.encodeFunctionCall({
+                            name: 'addGame',
+                            type: 'function',
+                            inputs: [
+                                {
+                                    name: 'oracleGameId',
+                                    type: 'uint256'
+                                },
+                                {
+                                    name: 'cutOffTime',
+                                    type: 'uint256'
+                                },
+                                {
+                                    name: 'endTime',
+                                    type: 'uint256'
+                                }
+                            ]
+                        }, [oracleGameId, cutOffTime, endTime])
+
+                        return self.signAndSendRawTransaction(
+                            keyHandler.get(),
+                            bettingProviderInstance.address,
+                            null,
+                            5000000,
+                            encodedFunctionCall
+                        )
                     },
                     updateGamePeriodBetLimits: (id, period, limits) => {
                         console.log('updateGamePeriodBetLimits', id, period, limits)
-                        return bettingProviderInstance.updateGamePeriodBetLimits.sendTransaction(id, period, limits, {
-                            from: window.web3Object.eth.defaultAccount,
-                            gas: 5000000
-                        })
+                        
+                        let encodedFunctionCall = ethAbi.encodeFunctionCall({
+                            name: 'updateGamePeriodBetLimits',
+                            type: 'function',
+                            inputs: [
+                                {
+                                    name: 'gameId',
+                                    type: 'uint256'
+                                },
+                                {
+                                    name: 'period',
+                                    type: 'uint256'
+                                },
+                                {
+                                    name: 'limits',
+                                    type: 'uint256[4]'
+                                }
+                            ]
+                        }, [id, period, limits])
+
+                        return self.signAndSendRawTransaction(
+                            keyHandler.get(),
+                            bettingProviderInstance.address,
+                            null,
+                            5000000,
+                            encodedFunctionCall
+                        )
                     },
-                    updateGameMaxBetLimits: (id, maxBetLimit) => {
-                        console.log('updateGamePeriodBetLimits', id, maxBetLimit)
-                        return bettingProviderInstance.updateGameMaxBetLimits.sendTransaction(id, maxBetLimit, {
-                            from: window.web3Object.eth.defaultAccount,
-                            gas: 5000000
-                        })
+                    pushGameOdds: (id, refId, period, handicap, team1, team2, draw, betType, points, over, under, isTeam1) => {
+                        console.log('pushGameOdds params', id, refId, period, handicap, team1, team2, draw, betType, points, over, under, isTeam1)
+                        
+                        let encodedFunctionCall = ethAbi.encodeFunctionCall({
+                            name: 'pushGameOdds',
+                            type: 'function',
+                            inputs: [
+                                {
+                                    name: 'id',
+                                    type: 'uint256'
+                                },
+                                {
+                                    name: 'refId',
+                                    type: 'string'
+                                },
+                                {
+                                    name: 'period',
+                                    type: 'uint256'
+                                },
+                                {
+                                    name: 'handicap',
+                                    type: 'int256'
+                                },
+                                {
+                                    name: 'team1',
+                                    type: 'int256'
+                                },
+                                {
+                                    name: 'team2',
+                                    type: 'int256'
+                                },
+                                {
+                                    name: 'draw',
+                                    type: 'int256'
+                                },
+                                {
+                                    name: 'betType',
+                                    type: 'uint256'
+                                },
+                                {
+                                    name: 'points',
+                                    type: 'uint256'
+                                },
+                                {
+                                    name: 'over',
+                                    type: 'int256'
+                                },
+                                {
+                                    name: 'under',
+                                    type: 'int256'
+                                },
+                                {
+                                    name: 'isTeam1',
+                                    type: 'bool'
+                                }
+                            ]
+                        }, [id, refId, period, handicap, team1, team2, draw, betType, points, over, under, isTeam1])
+
+                        return self.signAndSendRawTransaction(
+                            keyHandler.get(),
+                            bettingProviderInstance.address,
+                            null,
+                            5000000,
+                            encodedFunctionCall
+                        )
                     },
-                    pushGameOdds: (id, refId, period, handicap, team1, team2, draw, betType, points,
-                                   over, under, isTeam1) => {
-                        console.log('pushGameOdds params', id, refId, period, handicap, team1, team2, draw,
-                            betType, points, over, under, isTeam1)
-                        return bettingProviderInstance.pushGameOdds.sendTransaction(id, refId, period, handicap,
-                            team1, team2, draw, betType, points, over, under, isTeam1, {
-                                from: window.web3Object.eth.defaultAccount,
-                                gas: 5000000
-                            })
-                    },
-                    updateGameOdds: (id, oddsId, handicap, team1, team2, draw, points, over, under) => {
-                        return bettingProviderInstance.updateGameOdds.sendTransaction(id, oddsId, handicap, team1,
-                            team2, draw, points, over, under, {
-                                from: window.web3Object.eth.defaultAccount,
-                                gas: 5000000
-                            })
+                    updateGameOdds: (id, oddsId, betType, handicap, team1, team2, draw, points, over, under) => {
+                        
+                        let encodedFunctionCall = ethAbi.encodeFunctionCall({
+                            name: 'updateGameOdds',
+                            type: 'function',
+                            inputs: [
+                                {
+                                    name: 'id',
+                                    type: 'uint256'
+                                },
+                                {
+                                    name: 'oddsId', 
+                                    type: 'uint256'   
+                                },
+                                {
+                                    name: 'betType', 
+                                    type: 'uint256'   
+                                },
+                                {
+                                    name: 'handicap', 
+                                    type: 'int256'   
+                                },
+                                {
+                                    name: 'team1', 
+                                    type: 'int256'   
+                                },
+                                {
+                                    name: 'team2', 
+                                    type: 'int256'   
+                                },
+                                {
+                                    name: 'draw', 
+                                    type: 'int256'   
+                                },
+                                {
+                                    name: 'points', 
+                                    type: 'uint256'   
+                                },
+                                {
+                                    name: 'over', 
+                                    type: 'int256'   
+                                },
+                                {
+                                    name: 'under', 
+                                    type: 'int256'   
+                                }
+                                
+                            ]
+                        }, [id, oddsId, betType, handicap, team1, team2, draw, points, over, under])
+
+                        return self.signAndSendRawTransaction(
+                            keyHandler.get(),
+                            bettingProviderInstance.address,
+                            null,
+                            5000000,
+                            encodedFunctionCall
+                        )
                     },
                     updateGameOutcome: (id, period, result, team1Points, team2Points) => {
-                        return bettingProviderInstance.updateGameOutcome.sendTransaction(id, period, result,
-                            team1Points, team2Points, {
-                                from: window.web3Object.eth.defaultAccount,
-                                gas: 5000000
-                            })
+
+                        let encodedFunctionCall = ethAbi.encodeFunctionCall({
+                            name: 'updateGameOutcome',
+                            type: 'function',
+                            inputs: [
+                                {
+                                    name: 'id',
+                                    type: 'uint256'
+                                },
+                                {
+                                    name: 'period', 
+                                    type: 'uint256'   
+                                },
+                                {
+                                    name: 'result', 
+                                    type: 'int256'   
+                                },
+                                {
+                                    name: 'team1Points', 
+                                    type: 'uint256'   
+                                },
+                                {
+                                    name: 'team2Points', 
+                                    type: 'uint256'   
+                                }
+                            ]
+                        }, [id, period, result, team1Points, team2Points])
+
+                        return self.signAndSendRawTransaction(
+                            keyHandler.get(),
+                            bettingProviderInstance.address,
+                            null,
+                            5000000,
+                            encodedFunctionCall
+                        )
                     },
                     placeBet: (gameId, oddsId, betType, choice, amount) => {
                         console.log('Placing bet', gameId, oddsId, betType, choice, amount)
-                        return bettingProviderInstance.placeBet.sendTransaction(gameId, oddsId, betType,
-                            choice, amount, {
-                                from: window.web3Object.eth.defaultAccount,
-                                gas: 5000000
-                            })
+
+                        let encodedFunctionCall = ethAbi.encodeFunctionCall({
+                            name: 'placeBet',
+                            type: 'function',
+                            inputs: [
+                                {
+                                    name: 'gameId',
+                                    type: 'uint256'
+                                },
+                                {
+                                    name: 'oddsId', 
+                                    type: 'uint256'   
+                                },
+                                {
+                                    name: 'betType', 
+                                    type: 'uint256'   
+                                },
+                                {
+                                    name: 'choice', 
+                                    type: 'uint256'   
+                                },
+                                {
+                                    name: 'amount', 
+                                    type: 'uint256'   
+                                }
+                            ]
+                        }, [gameId, oddsId, betType, choice, amount])
+
+                        return self.signAndSendRawTransaction(
+                            keyHandler.get(),
+                            bettingProviderInstance.address,
+                            null,
+                            5000000,
+                            encodedFunctionCall
+                        )
                     },
                     claimBet: (gameId, betId, bettor) => {
-                        return bettingProviderInstance.claimBet.sendTransaction(gameId, betId, bettor, {
-                            from: window.web3Object.eth.defaultAccount,
-                            gas: 5000000
-                        })
+                        let encodedFunctionCall = ethAbi.encodeFunctionCall({
+                            name: 'claimBet',
+                            type: 'function',
+                            inputs: [
+                                {
+                                    name: 'gameId',
+                                    type: 'uint256'
+                                },
+                                {
+                                    name: 'betId', 
+                                    type: 'uint256'   
+                                },
+                                {
+                                    name: 'bettor', 
+                                    type: 'address'   
+                                }
+                            ]
+                        }, [gameId, betId, bettor])
+
+                        return self.signAndSendRawTransaction(
+                            keyHandler.get(),
+                            bettingProviderInstance.address,
+                            null,
+                            5000000,
+                            encodedFunctionCall
+                        )
                     },
                     /**
                      * Events
@@ -598,74 +928,6 @@ class ContractHelper {
                         return sportsOracleInstance.getTime()
                     },
                     /**
-                     * Setters
-                     */
-                    togglePayForProviderAcceptance: (enabled) => {
-                        return sportsOracleInstance.togglePayForProviderAcceptance.sendTransaction(enabled, {
-                            from: window.web3Object.eth.defaultAccount,
-                            gas: 5000000
-                        })
-                    },
-                    addAuthorizedAddress: (address) => {
-                        return sportsOracleInstance.addAuthorizedAddress.sendTransaction(address, {
-                            from: window.web3Object.eth.defaultAccount,
-                            gas: 5000000
-                        })
-                    },
-                    changeGameUpdateCost: (cost) => {
-                        cost *= ethUnits.units.ether
-                        return sportsOracleInstance.changeGameUpdateCost.sendTransaction(cost, {
-                            from: window.web3Object.eth.defaultAccount,
-                            gas: 5000000
-                        })
-                    },
-                    changeProviderAcceptanceCost: (cost) => {
-                        cost *= ethUnits.units.ether
-                        return sportsOracleInstance.changeProviderAcceptanceCost.sendTransaction(cost, {
-                            from: window.web3Object.eth.defaultAccount,
-                            gas: 5000000
-                        })
-                    },
-                    acceptProvider: (address) => {
-                        return sportsOracleInstance.acceptProvider.sendTransaction(address, {
-                            from: window.web3Object.eth.defaultAccount,
-                            gas: 5000000
-                        })
-                    },
-                    addGame: (refId, sportId, leagueId, startTime, endTime, availablePeriods, ipfsHash) => {
-                        return sportsOracleInstance.addGame.sendTransaction(refId, sportId, leagueId, startTime, endTime,
-                            availablePeriods, ipfsHash, {
-                                from: window.web3Object.eth.defaultAccount,
-                                gas: 5000000
-                            })
-                    },
-                    updateGameDetails: (id, ipfsHash) => {
-                        return sportsOracleInstance.updateGameDetails.sendTransaction(id, ipfsHash, {
-                            from: window.web3Object.eth.defaultAccount,
-                            gas: 5000000
-                        })
-                    },
-                    pushOutcome: (id, period, result, totalPoints, team1Points, team2Points) => {
-                        return sportsOracleInstance.pushOutcome.sendTransaction(id, period, result, totalPoints,
-                            team1Points, team2Points, {
-                                from: window.web3Object.eth.defaultAccount,
-                                gas: 5000000
-                            })
-                    },
-                    updateProviderOutcome: (id, providerAddress, period, result, team1Points, team2Points) => {
-                        return sportsOracleInstance.updateProviderOutcome.sendTransaction(id, providerAddress, period,
-                            result, team1Points, team2Points, {
-                                from: window.web3Object.eth.defaultAccount,
-                                gas: 5000000
-                            })
-                    },
-                    withdrawTokens: () => {
-                        return sportsOracleInstance.withdrawTokens().sendTransaction({
-                            from: window.web3Object.eth.defaultAccount,
-                            gas: 5000000
-                        })
-                    },
-                    /**
                      * Events
                      */
                     logNewAuthorizedAddress: (fromBlock, toBlock) => {
@@ -744,6 +1006,7 @@ class ContractHelper {
                                 console.log('Finalize', key, spin[key], typeof spin[key])
                             })
                         }
+
                         logKeys(userSpin)
                         logKeys(houseSpin)
 
@@ -751,11 +1014,48 @@ class ContractHelper {
                             houseSpin.parts + '\", \"' + userSpin.r + '\", \"' + userSpin.s + '\", \"' +
                             houseSpin.r + '\", \"' + houseSpin.s + '\"')
 
-                        return slotsChannelFinalizerInstance.finalize.sendTransaction(id, userSpin.parts,
-                            houseSpin.parts, userSpin.r, userSpin.s, houseSpin.r, houseSpin.s, {
-                                from: window.web3Object.eth.defaultAccount,
-                                gas: 6700000
-                            })
+                        let encodedFunctionCall = ethAbi.encodeFunctionCall({
+                            name: 'finalize',
+                            type: 'function',
+                            inputs: [
+                                {
+                                    name: 'id',
+                                    type: 'uint256'
+                                },
+                                {
+                                    name: '_curr',
+                                    type: 'string'
+                                },
+                                {
+                                    name: '_prior',
+                                    type: 'string'
+                                },
+                                {
+                                    name: 'currR',
+                                    type: 'bytes32'
+                                },
+                                {
+                                    name: 'currS',
+                                    type: 'bytes32'
+                                },
+                                {
+                                    name: 'priorR',
+                                    type: 'bytes32'
+                                },
+                                {
+                                    name: 'priorS',
+                                    type: 'bytes32'
+                                }
+                            ]
+                        }, [id, userSpin.parts, houseSpin.parts, userSpin.r, userSpin.s, houseSpin.r, houseSpin.s])
+
+                        return self.signAndSendRawTransaction(
+                            keyHandler.get(),
+                            slotsChannelFinalizerInstance.address,
+                            null,
+                            5000000,
+                            encodedFunctionCall
+                        )
                     }
                 }
             },
@@ -804,33 +1104,119 @@ class ContractHelper {
                      * Setters
                      */
                     createChannel: (deposit) => {
-                        return slotsChannelManagerInstance.createChannel.sendTransaction(deposit,
-                            {from: window.web3Object.eth.defaultAccount,
-                            gas: 5000000})
+                        let encodedFunctionCall = ethAbi.encodeFunctionCall({
+                            name: 'createChannel',
+                            type: 'function',
+                            inputs: [
+                                {
+                                    name: 'initialDeposit',
+                                    type: 'uint256'
+                                }
+                            ]
+                        }, [deposit])
+
+                        return self.signAndSendRawTransaction(
+                            keyHandler.get(),
+                            slotsChannelManagerInstance.address,
+                            null,
+                            5000000,
+                            encodedFunctionCall
+                        )
                     },
                     deposit: (amount) => {
-                        return slotsChannelManagerInstance.deposit.sendTransaction(amount,
-                            {from: window.web3Object.eth.defaultAccount,
-                                gas: 5000000})
+                        let encodedFunctionCall = ethAbi.encodeFunctionCall({
+                            name: 'deposit',
+                            type: 'function',
+                            inputs: [
+                                {
+                                    name: 'amount',
+                                    type: 'uint256'
+                                }
+                            ]
+                        }, [amount])
+
+                        return self.signAndSendRawTransaction(
+                            keyHandler.get(),
+                            slotsChannelManagerInstance.address,
+                            null,
+                            5000000,
+                            encodedFunctionCall
+                        )
                     },
                     withdraw: (amount, session) => {
                         console.log('Withdraw', amount, 'from slots channel manager as',
                                     window.web3Object.eth.defaultAccount)
-                        return slotsChannelManagerInstance.withdraw.sendTransaction(amount, session, {
-                            from: window.web3Object.eth.defaultAccount,
-                            gas: 5000000
-                        })
+
+                        let encodedFunctionCall = ethAbi.encodeFunctionCall({
+                            name: 'withdraw',
+                            type: 'function',
+                            inputs: [
+                                {
+                                    name: 'amount',
+                                    type: 'uint256'
+                                },
+                                {
+                                    name: 'session',
+                                    type: 'uint256'
+                                }
+                            ]
+                        }, [amount, session])
+
+                        return self.signAndSendRawTransaction(
+                            keyHandler.get(),
+                            slotsChannelManagerInstance.address,
+                            null,
+                            5000000,
+                            encodedFunctionCall
+                        )
                     },
                     depositToChannel: (id, initialUserNumber, finalUserHash) => {
-                        return slotsChannelManagerInstance.depositChannel.sendTransaction(id,
-                            initialUserNumber, finalUserHash,
-                            {from: window.web3Object.eth.defaultAccount,
-                                gas: 5000000})
+                        let encodedFunctionCall = ethAbi.encodeFunctionCall({
+                            name: 'depositChannel',
+                            type: 'function',
+                            inputs: [
+                                {
+                                    name: 'id',
+                                    type: 'uint256'
+                                },
+                                {
+                                    name: '_initialUserNumber',
+                                    type: 'string'
+                                },
+                                {
+                                    name: '_finalUserHash',
+                                    type: 'string'
+                                }
+                            ]
+                        }, [id, initialUserNumber, finalUserHash])
+
+                        return self.signAndSendRawTransaction(
+                            keyHandler.get(),
+                            slotsChannelManagerInstance.address,
+                            null,
+                            5000000,
+                            encodedFunctionCall
+                        )
                     },
                     claim: (id) => {
-                        return slotsChannelManagerInstance.claim.sendTransaction(id,
-                            {from: window.web3Object.eth.defaultAccount,
-                                gas: 5000000})
+                        let encodedFunctionCall = ethAbi.encodeFunctionCall({
+                            name: 'claim',
+                            type: 'function',
+                            inputs: [
+                                {
+                                    name: 'id',
+                                    type: 'uint256'
+                                }
+                            ]
+                        }, [id])
+
+                        return self.signAndSendRawTransaction(
+                            keyHandler.get(),
+                            slotsChannelManagerInstance.address,
+                            null,
+                            5000000,
+                            encodedFunctionCall
+                        )
                     },
                     /**
                      * Events
@@ -919,6 +1305,34 @@ class ContractHelper {
             s: s
         }
     }
+
+    signAndSendRawTransaction = Promise.promisify((privateKey, to, gasPrice, gas, data, callback) => {
+        window.web3Object.eth.getTransactionCount(window.web3Object.eth.defaultAccount, (err, count) => {
+            console.log('Tx count', err, count)
+            if (!err) {
+                let tx = {
+                    from: window.web3Object.eth.defaultAccount,
+                    to: to,
+                    gas: gas,
+                    data: data,
+                    nonce: count
+                }
+
+                /** If not set, it'll be automatically pulled from the Ethereum network */
+                if (gasPrice)
+                    tx.gasPrice = gasPrice
+
+                ethAccounts.signTransaction(tx, privateKey, (err, res) => {
+                    console.log('Signed raw tx', err, res ? res.rawTransaction : '')
+                    if (!err)
+                        web3.eth.sendRawTransaction(res.rawTransaction, callback)
+                    else
+                        callback(true, 'Error signing transaction')
+                })
+            } else
+                callback(true, 'Error retrieving nonce')
+        })
+    })
 
 }
 
