@@ -53,6 +53,7 @@
     "async": "^2.4.1",
     "bignumber.js": "^4.0.2",
     "bip39": "^2.4.0",
+    "bluebird": "^3.5.1",
     "chai": "^3.5.0",
     "chart.js": "^2.6.0",
     "chartnew.js": "^3.9.0",
