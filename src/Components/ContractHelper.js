@@ -6,6 +6,7 @@ import SlotsChannelManager from '../../build/contracts/SlotsChannelManager.json'
 import SportsOracle from '../../build/contracts/SportsOracle.json'
 
 import KeyHandler from './Base/KeyHandler'
+import NonceHandler from './Base/NonceHandler'
 
 const constants = require('./Constants')
 
@@ -17,8 +18,9 @@ const ethAbi = require('web3-eth-abi')
 const EthAccounts = require('web3-eth-accounts')
 const Promise = require('bluebird')
 
-const keyHandler = new KeyHandler()
 const ethAccounts = new EthAccounts(constants.PROVIDER_URL)
+const keyHandler = new KeyHandler()
+const nonceHandler = new NonceHandler()
 
 let web3
 let provider
@@ -1310,6 +1312,9 @@ class ContractHelper {
         window.web3Object.eth.getTransactionCount(window.web3Object.eth.defaultAccount, (err, count) => {
             console.log('Tx count', err, count)
             if (!err) {
+                let nonce = nonceHandler.get(count)
+                console.log('Nonce used for raw tx', nonce)
+
                 let tx = {
                     from: window.web3Object.eth.defaultAccount,
                     to: to,
