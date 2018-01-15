@@ -3,7 +3,7 @@ class NonceHandler {
     /**
      * Caches the last nonce
      */
-    _set = (nonce) => {
+    set = (nonce) => {
         localStorage.setItem('nonce', nonce)
     }
 
@@ -11,18 +11,17 @@ class NonceHandler {
      * Returns the next nonce based on the last nonce returned by getTransactionCount()
      */
     get = (txCount) => {
-        let cachedNonce = localStorage.getItem('nonce') == null ? null : parseInt(localStorage.getItem('nonce'))
-
-        if(cachedNonce != null) {
-            if(cachedNonce < txCount)
-                cachedNonce = txCount
+        let cachedNonce = localStorage.getItem('nonce')
+        if(!cachedNonce)
+            return txCount
+        else {
+            cachedNonce = parseInt(cachedNonce)
+            if(txCount > cachedNonce)
+                return txCount
             else
-                cachedNonce = cachedNonce + 1
-        } else
-            cachedNonce = txCount
-
-        this._set(cachedNonce)
-        return cachedNonce
+                // Last successful nonce
+                return cachedNonce + 1
+        }
     }
 
 
