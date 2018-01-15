@@ -130,6 +130,7 @@ class Sportsbook extends Component {
 
         /** Events */
         this.watchers().bettingProvider().deposit()
+        this.watchers().bettingProvider().withdraw()
         this.watchers().bettingProvider().newBet()
         this.watchers().bettingProvider().updatedMaxBet()
         this.watchers().bettingProvider().claimedBet()
@@ -794,6 +795,20 @@ class Sportsbook extends Component {
                             self.web3Getters().bettingProvider().depositedTokens(session)
                         })
                     },
+                    withdraw: () => {
+                        helper.getContractHelper().getWrappers().bettingProvider()
+                            .logWithdraw().watch((err, event) => {
+                            console.log('Withdraw event', err, event)
+                            const amount = event.args.amount.toString()
+                            const session = event.args.session.toNumber()
+
+                            helper.toggleSnackbar('DBETs withdrawn from sportsbook contract - ' +
+                                helper.formatEther(amount) + ' DBETs')
+
+                            self.web3Getters().bettingProvider().tokenBalance()
+                            self.web3Getters().bettingProvider().depositedTokens(session)
+                        })
+                    },
                     newBet: () => {
                         console.log('Watching for new bets')
                         helper.getContractHelper().getWrappers().bettingProvider()
@@ -994,7 +1009,7 @@ class Sportsbook extends Component {
             },
             withdrawTokens: (amount, session) => {
                 helper.getContractHelper().getWrappers().bettingProvider().withdraw(amount, session).then((txHash) => {
-                    console.log('Successfully withdrawed', amount, 'DBETs', txHash)
+                    console.log('Successfully withdrew', amount, 'DBETs', txHash)
                     helper.toggleSnackbar('Successfully sent withdraw transaction')
                 }).catch((err) => {
                     console.log('Error withdrawing tokens', err.message)
@@ -1733,7 +1748,7 @@ class Sportsbook extends Component {
                     open={self.state.dialogs.withdrawTokens.open}
                     sessionNumber={self.state.bettingProvider.currentSession}
                     onConfirm={(amount) => {
-                        let formattedAmount = new BigNumber(amount).times(ethUnits.units.ether).toString()
+                        let formattedAmount = new BigNumber(amount).times(ethUnits.units.ether).toFixed()
                         self.web3Setters().withdrawTokens(formattedAmount, self.state.bettingProvider.currentSession)
                     }}
                     balance={self.state.bettingProvider.depositedTokens}
