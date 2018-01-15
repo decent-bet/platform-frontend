@@ -1313,15 +1313,15 @@ class ContractHelper {
             console.log('Tx count', err, count)
             if (!err) {
                 let nonce = nonceHandler.get(count)
-                console.log('Nonce used for raw tx', nonce)
 
                 let tx = {
                     from: window.web3Object.eth.defaultAccount,
                     to: to,
                     gas: gas,
                     data: data,
-                    nonce: count
+                    nonce: nonce
                 }
+                console.log('Tx', tx)
 
                 /** If not set, it'll be automatically pulled from the Ethereum network */
                 if (gasPrice)
