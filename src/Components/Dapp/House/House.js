@@ -620,7 +620,7 @@ class House extends Component {
                     onConfirm={(amount) => {
                         let isAllowanceAvailable = new BigNumber(amount).times(ethUnits.units.ether)
                             .lessThanOrEqualTo(self.state.allowance)
-                        let formattedAmount = new BigNumber(amount).times(ethUnits.units.ether).toString()
+                        let formattedAmount = new BigNumber(amount).times(ethUnits.units.ether).toFixed()
                         if (isAllowanceAvailable)
                             self.web3Setters().purchaseCredits(formattedAmount)
                         else
