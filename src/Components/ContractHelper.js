@@ -54,6 +54,16 @@ class ContractHelper {
 
         for (let c of [bettingProvider, decentBetToken, house, slotsChannelFinalizer, slotsChannelManager, sportsOracle]) {
             c.setProvider(provider)
+            
+            // Dirty hack for web3@1.0.0 support for localhost testrpc, 
+            // see https://github.com/trufflesuite/truffle-contract/issues/56#issuecomment-331084530
+            if (typeof c.currentProvider.sendAsync !== "function") {
+                c.currentProvider.sendAsync = function() {
+                    return c.currentProvider.send.apply(
+                        c.currentProvider, arguments
+                    )
+                }
+            }
         }
     }
 
