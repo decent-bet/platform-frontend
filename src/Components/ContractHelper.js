@@ -1,3 +1,5 @@
+import { default as Contract } from 'truffle-contract';
+
 import DecentBetToken from '../../build/contracts/TestDecentBetToken.json'
 import House from '../../build/contracts/House.json'
 import BettingProvider from '../../build/contracts/BettingProvider.json'
@@ -11,7 +13,7 @@ import NonceHandler from './Base/NonceHandler'
 const constants = require('./Constants')
 
 const async = require('async')
-const contract = require('truffle-contract')
+
 const ethUnits = require('ethereum-units')
 const ethUtil  = require('ethereumjs-util')
 const ethAbi = require('web3-eth-abi')
@@ -43,19 +45,16 @@ class ContractHelper {
         web3 = window.web3Object
         provider = window.web3Object.currentProvider
 
-        bettingProvider = contract(BettingProvider)
-        decentBetToken = contract(DecentBetToken)
-        house = contract(House)
-        slotsChannelFinalizer = contract(SlotsChannelFinalizer)
-        slotsChannelManager = contract(SlotsChannelManager)
-        sportsOracle = contract(SportsOracle)
+        house = Contract(House)
+        sportsOracle = Contract(SportsOracle)
+        decentBetToken = Contract(DecentBetToken)
+        bettingProvider = Contract(BettingProvider)
+        slotsChannelManager = Contract(SlotsChannelManager)
+        slotsChannelFinalizer = Contract(SlotsChannelFinalizer)
 
-        bettingProvider.setProvider(provider)
-        decentBetToken.setProvider(provider)
-        house.setProvider(provider)
-        slotsChannelFinalizer.setProvider(provider)
-        slotsChannelManager.setProvider(provider)
-        sportsOracle.setProvider(provider)
+        for (let c of [bettingProvider, decentBetToken, house, slotsChannelFinalizer, slotsChannelManager, sportsOracle]) {
+            c.setProvider(provider)
+        }
     }
 
     getTokenInstance = () => {
@@ -1329,12 +1328,13 @@ class ContractHelper {
 
                 ethAccounts.signTransaction(tx, privateKey, (err, res) => {
                     console.log('Signed raw tx', err, res ? res.rawTransaction : '')
-                    if (!err)
+                    if (!err) {
+                        console.log(web3.eth)
                         web3.eth.sendRawTransaction(res.rawTransaction, (err, res) => {
                             nonceHandler.set(nonce)
                             callback(err, res)
                         })
-                    else
+                    } else
                         callback(true, 'Error signing transaction')
                 })
             } else

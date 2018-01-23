@@ -15,9 +15,9 @@ const constants = require('../Constants')
 const keyHandler = new KeyHandler()
 
 let initWeb3 = () => {
-    const httpProvider = constants.PROVIDER_URL
+    const providerURI = constants.PROVIDER_URL
 
-    let provider = new Web3.providers.HttpProvider(httpProvider)
+    let provider = new Web3.providers.WebsocketProvider(providerURI)
     let loopCheckConnection
 
     window.web3Object = new Web3(provider)
@@ -36,15 +36,17 @@ let initWeb3 = () => {
 
     let checkConnection = () => {
         console.log('Checking for provider connection..')
-        if (window.web3Object.isConnected()) {
-            console.log('Connected to provider..')
-            proceedIfConnected()
-            clearTimeout(loopCheckConnection)
-        } else {
-            console.log('Not connected to provider..')
-            EventBus.publish('web3NotLoaded')
-            loopCheckConnection = setTimeout(checkConnection, 10000)
-        }
+        window.web3Object.eth.net.isListening().then((ret) => {
+            if (ret) {
+                console.log('Connected to provider..')
+                proceedIfConnected()
+                clearTimeout(loopCheckConnection)
+            } else {
+                console.log('Not connected to provider..')
+                EventBus.publish('web3NotLoaded')
+                loopCheckConnection = setTimeout(checkConnection, 10000)
+            }
+        })
     }
 
     checkConnection()

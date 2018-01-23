@@ -6,7 +6,7 @@ const mnemonic = process.env.MNEMONIC
 const infuraKey = process.env.INFURA_KEY
 const provider = new HDWalletProvider(mnemonic, "https://rinkeby.infura.io/" + infuraKey)
 
-console.log('Deploying with mnemonic', mnemonic, 'and infura key', infuraKey, 'address', provider.address)
+console.log(`Deploying with mnemonic '${mnemonic}' and infura key`, infuraKey, 'address', provider.address)
 
 module.exports = {
     migrations_directory: "./migrations",

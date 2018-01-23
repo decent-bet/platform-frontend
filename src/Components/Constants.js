@@ -25,7 +25,7 @@ export const
 
     VIEW_DEFAULT = VIEW_CASINO,
 
-    PROVIDER_URL = 'http://localhost:8545',
+    PROVIDER_URL = 'ws://localhost:8546',
 
     /** Login types **/
     LOGIN_PRIVATE_KEY = 0,
