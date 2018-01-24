@@ -14,7 +14,6 @@ const constants = require('./Constants')
 
 const async = require('async')
 
-const ethUnits = require('ethereum-units')
 const ethUtil  = require('ethereumjs-util')
 const ethAbi = require('web3-eth-abi')
 const EthAccounts = require('web3-eth-accounts')
@@ -151,7 +150,7 @@ class ContractHelper {
                 })
             },
         }, (err, results) => {
-            callback(false, results.token, results.house, results.bettingProvider)
+            callback(false, results)
         })
     }
 
@@ -1340,7 +1339,7 @@ class ContractHelper {
                     console.log('Signed raw tx', err, res ? res.rawTransaction : '')
                     if (!err) {
                         console.log(web3.eth)
-                        web3.eth.sendRawTransaction(res.rawTransaction, (err, res) => {
+                        web3.eth.sendSignedTransaction(res.rawTransaction, (err, res) => {
                             nonceHandler.set(nonce)
                             callback(err, res)
                         })

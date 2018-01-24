@@ -422,7 +422,8 @@ class Slots extends Component {
                             <span className="ml-1">{
                                 (self.state.currentSession >= 0 &&
                                 self.state.balances[self.state.currentSession] >= 0) ?
-                                    (helper.getWeb3().fromWei(self.state.balances[self.state.currentSession]) + ' DBETs') :
+                                    (helper.getWeb3().utils
+                                        .fromWei(self.state.balances[self.state.currentSession].toString()) + ' DBETs') :
                                     self.views().tinyLoader()
                             }
                             </span>
@@ -483,8 +484,8 @@ class Slots extends Component {
                                             {
                                                 self.state.channels.hasOwnProperty(id) &&
                                                 self.state.channels[id].hasOwnProperty('initialDeposit') ?
-                                                    helper.getWeb3().fromWei(self.state.channels[id]
-                                                        .initialDeposit) :
+                                                    helper.getWeb3().utils.fromWei(self.state.channels[id]
+                                                        .initialDeposit.toString()) :
                                                     self.views().tinyLoader()
                                             } DBETs
                                         </p>
@@ -577,7 +578,7 @@ class Slots extends Component {
                     open={self.state.dialogs.withdrawChips.open}
                     balance={(self.state.currentSession >= 0 &&
                             self.state.balances[self.state.currentSession] >= 0) ?
-                            (helper.getWeb3().fromWei(self.state.balances[self.state.currentSession])) :
+                            (helper.getWeb3().utils.fromWei(self.state.balances[self.state.currentSession].toString())) :
                             null}
                     onWithdrawChips={(amount) => {
                         console.log('onWithdrawChips', amount, self.state.balances[self.state.currentSession])

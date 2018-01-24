@@ -36,7 +36,6 @@ ReactDOM.render(
     <Router history={browserHistory}>
         <Route path="/" component={App}>
             <IndexRoute onEnter={requireAuth} component={() => {
-                web3Loader.init()
                 return <Dashboard view={constants.VIEW_DEFAULT} />
             }}/>
             <Route path={constants.VIEW_CASINO} onEnter={requireAuth} component={() => {
@@ -55,7 +54,7 @@ ReactDOM.render(
                 return <Dashboard view={constants.VIEW_SLOTS_GAME} />
             }}/>
             <Route path={constants.VIEW_LOGIN} component={() => {
-                return <Login />
+                return <Login/>
             }}/>
         </Route>
     </Router>,

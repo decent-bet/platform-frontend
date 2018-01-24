@@ -76,7 +76,8 @@ class Dashboard extends Component {
 
     onWeb3Loaded = () => {
         this.setState({
-            web3Loaded: true
+            web3Loaded: true,
+            address: helper.getWeb3().eth.defaultAccount
         })
         this.initWeb3Data()
         this.initWatchers()
@@ -96,7 +97,7 @@ class Dashboard extends Component {
         const self = this
         return {
             ethereumNetwork: () => {
-                helper.getWeb3().version.getNetwork((err, netId) => {
+                helper.getWeb3().eth.net.getId((err, netId) => {
                     self.setState({
                         ethNetwork: netId
                     })
