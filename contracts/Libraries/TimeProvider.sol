@@ -29,4 +29,8 @@ contract TimeProvider {
         timeController = _timeController;
     }
 
+    function toggleMockTime(bool _isMock) onlyTimeController {
+        isMock = _isMock;
+    }
+
 }
