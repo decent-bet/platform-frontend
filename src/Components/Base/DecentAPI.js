@@ -122,7 +122,9 @@ class DecentAPI {
 
         console.log('Generated msgHash', msgHash, 'Sign', sgn)
 
-        if (adr !== helper.getWeb3().eth.defaultAccount) throw new Error("Invalid address for signed message")
+        let nonChecksummedAddress = helper.getWeb3().eth.defaultAccount.toLowerCase()
+
+        if (adr != nonChecksummedAddress) throw new Error("Invalid address for signed message")
 
         callback(false, {msgHash: msgHash, sig: sgn})
     }

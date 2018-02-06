@@ -15,7 +15,8 @@ module.exports = function (deployer, network) {
     let decentBetMultisig
     let upgradeMaster, agentOwner
     let startTime, endTime
-    let accounts = ['0xf2d6ff4adf714d994e1bfba2568432c1c8b6f257']
+    let accounts = [process.env.DEFAULT_ACCOUNT]
+    web3.eth.defaultAccount = process.env.DEFAULT_ACCOUNT
 
     let signaturesRequired = 1
     let token, wallet, upgradeAgent, team, house, bettingProvider, bettingProviderHelper, sportsOracle,

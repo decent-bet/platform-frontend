@@ -73,9 +73,9 @@ class Dashboard extends Component {
     }
 
     onWeb3Loaded = () => {
-        console.log('onWeb3Loaded')
         this.setState({
-            web3Loaded: true
+            web3Loaded: true,
+            address: helper.getWeb3().eth.defaultAccount
         })
         this.initWeb3Data()
         this.initWatchers()
@@ -95,7 +95,7 @@ class Dashboard extends Component {
         const self = this
         return {
             ethereumNetwork: () => {
-                helper.getWeb3().version.getNetwork((err, netId) => {
+                helper.getWeb3().eth.net.getId((err, netId) => {
                     self.setState({
                         ethNetwork: netId
                     })
@@ -134,7 +134,6 @@ class Dashboard extends Component {
             transferFrom: () => {
                 helper.getContractHelper().getWrappers().token()
                     .logTransfer(self.state.address, true).watch((err, event) => {
-                    console.log('transferFrom', err, JSON.stringify(event))
                     if (!err) {
                         self.web3Getters().balances()
                     }
@@ -143,7 +142,6 @@ class Dashboard extends Component {
             transferTo: () => {
                 helper.getContractHelper().getWrappers().token()
                     .logTransfer(self.state.address, false).watch((err, event) => {
-                    console.log('transferTo', err, JSON.stringify(event))
                     if (!err) {
                         self.web3Getters().balances()
                     }
@@ -184,6 +182,7 @@ class Dashboard extends Component {
             },
             selectView: (view) => {
                 if (view == self.state.selectedView) return
+                browserHistory.push(view)
                 self.setState({
                     selectedView: view,
                     drawer: {
