@@ -2,7 +2,19 @@
     font-family: GothamLight;
 }
 
+.balances .stats .header {
+    color: #f2b45c !important;
+    font-family: GothamMedium;
+    font-size: 30px;
+}
+
 .balances .sub-header {
     font-family: GothamMedium;
     color: #f2b45c !important;
+}
+
+.balances .current-session .session {
+    font-family: GothamMedium;
+    color: #f2b45c !important;
+    margin-left: 10px;
 }

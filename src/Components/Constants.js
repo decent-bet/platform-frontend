@@ -25,7 +25,7 @@ export const
 
     VIEW_DEFAULT = VIEW_SPORTSBOOK,
 
-    PROVIDER_URL = 'http://localhost:8545',
+    PROVIDER_URL = 'wss://rinkeby.infura.io/_ws',
 
     /** Login types **/
     LOGIN_PRIVATE_KEY = 0,
