@@ -136,7 +136,6 @@ class Dashboard extends Component {
             transferFrom: () => {
                 helper.getContractHelper().getWrappers().token()
                     .logTransfer(self.state.address, true).watch((err, event) => {
-                    console.log('transferFrom', err, JSON.stringify(event))
                     if (!err) {
                         self.web3Getters().balances()
                     }
@@ -145,7 +144,6 @@ class Dashboard extends Component {
             transferTo: () => {
                 helper.getContractHelper().getWrappers().token()
                     .logTransfer(self.state.address, false).watch((err, event) => {
-                    console.log('transferTo', err, JSON.stringify(event))
                     if (!err) {
                         self.web3Getters().balances()
                     }

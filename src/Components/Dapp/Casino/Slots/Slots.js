@@ -99,24 +99,22 @@ class Slots extends Component {
                         let user = event.args.user.toString()
                         console.log('New channel event', id, user, helper.getWeb3().eth.defaultAccount)
 
-                        if(user == helper.getWeb3().eth.defaultAccount) {
-                            let channels = self.state.channels
-                            if (!channels.hasOwnProperty(id)) {
-                                channels[id] = {}
-                                channels[id].status = constants.CHANNEL_STATUS_WAITING
-                                console.log('Channels', channels)
-                            }
-
-                            channels[id].initialDeposit = event.args.initialDeposit.toString()
-                            self.setState({
-                                channels: channels
-                            })
-
-                            this.watchers().channelDeposit(id)
-                            this.watchers().channelActivate(id)
-                            this.watchers().channelFinalized(id)
-                            this.watchers().claimChannelTokens(id)
+                        let channels = self.state.channels
+                        if (!channels.hasOwnProperty(id)) {
+                            channels[id] = {}
+                            channels[id].status = constants.CHANNEL_STATUS_WAITING
                         }
+                        console.log('Channels', channels)
+
+                        channels[id].initialDeposit = event.args.initialDeposit.toString()
+                        self.setState({
+                            channels: channels
+                        })
+
+                        this.watchers().channelDeposit(id)
+                        this.watchers().channelActivate(id)
+                        this.watchers().channelFinalized(id)
+                        this.watchers().claimChannelTokens(id)
                     }
                 })
             },
@@ -245,7 +243,7 @@ class Slots extends Component {
                 helper.getContractHelper().getWrappers().slotsChannelManager()
                     .balanceOf(helper.getWeb3().eth.defaultAccount, session).then((balance) => {
                     let balances = self.state.balances
-                    balances[session] = balance.toNumber()
+                    balances[session] = balance.toFixed()
                     console.log('Balances', balances)
                     self.setState({
                         balances: balances
@@ -310,6 +308,7 @@ class Slots extends Component {
                     console.log('Successfully sent approve tx', tx)
                     self.web3Setters().deposit(amount)
                     helper.toggleSnackbar('Successfully sent approve transaction')
+                    return null
                 }).catch((err) => {
                     console.log('Error sending approve tx', err.message)
                 })
@@ -513,8 +512,7 @@ class Slots extends Component {
                                             <FlatButton
                                                 label="Claim DBETs"
                                                 disabled={
-                                                    !(self.state.channels[id].status == constants.CHANNEL_STATUS_FINALIZED &&
-                                                    !self.state.channels[id].hasOwnProperty('claimed'))
+                                                    !(self.state.channels[id].status == constants.CHANNEL_STATUS_FINALIZED && !self.state.channels[id].hasOwnProperty('claimed'))
                                                 }
                                                 className="ml-4"
                                                 href={'/slots/game?id=' + id}/>
@@ -577,9 +575,9 @@ class Slots extends Component {
                 return <WithdrawSlotsChipsDialog
                     open={self.state.dialogs.withdrawChips.open}
                     balance={(self.state.currentSession >= 0 &&
-                            self.state.balances[self.state.currentSession] >= 0) ?
-                            (helper.getWeb3().utils.fromWei(self.state.balances[self.state.currentSession].toString())) :
-                            null}
+                    self.state.balances[self.state.currentSession] >= 0) ?
+                        (helper.getWeb3().utils.fromWei(self.state.balances[self.state.currentSession].toString())) :
+                        null}
                     onWithdrawChips={(amount) => {
                         console.log('onWithdrawChips', amount, self.state.balances[self.state.currentSession])
                         let balance = new BigNumber(self.state.balances[self.state.currentSession])

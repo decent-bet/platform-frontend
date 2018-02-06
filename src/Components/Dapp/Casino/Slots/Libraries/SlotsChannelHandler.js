@@ -3,6 +3,8 @@ import Helper from '../../../../Helper'
 
 import SlotsConstants from './Constants'
 
+import KeyHandler from '../../../../Base/KeyHandler'
+
 import sha256 from 'crypto-js/sha256'
 
 const async = require('async')
@@ -11,6 +13,7 @@ const cryptoJs = require("crypto-js")
 
 const decentApi = new DecentAPI()
 const helper = new Helper()
+const keyHandler = new KeyHandler()
 
 const slotsConstants = new SlotsConstants()
 const slotReels = slotsConstants.reels
@@ -252,13 +255,12 @@ export default class SlotsChannelHandler {
                 return Math.floor(Math.pow(10, length - 1) + Math.random() * 9 * Math.pow(10, length - 1))
             },
             getAesKey: (id, cb) => {
-                let idHash = helper.getWeb3().sha3(id)
-                helper.getWeb3().eth.sign(helper.getWeb3().eth.defaultAccount, idHash, (err, sign) => {
-                    if (!err) {
-                        cb(false, sign)
-                    } else
-                        cb(true, 'Error signing id hash')
-                })
+                let idHash = helper.getWeb3().utils.sha3(id)
+                console.log('getAesKey', helper.getWeb3().eth.defaultAccount)
+                let aesKey = helper.getWeb3().eth.accounts.sign(helper.getWeb3().utils.utf8ToHex(idHash),
+                    keyHandler.get()).signature
+                console.log('Retrieved aes key', aesKey)
+                cb(false, aesKey)
             },
             getUserHashes: (randomNumber) => {
                 let lastHash
@@ -325,7 +327,7 @@ export default class SlotsChannelHandler {
 
                         let msg = self.helpers().getTightlyPackedSpin(nonSignatureSpin)
 
-                        let msgHash = helper.getWeb3().sha3(msg)
+                        let msgHash = helper.getWeb3().utils.sha3(msg)
 
                         console.log('Tightly packed spin', msg)
                         console.log('msgHash', msgHash)

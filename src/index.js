@@ -53,6 +53,9 @@ ReactDOM.render(
             <Route path={constants.VIEW_SLOTS_GAME} onEnter={requireAuth} component={() => {
                 return <Dashboard view={constants.VIEW_SLOTS_GAME} />
             }}/>
+            <Route path={constants.VIEW_PORTAL} onEnter={requireAuth} component={() => {
+                return <Dashboard view={constants.VIEW_PORTAL} />
+            }}/>
             <Route path={constants.VIEW_LOGIN} component={() => {
                 return <Login/>
             }}/>
