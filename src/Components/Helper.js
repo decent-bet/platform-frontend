@@ -4,6 +4,7 @@ import EventBus from 'eventing-bus'
 
 const ethUnits = require('ethereum-units')
 const BigNumber = require('bignumber.js')
+const constants = require('./Constants')
 
 const IS_DEV = false
 
@@ -19,6 +20,15 @@ class Helper {
 
     getContractHelper = () => {
         return window.contractHelper
+    }
+
+    getGethProvider = () => {
+        let provider = localStorage.getItem(constants.KEY_GETH_PROVIDER)
+        return provider == null ? constants.PROVIDER_INFURA : provider
+    }
+
+    setGethProvider = (provider) => {
+        localStorage.setItem(constants.KEY_GETH_PROVIDER, provider)
     }
 
     getTimestamp = () => {
