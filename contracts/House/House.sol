@@ -83,8 +83,6 @@ contract House is SafeMath, TimeProvider {
     // Variables
     address public founder;
 
-    address public houseLotteryAddress;
-
     address[] public offeringAddresses;
 
     address[] public authorizedAddresses;
@@ -103,7 +101,7 @@ contract House is SafeMath, TimeProvider {
     // External Contracts
     AbstractDecentBetToken public decentBetToken;
 
-    AbstractHouseLottery houseLottery;
+    AbstractHouseLottery public houseLottery;
 
     // Mappings
     // House funds per session
@@ -280,6 +278,8 @@ contract House is SafeMath, TimeProvider {
     // Sets the lottery address.
     function setHouseLotteryAddress(address houseLotteryAddress)
     onlyFounder {
+        if(houseLotteryAddress == 0x0) revert();
+        if(!AbstractHouseLottery(houseLotteryAddress).isHouseLottery()) revert();
         houseLottery = AbstractHouseLottery(houseLotteryAddress);
     }
 

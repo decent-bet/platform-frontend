@@ -41,14 +41,14 @@ module.exports = {
     // no uints, only uint256s
     functionSignature = functionSignature.replace(/uint,/g, 'uint256,');
     functionSignature = functionSignature.replace(/uint\)/g, 'uint256)');
-    return myWeb3.sha3(functionSignature).slice(0,10);
+    return myWeb3.utils.sha3(functionSignature).slice(0,10);
   },
   // TODO: make this more robust, can args be a single entity, not an array, replace spaces in signature,...
   getFunctionEncoding: function(functionSignature, args) {
     selector = this.getFunctionSelector(functionSignature);
     argString = '';
     for (let i = 0; i < args.length; i++) {
-      paddedArg = myWeb3.toHex(args[i]).slice(2);
+      paddedArg = myWeb3.utils.toHex(args[i]).slice(2);
       while (paddedArg.length % 64 != 0) {
         paddedArg = '0' + paddedArg;
       }

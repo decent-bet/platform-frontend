@@ -2,6 +2,7 @@ const MultiSigWallet = artifacts.require("MultiSigWallet")
 const DecentBetToken = artifacts.require("TestDecentBetToken")
 const UpgradeAgent = artifacts.require("TestUpgradeAgent")
 const House = artifacts.require("House")
+const HouseLottery = artifacts.require("HouseLottery")
 const BettingProvider = artifacts.require("BettingProvider")
 const BettingProviderHelper = artifacts.require("BettingProviderHelper")
 const SportsOracle = artifacts.require("SportsOracle")
@@ -19,7 +20,7 @@ module.exports = function (deployer, network) {
     web3.eth.defaultAccount = process.env.DEFAULT_ACCOUNT
 
     let signaturesRequired = 1
-    let token, wallet, upgradeAgent, team, house, bettingProvider, bettingProviderHelper, sportsOracle,
+    let token, wallet, upgradeAgent, team, house, houseLottery, bettingProvider, bettingProviderHelper, sportsOracle,
         ecVerify, slotsHelper, slotsChannelFinalizer, slotsChannelManager
 
     console.log('Deploying with network', network)
@@ -53,6 +54,11 @@ module.exports = function (deployer, network) {
             return House.deployed()
         }).then(function (instance) {
             house = instance
+            return deployer.deploy(HouseLottery)
+        }).then(function(instance) {
+            houseLottery = instance
+            return houseLottery.setHouse.sendTransaction(house.address)
+        }).then(function() {
             return deployer.deploy(BettingProviderHelper)
         }).then(function () {
             return BettingProviderHelper.deployed()
