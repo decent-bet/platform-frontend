@@ -10,14 +10,13 @@ import Web3 from 'web3'
 
 import KeyHandler from './KeyHandler'
 import ContractHelper from '../ContractHelper'
+import Helper from '../Helper'
 
-const constants = require('../Constants')
+const helper = new Helper()
 const keyHandler = new KeyHandler()
 
 let initWeb3 = () => {
-    const providerURI = constants.PROVIDER_URL
-
-    let provider = new Web3.providers.WebsocketProvider(providerURI)
+    let provider = new Web3.providers.WebsocketProvider(helper.getGethProvider())
     let loopCheckConnection
 
     window.web3Object = new Web3(provider)
@@ -38,7 +37,7 @@ let initWeb3 = () => {
         let connected = false
         window.web3Object.eth.net.isListening().then((ret) => {
             if (ret && !connected) {
-                console.log('Connected to provider..')
+                console.log('Connected to provider..', helper.getGethProvider())
                 proceedIfConnected()
                 connected = true
                 clearTimeout(loopCheckConnection)
@@ -50,13 +49,12 @@ let initWeb3 = () => {
         })
     }
 
-    console.log('checkConnection')
     checkConnection()
 }
 
 class Web3Loader {
 
-    constructor() {
+    init() {
         initWeb3()
     }
 

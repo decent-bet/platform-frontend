@@ -17,14 +17,11 @@ import './css/font-awesome.min.css'
 import './css/main.css'
 
 const keyHandler = new KeyHandler()
+
 const web3Loader = new Web3Loader()
+web3Loader.init()
 
 const constants = require('./Components/Constants')
-
-let replaceUrl = (url) => {
-    if (window.history.replaceState)
-        window.history.replaceState('', document.title, url)
-}
 
 function requireAuth(nextState, replace) {
   if (!keyHandler.isLoggedIn()) {
