@@ -1,12 +1,13 @@
 import React, {Component} from 'react'
 
-import {AppBar, Drawer, FlatButton, MenuItem, MuiThemeProvider} from 'material-ui'
+import {AppBar, Drawer, DropDownMenu, FlatButton, MenuItem, MuiThemeProvider} from 'material-ui'
 import {CopyToClipboard} from 'react-copy-to-clipboard'
 
 import {browserHistory} from 'react-router'
 
 import EventBus from 'eventing-bus'
 import KeyHandler from '../../Base/KeyHandler'
+import Web3Loader from '../../Base/Web3Loader'
 
 import Balances from '../Balances/Balances'
 import Casino   from '../Casino/Casino'
@@ -19,12 +20,12 @@ import './dashboard.css'
 
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import Helper from '../../Helper'
-import Loading from '../../Base/Loading'
 import Themes from '../../Base/Themes'
 
 const helper = new Helper()
 const keyHandler = new KeyHandler()
 const themes = new Themes()
+const web3Loader = new Web3Loader()
 
 const constants = require('../../Constants')
 const styles = require('../../Base/styles').styles()
@@ -34,7 +35,7 @@ class Dashboard extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            ethNetwork: 0,
+            provider: helper.getGethProvider(),
             address: helper.getWeb3().eth.defaultAccount,
             balance: 0,
             drawer: {
@@ -76,14 +77,14 @@ class Dashboard extends Component {
 
     onWeb3Loaded = () => {
         this.setState({
-            web3Loaded: true
+            web3Loaded: true,
+            address: helper.getWeb3().eth.defaultAccount
         })
         this.initWeb3Data()
         this.initWatchers()
     }
 
     initWeb3Data = () => {
-        this.web3Getters().ethereumNetwork()
         this.web3Getters().balances()
     }
 
@@ -95,13 +96,6 @@ class Dashboard extends Component {
     web3Getters = () => {
         const self = this
         return {
-            ethereumNetwork: () => {
-                helper.getWeb3().version.getNetwork((err, netId) => {
-                    self.setState({
-                        ethNetwork: netId
-                    })
-                })
-            },
             balances: () => {
                 helper.getContractHelper().getWrappers().token()
                     .balanceOf(helper.getWeb3().eth.defaultAccount).then((balance) => {
@@ -135,7 +129,6 @@ class Dashboard extends Component {
             transferFrom: () => {
                 helper.getContractHelper().getWrappers().token()
                     .logTransfer(self.state.address, true).watch((err, event) => {
-                    console.log('transferFrom', err, JSON.stringify(event))
                     if (!err) {
                         self.web3Getters().balances()
                     }
@@ -144,7 +137,6 @@ class Dashboard extends Component {
             transferTo: () => {
                 helper.getContractHelper().getWrappers().token()
                     .logTransfer(self.state.address, false).watch((err, event) => {
-                    console.log('transferTo', err, JSON.stringify(event))
                     if (!err) {
                         self.web3Getters().balances()
                     }
@@ -156,20 +148,6 @@ class Dashboard extends Component {
     helpers = () => {
         const self = this
         return {
-            getEthereumNetwork: () => {
-                switch (this.state.ethNetwork) {
-                    case "0":
-                        return "Loading.."
-                    case "1":
-                        return 'Ethereum Mainnet'
-                    case "2":
-                        return 'Morden test network'
-                    case "3":
-                        return 'Ropsten test network'
-                    default:
-                        return 'Private test network'
-                }
-            },
             getFormattedBalance: () => {
                 if (self.state.balance)
                     return helper.roundDecimals(helper.formatEther(self.state.balance), 4)
@@ -307,6 +285,35 @@ class Dashboard extends Component {
                                 browserHistory.push('/login')
                             }}>
                             <span className="fa fa-sign-out menu-icon"/>&ensp;&ensp;LOGOUT
+                        </MenuItem>
+                        <MenuItem>
+                            <div>
+                                <p className="mb-0">Select Geth Node</p>
+                                <DropDownMenu
+                                    value={self.state.provider}
+                                    onChange={(event, index, value) => {
+                                        if (value != self.state.provider) {
+                                            helper.setGethProvider(value)
+                                            self.setState({
+                                                provider: value
+                                            })
+                                            // Wait for dropdown animation
+                                            setTimeout(() => {
+                                                window.location.reload()
+                                            }, 500)
+                                        }
+                                    }}
+                                    underlineStyle={styles.dropdown.underlineStyle}
+                                    labelStyle={styles.dropdown.labelStyle}
+                                    selectedMenuItemStyle={styles.dropdown.selectedMenuItemStyle}
+                                    menuItemStyle={styles.dropdown.menuItemStyle}
+                                    listStyle={styles.dropdown.listStyle}>
+                                    <MenuItem value={constants.PROVIDER_INFURA} primaryText="Infura"
+                                              style={styles.menuItem}/>
+                                    <MenuItem value={constants.PROVIDER_LOCAL} primaryText="Local Node"
+                                              style={styles.menuItem}/>
+                                </DropDownMenu>
+                            </div>
                         </MenuItem>
                     </div>
                 </Drawer>

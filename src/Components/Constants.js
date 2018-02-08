@@ -25,7 +25,9 @@ export const
 
     VIEW_DEFAULT = VIEW_CASINO,
 
-    PROVIDER_URL = 'http://localhost:8545',
+    PROVIDER_INFURA = 'wss://rinkeby.infura.io/_ws',
+    PROVIDER_LOCAL = 'ws://localhost:8546',
+    KEY_GETH_PROVIDER = 'gethProvider',
 
     /** Login types **/
     LOGIN_PRIVATE_KEY = 0,

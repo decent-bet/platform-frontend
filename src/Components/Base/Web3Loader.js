@@ -10,14 +10,13 @@ import Web3 from 'web3'
 
 import KeyHandler from './KeyHandler'
 import ContractHelper from '../ContractHelper'
+import Helper from '../Helper'
 
-const constants = require('../Constants')
+const helper = new Helper()
 const keyHandler = new KeyHandler()
 
 let initWeb3 = () => {
-    const httpProvider = constants.PROVIDER_URL
-
-    let provider = new Web3.providers.HttpProvider(httpProvider)
+    let provider = new Web3.providers.WebsocketProvider(helper.getGethProvider())
     let loopCheckConnection
 
     window.web3Object = new Web3(provider)
@@ -27,7 +26,7 @@ let initWeb3 = () => {
             window.web3Object.eth.defaultAccount = keyHandler.getAddress().toLowerCase()
 
         const contractHelper = new ContractHelper()
-        contractHelper.getAllContracts((err, token) => {
+        contractHelper.getAllContracts((err, res) => {
             window.contractHelper = contractHelper
             window.web3Loaded = true
             EventBus.publish('web3Loaded')
@@ -35,26 +34,25 @@ let initWeb3 = () => {
     }
 
     let checkConnection = () => {
-        console.log('Checking for provider connection..')
-        if (window.web3Object.isConnected()) {
-            console.log('Connected to provider..')
-            proceedIfConnected()
-            clearTimeout(loopCheckConnection)
-        } else {
-            console.log('Not connected to provider..')
-            EventBus.publish('web3NotLoaded')
-            loopCheckConnection = setTimeout(checkConnection, 10000)
-        }
+        let connected = false
+        window.web3Object.eth.net.isListening().then((ret) => {
+            if (ret && !connected) {
+                console.log('Connected to provider..', helper.getGethProvider())
+                proceedIfConnected()
+                connected = true
+                clearTimeout(loopCheckConnection)
+            } else {
+                console.log('Not connected to provider..')
+                EventBus.publish('web3NotLoaded')
+                loopCheckConnection = setTimeout(checkConnection, 10000)
+            }
+        })
     }
 
     checkConnection()
 }
 
 class Web3Loader {
-
-    constructor() {
-        initWeb3()
-    }
 
     init() {
         initWeb3()

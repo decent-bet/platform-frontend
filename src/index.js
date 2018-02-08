@@ -17,14 +17,11 @@ import './css/font-awesome.min.css'
 import './css/main.css'
 
 const keyHandler = new KeyHandler()
+
 const web3Loader = new Web3Loader()
+web3Loader.init()
 
 const constants = require('./Components/Constants')
-
-let replaceUrl = (url) => {
-    if (window.history.replaceState)
-        window.history.replaceState('', document.title, url)
-}
 
 function requireAuth(nextState, replace) {
   if (!keyHandler.isLoggedIn()) {
@@ -36,7 +33,6 @@ ReactDOM.render(
     <Router history={browserHistory}>
         <Route path="/" component={App}>
             <IndexRoute onEnter={requireAuth} component={() => {
-                web3Loader.init()
                 return <Dashboard view={constants.VIEW_DEFAULT} />
             }}/>
             <Route path={constants.VIEW_CASINO} onEnter={requireAuth} component={() => {
@@ -54,8 +50,11 @@ ReactDOM.render(
             <Route path={constants.VIEW_SLOTS_GAME} onEnter={requireAuth} component={() => {
                 return <Dashboard view={constants.VIEW_SLOTS_GAME} />
             }}/>
+            <Route path={constants.VIEW_PORTAL} onEnter={requireAuth} component={() => {
+                return <Dashboard view={constants.VIEW_PORTAL} />
+            }}/>
             <Route path={constants.VIEW_LOGIN} component={() => {
-                return <Login />
+                return <Login/>
             }}/>
         </Route>
     </Router>,

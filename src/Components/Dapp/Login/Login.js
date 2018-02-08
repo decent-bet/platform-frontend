@@ -4,6 +4,7 @@ import {browserHistory} from 'react-router'
 import {DropDownMenu, MenuItem, MuiThemeProvider, TextField} from 'material-ui'
 
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
+import Helper from '../../Helper'
 import KeyHandler from '../../Base/KeyHandler'
 import Themes from '../../Base/Themes'
 
@@ -14,6 +15,7 @@ const constants = require('../../Constants')
 const ethers = require('ethers')
 const Wallet = ethers.Wallet
 
+const helper = new Helper()
 const keyHandler = new KeyHandler()
 const styles = require('../../Base/styles').styles()
 const themes = new Themes()
@@ -26,6 +28,7 @@ class Login extends Component {
             login: constants.LOGIN_PRIVATE_KEY,
             key: '',
             mnemonic: '',
+            provider: helper.getGethProvider(),
             dialogs: {
                 error: {
                     open: false,
@@ -114,6 +117,29 @@ class Login extends Component {
                         listStyle={styles.dropdown.listStyle}>
                         <MenuItem value={constants.LOGIN_MNEMONIC} primaryText="Passphrase" style={styles.menuItem}/>
                         <MenuItem value={constants.LOGIN_PRIVATE_KEY} primaryText="Private key"
+                                  style={styles.menuItem}/>
+                    </DropDownMenu>
+                    <DropDownMenu
+                        className="float-right"
+                        value={self.state.provider}
+                        onChange={(event, index, value) => {
+                            helper.setGethProvider(value)
+                            self.setState({
+                                provider: value
+                            })
+                            // Wait for dropdown animation
+                            setTimeout(() => {
+                                window.location.reload()
+                            }, 500)
+                        }}
+                        underlineStyle={styles.dropdown.underlineStyle}
+                        labelStyle={styles.dropdown.labelStyle}
+                        selectedMenuItemStyle={styles.dropdown.selectedMenuItemStyle}
+                        menuItemStyle={styles.dropdown.menuItemStyle}
+                        listStyle={styles.dropdown.listStyle}>
+                        <MenuItem value={constants.PROVIDER_INFURA} primaryText="Infura"
+                                  style={styles.menuItem}/>
+                        <MenuItem value={constants.PROVIDER_LOCAL} primaryText="Local Node"
                                   style={styles.menuItem}/>
                     </DropDownMenu>
                 </div>
