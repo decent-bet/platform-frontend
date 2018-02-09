@@ -7,21 +7,23 @@ import SlotsChannelFinalizer from '../../build/contracts/SlotsChannelFinalizer.j
 import SlotsChannelManager from '../../build/contracts/SlotsChannelManager.json'
 import SportsOracle from '../../build/contracts/SportsOracle.json'
 
+import Helper from '../Helper'
 import KeyHandler from './Base/KeyHandler'
 import NonceHandler from './Base/NonceHandler'
 
 const constants = require('./Constants')
 
 const async = require('async')
-
 const ethUtil  = require('ethereumjs-util')
 const ethAbi = require('web3-eth-abi')
 const EthAccounts = require('web3-eth-accounts')
 const Promise = require('bluebird')
 
-const ethAccounts = new EthAccounts(constants.PROVIDER_URL)
+const helper = new Helper()
 const keyHandler = new KeyHandler()
 const nonceHandler = new NonceHandler()
+
+const ethAccounts = new EthAccounts(helper.getGethProvider())
 
 let web3
 let provider
