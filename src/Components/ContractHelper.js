@@ -7,7 +7,7 @@ import SlotsChannelFinalizer from '../../build/contracts/SlotsChannelFinalizer.j
 import SlotsChannelManager from '../../build/contracts/SlotsChannelManager.json'
 import SportsOracle from '../../build/contracts/SportsOracle.json'
 
-import Helper from '../Helper'
+import Helper from './Helper'
 import KeyHandler from './Base/KeyHandler'
 import NonceHandler from './Base/NonceHandler'
 
