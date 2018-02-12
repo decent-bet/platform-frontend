@@ -96,8 +96,10 @@
     font-size: 1.35rem;
 }
 
-.login .node-info p {
-    font-size: 1rem;
+.login .node-info p,
+.login .contact p,
+.login .try-other p {
+    font-size: 1.05rem;
 }
 
 .login .generate p {
