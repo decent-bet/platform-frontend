@@ -25,6 +25,12 @@ export const
 
     VIEW_DEFAULT = VIEW_CASINO,
 
+    LOCAL_NODE_GIST_SLOTS = 'https://gist.github.com/decent-dev/a5f221d46de0a85abdee87cf0905328c',
+    LOCAL_NODE_GIST_SPORTSBOOK = 'https://gist.github.com/decent-dev/d0d4213ed193b0c80dbb73083dea287a',
+
+    TESTNET_SLOTS = 0,
+    TESTNET_SPORTSBOOK = 1,
+
     PROVIDER_INFURA = 'wss://rinkeby.infura.io/_ws',
     PROVIDER_LOCAL = 'ws://localhost:8546',
     KEY_GETH_PROVIDER = 'gethProvider',

@@ -8,6 +8,8 @@ const constants = require('./Constants')
 
 const IS_DEV = false
 
+const SELECTED_TESTNET = constants.TESTNET_SLOTS
+
 class Helper {
 
     isDev = () => {
@@ -29,6 +31,10 @@ class Helper {
 
     setGethProvider = (provider) => {
         localStorage.setItem(constants.KEY_GETH_PROVIDER, provider)
+    }
+
+    getSelectedTestNet = () => {
+        return SELECTED_TESTNET
     }
 
     getTimestamp = () => {

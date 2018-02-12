@@ -94,6 +94,20 @@ export const styles = () => {
                 backgroundColor: 'rgba(29, 32, 39, 0.85)'
             }
         },
+        radioButton: {
+            group: {
+                marginTop: 15,
+                marginLeft: 15
+            },
+            label: {
+                color: constants.COLOR_GREY,
+                fontFamily: 'Lato',
+                fontSize: 17
+            },
+            icon: {
+                fill: constants.COLOR_GOLD
+            }
+        },
         button: {
             label: {
                 color: constants.COLOR_WHITE,
