@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import {browserHistory} from 'react-router'
 
 import {DropDownMenu, MenuItem, MuiThemeProvider, TextField} from 'material-ui'
+import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton'
 
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import Helper from '../../Helper'
@@ -29,6 +30,8 @@ class Login extends Component {
             key: '',
             mnemonic: '',
             provider: helper.getGethProvider(),
+            localNodeGist: helper.getSelectedTestNet() == constants.TESTNET_SLOTS ?
+                constants.LOCAL_NODE_GIST_SLOTS : constants.LOCAL_NODE_GIST_SPORTSBOOK,
             dialogs: {
                 error: {
                     open: false,
@@ -95,53 +98,65 @@ class Login extends Component {
         return {
             loginMethod: () => {
                 return <div className="col-10 col-md-8 mx-auto login-method">
-                    <DropDownMenu
-                        value={self.state.login}
-                        onChange={(event, index, value) => {
-                            let key = self.state.key
-                            let mnemonic = self.state.mnemonic
-                            if (value == constants.LOGIN_MNEMONIC)
-                                mnemonic = ''
-                            else
-                                key = ''
-                            self.setState({
-                                key: key,
-                                mnemonic: mnemonic,
-                                login: value
-                            })
-                        }}
-                        underlineStyle={styles.dropdown.underlineStyle}
-                        labelStyle={styles.dropdown.labelStyle}
-                        selectedMenuItemStyle={styles.dropdown.selectedMenuItemStyle}
-                        menuItemStyle={styles.dropdown.menuItemStyle}
-                        listStyle={styles.dropdown.listStyle}>
-                        <MenuItem value={constants.LOGIN_MNEMONIC} primaryText="Passphrase" style={styles.menuItem}/>
-                        <MenuItem value={constants.LOGIN_PRIVATE_KEY} primaryText="Private key"
-                                  style={styles.menuItem}/>
-                    </DropDownMenu>
-                    <DropDownMenu
-                        className="float-right"
-                        value={self.state.provider}
-                        onChange={(event, index, value) => {
-                            helper.setGethProvider(value)
-                            self.setState({
-                                provider: value
-                            })
-                            // Wait for dropdown animation
-                            setTimeout(() => {
-                                window.location.reload()
-                            }, 500)
-                        }}
-                        underlineStyle={styles.dropdown.underlineStyle}
-                        labelStyle={styles.dropdown.labelStyle}
-                        selectedMenuItemStyle={styles.dropdown.selectedMenuItemStyle}
-                        menuItemStyle={styles.dropdown.menuItemStyle}
-                        listStyle={styles.dropdown.listStyle}>
-                        <MenuItem value={constants.PROVIDER_INFURA} primaryText="Infura"
-                                  style={styles.menuItem}/>
-                        <MenuItem value={constants.PROVIDER_LOCAL} primaryText="Local Node"
-                                  style={styles.menuItem}/>
-                    </DropDownMenu>
+                    <div className="row">
+                        <div className="col-9">
+                            <RadioButtonGroup defaultSelected={constants.LOGIN_MNEMONIC}
+                                              onChange={(event, value) => {
+                                                  let key = self.state.key
+                                                  let mnemonic = self.state.mnemonic
+                                                  if (value == constants.LOGIN_MNEMONIC)
+                                                      mnemonic = ''
+                                                  else
+                                                      key = ''
+                                                  self.setState({
+                                                      key: key,
+                                                      mnemonic: mnemonic,
+                                                      login: value
+                                                  })
+                                              }}
+                                              style={styles.radioButton.group}>
+                                <RadioButton
+                                    value={constants.LOGIN_MNEMONIC}
+                                    iconStyle={styles.radioButton.icon}
+                                    labelStyle={styles.radioButton.label}
+                                    label="Passphrase"
+                                />
+                                <RadioButton
+                                    value={constants.LOGIN_PRIVATE_KEY}
+                                    iconStyle={styles.radioButton.icon}
+                                    labelStyle={styles.radioButton.label}
+                                    label="Private key"
+                                />
+                            </RadioButtonGroup>
+                        </div>
+                        <div className="col-3">
+                            <RadioButtonGroup defaultSelected={helper.getGethProvider()}
+                                              onChange={(event, value) => {
+                                                  helper.setGethProvider(value)
+                                                  self.setState({
+                                                      provider: value
+                                                  })
+                                                  // Wait for dropdown animation
+                                                  setTimeout(() => {
+                                                      window.location.reload()
+                                                  }, 500)
+                                              }}
+                                              style={styles.radioButton.group}>
+                                <RadioButton
+                                    value={constants.PROVIDER_INFURA}
+                                    iconStyle={styles.radioButton.icon}
+                                    labelStyle={styles.radioButton.label}
+                                    label="Infura"
+                                />
+                                <RadioButton
+                                    value={constants.PROVIDER_LOCAL}
+                                    iconStyle={styles.radioButton.icon}
+                                    labelStyle={styles.radioButton.label}
+                                    label="Local node"
+                                />
+                            </RadioButtonGroup>
+                        </div>
+                    </div>
                 </div>
             },
             enterCredentials: () => {
@@ -180,7 +195,8 @@ class Login extends Component {
                         }
                         {   self.state.login == constants.LOGIN_PRIVATE_KEY &&
                         <div className="col-12 mb-2 generate">
-                            <p className="text-center" onClick={self.actions().generatePrivateKey}>Generate private key</p>
+                            <p className="text-center" onClick={self.actions().generatePrivateKey}>Generate private
+                                key</p>
                         </div>
                         }
                     </div>
@@ -194,6 +210,41 @@ class Login extends Component {
                                     self.actions().login()
                             }}>
                     <p className="text-center"><i className="fa fa-key mr-2"/> Login</p>
+                </div>
+            },
+            nodeInfo: () => {
+                return <div className="col-10 col-md-8 mx-auto mt-2 node-info">
+                    {   self.state.provider == constants.PROVIDER_INFURA &&
+                    <p className="text-center">Note: Infura nodes may not be fully reliable, so you may
+                        experience
+                        intermittent problems when using them. However since you skip the setup required for
+                        running
+                        a
+                        local node,
+                        it's easier to get started.</p>
+                    }
+                    {   self.state.provider == constants.PROVIDER_LOCAL &&
+                    <p className="text-center">For instructions on how to set up a local node,
+                        click <a href={self.state.localNodeGist} target="_blank">here</a></p>
+                    }
+                </div>
+            },
+            contact: () => {
+                return <div className="col-10 col-md-8 mx-auto mt-2 contact">
+                    <p className="text-center">Need help? Join our #testnet_testers channel on our <a
+                        href="https://decent-bet.slack.com" target="_blank">Slack</a>.
+                        For an invitation to our Slack, email <a href="#">support@decent.bet</a></p>
+                </div>
+            },
+            tryOtherTestnet: () => {
+                return <div className="col-10 col-md-8 mx-auto mt-2">
+                    <p className="text-center">
+                        Try out Decent.bet's&nbsp;
+                        {helper.getSelectedTestNet() == constants.TESTNET_SPORTSBOOK &&
+                        <a href="https://slots-testnet.decent.bet" target="_blank">Slots Testnet</a>}
+                        {helper.getSelectedTestNet() == constants.TESTNET_SLOTS &&
+                        <a href="https://sportsbook-testnet.decent.bet" target="_blank">Sportsbook Testnet</a>}
+                    </p>
                 </div>
             }
         }
@@ -266,6 +317,9 @@ class Login extends Component {
                                     {self.views().loginMethod()}
                                     {self.views().enterCredentials()}
                                     {self.views().loginButton()}
+                                    {self.views().nodeInfo()}
+                                    {self.views().contact()}
+                                    {self.views().tryOtherTestnet()}
                                 </div>
                             </div>
                         </div>

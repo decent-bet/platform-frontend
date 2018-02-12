@@ -9,6 +9,12 @@
     background-size: cover;
 }
 
+.login a,
+.login a:focus,
+.login a:hover {
+    color: #f2b45c;
+}
+
 .login .logo {
     width: 300px;
     object-fit: contain;
@@ -35,8 +41,8 @@
 
 .login .login-method {
     margin-top: 38vh;
-    height: 60px;
-    background: rgba(29, 32, 39, 0.85);
+    height: 90px;
+    background: rgba(29, 32, 39, 0.95);
     filter: none; /*IE6-9 */
     -moz-box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.2), /*bottom external shadow*/ inset 0 -1px 1px rgba(0, 0, 0, 0.5), /*bottom internal shadow*/ inset 0 1px 0 rgba(73, 77, 88, 1); /*top internal highlight*/
     -webkit-box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.2), /*bottom external shadow*/ inset 0 -1px 1px rgba(0, 0, 0, 0.5), /*bottom internal shadow*/ inset 0 1px 0 rgba(73, 77, 88, 1); /*top internal highlight*/
@@ -88,6 +94,10 @@
 
 .login .login-button i {
     font-size: 1.35rem;
+}
+
+.login .node-info p {
+    font-size: 1rem;
 }
 
 .login .generate p {
