@@ -221,7 +221,10 @@ class Login extends Component {
                         running
                         a
                         local node,
-                        it's easier to get started.</p>
+                        it's easier to get started.<br/><br/>You will need Rinkeby Testnet ether to send transactions. For
+                        instructions to do so, <a
+                            href="https://gist.github.com/cryptogoth/10a98e8078cfd69f7ca892ddbdcf26bc#step-4-request-eth"
+                            target="_blank">click here</a></p>
                     }
                     {   self.state.provider == constants.PROVIDER_LOCAL &&
                     <p className="text-center">For instructions on how to set up a local node,
@@ -237,7 +240,7 @@ class Login extends Component {
                 </div>
             },
             tryOtherTestnet: () => {
-                return <div className="col-10 col-md-8 mx-auto mt-2">
+                return <div className="col-10 col-md-8 mx-auto mt-2 try-other">
                     <p className="text-center">
                         Try out Decent.bet's&nbsp;
                         {helper.getSelectedTestNet() == constants.TESTNET_SPORTSBOOK &&
