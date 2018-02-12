@@ -8,7 +8,7 @@ const constants = require('./Constants')
 
 const IS_DEV = false
 
-const SELECTED_TESTNET = constants.TESTNET_SLOTS
+const SELECTED_TESTNET = constants.TESTNET_SPORTSBOOK
 
 class Helper {
 
