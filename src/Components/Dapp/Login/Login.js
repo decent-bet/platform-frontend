@@ -100,7 +100,7 @@ class Login extends Component {
                 return <div className="col-10 col-md-8 mx-auto login-method">
                     <div className="row">
                         <div className="col-9">
-                            <RadioButtonGroup defaultSelected={constants.LOGIN_MNEMONIC}
+                            <RadioButtonGroup defaultSelected={self.state.login}
                                               onChange={(event, value) => {
                                                   let key = self.state.key
                                                   let mnemonic = self.state.mnemonic
