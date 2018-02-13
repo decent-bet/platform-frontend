@@ -1336,6 +1336,8 @@ class ContractHelper {
                 /** If not set, it'll be automatically pulled from the Ethereum network */
                 if (gasPrice)
                     tx.gasPrice = gasPrice
+                else
+                    tx.gasPrice = 10000000000
 
                 ethAccounts.signTransaction(tx, privateKey, (err, res) => {
                     console.log('Signed raw tx', err, res ? res.rawTransaction : '')

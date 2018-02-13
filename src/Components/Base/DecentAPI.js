@@ -5,7 +5,7 @@ const helper = new Helper()
 const keyHandler = new KeyHandler()
 
 const LOCAL_URL = 'http://localhost:3010/api'
-const PUBLIC_URL = 'http://35.176.104.210:3010/api'
+const PUBLIC_URL = 'https://slots-api.decent.bet/api'
 
 const BASE_URL = helper.isDev() ? LOCAL_URL : PUBLIC_URL
 
