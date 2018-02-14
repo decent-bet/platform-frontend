@@ -89,8 +89,6 @@ contract House is SafeMath, TimeProvider {
 
     uint public constant PROFIT_SHARE_PERCENT = 95;
 
-    bool public isActive = false;
-
     // Starting session will be at 0.
     // This would be the credit buying period for the 1st session of the house and lasts only for 1 week.
     uint public currentSession = 0;
@@ -154,8 +152,9 @@ contract House is SafeMath, TimeProvider {
     // 1 week before the end of the current session.
     modifier isCreditBuyingPeriod() {
         if (currentSession == 0 && sessionZeroStartTime == 0) throw;
-        if (currentSession != 0 && getTime() < (sessions[currentSession].endTime - 2 weeks) ||
-        getTime() > (sessions[currentSession].endTime - 1 weeks)) throw;
+        if (currentSession != 0 &&
+           ((getTime() < (sessions[currentSession].endTime - 2 weeks)) ||
+           (getTime() > (sessions[currentSession].endTime - 1 weeks)))) throw;
         _;
     }
 
@@ -249,6 +248,7 @@ contract House is SafeMath, TimeProvider {
     // Removes an address from the list of authorized addresses.
     function removeFromAuthorizedAddresses(address _address)
     onlyFounder {
+        if(_address == msg.sender) throw;
         if (authorized[_address] == false) throw;
         for (uint i = 0; i < authorizedAddresses.length; i++) {
             if (authorizedAddresses[i] == _address) {
@@ -262,9 +262,13 @@ contract House is SafeMath, TimeProvider {
     // Adds a new offering to the house.
     function addHouseOffering(address houseOfferingAddress)
     onlyFounder {
+        // Empty address, invalid input
         if(houseOfferingAddress == 0) throw;
+        // Not a house offering
         if(!HouseOffering(houseOfferingAddress).isHouseOffering())
             throw;
+        // Offering was already added
+        if(offerings[houseOfferingAddress].exists) throw;
         uint nextSession = currentSession + 1;
         offeringAddresses.push(houseOfferingAddress);
         offerings[houseOfferingAddress] = Offering({
@@ -574,6 +578,10 @@ contract House is SafeMath, TimeProvider {
                 houseFunds[session].userCredits[_address].liquidated,
                 houseFunds[session].userCredits[_address].rolledOver,
                 houseFunds[session].userCredits[_address].exists);
+    }
+
+    function doesOfferingExist(address _offering) constant returns (bool) {
+        return offerings[_offering].exists;
     }
 
     function getUserForSession(uint session, uint index) constant returns (address _address) {

@@ -50,13 +50,17 @@ module.exports = function (deployer, network) {
             token = instance
             console.log('Deploying house with token', token.address)
             return deployer.deploy(House, token.address)
-        }).then(function (instance) {
+        }).then(function () {
             return House.deployed()
         }).then(function (instance) {
             house = instance
+            console.log('Deploying HouseLottery', instance)
             return deployer.deploy(HouseLottery)
+        }).then(function () {
+            return HouseLottery.deployed()
         }).then(function(instance) {
             houseLottery = instance
+            console.log('House lottery', instance)
             return houseLottery.setHouse.sendTransaction(house.address)
         }).then(function() {
             return deployer.deploy(BettingProviderHelper)
