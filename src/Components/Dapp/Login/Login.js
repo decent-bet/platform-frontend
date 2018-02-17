@@ -143,16 +143,22 @@ class Login extends Component {
                                               }}
                                               style={styles.radioButton.group}>
                                 <RadioButton
-                                    value={constants.PROVIDER_INFURA}
+                                    value={constants.PROVIDER_DBET}
                                     iconStyle={styles.radioButton.icon}
                                     labelStyle={styles.radioButton.label}
-                                    label="Infura"
+                                    label="DBET node"
                                 />
                                 <RadioButton
                                     value={constants.PROVIDER_LOCAL}
                                     iconStyle={styles.radioButton.icon}
                                     labelStyle={styles.radioButton.label}
                                     label="Local node"
+                                />
+                                <RadioButton
+                                    value={constants.PROVIDER_INFURA}
+                                    iconStyle={styles.radioButton.icon}
+                                    labelStyle={styles.radioButton.label}
+                                    label="Infura"
                                 />
                             </RadioButtonGroup>
                         </div>
@@ -221,15 +227,16 @@ class Login extends Component {
                         running
                         a
                         local node,
-                        it's easier to get started.<br/><br/>You will need Rinkeby Testnet ether to send transactions. For
-                        instructions to do so, <a
-                            href="https://gist.github.com/cryptogoth/10a98e8078cfd69f7ca892ddbdcf26bc#step-4-request-eth"
-                            target="_blank">click here</a></p>
+                        it's easier to get started.</p>
                     }
                     {   self.state.provider == constants.PROVIDER_LOCAL &&
                     <p className="text-center">For instructions on how to set up a local node,
                         click <a href={self.state.localNodeGist} target="_blank">here</a></p>
                     }
+                    <p className="text-center">You will need Rinkeby Testnet ether to send transactions. For
+                    instructions to do so, <a
+                    href="https://gist.github.com/cryptogoth/10a98e8078cfd69f7ca892ddbdcf26bc#step-4-request-eth"
+                    target="_blank">click here</a></p>
                 </div>
             },
             contact: () => {
