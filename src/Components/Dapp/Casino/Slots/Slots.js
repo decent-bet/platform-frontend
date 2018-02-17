@@ -106,7 +106,7 @@ class Slots extends Component {
                         }
                         console.log('Channels', channels)
 
-                        channels[id].initialDeposit = event.args.initialDeposit.toString()
+                        channels[id].initialDeposit = event.args.initialDeposit.toFixed()
                         self.setState({
                             channels: channels
                         })

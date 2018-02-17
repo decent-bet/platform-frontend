@@ -32,6 +32,7 @@ export const
     TESTNET_SPORTSBOOK = 1,
 
     PROVIDER_INFURA = 'wss://rinkeby.infura.io/_ws',
+    PROVIDER_DBET = 'wss://ws-rinkeby.decent.bet',
     PROVIDER_LOCAL = 'ws://localhost:8546',
     KEY_GETH_PROVIDER = 'gethProvider',
 

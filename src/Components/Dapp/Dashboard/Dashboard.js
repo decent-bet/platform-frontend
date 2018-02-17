@@ -291,9 +291,11 @@ class Dashboard extends Component {
                                     selectedMenuItemStyle={styles.dropdown.selectedMenuItemStyle}
                                     menuItemStyle={styles.dropdown.menuItemStyle}
                                     listStyle={styles.dropdown.listStyle}>
-                                    <MenuItem value={constants.PROVIDER_INFURA} primaryText="Infura"
+                                    <MenuItem value={constants.PROVIDER_DBET} primaryText="DBET Node"
                                               style={styles.menuItem}/>
                                     <MenuItem value={constants.PROVIDER_LOCAL} primaryText="Local Node"
+                                              style={styles.menuItem}/>
+                                    <MenuItem value={constants.PROVIDER_INFURA} primaryText="Infura"
                                               style={styles.menuItem}/>
                                 </DropDownMenu>
                             </div>
