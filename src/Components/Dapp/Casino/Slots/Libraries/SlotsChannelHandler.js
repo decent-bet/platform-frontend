@@ -80,9 +80,18 @@ export default class SlotsChannelHandler {
                     cb(true, err.message)
                 })
             },
+            houseAuthorizedAddress: (cb) => {
+                helper.getContractHelper().getWrappers().slotsChannelManager()
+                    .getPlayer(id, true).then((authorizedAddress) => {
+                    cb(false, authorizedAddress)
+                }).catch((err) => {
+                    console.log('Error retrieving house authorized address', err.message)
+                    cb(true, err.message)
+                })
+            },
             closed: (cb) => {
                 helper.getContractHelper().getWrappers().slotsChannelManager()
-                .isChannelClosed(id).then((closed) => {
+                    .isChannelClosed(id).then((closed) => {
                     cb(false, closed)
                 }).catch((err) => {
                     console.log('Error retrieving is channel closed', err.message)
@@ -212,8 +221,8 @@ export default class SlotsChannelHandler {
                         self.notifyFinalizeToHouse(id, userSpin, state.aesKey)
                         callback(false, txHash)
                     }).catch((err) => {
-                        callback(true, ('Error closing channel' + ', ' + err.message))
-                    })
+                    callback(true, ('Error closing channel' + ', ' + err.message))
+                })
             } else if (callback)
                 callback(true, 'Error generating user spin')
         })
@@ -326,23 +335,18 @@ export default class SlotsChannelHandler {
                         delete nonSignatureSpin.sign
 
                         let msg = self.helpers().getTightlyPackedSpin(nonSignatureSpin)
-
-                        let msgHash = helper.getWeb3().utils.sha3(msg)
-
-                        console.log('Tightly packed spin', msg)
-                        console.log('msgHash', msgHash)
                         let sign = houseSpin.sign
 
-                        helper.getContractHelper().getWrappers().slotsChannelManager()
-                            .checkSig(state.id, msgHash, sign, houseSpin.turn).then((valid) => {
-                            if (!valid)
-                                callback(true, 'Invalid signature')
-                            else
-                                callback(null)
-                        }).catch((err) => {
-                            console.log('Checksig err', err.message)
-                            callback(true, 'Error verifying signature. Please try again')
-                        })
+                        console.log('sign', sign)
+                        console.log('Tightly packed spin', msg)
+
+                        const valid = helper.getContractHelper()
+                                            .verifySign(msg, houseSpin.sign, state.houseAuthorizedAddress)
+
+                        if (!valid)
+                            callback(true, 'Invalid signature')
+                        else
+                            callback(null)
                     },
                     /**
                      * Verify spin balances
@@ -383,7 +387,7 @@ export default class SlotsChannelHandler {
                             new BigNumber(houseSpin.betSize).greaterThan(helper.convertToEther(5)))
                             callback(true, 'Invalid betSize')
                         else if (houseSpin.userBalance !== userBalance ||
-                                 houseSpin.houseBalance !== houseBalance) {
+                            houseSpin.houseBalance !== houseBalance) {
                             console.log('Invalid balances', houseSpin.userBalance, userBalance,
                                 houseSpin.houseBalance, houseBalance)
                             callback(true, 'Invalid balances', houseSpin.userBalance, userBalance,

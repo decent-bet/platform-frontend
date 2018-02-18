@@ -1102,6 +1102,11 @@ class ContractHelper {
                             from: window.web3Object.eth.defaultAccount
                         })
                     },
+                    getPlayer: (id, isHouse) => {
+                        return slotsChannelManagerInstance.getPlayer.call(id, isHouse, {
+                            from: window.web3Object.eth.defaultAccount
+                        })
+                    },
                     isChannelClosed: (id) => {
                         return slotsChannelManagerInstance.isChannelClosed.call(id, {
                             from: window.web3Object.eth.defaultAccount
@@ -1294,6 +1299,23 @@ class ContractHelper {
                 }
             }
         }
+    }
+
+    verifySign = (msg, sign, address) => {
+        let sigParams = ethUtil.fromRpcSig(sign)
+        let msgHash = ethUtil.sha3(msg)
+
+        let r = sigParams.r
+        let s = sigParams.s
+        let v = ethUtil.bufferToInt(sigParams.v)
+
+        let publicKeyBuffer = ethUtil.ecrecover(msgHash, v, r, s)
+        let publicKey = ethUtil.bufferToHex(publicKeyBuffer)
+        publicKey = ethUtil.bufferToHex(ethUtil.pubToAddress(publicKey))
+
+        console.log('Verify sign - Public key', publicKey, (publicKey == address))
+
+        return (publicKey == address)
     }
 
     getSpinParts = (spin) => {

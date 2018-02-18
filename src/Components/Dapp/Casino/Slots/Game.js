@@ -28,6 +28,7 @@ class Game extends Component {
             id: query.id,
             aesKey: null,
             info: null,
+            houseAuthorizedAddress: null,
             hashes: null,
             nonce: null,
             houseSpins: null,
@@ -77,6 +78,7 @@ class Game extends Component {
                         console.log('Channel details', data)
                         self.setState({
                             info: data.info,
+                            houseAuthorizedAddress: data.houseAuthorizedAddress,
                             closed: data.closed,
                             hashes: data.hashes
                         })
