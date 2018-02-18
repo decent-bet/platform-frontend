@@ -24,7 +24,7 @@ class Helper {
 
     getGethProvider = () => {
         let provider = localStorage.getItem(constants.KEY_GETH_PROVIDER)
-        return provider == null ? constants.PROVIDER_INFURA : provider
+        return provider == null ? constants.PROVIDER_DBET : provider
     }
 
     setGethProvider = (provider) => {
