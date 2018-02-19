@@ -405,15 +405,16 @@ contract House is SafeMath, TimeProvider {
         if (currentSession == 0) throw;
 
         // Payout and current session variables.
-        uint credits = houseFunds[currentSession].userCredits[msg.sender].amount;
+        uint availableCredits = houseFunds[currentSession].userCredits[msg.sender].amount;
+        uint rolledOverCredits = houseFunds[currentSession].userCredits[msg.sender].rolledOver;
 
         // Next session variables.
         uint nextSession = safeAdd(currentSession, 1);
         uint totalUserCreditsForNextSession = houseFunds[nextSession].userCredits[msg.sender].amount;
 
         // Rollover credits from current session to next.
-        houseFunds[currentSession].userCredits[msg.sender].amount = safeSub(credits, amount);
-        houseFunds[currentSession].userCredits[msg.sender].rolledOver = safeAdd(credits, amount);
+        houseFunds[currentSession].userCredits[msg.sender].amount = safeSub(availableCredits, amount);
+        houseFunds[currentSession].userCredits[msg.sender].rolledOver = safeAdd(rolledOverCredits, amount);
 
         // Add to credits for next session.
         houseFunds[nextSession].userCredits[msg.sender].amount = safeAdd(totalUserCreditsForNextSession, amount);

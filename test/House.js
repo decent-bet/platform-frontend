@@ -288,6 +288,36 @@ contract('House', (accounts) => {
         await utils.assertFail(house.beginNextSession({from: founder}))
     })
 
+    it('allows users to purchase credits for the next session during credit buying periods', async () => {
+        let houseTime = await house.getTime()
+        houseTime = houseTime.toNumber()
 
+        let oneWeek = 24 * 60 * 60 * 7
+        let creditBuyingPeriodTime = houseTime + (oneWeek * 10)
+        await house.setTime(creditBuyingPeriodTime)
+
+        const creditsToPurchase = '1000000000000000000000'
+        let currentSession = await house.currentSession()
+        currentSession = currentSession.toNumber()
+        let nextSession = currentSession + 1
+        await token.faucet({from: nonFounder})
+        await token.approve(house.address, creditsToPurchase, {from: nonFounder})
+        await house.purchaseCredits(creditsToPurchase, {from: nonFounder})
+        let userCredits = await house.getUserCreditsForSession(nextSession, nonFounder)
+        let sessionCredits = userCredits[0].toFixed()
+        assert.equal(sessionCredits, creditsToPurchase, 'Invalid house credits for user')
+    })
+
+    it('allows users to roll over credits for the next session during credit buying periods', async () => {
+        const creditsToRollOver = '500000000000000000000'
+        await house.rollOverCredits(creditsToRollOver, {from: nonFounder})
+
+        let currentSession = await house.currentSession()
+        currentSession = currentSession.toNumber()
+        let userCredits = await house.getUserCreditsForSession(currentSession, nonFounder)
+        console.log('userCredits', userCredits)
+        let rolledOverCredits = userCredits[2].toFixed()
+        assert.equal(creditsToRollOver, rolledOverCredits, 'Invalid rolled over credits for user')
+    })
 
 })
