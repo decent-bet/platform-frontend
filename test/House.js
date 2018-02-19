@@ -244,4 +244,50 @@ contract('House', (accounts) => {
             'Authorized addresses should be able to begin session one at the end of session zero')
     })
 
+    it('disallowing users from rolling over credits during session one', async () => {
+        const creditsToRollOver = '1000000000000000000000'
+        await utils.assertFail(house.rollOverCredits(creditsToRollOver, {from: nonFounder}))
+    })
+
+    it('disallows users from paying out rolled over credits during session one', async () => {
+        let currentSession = await house.currentSession()
+        currentSession = currentSession.toNumber()
+        await utils.assertFail(house.payoutRolledOverCredits(currentSession, {from: nonFounder}))
+    })
+
+    it('disallows users from liquidating credits during session one', async () => {
+        const creditsToLiquidate = '1000000000000000000000'
+        let currentSession = await house.currentSession()
+        currentSession = currentSession.toNumber()
+        await utils.assertFail(house.liquidateCredits(currentSession, creditsToLiquidate, {from: nonFounder}))
+    })
+
+    it('disallows users from purchasing credits during session one', async () => {
+        const creditsToPurchase = '1000000000000000000000'
+        await utils.assertFail(house.purchaseCredits(creditsToPurchase, {from: nonFounder}))
+    })
+
+    it('disallows authorized addresses from withdrawing previous session tokens during session one', async () => {
+        await utils.assertFail(house.withdrawPreviousSessionTokensFromHouseOffering(bettingProvider.address,
+                                {from: founder}))
+    })
+
+    it('disallows authorized addresses from allocating tokens for house offerings during session one', async () => {
+        let providerPercentageAllocation = 25
+        await utils.assertFail(house.allocateTokensForHouseOffering(providerPercentageAllocation,
+                                bettingProvider.address,
+                                {from: founder}))
+    })
+
+    it('disallows authorized addresses from depositing tokens for house offerings during session one', async () => {
+        await utils.assertFail(house.depositAllocatedTokensToHouseOffering(bettingProvider.address,
+                                {from: founder}))
+    })
+
+    it('disallows authorized addresses from beginning next session during session one', async () => {
+        await utils.assertFail(house.beginNextSession({from: founder}))
+    })
+
+
+
 })
