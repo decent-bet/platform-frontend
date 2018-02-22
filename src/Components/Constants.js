@@ -16,7 +16,7 @@ export const
 
     /** Views */
     VIEW_BALANCES = '/balances',
-    VIEW_CASINO = '/casino',
+    VIEW_CASINO = '/',
     VIEW_PORTAL = '/portal',
     VIEW_HOUSE = '/house',
     VIEW_SLOTS = '/slots',

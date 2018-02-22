@@ -1,5 +1,4 @@
 import React, {Component} from 'react'
-import {browserHistory} from 'react-router'
 
 import {DropDownMenu, MenuItem, MuiThemeProvider, TextField} from 'material-ui'
 
@@ -38,7 +37,9 @@ class Login extends Component {
             }
         }
         if (keyHandler.isLoggedIn())
-            browserHistory.push(constants.VIEW_DEFAULT)
+        {
+            props.history.push(constants.VIEW_DEFAULT)
+        }
     }
 
     actions = () => {

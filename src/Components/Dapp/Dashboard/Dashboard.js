@@ -3,8 +3,6 @@ import React, {Component} from 'react'
 import {AppBar, Drawer, DropDownMenu, FlatButton, MenuItem, MuiThemeProvider} from 'material-ui'
 import {CopyToClipboard} from 'react-copy-to-clipboard'
 
-import {browserHistory} from 'react-router'
-
 import EventBus from 'eventing-bus'
 import KeyHandler from '../../Base/KeyHandler'
 import Web3Loader from '../../Base/Web3Loader'
@@ -21,11 +19,11 @@ import './dashboard.css'
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import Helper from '../../Helper'
 import Themes from '../../Base/Themes'
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
 
 const helper = new Helper()
 const keyHandler = new KeyHandler()
 const themes = new Themes()
-const web3Loader = new Web3Loader()
 
 const constants = require('../../Constants')
 const styles = require('../../Base/styles').styles()
@@ -162,14 +160,14 @@ class Dashboard extends Component {
                 })
             },
             selectView: (view) => {
-                if (view == self.state.selectedView) return
-                browserHistory.push(view)
+                if (view === self.state.selectedView) return
                 self.setState({
                     selectedView: view,
                     drawer: {
                         open: false
                     }
                 })
+                self.props.history.push(view)
             }
         }
     }
@@ -186,7 +184,7 @@ class Dashboard extends Component {
                     }}
                     className="appbar"
                     showMenuIconButton={true}
-                    onLeftIconButtonTouchTap={() => {
+                    onLeftIconButtonClick={() => {
                         self.helpers().toggleDrawer(!self.state.drawer.open)
                     }}
                     title={
@@ -229,7 +227,34 @@ class Dashboard extends Component {
             },
             top: () => {
                 return <div className="main">
-                    { self.views().selected() }
+                    <BrowserRouter>
+                        <Switch>
+                            <Route 
+                                exact path={constants.VIEW_CASINO}
+                                component={Casino} 
+                            />
+                            <Route 
+                                exact path={constants.VIEW_HOUSE}
+                                component={House}
+                            />
+                            <Route 
+                                exact path={constants.VIEW_BALANCES}
+                                component={Balances}
+                            />
+                            <Route 
+                                exact path={constants.VIEW_PORTAL}
+                                component={Portal}
+                            />
+                            <Route 
+                                exact path={constants.VIEW_SLOTS}
+                                component={Slots}
+                            />
+                            <Route 
+                                exact path={constants.VIEW_SLOTS_GAME}
+                                component={Game}
+                            />
+                        </Switch>
+                    </BrowserRouter>
                 </div>
             },
             drawer: () => {
@@ -282,7 +307,7 @@ class Dashboard extends Component {
                             className="menu-item"
                             onClick={() => {
                                 keyHandler.clear()
-                                browserHistory.push('/login')
+                                self.props.history.push(constants.VIEW_LOGIN)
                             }}>
                             <span className="fa fa-sign-out menu-icon"/>&ensp;&ensp;LOGOUT
                         </MenuItem>
@@ -319,22 +344,6 @@ class Dashboard extends Component {
                         </MenuItem>
                     </div>
                 </Drawer>
-            },
-            selected: () => {
-                switch (self.state.selectedView) {
-                    case constants.VIEW_CASINO:
-                        return <Casino/>
-                    case constants.VIEW_HOUSE:
-                        return <House/>
-                    case constants.VIEW_BALANCES:
-                        return <Balances/>
-                    case constants.VIEW_PORTAL:
-                        return <Portal/>
-                    case constants.VIEW_SLOTS:
-                        return <Slots/>
-                    case constants.VIEW_SLOTS_GAME:
-                        return <Game/>
-                }
             },
             web3NotLoaded: () => {
                 return <div className="container">
