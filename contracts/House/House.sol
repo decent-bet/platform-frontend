@@ -207,7 +207,7 @@ contract House is SafeMath, TimeProvider {
 
     // Allows functions to execute only if the house offering exists.
     modifier isValidHouseOffering(address offering) {
-        if(!offerings[offering].exists) throw;
+        if(!offerings[offering].exists) throwError('Invalid house offering');
         _;
     }
 
@@ -237,6 +237,8 @@ contract House is SafeMath, TimeProvider {
     event LogOfferingAllocation(uint session, address offering, uint percentage);
 
     event LogOfferingDeposit(uint session, address offering, uint percentage, uint amount);
+
+    event LogError(string message);
 
     // Adds an address to the list of authorized addresses.
     function addToAuthorizedAddresses(address _address)
@@ -418,7 +420,7 @@ contract House is SafeMath, TimeProvider {
 
         // Add to credits for next session.
         houseFunds[nextSession].userCredits[msg.sender].amount = safeAdd(totalUserCreditsForNextSession, amount);
-        houseFunds[nextSession].totalPurchasedUserCredits = safeAdd(houseFunds[nextSession].totalUserCredits, amount);
+        houseFunds[nextSession].totalUserCredits = safeAdd(houseFunds[nextSession].totalUserCredits, amount);
         houseFunds[nextSession].totalFunds = safeAdd(houseFunds[nextSession].totalFunds, amount);
 
         LogRolledOverCredits(msg.sender, currentSession, amount);
@@ -483,7 +485,8 @@ contract House is SafeMath, TimeProvider {
         uint nextSession = currentSession + 1;
 
         // Tokens have already been deposited to offering.
-        if(sessions[nextSession].offeringTokenAllocations[houseOffering].deposited) throw;
+        if(sessions[nextSession].offeringTokenAllocations[houseOffering].deposited)
+            throwError('Tokens already deposited');
 
         uint allocation = sessions[nextSession].offeringTokenAllocations[houseOffering].allocation;
 
@@ -492,9 +495,11 @@ contract House is SafeMath, TimeProvider {
         sessions[nextSession].offeringTokenAllocations[houseOffering].deposited = true;
         sessions[nextSession].depositedAllocations = safeAdd(sessions[nextSession].depositedAllocations, 1);
 
-        if(!decentBetToken.approve(houseOffering, tokenAmount)) throw;
+        if(!decentBetToken.approve(houseOffering, tokenAmount))
+            throwError('Could not approve tokens');
 
-        if(!offerings[houseOffering].houseOffering.houseDeposit(tokenAmount, nextSession)) throw;
+        if(!offerings[houseOffering].houseOffering.houseDeposit(tokenAmount, nextSession))
+            throwError('Error calling houseDeposit fn');
 
         LogOfferingDeposit(nextSession, houseOffering, allocation, tokenAmount);
     }
@@ -574,11 +579,14 @@ contract House is SafeMath, TimeProvider {
 
     // Utility functions for front-end purposes.
     function getUserCreditsForSession(uint session, address _address) constant
-    returns (uint amount, uint liquidated, uint rolledOver, bool exists) {
+    returns (uint amount, uint liquidated, uint rolledOver, bool exists,
+             uint totalFunds, uint totalUserCredits) {
         return (houseFunds[session].userCredits[_address].amount,
                 houseFunds[session].userCredits[_address].liquidated,
                 houseFunds[session].userCredits[_address].rolledOver,
-                houseFunds[session].userCredits[_address].exists);
+                houseFunds[session].userCredits[_address].exists,
+                houseFunds[session].totalFunds,
+                houseFunds[session].totalUserCredits);
     }
 
     function doesOfferingExist(address _offering) constant returns (bool) {
@@ -592,6 +600,11 @@ contract House is SafeMath, TimeProvider {
     function getOfferingTokenAllocations(uint session, address _address) constant returns (uint, bool) {
         return (sessions[session].offeringTokenAllocations[_address].allocation,
                 sessions[session].offeringTokenAllocations[_address].deposited);
+    }
+
+    function throwError(string message) {
+        LogError(message);
+        throw;
     }
 
     // Do not accept ETH sent to this contract.
