@@ -256,13 +256,8 @@ class Dashboard extends Component {
             isDrawerOpen={this.state.drawer.open}
             onRequestChangeListener={this.onDrawerButtonPressedListener}
             selectedView={this.state.selectedView}
+            onLogoutListener={this.onLogoutListener}
             >
-                <MenuItem
-                    className="menu-item"
-                    onClick={this.onLogoutListener}
-                >
-                    <span className="fa fa-sign-out menu-icon" />{ '  ' }Logout
-                </MenuItem>
             <ProviderSelector
                 onProviderChangeListener={this.onProviderChangeListener}
                 gethNodeProvider={this.state.provider}

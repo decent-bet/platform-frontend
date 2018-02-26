@@ -14,11 +14,11 @@ const DashboardRouter = () => (
     <BrowserRouter>
         <Switch>
             <Route exact path={constants.VIEW_CASINO} component={Casino} />
-            <Route exact path={constants.VIEW_HOUSE} component={House} />
-            <Route exact path={constants.VIEW_BALANCES} component={Balances} />
-            <Route exact path={constants.VIEW_PORTAL} component={Portal} />
-            <Route exact path={constants.VIEW_SLOTS} component={Slots} />
-            <Route exact path={constants.VIEW_SLOTS_GAME} component={Game} />
+            <Route path={constants.VIEW_HOUSE} component={House} />
+            <Route path={constants.VIEW_BALANCES} component={Balances} />
+            <Route path={constants.VIEW_PORTAL} component={Portal} />
+            <Route path={constants.VIEW_SLOTS} component={Slots} />
+            <Route path={constants.VIEW_SLOTS_GAME} component={Game} />
         </Switch>
     </BrowserRouter>
 )

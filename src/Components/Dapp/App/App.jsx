@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from 'react'
-import { BrowserRouter, Route, Switch } from 'react-router-dom'
+import { BrowserRouter, Switch } from 'react-router-dom'
 import { MuiThemeProvider, Snackbar } from 'material-ui'
 import Dashboard from '../Dashboard/Dashboard'
 import Login from '../Login/Login'
 import PrivateRoute from './PrivateRoute'
+import LogoutRoute from './LogoutRoute'
 import EventBus from 'eventing-bus'
 import Themes from '../../Base/Themes'
 
@@ -70,8 +71,7 @@ export default class App extends Component {
             <Fragment>
                 <BrowserRouter>
                     <Switch>
-                        <Route
-                            exact
+                        <LogoutRoute
                             path={constants.VIEW_LOGIN}
                             component={Login}
                         />

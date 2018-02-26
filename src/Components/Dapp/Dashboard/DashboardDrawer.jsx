@@ -7,7 +7,7 @@ const constants = require('../../Constants')
 
 export default class DashboardDrawer extends Component {
     render() {
-        let { isDrawerOpen, onRequestChangeListener, selectedView } = this.props
+        let { isDrawerOpen, onRequestChangeListener, selectedView, onLogoutListener } = this.props
         return (
             <Drawer
                 docked={false}
@@ -47,6 +47,15 @@ export default class DashboardDrawer extends Component {
                     isSelected={selectedView === constants.VIEW_HOUSE}
                     title="House"
                     iconClass="home"
+                />
+
+
+                <DashboardDrawerItem
+                    viewToSelect={constants.VIEW_LOGIN}
+                    isSelected={false}
+                    title="Logout"
+                    iconClass="sign-out"
+                    onClick={onLogoutListener}
                 />
 
                 {this.props.children}
