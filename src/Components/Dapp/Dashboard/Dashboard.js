@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, {Component, Fragment} from 'react'
 
 import {AppBar, Drawer, DropDownMenu, FlatButton, MenuItem, MuiThemeProvider} from 'material-ui'
 import {CopyToClipboard} from 'react-copy-to-clipboard'
@@ -321,41 +321,37 @@ class Dashboard extends Component {
             }
         }
     }
-
-    dialogs = () => {
-        const self = this
-        return {
-            web3NotLoaded: () => {
-                return <ConfirmationDialog
-                    open={self.state.dialogs.web3NotLoaded.open}
+    renderDashboard = () => {
+        if (this.state.web3Loaded) {
+            return (
+                <Fragment>
+                    { this.views().appbar() }
+                    <div className="main">
+                        <DashboardRouter />
+                    </div>
+                    { this.views().drawer() }
+                </Fragment>
+            )
+        } else {
+            return (
+                <ConfirmationDialog
+                    open={this.state.dialogs.web3NotLoaded.open}
                     title="Not connected to Web3 Provider"
                     message={"Looks like you aren't connected to a local Rinkeby node. " +
                     "Please setup a local node with an open RPC port @ 8545 and try again."}
                 />
-            }
+            )
         }
     }
 
     render() {
-        const self = this
-        return <MuiThemeProvider muiTheme={themes.getAppBar()}>
-            <div className="dashboard">
-                {   self.state.web3Loaded &&
-                <section>
-                    { self.views().appbar() }
-                    <div className="main">
-                        <DashboardRouter />
-                    </div>
-                    { self.views().drawer() }
-                </section>
-                }
-                {   !self.state.web3Loaded &&
-                <section>
-                    {self.dialogs().web3NotLoaded()}
-                </section>
-                }
-            </div>
-        </MuiThemeProvider>
+        return (
+            <MuiThemeProvider muiTheme={themes.getAppBar()}>
+                <div className="dashboard">
+                    { this.renderDashboard() }
+                </div>
+            </MuiThemeProvider>
+        )
     }
 
 }
