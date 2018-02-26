@@ -1,20 +1,13 @@
 import React, { Component } from 'react'
-import { Drawer, MenuItem } from 'material-ui'
-import KeyHandler from '../../Base/KeyHandler'
+import { Drawer } from 'material-ui'
 import DashboardDrawerHeader from './DashboardDrawerHeader'
+import DashboardDrawerItem from './DashboardDrawerItem'
 
 const constants = require('../../Constants')
-const keyHandler = new KeyHandler()
 
 export default class DashboardDrawer extends Component {
     render() {
-        let {
-            isDrawerOpen,
-            onRequestChangeListener,
-            selectedView,
-            onSelectViewListener,
-            history
-        } = this.props
+        let { isDrawerOpen, onRequestChangeListener, selectedView } = this.props
         return (
             <Drawer
                 docked={false}
@@ -23,69 +16,40 @@ export default class DashboardDrawer extends Component {
                 onRequestChange={onRequestChangeListener}
             >
                 <DashboardDrawerHeader />
-                <div>
-                    <MenuItem
-                        className={
-                            selectedView === constants.VIEW_BALANCES
-                                ? 'menu-item selected'
-                                : 'menu-item'
-                        }
-                        onClick={() => {
-                            onSelectViewListener(constants.VIEW_BALANCES)
-                        }}
-                    >
-                        <span className="fa fa-money menu-icon" />&ensp;&ensp;BALANCES
-                    </MenuItem>
-                    <MenuItem
-                        className={
-                            selectedView === constants.VIEW_CASINO ||
-                            selectedView === constants.VIEW_SLOTS ||
-                            selectedView === constants.VIEW_SLOTS_GAME
-                                ? 'menu-item selected'
-                                : 'menu-item'
-                        }
-                        onClick={() => {
-                            onSelectViewListener(constants.VIEW_CASINO)
-                        }}
-                    >
-                        <span className="fa fa-gamepad menu-icon" />&ensp;&ensp;CASINO
-                    </MenuItem>
-                    <MenuItem
-                        className={
-                            selectedView === constants.VIEW_PORTAL
-                                ? 'menu-item selected'
-                                : 'menu-item'
-                        }
-                        onClick={() => {
-                            onSelectViewListener(constants.VIEW_PORTAL)
-                        }}
-                    >
-                        <span className="fa fa-soccer-ball-o menu-icon" />&ensp;&ensp;PORTAL
-                    </MenuItem>
-                    <MenuItem
-                        className={
-                            selectedView === constants.VIEW_HOUSE
-                                ? 'menu-item selected'
-                                : 'menu-item'
-                        }
-                        onClick={() => {
-                            onSelectViewListener(constants.VIEW_HOUSE)
-                        }}
-                    >
-                        <span className="fa fa-home menu-icon" />&ensp;&ensp;HOUSE
-                    </MenuItem>
-                    <MenuItem
-                        className="menu-item"
-                        onClick={() => {
-                            keyHandler.clear()
-                            history.push(constants.VIEW_LOGIN)
-                        }}
-                    >
-                        <span className="fa fa-sign-out menu-icon" />&ensp;&ensp;LOGOUT
-                    </MenuItem>
 
-                    {this.props.children}
-                </div>
+                <DashboardDrawerItem
+                    viewToSelect={constants.VIEW_BALANCES}
+                    isSelected={selectedView === constants.VIEW_BALANCES}
+                    title="Balances"
+                    iconClass="money"
+                />
+
+                <DashboardDrawerItem
+                    viewToSelect={constants.VIEW_CASINO}
+                    isSelected={
+                        selectedView === constants.VIEW_CASINO ||
+                        selectedView === constants.VIEW_SLOTS ||
+                        selectedView === constants.VIEW_SLOTS_GAME
+                    }
+                    title="Casino"
+                    iconClass="gamepad"
+                />
+
+                <DashboardDrawerItem
+                    viewToSelect={constants.VIEW_PORTAL}
+                    isSelected={selectedView === constants.VIEW_PORTAL}
+                    title="Portal"
+                    iconClass="soccer-ball-o"
+                />
+
+                <DashboardDrawerItem
+                    viewToSelect={constants.VIEW_HOUSE}
+                    isSelected={selectedView === constants.VIEW_HOUSE}
+                    title="House"
+                    iconClass="home"
+                />
+
+                {this.props.children}
             </Drawer>
         )
     }

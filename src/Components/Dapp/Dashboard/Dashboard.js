@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from 'react'
 
-import {AppBar, FlatButton, MuiThemeProvider} from 'material-ui'
+import {AppBar, FlatButton, MuiThemeProvider, MenuItem} from 'material-ui'
 import {CopyToClipboard} from 'react-copy-to-clipboard'
 
 import DashboardRouter from './DashboardRouter'
@@ -12,13 +12,16 @@ import EventBus from 'eventing-bus'
 import './dashboard.css'
 
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
+import KeyHandler from '../../Base/KeyHandler'
 import Helper from '../../Helper'
 import Themes from '../../Base/Themes'
 
 const helper = new Helper()
 const themes = new Themes()
+const keyHandler = new KeyHandler()
 
 const styles = require('../../Base/styles').styles()
+const constants = require('../../Constants')
 
 class Dashboard extends Component {
 
@@ -232,6 +235,10 @@ class Dashboard extends Component {
         }
     }
 
+    onLogoutListener = () => {
+        keyHandler.clear()
+        this.props.history.push(constants.VIEW_LOGIN)
+    }
     onDrawerButtonPressedListener = open => this.helpers().toggleDrawer(open)
     onProviderChangeListener = (event, index, value) => {
         if (value != this.state.provider) {
@@ -249,8 +256,13 @@ class Dashboard extends Component {
             isDrawerOpen={this.state.drawer.open}
             onRequestChangeListener={this.onDrawerButtonPressedListener}
             selectedView={this.state.selectedView}
-            onSelectViewListener={this.helpers().selectView}
-            history={this.props.history}>
+            >
+                <MenuItem
+                    className="menu-item"
+                    onClick={this.onLogoutListener}
+                >
+                    <span className="fa fa-sign-out menu-icon" />{ '  ' }Logout
+                </MenuItem>
             <ProviderSelector
                 onProviderChangeListener={this.onProviderChangeListener}
                 gethNodeProvider={this.state.provider}
