@@ -11,16 +11,13 @@ import EventBus from 'eventing-bus'
 import './dashboard.css'
 
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
-import KeyHandler from '../../Base/KeyHandler'
 import Helper from '../../Helper'
 import Themes from '../../Base/Themes'
 
 const helper = new Helper()
 const themes = new Themes()
-const keyHandler = new KeyHandler()
 
 const styles = require('../../Base/styles').styles()
-const constants = require('../../Constants')
 
 class Dashboard extends Component {
 
@@ -31,7 +28,6 @@ class Dashboard extends Component {
             address: helper.getWeb3().eth.defaultAccount,
             balance: 0,
             drawerOpen: false,
-            selectedView: props.view,
             web3Loaded: true,
             dialogs: {
                 web3NotLoaded: {
@@ -215,13 +211,10 @@ class Dashboard extends Component {
         }
     }
 
-    onLogoutListener = () => {
-        keyHandler.clear()
-        this.props.history.push(constants.VIEW_LOGIN)
-    }
     onDrawerButtonPressedListener = open => this.setState({ drawerOpen: open })
+
     onProviderChangeListener = (event, index, value) => {
-        if (value != this.state.provider) {
+        if (value !== this.state.provider) {
             helper.setGethProvider(value)
             this.setState({ provider: value })
             // Wait for dropdown animation
@@ -230,9 +223,10 @@ class Dashboard extends Component {
             }, 500)
         }
     }
+
     onViewChangeListener = newView => {
-        if (this.state.selectedView === newView) return
-        this.setState({ drawerOpen: false})
+        if (this.props.location.pathname === newView) return
+        this.setState({ drawerOpen: false })
         this.props.history.push(newView)
     }
 
