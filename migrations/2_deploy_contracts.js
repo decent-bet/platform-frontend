@@ -76,7 +76,7 @@ module.exports = function (deployer, network) {
             return BettingProvider.deployed()
         }).then(function (instance) {
             bettingProvider = instance
-            return deployer.deploy(SportsOracle)
+            return deployer.deploy(SportsOracle, token.address)
         }).then(function () {
             return SportsOracle.deployed()
         }).then(function (instance) {

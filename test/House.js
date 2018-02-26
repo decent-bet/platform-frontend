@@ -259,12 +259,6 @@ contract('House', (accounts) => {
             await utils.assertFail(house.rollOverCredits(creditsToRollOver, {from: nonFounder}))
         })
 
-        it('disallows users from paying out rolled over credits', async () => {
-            let currentSession = await house.currentSession()
-            currentSession = currentSession.toNumber()
-            await utils.assertFail(house.payoutRolledOverCredits(currentSession, {from: nonFounder}))
-        })
-
         it('disallows users from liquidating credits', async () => {
             const creditsToLiquidate = '1000000000000000000000'
             let currentSession = await house.currentSession()
@@ -369,7 +363,7 @@ contract('House', (accounts) => {
         })
 
         it('allows authorized addresses to deposit allocated tokens for house offerings ' +
-            'during credit buying period', async () => {
+            'during last week for session', async () => {
             let houseTime = await house.getTime()
             houseTime = houseTime.toNumber()
             const oneWeek = (7 * 24 * 60 * 60)
@@ -381,11 +375,19 @@ contract('House', (accounts) => {
             console.log('Deposited tokens to newBettingProvider')
             let houseBalance = await token.balanceOf(house.address)
             houseBalance = houseBalance.toFixed(0)
-            console.log('House balance', houseBalance)
+            console.log('House balance after depositing to newBettingProvider', houseBalance)
+
             await house.depositAllocatedTokensToHouseOffering(slotsChannelManager.address, {from: founder})
-            console.log('Deposited tokens to slotsChannelManager', newBettingProvider.address)
+            console.log('Deposited tokens to slotsChannelManager')
+            houseBalance = await token.balanceOf(house.address)
+            houseBalance = houseBalance.toFixed(0)
+            console.log('House balance after depositing to slotsChannelManager', houseBalance)
+
             await house.depositAllocatedTokensToHouseOffering(bettingProvider.address, {from: founder})
             console.log('Deposited tokens to bettingProvider')
+            houseBalance = await token.balanceOf(house.address)
+            houseBalance = houseBalance.toFixed(0)
+            console.log('House balance after depositing to bettingProvider', houseBalance)
 
             let currentSession = await house.currentSession()
             currentSession = currentSession.toNumber()
@@ -407,6 +409,25 @@ contract('House', (accounts) => {
                 'Authorized addresses should be able to allocate deposited tokens to house offerings')
         })
 
+        it('allows founders to add offerings to next session', async () => {
+            await house.addOfferingToNextSession(bettingProvider.address)
+            await house.addOfferingToNextSession(newBettingProvider.address)
+            await house.addOfferingToNextSession(slotsChannelManager.address)
+
+            let currentSession = await house.currentSession()
+            currentSession = currentSession.toNumber()
+
+            let nextSession = currentSession + 1
+
+            let providerOffering = await house.getSessionOffering(nextSession, 0)
+            let newProviderOffering = await house.getSessionOffering(nextSession, 1)
+            let slotsChannelManagerOffering = await house.getSessionOffering(nextSession, 2)
+
+            assert.equal(providerOffering, bettingProvider.address, 'Invalid provider address')
+            assert.equal(newProviderOffering, newBettingProvider.address, 'Invalid new provider address')
+            assert.equal(slotsChannelManagerOffering, slotsChannelManager.address, 'Invalid slots channel manager address')
+        })
+
         it('allows authorized addresses to begin session two', async () => {
             let houseTime = await house.getTime()
             houseTime = houseTime.toNumber()
@@ -415,7 +436,10 @@ contract('House', (accounts) => {
 
             await house.setTime(endOfSessionTime, {from: founder})
             await house.beginNextSession({from: founder})
-            let nextSession = await house.currentSession()
+            let currentSession = await house.currentSession()
+            currentSession = currentSession.toNumber()
+
+            let nextSession = currentSession + 1
 
             assert.equal(currentSession, (nextSession - 1),
                 'Authorized addresses should be able to begin session one at the end of session zero')

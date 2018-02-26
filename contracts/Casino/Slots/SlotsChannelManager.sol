@@ -66,7 +66,7 @@ contract SlotsChannelManager is SlotsImplementation, HouseOffering, SafeMath, Ut
     // Addresses of the players involved - false = user, true = house for a channel.
     mapping (uint => mapping(bool => address)) public players;
 
-    // Users need to deposit/withdraw tokens for a session with the provider before placing bets.
+    // Users need to deposit/withdraw tokens for a session with the provider before creating channels.
     // These can be withdrawn at any time.
     // mapping (userAddress => mapping (sessionNumber => amount))
     mapping (address => mapping (uint => uint)) public depositedTokens;
