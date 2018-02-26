@@ -224,6 +224,8 @@ class Dashboard extends Component {
         }
     }
 
+    onToggleDrawerListener = () => this.setState({ drawerOpen: !this.state.drawerOpen })
+
     onViewChangeListener = newView => {
         if (this.props.location.pathname === newView) return
         this.setState({ drawerOpen: false })
