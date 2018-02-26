@@ -3,23 +3,17 @@ import React, {Component} from 'react'
 import {AppBar, Drawer, DropDownMenu, FlatButton, MenuItem, MuiThemeProvider} from 'material-ui'
 import {CopyToClipboard} from 'react-copy-to-clipboard'
 
+import DashboardRouter from './DashboardRouter'
+
 import EventBus from 'eventing-bus'
 import KeyHandler from '../../Base/KeyHandler'
 import Web3Loader from '../../Base/Web3Loader'
-
-import Balances from '../Balances/Balances'
-import Casino   from '../Casino/Casino'
-import House    from '../House/House'
-import Game     from '../Casino/Slots/Game'
-import Slots    from '../Casino/Slots/Slots'
-import Portal   from '../Portal/Portal'
 
 import './dashboard.css'
 
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import Helper from '../../Helper'
 import Themes from '../../Base/Themes'
-import { BrowserRouter, Route, Switch } from 'react-router-dom'
 
 const helper = new Helper()
 const keyHandler = new KeyHandler()
@@ -225,38 +219,6 @@ class Dashboard extends Component {
                     </button>
                 </div>
             },
-            top: () => {
-                return <div className="main">
-                    <BrowserRouter>
-                        <Switch>
-                            <Route 
-                                exact path={constants.VIEW_CASINO}
-                                component={Casino} 
-                            />
-                            <Route 
-                                exact path={constants.VIEW_HOUSE}
-                                component={House}
-                            />
-                            <Route 
-                                exact path={constants.VIEW_BALANCES}
-                                component={Balances}
-                            />
-                            <Route 
-                                exact path={constants.VIEW_PORTAL}
-                                component={Portal}
-                            />
-                            <Route 
-                                exact path={constants.VIEW_SLOTS}
-                                component={Slots}
-                            />
-                            <Route 
-                                exact path={constants.VIEW_SLOTS_GAME}
-                                component={Game}
-                            />
-                        </Switch>
-                    </BrowserRouter>
-                </div>
-            },
             drawer: () => {
                 return <Drawer
                     docked={false}
@@ -381,7 +343,9 @@ class Dashboard extends Component {
                 {   self.state.web3Loaded &&
                 <section>
                     { self.views().appbar() }
-                    { self.views().top() }
+                    <div className="main">
+                        <DashboardRouter />
+                    </div>
                     { self.views().drawer() }
                 </section>
                 }
