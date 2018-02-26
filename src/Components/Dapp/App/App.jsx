@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import { MuiThemeProvider, Snackbar } from 'material-ui'
-import Dashboard from './Dashboard/Dashboard'
-import Login from './Login/Login'
+import Dashboard from '../Dashboard/Dashboard'
+import Login from '../Login/Login'
 import PrivateRoute from './PrivateRoute'
 import EventBus from 'eventing-bus'
-import Themes from '../Base/Themes'
+import Themes from '../../Base/Themes'
 
-const constants = require('../Constants')
+const constants = require('../../Constants')
 const themes = new Themes()
 
 export default class App extends Component {
