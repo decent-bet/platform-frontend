@@ -30,9 +30,7 @@ class Dashboard extends Component {
             provider: helper.getGethProvider(),
             address: helper.getWeb3().eth.defaultAccount,
             balance: 0,
-            drawer: {
-                open: false
-            },
+            drawerOpen: false,
             selectedView: props.view,
             web3Loaded: true,
             dialogs: {
@@ -145,23 +143,6 @@ class Dashboard extends Component {
                     return helper.roundDecimals(helper.formatEther(self.state.balance), 4)
                 else
                     return 0
-            },
-            toggleDrawer: (open) => {
-                let drawer = self.state.drawer
-                drawer.open = open
-                self.setState({
-                    drawer: drawer
-                })
-            },
-            selectView: (view) => {
-                if (view === self.state.selectedView) return
-                self.setState({
-                    selectedView: view,
-                    drawer: {
-                        open: false
-                    }
-                })
-                self.props.history.push(view)
             }
         }
     }
@@ -179,7 +160,7 @@ class Dashboard extends Component {
                     className="appbar"
                     showMenuIconButton={true}
                     onLeftIconButtonClick={() => {
-                        self.helpers().toggleDrawer(!self.state.drawer.open)
+                        self.setState({ drawerOpen: !self.state.drawerOpen})
                     }}
                     title={
                         <div className="appbar-title">
@@ -238,7 +219,7 @@ class Dashboard extends Component {
         keyHandler.clear()
         this.props.history.push(constants.VIEW_LOGIN)
     }
-    onDrawerButtonPressedListener = open => this.helpers().toggleDrawer(open)
+    onDrawerButtonPressedListener = open => this.setState({ drawerOpen: open })
     onProviderChangeListener = (event, index, value) => {
         if (value != this.state.provider) {
             helper.setGethProvider(value)
@@ -249,12 +230,18 @@ class Dashboard extends Component {
             }, 500)
         }
     }
+    onViewChangeListener = newView => {
+        if (this.state.selectedView === newView) return
+        this.setState({ drawerOpen: false})
+        this.props.history.push(newView)
+    }
 
     renderDrawer = () => (
         <DashboardDrawer
-            isDrawerOpen={this.state.drawer.open}
-            onRequestChangeListener={this.onDrawerButtonPressedListener}
-            selectedView={this.state.selectedView}
+            isDrawerOpen={this.state.drawerOpen}
+            onDrawerStatusChangeListener={this.onDrawerButtonPressedListener}
+            onViewChangeListener={this.onViewChangeListener}
+            selectedView={this.props.location.pathname}
             onLogoutListener={this.onLogoutListener}
             >
             <ProviderSelector

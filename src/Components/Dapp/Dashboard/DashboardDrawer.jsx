@@ -7,19 +7,26 @@ const constants = require('../../Constants')
 
 export default class DashboardDrawer extends Component {
     render() {
-        let { isDrawerOpen, onRequestChangeListener, selectedView, onLogoutListener } = this.props
+        let {
+            isDrawerOpen,
+            onDrawerStatusChangeListener,
+            onViewChangeListener,
+            selectedView,
+            onLogoutListener
+        } = this.props
         return (
             <Drawer
                 docked={false}
                 width={300}
                 open={isDrawerOpen}
-                onRequestChange={onRequestChangeListener}
+                onRequestChange={onDrawerStatusChangeListener}
             >
                 <DashboardDrawerHeader />
 
                 <DashboardDrawerItem
                     viewToSelect={constants.VIEW_BALANCES}
                     isSelected={selectedView === constants.VIEW_BALANCES}
+                    onViewChangeListener={onViewChangeListener}
                     title="Balances"
                     iconClass="money"
                 />
@@ -31,6 +38,7 @@ export default class DashboardDrawer extends Component {
                         selectedView === constants.VIEW_SLOTS ||
                         selectedView === constants.VIEW_SLOTS_GAME
                     }
+                    onViewChangeListener={onViewChangeListener}
                     title="Casino"
                     iconClass="gamepad"
                 />
@@ -38,6 +46,7 @@ export default class DashboardDrawer extends Component {
                 <DashboardDrawerItem
                     viewToSelect={constants.VIEW_PORTAL}
                     isSelected={selectedView === constants.VIEW_PORTAL}
+                    onViewChangeListener={onViewChangeListener}
                     title="Portal"
                     iconClass="soccer-ball-o"
                 />
@@ -45,14 +54,15 @@ export default class DashboardDrawer extends Component {
                 <DashboardDrawerItem
                     viewToSelect={constants.VIEW_HOUSE}
                     isSelected={selectedView === constants.VIEW_HOUSE}
+                    onViewChangeListener={onViewChangeListener}
                     title="House"
                     iconClass="home"
                 />
 
-
                 <DashboardDrawerItem
                     viewToSelect={constants.VIEW_LOGIN}
                     isSelected={false}
+                    onViewChangeListener={onViewChangeListener}
                     title="Logout"
                     iconClass="sign-out"
                     onClick={onLogoutListener}
