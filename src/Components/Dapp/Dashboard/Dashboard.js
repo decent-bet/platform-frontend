@@ -1,7 +1,8 @@
 import React, {Component, Fragment} from 'react'
-import { AppBar, FlatButton, MuiThemeProvider } from 'material-ui'
-import {CopyToClipboard} from 'react-copy-to-clipboard'
+import { MuiThemeProvider } from 'material-ui'
 
+import DashboardAppBar from './DashboardAppBar'
+import DashboardAppBarToolbar from './DashboardAppBarToolbar'
 import DashboardRouter from './DashboardRouter'
 import DashboardDrawer from './DashboardDrawer'
 import ProviderSelector from './ProviderSelector'
@@ -16,8 +17,6 @@ import Themes from '../../Base/Themes'
 
 const helper = new Helper()
 const themes = new Themes()
-
-const styles = require('../../Base/styles').styles()
 
 class Dashboard extends Component {
 
@@ -144,58 +143,7 @@ class Dashboard extends Component {
     }
 
     views = () => {
-        const self = this
         return {
-            appbar: () => {
-                return <AppBar
-                    zDepth={4}
-                    style={{
-                        position: 'fixed',
-                        top: 0
-                    }}
-                    className="appbar"
-                    showMenuIconButton={true}
-                    onLeftIconButtonClick={() => {
-                        self.setState({ drawerOpen: !self.state.drawerOpen})
-                    }}
-                    title={
-                        <div className="appbar-title">
-                            <a href="/">
-                                <img src={process.env.PUBLIC_URL + "/assets/img/logos/dbet-white.png"}
-                                     className="logo"/>
-                            </a>
-                        </div>
-                    }
-                    iconElementRight={
-                        self.views().appbarOptions()
-                    }
-                />
-            },
-            appbarOptions: () => {
-                return <div>
-                    <FlatButton
-                        className="hidden-md-down mr-2"
-                        label={
-                            <CopyToClipboard text={self.state.address}
-                                             onCopy={() =>
-                                                 helper.toggleSnackbar('Copied address to clipboard')
-                                             }>
-                                <span>Address: {self.state.address}</span>
-                            </CopyToClipboard>}
-                        labelStyle={styles.addressLabel}
-                    />
-                    <button className="btn btn-sm btn-primary hvr-fade"
-                            style={styles.appbarButton}
-                            onClick={ () => {
-                                self.web3Setters().faucet()
-                            }}>{'Claim Faucet'}
-                    </button>
-                    <button className="btn btn-sm btn-primary hvr-fade"
-                            style={styles.appbarButton}>
-                        { 'Balance: ' + self.helpers().getFormattedBalance() + ' DBETs' }
-                    </button>
-                </div>
-            },
             web3NotLoaded: () => {
                 return <div className="container">
                     <div className="row" style={{
@@ -210,6 +158,8 @@ class Dashboard extends Component {
             }
         }
     }
+
+    onFaucetClickedListener = () => this.web3Setters().faucet()
 
     onDrawerButtonPressedListener = open => this.setState({ drawerOpen: open })
 
@@ -232,6 +182,18 @@ class Dashboard extends Component {
         this.props.history.push(newView)
     }
 
+    renderAppbar = () => (
+        <DashboardAppBar
+            onToggleDrawerListener={this.onToggleDrawerListener}
+        >
+            <DashboardAppBarToolbar
+                address={this.state.address}
+                onFaucetClickedListener={this.onFaucetClickedListener}
+                etherBalance={this.state.balance}
+            />
+        </DashboardAppBar>
+    )
+
     renderDrawer = () => (
         <DashboardDrawer
             isDrawerOpen={this.state.drawerOpen}
@@ -251,7 +213,7 @@ class Dashboard extends Component {
         if (this.state.web3Loaded) {
             return (
                 <Fragment>
-                    { this.views().appbar() }
+                    { this.renderAppbar() }
                     <div className="main">
                         <DashboardRouter />
                     </div>
