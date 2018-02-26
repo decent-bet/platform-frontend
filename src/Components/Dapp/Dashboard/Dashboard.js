@@ -1,13 +1,13 @@
 import React, {Component, Fragment} from 'react'
 
-import {AppBar, Drawer, DropDownMenu, FlatButton, MenuItem, MuiThemeProvider} from 'material-ui'
+import {AppBar, FlatButton, MuiThemeProvider} from 'material-ui'
 import {CopyToClipboard} from 'react-copy-to-clipboard'
 
 import DashboardRouter from './DashboardRouter'
+import DashboardDrawer from './DashboardDrawer'
+import ProviderSelector from './ProviderSelector'
 
 import EventBus from 'eventing-bus'
-import KeyHandler from '../../Base/KeyHandler'
-import Web3Loader from '../../Base/Web3Loader'
 
 import './dashboard.css'
 
@@ -16,10 +16,8 @@ import Helper from '../../Helper'
 import Themes from '../../Base/Themes'
 
 const helper = new Helper()
-const keyHandler = new KeyHandler()
 const themes = new Themes()
 
-const constants = require('../../Constants')
 const styles = require('../../Base/styles').styles()
 
 class Dashboard extends Component {
@@ -219,94 +217,6 @@ class Dashboard extends Component {
                     </button>
                 </div>
             },
-            drawer: () => {
-                return <Drawer
-                    docked={false}
-                    width={300}
-                    open={self.state.drawer.open}
-                    onRequestChange={(open) => self.helpers().toggleDrawer(open)}>
-                    <div className="container drawer">
-                        <div className="row">
-                            <div className="col">
-                                <img className="logo"
-                                     src={process.env.PUBLIC_URL + "/assets/img/logos/dbet-white.png"}/>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <MenuItem
-                            className={self.state.selectedView === constants.VIEW_BALANCES ? "menu-item selected" : "menu-item" }
-                            onClick={() => {
-                                self.helpers().selectView(constants.VIEW_BALANCES)
-                            }}>
-                            <span className="fa fa-money menu-icon"/>&ensp;&ensp;BALANCES
-                        </MenuItem>
-                        <MenuItem
-                            className={(self.state.selectedView === constants.VIEW_CASINO ||
-                            self.state.selectedView === constants.VIEW_SLOTS ||
-                            self.state.selectedView === constants.VIEW_SLOTS_GAME) ?
-                                "menu-item selected" : "menu-item" }
-                            onClick={() => {
-                                self.helpers().selectView(constants.VIEW_CASINO)
-                            }}>
-                            <span className="fa fa-gamepad menu-icon"/>&ensp;&ensp;CASINO
-                        </MenuItem>
-                        <MenuItem
-                            className={self.state.selectedView === constants.VIEW_PORTAL ? "menu-item selected" : "menu-item" }
-                            onClick={() => {
-                                self.helpers().selectView(constants.VIEW_PORTAL)
-                            }}>
-                            <span className="fa fa-soccer-ball-o menu-icon"/>&ensp;&ensp;PORTAL
-                        </MenuItem>
-                        <MenuItem
-                            className={self.state.selectedView === constants.VIEW_HOUSE ? "menu-item selected" : "menu-item" }
-                            onClick={() => {
-                                self.helpers().selectView(constants.VIEW_HOUSE)
-                            }}>
-                            <span className="fa fa-home menu-icon"/>&ensp;&ensp;HOUSE
-                        </MenuItem>
-                        <MenuItem
-                            className="menu-item"
-                            onClick={() => {
-                                keyHandler.clear()
-                                self.props.history.push(constants.VIEW_LOGIN)
-                            }}>
-                            <span className="fa fa-sign-out menu-icon"/>&ensp;&ensp;LOGOUT
-                        </MenuItem>
-                        <MenuItem>
-                            <div>
-                                <p className="mb-0">Select Geth Node</p>
-                                <DropDownMenu
-                                    value={self.state.provider}
-                                    onChange={(event, index, value) => {
-                                        if (value != self.state.provider) {
-                                            helper.setGethProvider(value)
-                                            self.setState({
-                                                provider: value
-                                            })
-                                            // Wait for dropdown animation
-                                            setTimeout(() => {
-                                                window.location.reload()
-                                            }, 500)
-                                        }
-                                    }}
-                                    underlineStyle={styles.dropdown.underlineStyle}
-                                    labelStyle={styles.dropdown.labelStyle}
-                                    selectedMenuItemStyle={styles.dropdown.selectedMenuItemStyle}
-                                    menuItemStyle={styles.dropdown.menuItemStyle}
-                                    listStyle={styles.dropdown.listStyle}>
-                                    <MenuItem value={constants.PROVIDER_DBET} primaryText="DBET Node"
-                                              style={styles.menuItem}/>
-                                    <MenuItem value={constants.PROVIDER_LOCAL} primaryText="Local Node"
-                                              style={styles.menuItem}/>
-                                    <MenuItem value={constants.PROVIDER_INFURA} primaryText="Infura"
-                                              style={styles.menuItem}/>
-                                </DropDownMenu>
-                            </div>
-                        </MenuItem>
-                    </div>
-                </Drawer>
-            },
             web3NotLoaded: () => {
                 return <div className="container">
                     <div className="row" style={{
@@ -321,6 +231,33 @@ class Dashboard extends Component {
             }
         }
     }
+
+    onDrawerButtonPressedListener = open => this.helpers().toggleDrawer(open)
+    onProviderChangeListener = (event, index, value) => {
+        if (value != this.state.provider) {
+            helper.setGethProvider(value)
+            this.setState({ provider: value })
+            // Wait for dropdown animation
+            setTimeout(() => {
+                window.location.reload()
+            }, 500)
+        }
+    }
+
+    renderDrawer = () => (
+        <DashboardDrawer
+            isDrawerOpen={this.state.drawer.open}
+            onRequestChangeListener={this.onDrawerButtonPressedListener}
+            selectedView={this.state.selectedView}
+            onSelectViewListener={this.helpers().selectView}
+            history={this.props.history}>
+            <ProviderSelector
+                onProviderChangeListener={this.onProviderChangeListener}
+                gethNodeProvider={this.state.provider}
+            />
+        </DashboardDrawer>
+    )
+
     renderDashboard = () => {
         if (this.state.web3Loaded) {
             return (
@@ -329,7 +266,7 @@ class Dashboard extends Component {
                     <div className="main">
                         <DashboardRouter />
                     </div>
-                    { this.views().drawer() }
+                    { this.renderDrawer() }
                 </Fragment>
             )
         } else {
