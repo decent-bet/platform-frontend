@@ -1,6 +1,5 @@
 import React, {Component, Fragment} from 'react'
-
-import {AppBar, FlatButton, MuiThemeProvider, MenuItem} from 'material-ui'
+import { AppBar, FlatButton, MuiThemeProvider } from 'material-ui'
 import {CopyToClipboard} from 'react-copy-to-clipboard'
 
 import DashboardRouter from './DashboardRouter'
