@@ -6,4 +6,6 @@ contract AbstractHouseLottery {
 
     function getWinningLotteryTicket(uint session) returns (uint);
 
+    function isHouseLottery() returns (bool);
+
 }
