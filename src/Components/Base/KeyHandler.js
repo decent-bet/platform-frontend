@@ -40,7 +40,9 @@ class KeyHandler {
      * Clears the logged in keys
      */
     clear = () => {
-        localStorage.clear()
+        localStorage.removeItem('key')
+        localStorage.removeItem('address')
+        localStorage.removeItem('nonce')
     }
 
     isLoggedIn = () => {
