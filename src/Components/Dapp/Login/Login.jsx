@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
-import { MuiThemeProvider, TextField } from 'material-ui'
+import { MuiThemeProvider } from 'material-ui'
 import LoginMethods from './LoginMethods'
+import LoginField from './LoginField'
 
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import Helper from '../../Helper'
@@ -16,7 +17,6 @@ const Wallet = ethers.Wallet
 
 const helper = new Helper()
 const keyHandler = new KeyHandler()
-const styles = require('../../Base/styles').styles()
 const themes = new Themes()
 
 class Login extends Component {
@@ -94,48 +94,6 @@ class Login extends Component {
     views = () => {
         const self = this
         return {
-            enterCredentials: () => {
-                return <div className="col-10 col-md-8 mx-auto enter-credentials">
-                    <div className="row">
-                        <div className="col-12 mt-4 mb-2">
-                            <TextField
-                                type="text"
-                                fullWidth={true}
-                                multiLine={true}
-                                hintText={self.helpers().getHint()}
-                                hintStyle={styles.textField.hintStyle}
-                                inputStyle={styles.textField.inputStyle}
-                                floatingLabelStyle={styles.textField.floatingLabelStyle}
-                                floatingLabelFocusStyle={styles.textField.floatingLabelFocusStyle}
-                                underlineStyle={styles.textField.underlineStyle}
-                                underlineFocusStyle={styles.textField.underlineStyle}
-                                value={self.state.login == constants.LOGIN_MNEMONIC ?
-                                    self.state.mnemonic :
-                                    self.state.key}
-                                onChange={(event, value) => {
-                                    let state = self.state
-                                    if (state.login == constants.LOGIN_PRIVATE_KEY)
-                                        state.key = value
-                                    else if (state.login == constants.LOGIN_MNEMONIC)
-                                        state.mnemonic = value
-                                    self.setState(state)
-                                }}
-                                onKeyPress={self.helpers().loginWithKeyPress}
-                            />
-                        </div>
-                        {   self.state.login == constants.LOGIN_MNEMONIC &&
-                        <div className="col-12 mb-2 generate">
-                            <p className="text-center" onClick={self.actions().generateMnemonic}>Generate passphrase</p>
-                        </div>
-                        }
-                        {   self.state.login == constants.LOGIN_PRIVATE_KEY &&
-                        <div className="col-12 mb-2 generate">
-                            <p className="text-center" onClick={self.actions().generatePrivateKey}>Generate private key</p>
-                        </div>
-                        }
-                    </div>
-                </div>
-            },
             loginButton: () => {
                 return <div className={"col-10 col-md-8 mx-auto login-button " +
                 (!self.helpers().isValidCredentials() ? 'disabled' : '')}
@@ -219,6 +177,16 @@ class Login extends Component {
         })
     }
 
+    onLoginTextChangedListener = (event, value) => {
+        let state = this.state
+        if (state.login === constants.LOGIN_PRIVATE_KEY) {
+            state.key = value
+        } else if (state.login === constants.LOGIN_MNEMONIC) {
+            state.mnemonic = value
+        }
+        this.setState(state)
+    }
+
     onProviderChangedListener = (event, index, value) => {
         helper.setGethProvider(value)
         this.setState({ provider: value })
@@ -246,7 +214,25 @@ class Login extends Component {
                                             onProviderChangedListener={this.onProviderChangedListener}
                                             />
                                     </div>
-                                    {self.views().enterCredentials()}
+
+                                    <div className="col-10 col-md-8 mx-auto enter-credentials">
+                                        <div className="row">
+                                            <LoginField
+                                                hintText={this.helpers().getHint()}
+                                                loginType={this.state.login}
+                                                value={
+                                                    this.state.login === constants.LOGIN_MNEMONIC
+                                                        ? this.state.mnemonic
+                                                        : this.state.key
+                                                }
+                                                onChange={this.onLoginTextChangedListener}
+                                                onLoginKeypress={this.helpers().loginWithKeyPress}
+                                                onGenerateMnemonicListener={this.actions().generateMnemonic}
+                                                onGeneratePrivateKeyListener={this.actions().generatePrivateKey}
+                                            />
+                                        </div>
+                                    </div>
+
                                     {self.views().loginButton()}
                                 </div>
                             </div>
