@@ -335,18 +335,6 @@ class Dashboard extends Component {
                     case constants.VIEW_SLOTS_GAME:
                         return <Game/>
                 }
-            },
-            web3NotLoaded: () => {
-                return <div className="container">
-                    <div className="row" style={{
-                        paddingTop: '45vh'
-                    }}>
-                        <div className="col">
-                            <h3 className="text-center">Oops, looks like you don't have a local Rinkeby node setup.
-                                Please set one up with an open RPC port @ 8545 and try again.</h3>
-                        </div>
-                    </div>
-                </div>
             }
         }
     }
@@ -358,7 +346,7 @@ class Dashboard extends Component {
                 return <ConfirmationDialog
                     open={self.state.dialogs.web3NotLoaded.open}
                     title="Not connected to Web3 Provider"
-                    message={"Looks like you aren't connected to a local Rinkeby node. " +
+                    message={"Looks like you aren't connected to a local node. " +
                     "Please setup a local node with an open RPC port @ 8545 and try again."}
                 />
             }

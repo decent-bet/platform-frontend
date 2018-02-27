@@ -46,6 +46,10 @@ let initWeb3 = () => {
                 EventBus.publish('web3NotLoaded')
                 loopCheckConnection = setTimeout(checkConnection, 10000)
             }
+        }).catch((err) => {
+            console.log('Not connected to provider..', err.message)
+            EventBus.publish('web3NotLoaded')
+            loopCheckConnection = setTimeout(checkConnection, 10000)
         })
     }
 
