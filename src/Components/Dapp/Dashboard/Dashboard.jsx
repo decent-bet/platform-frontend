@@ -1,4 +1,4 @@
-import React, {Component, Fragment} from 'react'
+import React, { Component, Fragment } from 'react'
 import { MuiThemeProvider } from 'material-ui'
 
 import DashboardAppBar from './DashboardAppBar'
@@ -19,7 +19,6 @@ const helper = new Helper()
 const themes = new Themes()
 
 class Dashboard extends Component {
-
     constructor(props) {
         super(props)
         this.state = {
@@ -70,96 +69,60 @@ class Dashboard extends Component {
     }
 
     initWeb3Data = () => {
-        this.web3Getters().balances()
+        this.initBalance()
+    }
+
+    initBalance = () => {
+        // Get balance from Web3
+        helper
+            .getContractHelper()
+            .getWrappers()
+            .token()
+            .balanceOf(helper.getWeb3().eth.defaultAccount)
+            .then(balance => this.setState({ balance: balance }))
     }
 
     initWatchers = () => {
-        this.watchers().transferFrom()
-        this.watchers().transferTo()
+        // Watcher - Transfer For
+        helper
+            .getContractHelper()
+            .getWrappers()
+            .token()
+            .logTransfer(this.state.address, true)
+            .watch((err, event) => {
+                if (!err) {
+                    this.initBalance()
+                }
+            })
+
+        // Watcher - Transfer to
+        helper
+            .getContractHelper()
+            .getWrappers()
+            .token()
+            .logTransfer(this.state.address, false)
+            .watch((err, event) => {
+                if (!err) {
+                    this.initBalance()
+                }
+            })
     }
 
-    web3Getters = () => {
-        const self = this
-        return {
-            balances: () => {
-                helper.getContractHelper().getWrappers().token()
-                    .balanceOf(helper.getWeb3().eth.defaultAccount).then((balance) => {
-                    self.setState({
-                        balance: balance
-                    })
-                })
-            }
-        }
+    onFaucetClickedListener = () => {
+        helper
+            .getContractHelper()
+            .getWrappers()
+            .token()
+            .faucet()
+            .then(tx => {
+                console.log('Sent faucet tx', tx)
+                helper.toggleSnackbar('Successfully sent faucet transaction')
+            })
+            .catch(err => {
+                helper.toggleSnackbar('Error sending faucet transaction')
+                console.log('Error sending faucet tx', err.message)
+            })
     }
-
-    web3Setters = () => {
-        const self = this
-        return {
-            faucet: () => {
-                helper.getContractHelper().getWrappers().token()
-                    .faucet().then((tx) => {
-                    console.log('Sent faucet tx', tx)
-                    helper.toggleSnackbar('Successfully sent faucet transaction')
-                }).catch((err) => {
-                    helper.toggleSnackbar('Error sending faucet transaction')
-                    console.log('Error sending faucet tx', err.message)
-                })
-            }
-        }
-    }
-
-    watchers = () => {
-        const self = this
-        return {
-            transferFrom: () => {
-                helper.getContractHelper().getWrappers().token()
-                    .logTransfer(self.state.address, true).watch((err, event) => {
-                    if (!err) {
-                        self.web3Getters().balances()
-                    }
-                })
-            },
-            transferTo: () => {
-                helper.getContractHelper().getWrappers().token()
-                    .logTransfer(self.state.address, false).watch((err, event) => {
-                    if (!err) {
-                        self.web3Getters().balances()
-                    }
-                })
-            }
-        }
-    }
-
-    helpers = () => {
-        const self = this
-        return {
-            getFormattedBalance: () => {
-                if (self.state.balance)
-                    return helper.roundDecimals(helper.formatEther(self.state.balance), 4)
-                else
-                    return 0
-            }
-        }
-    }
-
-    views = () => {
-        return {
-            web3NotLoaded: () => {
-                return <div className="container">
-                    <div className="row" style={{
-                        paddingTop: '45vh'
-                    }}>
-                        <div className="col">
-                            <h3 className="text-center">Oops, looks like you don't have a local Rinkeby node setup.
-                                Please set one up with an open RPC port @ 8545 and try again.</h3>
-                        </div>
-                    </div>
-                </div>
-            }
-        }
-    }
-
-    onFaucetClickedListener = () => this.web3Setters().faucet()
 
     onDrawerButtonPressedListener = open => this.setState({ drawerOpen: open })
 
@@ -174,7 +137,8 @@ class Dashboard extends Component {
         }
     }
 
-    onToggleDrawerListener = () => this.setState({ drawerOpen: !this.state.drawerOpen })
+    onToggleDrawerListener = () =>
+        this.setState({ drawerOpen: !this.state.drawerOpen })
 
     onViewChangeListener = newView => {
         if (this.props.location.pathname === newView) return
@@ -183,9 +147,7 @@ class Dashboard extends Component {
     }
 
     renderAppbar = () => (
-        <DashboardAppBar
-            onToggleDrawerListener={this.onToggleDrawerListener}
-        >
+        <DashboardAppBar onToggleDrawerListener={this.onToggleDrawerListener}>
             <DashboardAppBarToolbar
                 address={this.state.address}
                 onFaucetClickedListener={this.onFaucetClickedListener}
@@ -201,7 +163,7 @@ class Dashboard extends Component {
             onViewChangeListener={this.onViewChangeListener}
             selectedView={this.props.location.pathname}
             onLogoutListener={this.onLogoutListener}
-            >
+        >
             <ProviderSelector
                 onProviderChangeListener={this.onProviderChangeListener}
                 gethNodeProvider={this.state.provider}
@@ -213,11 +175,11 @@ class Dashboard extends Component {
         if (this.state.web3Loaded) {
             return (
                 <Fragment>
-                    { this.renderAppbar() }
+                    {this.renderAppbar()}
                     <div className="main">
                         <DashboardRouter />
                     </div>
-                    { this.renderDrawer() }
+                    {this.renderDrawer()}
                 </Fragment>
             )
         } else {
@@ -225,8 +187,10 @@ class Dashboard extends Component {
                 <ConfirmationDialog
                     open={this.state.dialogs.web3NotLoaded.open}
                     title="Not connected to Web3 Provider"
-                    message={"Looks like you aren't connected to a local Rinkeby node. " +
-                    "Please setup a local node with an open RPC port @ 8545 and try again."}
+                    message={
+                        "Looks like you aren't connected to a local Rinkeby node. " +
+                        'Please setup a local node with an open RPC port @ 8545 and try again.'
+                    }
                 />
             )
         }
@@ -235,13 +199,10 @@ class Dashboard extends Component {
     render() {
         return (
             <MuiThemeProvider muiTheme={themes.getAppBar()}>
-                <div className="dashboard">
-                    { this.renderDashboard() }
-                </div>
+                <div className="dashboard">{this.renderDashboard()}</div>
             </MuiThemeProvider>
         )
     }
-
 }
 
 export default Dashboard

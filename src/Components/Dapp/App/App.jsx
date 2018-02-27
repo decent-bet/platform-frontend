@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import { BrowserRouter, Switch } from 'react-router-dom'
 import { MuiThemeProvider, Snackbar } from 'material-ui'
-import Dashboard from '../Dashboard/Dashboard'
+import Dashboard from '../Dashboard'
 import Login from '../Login/Login'
 import PrivateRoute from './PrivateRoute'
 import LogoutRoute from './LogoutRoute'
