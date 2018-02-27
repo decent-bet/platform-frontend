@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
-
-import {DropDownMenu, MenuItem, MuiThemeProvider, TextField} from 'material-ui'
+import { MuiThemeProvider, TextField } from 'material-ui'
+import LoginMethods from './LoginMethods'
 
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import Helper from '../../Helper'
@@ -94,59 +94,6 @@ class Login extends Component {
     views = () => {
         const self = this
         return {
-            loginMethod: () => {
-                return <div className="col-10 col-md-8 mx-auto login-method">
-                    <DropDownMenu
-                        value={self.state.login}
-                        onChange={(event, index, value) => {
-                            let key = self.state.key
-                            let mnemonic = self.state.mnemonic
-                            if (value == constants.LOGIN_MNEMONIC)
-                                mnemonic = ''
-                            else
-                                key = ''
-                            self.setState({
-                                key: key,
-                                mnemonic: mnemonic,
-                                login: value
-                            })
-                        }}
-                        underlineStyle={styles.dropdown.underlineStyle}
-                        labelStyle={styles.dropdown.labelStyle}
-                        selectedMenuItemStyle={styles.dropdown.selectedMenuItemStyle}
-                        menuItemStyle={styles.dropdown.menuItemStyle}
-                        listStyle={styles.dropdown.listStyle}>
-                        <MenuItem value={constants.LOGIN_MNEMONIC} primaryText="Passphrase" style={styles.menuItem}/>
-                        <MenuItem value={constants.LOGIN_PRIVATE_KEY} primaryText="Private key"
-                                  style={styles.menuItem}/>
-                    </DropDownMenu>
-                    <DropDownMenu
-                        className="float-right"
-                        value={self.state.provider}
-                        onChange={(event, index, value) => {
-                            helper.setGethProvider(value)
-                            self.setState({
-                                provider: value
-                            })
-                            // Wait for dropdown animation
-                            setTimeout(() => {
-                                window.location.reload()
-                            }, 500)
-                        }}
-                        underlineStyle={styles.dropdown.underlineStyle}
-                        labelStyle={styles.dropdown.labelStyle}
-                        selectedMenuItemStyle={styles.dropdown.selectedMenuItemStyle}
-                        menuItemStyle={styles.dropdown.menuItemStyle}
-                        listStyle={styles.dropdown.listStyle}>
-                        <MenuItem value={constants.PROVIDER_DBET} primaryText="DBET Node"
-                                  style={styles.menuItem}/>
-                        <MenuItem value={constants.PROVIDER_LOCAL} primaryText="Local Node"
-                                  style={styles.menuItem}/>
-                        <MenuItem value={constants.PROVIDER_INFURA} primaryText="Infura"
-                                  style={styles.menuItem}/>
-                    </DropDownMenu>
-                </div>
-            },
             enterCredentials: () => {
                 return <div className="col-10 col-md-8 mx-auto enter-credentials">
                     <div className="row">
@@ -257,6 +204,31 @@ class Login extends Component {
         }
     }
 
+    onLoginMethodChangeListener = (event, index, value) => {
+        let key = this.state.key
+        let mnemonic = this.state.mnemonic
+        if (value === constants.LOGIN_MNEMONIC){
+            mnemonic = ''
+        } else {
+            key = ''
+        }
+        this.setState({
+            key: key,
+            mnemonic: mnemonic,
+            login: value
+        })
+    }
+
+    onProviderChangedListener = (event, index, value) => {
+        helper.setGethProvider(value)
+        this.setState({ provider: value })
+
+        // Wait for dropdown animation
+        setTimeout(() => {
+            window.location.reload()
+        }, 500)
+    }
+
     render() {
         const self = this
         return (
@@ -266,7 +238,14 @@ class Login extends Component {
                         <div className="row h-100">
                             <div className="col">
                                 <div className="row">
-                                    {self.views().loginMethod()}
+                                    <div className="col-10 col-md-8 mx-auto login-method">
+                                        <LoginMethods
+                                            loginMethod={this.state.login}
+                                            provider={this.state.provider}
+                                            onLoginMethodChangeListener={this.onLoginMethodChangeListener}
+                                            onProviderChangedListener={this.onProviderChangedListener}
+                                            />
+                                    </div>
                                     {self.views().enterCredentials()}
                                     {self.views().loginButton()}
                                 </div>
