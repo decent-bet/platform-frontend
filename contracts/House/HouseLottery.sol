@@ -10,6 +10,7 @@ import "../Libraries/oraclizeAPI.sol";
 contract HouseLottery is SafeMath, usingOraclize {
 
     // Variables
+    address public owner;
     address public house;
 
     uint public currentSession;
@@ -41,14 +42,28 @@ contract HouseLottery is SafeMath, usingOraclize {
     event oraclizePricingError(uint price);
 
     function HouseLottery() {
-        house = msg.sender;
+        owner = msg.sender;
         // TODO: Replace with oraclize address.
-        OAR = OraclizeAddrResolverI(0x6f485C8BF6fc43eA212E93BBF8ce046C7f1cb475);
+        OAR = OraclizeAddrResolverI(0x1ab9be4a13b0039eac53ca515584849d001af069);
+    }
+
+    modifier onlyOwner() {
+        if (msg.sender != owner) throw;
+        _;
     }
 
     modifier onlyHouse() {
         if (msg.sender != house) throw;
         _;
+    }
+
+    // Abstract lottery function
+    function isHouseLottery() returns (bool) {
+        return true;
+    }
+
+    function setHouse(address _house) onlyOwner {
+        house = _house;
     }
 
     function pickWinner(uint session, uint ticketCount) payable

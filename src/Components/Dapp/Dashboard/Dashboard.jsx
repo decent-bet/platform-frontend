@@ -188,7 +188,7 @@ class Dashboard extends Component {
                     open={this.state.dialogs.web3NotLoaded.open}
                     title="Not connected to Web3 Provider"
                     message={
-                        "Looks like you aren't connected to a local Rinkeby node. " +
+                        "Looks like you aren't connected to a local node. " +
                         'Please setup a local node with an open RPC port @ 8545 and try again.'
                     }
                 />
