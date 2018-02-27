@@ -12,10 +12,6 @@ export const styles = () => {
             color: constants.COLOR_WHITE,
             fontFamily: 'TradeGothic'
         },
-        appbar: {
-            position: 'fixed',
-            top: 0
-        },
         appbarButton: {
             fontSize: 12,
             marginTop: 5,
