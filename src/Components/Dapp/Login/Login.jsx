@@ -152,7 +152,7 @@ class Login extends Component {
         }
     }
 
-    onLoginMethodChangeListener = (event, index, value) => {
+    onLoginMethodChangeListener = (event, value) => {
         let key = this.state.key
         let mnemonic = this.state.mnemonic
         if (value === constants.LOGIN_MNEMONIC){
@@ -177,7 +177,7 @@ class Login extends Component {
         this.setState(state)
     }
 
-    onProviderChangedListener = (event, index, value) => {
+    onProviderChangedListener = (event, value) => {
         helper.setGethProvider(value)
         this.setState({ provider: value })
 

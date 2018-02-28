@@ -43,18 +43,25 @@
     flex: 1 100%;
 }
 
-.login .login-card .generate {
-    flex: 0 auto;
-}
-
-.login .login-card .logo-container {
+.login .login-card .login-inner .half{
     flex: 0 50%;
 }
 
+.login .login-card .login-inner .generate {
+    flex: 0 auto;
+}
+
+.login .login-card .login-inner .logo-container {
+    flex: 0 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
 .login .login-card .logo{
-    object-fit: contain;
-    width: 100%;
+    flex: 0 auto;
+    max-height: 100px;
     padding: 20px;
+    object-fit: contain;
 }
 
 .login .login-card .login-inner .login-button {
