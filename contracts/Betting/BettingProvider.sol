@@ -245,9 +245,9 @@ contract BettingProvider is HouseOffering, SafeMath, TimeProvider {
     event LogClaimedBet(uint gameId, uint oddsId, uint session, address bettor,
     address assistedClaimant, uint betId, uint payout);
 
-    event Deposit(address _address, uint amount, uint session, uint balance);
+    event LogDeposit(address _address, uint amount, uint session, uint balance);
 
-    event Withdraw(address _address, uint amount, uint session, uint balance);
+    event LogWithdraw(address _address, uint amount, uint session, uint balance);
 
     // Constructor.
     function BettingProvider(address decentBetTokenAddress,
@@ -376,13 +376,13 @@ contract BettingProvider is HouseOffering, SafeMath, TimeProvider {
         if(session != currentSession && session != currentSession + 1) return false;
 
         // Record the total number of tokens deposited into the house.
-        depositedTokens[houseAddress][session] = safeAdd(depositedTokens[houseAddress][session], amount);
+        depositedTokens[address(this)][session] = safeAdd(depositedTokens[address(this)][session], amount);
         sessionStats[session].totalDeposited = safeAdd(sessionStats[session].totalDeposited, amount);
 
         // Transfer tokens from house to betting provider.
         if(!decentBetToken.transferFrom(msg.sender, address(this), amount)) return false;
 
-        Deposit(houseAddress, amount, session, depositedTokens[houseAddress][session]);
+        LogDeposit(address(this), amount, session, depositedTokens[address(this)][session]);
         return true;
     }
 
@@ -402,7 +402,7 @@ contract BettingProvider is HouseOffering, SafeMath, TimeProvider {
         depositedTokens[msg.sender][currentSession] =
         safeAdd(depositedTokens[msg.sender][currentSession], amount);
         if(!decentBetToken.transferFrom(msg.sender, address(this), amount)) return false;
-        Deposit(msg.sender, amount, currentSession, depositedTokens[msg.sender][currentSession]);
+        LogDeposit(msg.sender, amount, currentSession, depositedTokens[msg.sender][currentSession]);
         return true;
     }
 
@@ -412,7 +412,7 @@ contract BettingProvider is HouseOffering, SafeMath, TimeProvider {
     isTokensAvailable(amount) returns (bool) {
         depositedTokens[msg.sender][session] = safeSub(depositedTokens[msg.sender][session], amount);
         if(!decentBetToken.transfer(msg.sender, amount)) return false;
-        Withdraw(msg.sender, amount, session, depositedTokens[msg.sender][session]);
+        LogWithdraw(msg.sender, amount, session, depositedTokens[msg.sender][session]);
         return true;
     }
 

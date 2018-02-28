@@ -98,6 +98,8 @@ contract House is SafeMath, TimeProvider {
     // Time session 0 begins.
     uint public sessionZeroStartTime = 0;
 
+    uint public MIN_CREDIT_PURCHASE = 1000;
+
     // External Contracts
     AbstractDecentBetToken public decentBetToken;
 
@@ -245,8 +247,6 @@ contract House is SafeMath, TimeProvider {
 
     event LogOfferingDeposit(uint session, address offering, uint percentage, uint amount);
 
-    event LogError(string message);
-
     // Adds an address to the list of authorized addresses.
     function addToAuthorizedAddresses(address _address)
     onlyFounder {
@@ -325,6 +325,8 @@ contract House is SafeMath, TimeProvider {
     areTokensAvailable(amount)
     {
 
+        // The minimum credit purchase needs to be 1000 DBETs
+        if(amount < MIN_CREDIT_PURCHASE) throw;
         if(decentBetToken.allowance(msg.sender, address(this)) < amount) throw;
 
         // Issue credits to user equivalent to amount transferred.
@@ -372,14 +374,15 @@ contract House is SafeMath, TimeProvider {
     }
 
     // Allows users to return credits and receive tokens along with profit in return.
-    function liquidateCredits(uint session, uint amount)
-    areCreditsAvailable(session, amount)
+    function liquidateCredits(uint session)
     isProfitDistributionPeriod(session) {
+        if(houseFunds[session].userCredits[msg.sender].amount == 0) throw;
 
         // Payout variables
         uint payoutPerCredit = getPayoutPerCredit(session);
-        // (Payout per credit * amount of credits) + amount of credits
-        uint payout = safeAdd(safeMul(payoutPerCredit, amount), amount);
+        uint amount = houseFunds[session].userCredits[msg.sender].amount;
+        // (Payout per credit * amount of credits)
+        uint payout = safeDiv(safeMul(payoutPerCredit, amount), 1 ether);
 
         // Payout users for current session and liquidate credits.
         houseFunds[session].payouts[msg.sender] =
@@ -400,14 +403,22 @@ contract House is SafeMath, TimeProvider {
     }
 
     // Returns the payout per credit based on the house winnings for a session.
-    function getPayoutPerCredit(uint session) returns (uint) {
 
-        uint sessionProfit = houseFunds[session].profit;
+    /* NOTE:
+        Since solidity cannot handle floating point types, to avoid instances where the payout per credit may lose value
+        due to loss of precision with using 1 as the base amount - The resulting payoutPerCredit uses 1 ether as a base
+        amount which means that the resulting payoutPerCredit would have to be multiplied by the actual amount
+        of credits and then divided by 1 ether to get the final payout amount.
+    */
+
+    function getPayoutPerCredit(uint session) constant returns (uint) {
+
+        uint totalWithdrawn = houseFunds[session].totalWithdrawn;
         uint totalPurchasedUserCredits = houseFunds[session].totalPurchasedUserCredits;
         uint userCredits = houseFunds[session].userCredits[msg.sender].amount;
 
-        // ((User Credits / Total User Credits) * Session profits) * PROFIT_SHARE_PERCENT/100;
-        return safeDiv(safeMul(safeMul(userCredits, sessionProfit), PROFIT_SHARE_PERCENT),
+        // ((User Credits / Total User Credits) * Total Withdrawn) * PROFIT_SHARE_PERCENT/100;
+        return safeDiv(safeMul(safeMul(1 ether, totalWithdrawn), PROFIT_SHARE_PERCENT),
         safeMul(totalPurchasedUserCredits, 100));
     }
 
@@ -423,8 +434,7 @@ contract House is SafeMath, TimeProvider {
         uint available = houseFunds[currentSession].userCredits[msg.sender].amount;
         uint rolledOverToNextSession = houseFunds[currentSession].userCredits[msg.sender]
                                                                  .rolledOverToNextSession;
-        uint rolledOverFromPreviousSession =
-                                       houseFunds[currentSession].userCredits[msg.sender]
+        uint rolledOverFromPreviousSession = houseFunds[currentSession].userCredits[msg.sender]
                                                                  .rolledOverFromPreviousSession;
 
         // Next session variables.
@@ -467,11 +477,24 @@ contract House is SafeMath, TimeProvider {
         }
         houseFunds[currentSession].totalUserCredits = safeAdd(houseFunds[currentSession].totalUserCredits,
             adjustedCredits);
-        houseFunds[currentSession].totalPurchasedUserCredits =
-        safeAdd(houseFunds[currentSession].totalPurchasedUserCredits,
+        houseFunds[currentSession].totalPurchasedUserCredits = safeAdd(houseFunds[currentSession].totalPurchasedUserCredits,
             adjustedCredits);
         houseFunds[currentSession].totalFunds = safeAdd(houseFunds[currentSession].totalFunds,
             adjustedCredits);
+
+        for(uint i = 0; i < sessions[currentSession].offerings.length; i++) {
+            address houseOffering = sessions[currentSession].offerings[i];
+            uint allocation = sessions[currentSession].offeringTokenAllocations[houseOffering].allocation;
+            uint tokenAmount = safeDiv(safeMul(adjustedCredits, allocation), 100);
+
+            if(!decentBetToken.approve(houseOffering, tokenAmount))
+                throw;
+
+            if(!offerings[houseOffering].houseOffering.houseDeposit(tokenAmount, currentSession))
+                throw;
+
+            LogOfferingDeposit(currentSession, houseOffering, allocation, tokenAmount);
+        }
 
         allotLotteryTickets(currentSession, adjustedCredits);
 
@@ -492,7 +515,7 @@ contract House is SafeMath, TimeProvider {
 
         if(getTime() < sessions[previousSession].endTime + 2 days) throw;
 
-        uint previousSessionTokens = offerings[houseOffering].houseOffering.balanceOf(address(this), previousSession);
+        uint previousSessionTokens = offerings[houseOffering].houseOffering.balanceOf(houseOffering, previousSession);
 
         houseFunds[previousSession].totalWithdrawn =
         safeAdd(houseFunds[previousSession].totalWithdrawn, previousSessionTokens);
@@ -642,6 +665,10 @@ contract House is SafeMath, TimeProvider {
                 houseFunds[session].totalUserCredits);
     }
 
+    function getSessionTime(uint session) constant returns (uint, uint) {
+        return (sessions[session].startTime, sessions[session].endTime);
+    }
+
     function doesOfferingExist(address _offering) constant returns (bool) {
         return offerings[_offering].exists;
     }
@@ -657,11 +684,6 @@ contract House is SafeMath, TimeProvider {
     function getOfferingTokenAllocations(uint session, address _address) constant returns (uint, bool) {
         return (sessions[session].offeringTokenAllocations[_address].allocation,
                 sessions[session].offeringTokenAllocations[_address].deposited);
-    }
-
-    function throwError(string message) {
-        LogError(message);
-        throw;
     }
 
     // Do not accept ETH sent to this contract.

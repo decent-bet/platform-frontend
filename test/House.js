@@ -1,3 +1,5 @@
+const BigNumber = require('bignumber.js')
+
 let utils = require("./utils/utils.js")
 
 let MultiSigWallet = artifacts.require("MultiSigWallet")
@@ -20,12 +22,14 @@ let newBettingProvider
 
 let founder
 let nonFounder
+let nonInvestor
 
 contract('House', (accounts) => {
 
     it('initializes house contract', async () => {
         founder = accounts[0]
         nonFounder = accounts[1]
+        nonInvestor = accounts[2]
 
         wallet = await MultiSigWallet.deployed()
         token = await DecentBetToken.deployed()
@@ -124,9 +128,7 @@ contract('House', (accounts) => {
         it('disallows users from liquidating house credits when it isn\'t a profit distribution period', async () => {
             let currentSession = await house.currentSession()
             currentSession = currentSession.toNumber()
-            let userCredits = await house.getUserCreditsForSession(currentSession, nonFounder)
-            let sessionCredits = userCredits[0].toFixed()
-            await utils.assertFail(house.liquidateCredits(currentSession, sessionCredits))
+            await utils.assertFail(house.liquidateCredits(currentSession))
         })
 
         it('disallows users from rolling over credits when it isn\'t a profit distribution period', async () => {
@@ -214,17 +216,47 @@ contract('House', (accounts) => {
             let providerTokenAllocation = await house.getOfferingTokenAllocations(nextSession, bettingProvider.address)
             let depositedToProvider = providerTokenAllocation[1]
             assert.equal(depositedToProvider, true,
-                'Authorized addresses should be able to allocate deposited tokens to house offerings')
+                'Allocated tokens not deposited to betting provider')
 
             let newProviderTokenAllocation = await house.getOfferingTokenAllocations(nextSession, newBettingProvider.address)
             let depositedToNewProvider = newProviderTokenAllocation[1]
             assert.equal(depositedToNewProvider, true,
-                'Authorized addresses should be able to allocate deposited tokens to house offerings')
+                'Allocated tokens not deposited to new betting provider')
 
             let slotsTokenAllocation = await house.getOfferingTokenAllocations(nextSession, slotsChannelManager.address)
             let depositedToSlots = slotsTokenAllocation[1]
             assert.equal(depositedToSlots, true,
-                'Authorized addresses should be able to allocate deposited tokens to house offerings')
+                'Allocated tokens not deposited to slots channel manager')
+
+            let providerBalance = await bettingProvider.balanceOf(bettingProvider.address, nextSession)
+            providerBalance = providerBalance.toFixed()
+            let expectedProviderBalance = new BigNumber(houseBalance)
+                                                .times(providerTokenAllocation[0])
+                                                .dividedBy(100)
+                                                .toFixed()
+
+            console.log('Provider balance', providerBalance, expectedProviderBalance)
+            assert.equal(providerBalance, expectedProviderBalance, 'Invalid provider balance after depositing')
+
+            let newProviderBalance = await newBettingProvider.balanceOf(newBettingProvider.address, nextSession)
+            newProviderBalance = newProviderBalance.toFixed()
+            let expectedNewProviderBalance = new BigNumber(houseBalance)
+                                                    .times(newProviderTokenAllocation[0])
+                                                    .dividedBy(100)
+                                                    .toFixed()
+
+            console.log('New provider balance', newProviderBalance, expectedNewProviderBalance)
+            assert.equal(newProviderBalance, expectedNewProviderBalance, 'Invalid new provider balance after depositing')
+
+            let slotsBalance = await slotsChannelManager.balanceOf(slotsChannelManager.address, nextSession)
+            slotsBalance = slotsBalance.toFixed()
+            let expectedSlotsBalance = new BigNumber(houseBalance)
+                .times(slotsTokenAllocation[0])
+                .dividedBy(100)
+                .toFixed()
+
+            console.log('Slots channel manager balance', slotsBalance, expectedSlotsBalance)
+            assert.equal(slotsBalance, expectedSlotsBalance, 'Invalid slots balance after depositing')
         })
 
         it('disallows unauthorized addresses from beginning session one', () => {
@@ -248,8 +280,20 @@ contract('House', (accounts) => {
             await house.beginNextSession({from: founder})
             let nextSession = await house.currentSession()
 
-            assert.equal(currentSession, (nextSession - 1),
+            assert.equal((currentSession + 1), nextSession,
                 'Authorized addresses should be able to begin session one at the end of session zero')
+
+            let providerSession = await bettingProvider.currentSession()
+            assert.equal((currentSession + 1), providerSession,
+                'Betting provider session number is not equal to house session number')
+
+            let newProviderSession = await newBettingProvider.currentSession()
+            assert.equal((currentSession + 1), newProviderSession,
+                'New betting provider session number is not equal to house session number')
+
+            let slotsChannelManagerSession = await slotsChannelManager.currentSession()
+            assert.equal((currentSession + 1), slotsChannelManagerSession,
+                'Slots Channel Manager session number is not equal to house session number')
         })
     })
 
@@ -260,10 +304,9 @@ contract('House', (accounts) => {
         })
 
         it('disallows users from liquidating credits', async () => {
-            const creditsToLiquidate = '1000000000000000000000'
             let currentSession = await house.currentSession()
             currentSession = currentSession.toNumber()
-            await utils.assertFail(house.liquidateCredits(currentSession, creditsToLiquidate, {from: nonFounder}))
+            await utils.assertFail(house.liquidateCredits(currentSession, {from: nonFounder}))
         })
 
         it('disallows users from purchasing credits', async () => {
@@ -371,42 +414,69 @@ contract('House', (accounts) => {
 
             await house.setTime(lastWeekTime, {from: founder})
 
-            await house.depositAllocatedTokensToHouseOffering(newBettingProvider.address, {from: founder})
-            console.log('Deposited tokens to newBettingProvider')
             let houseBalance = await token.balanceOf(house.address)
-            houseBalance = houseBalance.toFixed(0)
-            console.log('House balance after depositing to newBettingProvider', houseBalance)
+            let initialHouseBalance = houseBalance
 
-            await house.depositAllocatedTokensToHouseOffering(slotsChannelManager.address, {from: founder})
-            console.log('Deposited tokens to slotsChannelManager')
-            houseBalance = await token.balanceOf(house.address)
             houseBalance = houseBalance.toFixed(0)
-            console.log('House balance after depositing to slotsChannelManager', houseBalance)
-
-            await house.depositAllocatedTokensToHouseOffering(bettingProvider.address, {from: founder})
-            console.log('Deposited tokens to bettingProvider')
-            houseBalance = await token.balanceOf(house.address)
-            houseBalance = houseBalance.toFixed(0)
-            console.log('House balance after depositing to bettingProvider', houseBalance)
+            console.log('House balance before depositing to offerings', houseBalance)
 
             let currentSession = await house.currentSession()
             currentSession = currentSession.toNumber()
             let nextSession = currentSession + 1
 
             let providerTokenAllocation = await house.getOfferingTokenAllocations(nextSession, bettingProvider.address)
-            let depositedToProvider = providerTokenAllocation[1]
-            assert.equal(depositedToProvider, true,
-                'Authorized addresses should be able to allocate deposited tokens to house offerings')
+            let providerAllocation = providerTokenAllocation[0].toNumber()
 
             let newProviderTokenAllocation = await house.getOfferingTokenAllocations(nextSession, newBettingProvider.address)
-            let depositedToNewProvider = newProviderTokenAllocation[1]
-            assert.equal(depositedToNewProvider, true,
-                'Authorized addresses should be able to allocate deposited tokens to house offerings')
+            let newProviderAllocation = newProviderTokenAllocation[0].toNumber()
 
             let slotsTokenAllocation = await house.getOfferingTokenAllocations(nextSession, slotsChannelManager.address)
+            let slotsAllocation = slotsTokenAllocation[0].toNumber()
+
+            // Betting provider
+            let expectedProviderDeposit = initialHouseBalance.times(providerAllocation).dividedBy(100)
+            let expectedHouseBalance = initialHouseBalance.minus(expectedProviderDeposit)
+
+            await house.depositAllocatedTokensToHouseOffering(newBettingProvider.address, {from: founder})
+            houseBalance = await token.balanceOf(house.address)
+            houseBalance = houseBalance.toFixed(0)
+
+            assert.equal(expectedHouseBalance.toFixed(), houseBalance, 'Invalid amount deposited to new betting provider')
+
+            // Slots channel manager
+            let expectedSlotsDeposit = initialHouseBalance.times(slotsAllocation).dividedBy(100)
+            expectedHouseBalance = new BigNumber(houseBalance).minus(expectedSlotsDeposit)
+
+            await house.depositAllocatedTokensToHouseOffering(slotsChannelManager.address, {from: founder})
+            houseBalance = await token.balanceOf(house.address)
+            houseBalance = houseBalance.toFixed(0)
+
+            assert.equal(expectedHouseBalance.toFixed(), houseBalance, 'Invalid amount deposited to slots channel manager')
+
+            // New betting provider
+            let expectedNewProviderDeposit = initialHouseBalance.times(newProviderAllocation).dividedBy(100)
+            expectedHouseBalance = new BigNumber(houseBalance).minus(expectedNewProviderDeposit)
+
+            await house.depositAllocatedTokensToHouseOffering(bettingProvider.address, {from: founder})
+            houseBalance = await token.balanceOf(house.address)
+            houseBalance = houseBalance.toFixed(0)
+
+            assert.equal(expectedHouseBalance.toFixed(), houseBalance, 'Invalid amount deposited to betting provider')
+
+            providerTokenAllocation = await house.getOfferingTokenAllocations(nextSession, bettingProvider.address)
+            let depositedToProvider = providerTokenAllocation[1]
+            assert.equal(depositedToProvider, true,
+                'Tokens not deposited to betting provider')
+
+            newProviderTokenAllocation = await house.getOfferingTokenAllocations(nextSession, newBettingProvider.address)
+            let depositedToNewProvider = newProviderTokenAllocation[1]
+            assert.equal(depositedToNewProvider, true,
+                'Tokens not deposited to betting new betting provider')
+
+            slotsTokenAllocation = await house.getOfferingTokenAllocations(nextSession, slotsChannelManager.address)
             let depositedToSlots = slotsTokenAllocation[1]
             assert.equal(depositedToSlots, true,
-                'Authorized addresses should be able to allocate deposited tokens to house offerings')
+                'Tokens not deposited to slots channel manager')
         })
 
         it('allows founders to add offerings to next session', async () => {
@@ -446,14 +516,151 @@ contract('House', (accounts) => {
         })
     })
 
-    // describe('after session one', () => {
-    //     it('allows users to liquidate credits during profit distribution period', async () => {
-    //
-    //     })
-    //
-    //     it('allows users to pay out rolled over credits during profit distribution period', async () => {
-    //
-    //     })
-    // })
+    describe('after session one', () => {
+        it('disallows authorized addresses from withdrawing previous session tokens from house offerings before withdrawal time', async () => {
+            await utils.assertFail(house.withdrawPreviousSessionTokensFromHouseOffering
+                .sendTransaction(bettingProvider.address, {from: founder}))
+        })
+
+        it('disallows non-authorized addresses from withdrawing previous session tokens from house offerings', async () => {
+            let time = await house.getTime()
+            time = time.toNumber()
+
+            let oneDay = (24 * 60 * 60)
+
+            let withdrawalPeriodTime = time + (oneDay * 2)
+            await house.setTime(withdrawalPeriodTime, {from: founder})
+
+            await utils.assertFail(house.withdrawPreviousSessionTokensFromHouseOffering
+                                        .sendTransaction(bettingProvider.address, {from: nonFounder}))
+        })
+
+        it('allows authorized addresses to withdraw previous session tokens from house offerings', async () => {
+            let currentSession = await house.currentSession()
+            let previousSession = currentSession.toNumber() - 1
+
+            let providerBalance = await bettingProvider.balanceOf(bettingProvider.address, previousSession)
+            providerBalance = providerBalance.toFixed()
+
+            let newProviderBalance = await newBettingProvider.balanceOf(newBettingProvider.address, previousSession)
+            newProviderBalance = newProviderBalance.toFixed()
+
+            let slotsChannelManagerBalance = await slotsChannelManager.balanceOf(slotsChannelManager.address, previousSession)
+            slotsChannelManagerBalance = slotsChannelManagerBalance.toFixed()
+
+            let initialHouseBalance = await token.balanceOf(house.address)
+
+            console.log('Balances', previousSession, providerBalance, newProviderBalance, slotsChannelManagerBalance, initialHouseBalance.toFixed())
+
+            // Betting provider
+            await house.withdrawPreviousSessionTokensFromHouseOffering.sendTransaction(bettingProvider.address, {from: founder})
+
+            let houseBalance = await token.balanceOf(house.address)
+            houseBalance = houseBalance.toFixed()
+            let expectedHouseBalance = initialHouseBalance.plus(providerBalance).toFixed()
+
+            console.log('Provider withdraw', houseBalance, expectedHouseBalance)
+            assert.equal(houseBalance, expectedHouseBalance,
+                'Invalid house balance after withdrawing from betting provider')
+
+            // New betting provider
+            await house.withdrawPreviousSessionTokensFromHouseOffering.sendTransaction(newBettingProvider.address, {from: founder})
+
+            houseBalance = await token.balanceOf(house.address)
+            houseBalance = houseBalance.toFixed()
+            expectedHouseBalance = initialHouseBalance.plus(providerBalance).plus(newProviderBalance).toFixed()
+
+            console.log('New provider withdraw', houseBalance, expectedHouseBalance)
+            assert.equal(houseBalance, expectedHouseBalance,
+                'Invalid house balance after withdrawing from new betting provider')
+
+            // Slots channel manager
+            await house.withdrawPreviousSessionTokensFromHouseOffering.sendTransaction(slotsChannelManager.address, {from: founder})
+
+            houseBalance = await token.balanceOf(house.address)
+            houseBalance = houseBalance.toFixed()
+            expectedHouseBalance = initialHouseBalance.plus(providerBalance).plus(newProviderBalance)
+                .plus(slotsChannelManagerBalance).toFixed()
+
+            console.log('Slots withdraw', houseBalance, expectedHouseBalance)
+            assert.equal(houseBalance, expectedHouseBalance,
+                'Invalid house balance after withdrawing from slots channel manager')
+        })
+
+        it('disallows users with credits in session one from liquidating credits ' +
+            'before profit distribution period', async () => {
+            let currentSession = await house.currentSession()
+            currentSession = currentSession.toNumber()
+            let previousSession = currentSession - 1
+            await utils.assertFail(house.liquidateCredits.sendTransaction(previousSession, {from: nonFounder}))
+        })
+
+        it('disallows users without credits in session one from liquidating credits ' +
+           'during profit distribution period', async () => {
+            let time = await house.getTime()
+            time = time.toNumber()
+            let oneDay = (24 * 60 * 60)
+
+            let profitDistributionPeriodTime = time + (oneDay * 3)
+
+            console.log('House time', time, profitDistributionPeriodTime)
+            await house.setTime(profitDistributionPeriodTime, {from: founder})
+
+            let currentSession = await house.currentSession()
+            currentSession = currentSession.toNumber()
+            let previousSession = currentSession - 1
+            await utils.assertFail(house.liquidateCredits.sendTransaction(previousSession, {from: nonInvestor}))
+        })
+
+        it('allows users to liquidate credits during profit distribution period', async () => {
+            let currentSession = await house.currentSession()
+            currentSession = currentSession.toNumber()
+            let previousSession = currentSession - 1
+
+            let userCreditsForPrevSession = await house.getUserCreditsForSession(previousSession, nonFounder)
+            let prevSessionCredits = userCreditsForPrevSession[0].toFixed()
+
+            await house.liquidateCredits(previousSession, {from: nonFounder})
+
+            userCreditsForPrevSession = await house.getUserCreditsForSession(previousSession, nonFounder)
+            let liquidatedCredits = userCreditsForPrevSession[1].toFixed()
+
+
+            assert.equal(prevSessionCredits, liquidatedCredits, 'Invalid amount of credits liquidated')
+        })
+
+        // it('disallows users from claiming rolled over credits if they hadn\'t rolled over ' +
+        //    'during session one', async () => {
+        //
+        // })
+        //
+        // it('allows users to claim rolled over credits after session one', async () => {
+        //
+        // })
+        //
+        // it('disallows non-authorized addresses from picking lottery winners', async () => {
+        //
+        // })
+        //
+        // it('allows authorized addresses to pick lottery winners', async () => {
+        //
+        // })
+        //
+        // it('disallows non-authorized addresses from updating lottery winning ticket', async () => {
+        //
+        // })
+        //
+        // it('allows authorized addresses to update lottery winning ticket', async () => {
+        //
+        // })
+        //
+        // it('disallows non-winners from withdrawing lottery winnings', async () => {
+        //
+        // })
+        //
+        // it('allows winners to withdraw lottery winnings', async () => {
+        //
+        // })
+    })
 
 })

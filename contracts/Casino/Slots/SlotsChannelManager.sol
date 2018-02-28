@@ -227,12 +227,12 @@ contract SlotsChannelManager is SlotsImplementation, HouseOffering, SafeMath, Ut
         if(session != currentSession && session != currentSession + 1) return false;
 
         // Record the total number of tokens deposited into the house.
-        depositedTokens[houseAddress][session] = safeAdd(depositedTokens[houseAddress][session], amount);
+        depositedTokens[address(this)][session] = safeAdd(depositedTokens[address(this)][session], amount);
 
         // Transfer tokens from house to betting provider.
         if(!decentBetToken.transferFrom(msg.sender, address(this), amount)) return false;
 
-        LogDeposit(houseAddress, amount, session, depositedTokens[houseAddress][session]);
+        LogDeposit(address(this), amount, session, depositedTokens[address(this)][session]);
         return true;
     }
 
