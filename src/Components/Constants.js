@@ -12,6 +12,7 @@ export const
     COLOR_WHITE_DARK = '#949494',
     COLOR_BLACK = '#000000',
     COLOR_GOLD = '#f2b45c',
+    COLOR_GOLD_DARK = '#bc842e',
     COLOR_TRANSPARENT = 'rgba(0, 0, 0, 0)',
 
     /** Views */

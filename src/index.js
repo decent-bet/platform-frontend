@@ -8,6 +8,7 @@ import App from './Components/Dapp'
 
 import Web3Loader from './Components/Base/Web3Loader'
 
+import './index.css'
 import './css/bootstrap.min.css'
 import './css/font-awesome.min.css'
 import './css/main.css'

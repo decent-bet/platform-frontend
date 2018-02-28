@@ -1,96 +1,67 @@
 .login {
-    min-height: 100vh;
-    background: #12151a;
-    background-size: contain;
+    min-height: 100%;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
+
+    background-image: url('../../../../public/assets/img/backgrounds/platform.PNG');
+    background-size: cover;
+    background-attachment: fixed;
 }
 
-.login .logo {
-    width: 300px;
+.login > * {
+    flex: 0;
+}
+
+.login .login-card {
+    width: 100%;
+    height: 100%;
+}
+
+.login .login-card {
+    border-radius: 10px !important;
+}
+
+.login .login-card .login-actions {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between; 
+}
+
+.login .login-card .login-actions > * {
+    flex: 0 auto;
+}
+
+.login .login-card .login-inner {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+}
+
+.login .login-card .login-inner > * {
+    flex: 1 100%;
+}
+
+.login .login-card .login-inner .half{
+    flex: 0 50%;
+}
+
+.login .login-card .login-inner .generate {
+    flex: 0 auto;
+}
+
+.login .login-card .login-inner .logo-container {
+    flex: 0 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.login .login-card .logo{
+    flex: 0 auto;
+    max-height: 100px;
+    padding: 20px;
     object-fit: contain;
-    display: block;
-    margin: 50px auto 0 auto;
-}
-
-.login .sub-header {
-    font-family: GothamMedium;
-    text-align: center;
-    margin-top: 15px;
-    color: #f2b45c;
-    font-size: 32px;
-}
-
-.login .private-key {
-    margin-top: 25px;
-}
-
-.login .private-key .btns {
-    margin-top: 10px;
-    width: 200px;
-}
-
-.login .login-method {
-    margin-top: 38vh;
-    height: 60px;
-    background: rgba(29, 32, 39, 0.85);
-    filter: none; /*IE6-9 */
-    -moz-box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.2), /*bottom external shadow*/ inset 0 -1px 1px rgba(0, 0, 0, 0.5), /*bottom internal shadow*/ inset 0 1px 0 rgba(73, 77, 88, 1); /*top internal highlight*/
-    -webkit-box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.2), /*bottom external shadow*/ inset 0 -1px 1px rgba(0, 0, 0, 0.5), /*bottom internal shadow*/ inset 0 1px 0 rgba(73, 77, 88, 1); /*top internal highlight*/
-    box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.2), /*bottom external shadow*/ inset 0 -1px 1px rgba(0, 0, 0, 0.5), /*bottom internal shadow*/ inset 0 1px 0 rgba(73, 77, 88, 1); /*top internal highlight*/
-}
-
-.login .enter-credentials {
-    padding: 0 45px;
-    background: -moz-linear-gradient(top, rgba(85, 88, 90, 0.5) 0%, rgba(28, 31, 40, 0.8) 50%, rgba(0, 0, 0, 0.65) 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(top, rgba(85, 88, 90, 0.5) 0%, rgba(28, 31, 40, 0.8) 50%, rgba(0, 0, 0, 0.65) 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to bottom, rgba(85, 88, 90, 0.5) 0%, rgba(28, 31, 40, 0.8) 50%, rgba(0, 0, 0, 0.65) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1a000000', endColorstr='#a6000000', GradientType=0); /* IE6-9 */
-}
-
-.login .enter-credentials p {
-    text-align: center;
-}
-
-.login .login-button {
-    height: 65px;
-    background: rgb(255, 214, 94); /* Old browsers */
-    background: -moz-linear-gradient(top, rgba(255, 214, 94, 0.8) 0%, rgba(198, 138, 55, 0.8) 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(top, rgba(255, 214, 94, 0.8) 0%, rgba(198, 138, 55, 0.8) 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to bottom, rgba(255, 214, 94, 0.8) 0%, rgba(198, 138, 55, 0.8) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffd65e', endColorstr='#febf04', GradientType=0); /* IE6-9 */
-    -moz-box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.2), /*bottom external shadow*/ inset 0 -1px 1px rgba(0, 0, 0, 0.5), /*bottom internal shadow*/ inset 0 1px 0 rgba(244, 240, 132, 1); /*top internal highlight*/
-    -webkit-box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.2), /*bottom external shadow*/ inset 0 -1px 1px rgba(0, 0, 0, 0.5), /*bottom internal shadow*/ inset 0 1px 0 rgba(244, 240, 132, 1); /*top internal highlight*/
-    box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.2), /*bottom external shadow*/ inset 0 -1px 1px rgba(0, 0, 0, 0.5), /*bottom internal shadow*/ inset 0 1px 0 rgba(244, 240, 132, 1); /*top internal highlight*/
-    cursor: pointer;
-}
-
-.login .login-button.disabled {
-    background: rgb(123, 127, 130); /* Old browsers */
-    background: -moz-linear-gradient(top, rgba(123, 127, 130, 0.8) 0%, rgba(47, 49, 62, 0.8) 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(top, rgba(123, 127, 130, 0.8) 0%, rgba(123, 127, 130, 0.8) 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to bottom, rgba(123, 127, 130, 0.8) 0%, rgba(123, 127, 130, 0.8) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffd65e', endColorstr='#febf04', GradientType=0); /* IE6-9 */
-    -moz-box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.2), /*bottom external shadow*/ inset 0 -1px 1px rgba(0, 0, 0, 0.5), /*bottom internal shadow*/ inset 0 1px 0 rgb(189, 193, 194); /*top internal highlight*/
-    -webkit-box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.2), /*bottom external shadow*/ inset 0 -1px 1px rgba(0, 0, 0, 0.5), /*bottom internal shadow*/ inset 0 1px 0 rgba(189, 193, 194, 1); /*top internal highlight*/
-    box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.2), /*bottom external shadow*/ inset 0 -1px 1px rgba(0, 0, 0, 0.5), /*bottom internal shadow*/ inset 0 1px 0 rgba(189, 193, 194, 1); /*top internal highlight*/
-}
-
-.login .login-button p {
-    margin-top: 15px;
-    font-size: 1.25rem;
-    text-shadow: 1px 1px #2f313e;
-    color: #ffffff;
-}
-
-.login .login-button i {
-    font-size: 1.35rem;
-}
-
-.login .generate p {
-    cursor: pointer;
-}
-
-.login .generate p:hover {
-    font-weight: bold;
 }
 
 @media (max-width: 767px) {
@@ -98,11 +69,8 @@
         background-size: 200%;
     }
 
-    .login .login-method {
-        margin-top: 40vh;
+    .login .login-card .logo-container {
+        flex-basis: 100%;
     }
 
-    .login .enter-credentials {
-        padding: 0 20px;
-    }
 }

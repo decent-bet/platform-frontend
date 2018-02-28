@@ -1,7 +1,7 @@
-import React, {Component} from 'react'
-
-import {DropDownMenu, MenuItem, MuiThemeProvider, TextField} from 'material-ui'
-
+import React, { Component } from 'react'
+import { MuiThemeProvider, Card } from 'material-ui'
+import LoginActions from './LoginActions'
+import LoginInner from './LoginInner'
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import Helper from '../../Helper'
 import KeyHandler from '../../Base/KeyHandler'
@@ -16,11 +16,9 @@ const Wallet = ethers.Wallet
 
 const helper = new Helper()
 const keyHandler = new KeyHandler()
-const styles = require('../../Base/styles').styles()
 const themes = new Themes()
 
-class Login extends Component {
-
+export default class Login extends Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -36,249 +34,179 @@ class Login extends Component {
                 }
             }
         }
-        if (keyHandler.isLoggedIn())
-        {
-            props.history.push(constants.VIEW_DEFAULT)
+    }
+
+    login = () => {
+        if (this.state.login === constants.LOGIN_PRIVATE_KEY) {
+            this.loginPrivateKey()
+        } else if (this.state.login === constants.LOGIN_MNEMONIC) {
+            this.loginMnemonic()
         }
     }
 
-    actions = () => {
-        const self = this
-        return {
-            login: () => {
-                if (self.state.login == constants.LOGIN_PRIVATE_KEY)
-                    self.actions().loginPrivateKey()
-                else if (self.state.login == constants.LOGIN_MNEMONIC)
-                    self.actions().loginMnemonic()
-            },
-            loginPrivateKey: () => {
-                try {
-                    const wallet = new Wallet(self.state.key)
-                    keyHandler.set(wallet.privateKey, wallet.address)
-                    window.location = '/'
-                } catch (e) {
-                    self.helpers().toggleErrorDialog(true, 'Error',
-                        'Invalid private key. Please make sure you\'re entering a valid private key')
-                }
-            },
-            loginMnemonic: () => {
-                try {
-                    const wallet = Wallet.fromMnemonic(self.state.mnemonic)
-                    keyHandler.set(wallet.privateKey, wallet.address)
-                    window.location = '/'
-                } catch (e) {
-                    self.helpers().toggleErrorDialog(true, 'Error',
-                        'Invalid mnemonic. Please make sure you\'re entering a valid mnemonic')
-                }
-            },
-            generateMnemonic: () => {
-                let mnemonic = bip39.generateMnemonic()
-                self.setState({
-                    mnemonic: mnemonic
-                })
-            },
-            generatePrivateKey: () => {
-                try {
-                    let mnemonic = bip39.generateMnemonic()
-                    const wallet = Wallet.fromMnemonic(mnemonic)
-                    self.setState({
-                        key: wallet.privateKey
-                    })
-                } catch (e) {
-                    console.log('Error generating private key', e.message)
-                }
-            }
+    loginPrivateKey = () => {
+        try {
+            const wallet = new Wallet(this.state.key)
+            keyHandler.set(wallet.privateKey, wallet.address)
+            this.props.history.push('/')
+        } catch (e) {
+            this.toggleErrorDialog(
+                true,
+                'Error',
+                "Invalid private key. Please make sure you're entering a valid private key"
+            )
         }
     }
 
-    views = () => {
-        const self = this
-        return {
-            loginMethod: () => {
-                return <div className="col-10 col-md-8 mx-auto login-method">
-                    <DropDownMenu
-                        value={self.state.login}
-                        onChange={(event, index, value) => {
-                            let key = self.state.key
-                            let mnemonic = self.state.mnemonic
-                            if (value == constants.LOGIN_MNEMONIC)
-                                mnemonic = ''
-                            else
-                                key = ''
-                            self.setState({
-                                key: key,
-                                mnemonic: mnemonic,
-                                login: value
-                            })
-                        }}
-                        underlineStyle={styles.dropdown.underlineStyle}
-                        labelStyle={styles.dropdown.labelStyle}
-                        selectedMenuItemStyle={styles.dropdown.selectedMenuItemStyle}
-                        menuItemStyle={styles.dropdown.menuItemStyle}
-                        listStyle={styles.dropdown.listStyle}>
-                        <MenuItem value={constants.LOGIN_MNEMONIC} primaryText="Passphrase" style={styles.menuItem}/>
-                        <MenuItem value={constants.LOGIN_PRIVATE_KEY} primaryText="Private key"
-                                  style={styles.menuItem}/>
-                    </DropDownMenu>
-                    <DropDownMenu
-                        className="float-right"
-                        value={self.state.provider}
-                        onChange={(event, index, value) => {
-                            helper.setGethProvider(value)
-                            self.setState({
-                                provider: value
-                            })
-                            // Wait for dropdown animation
-                            setTimeout(() => {
-                                window.location.reload()
-                            }, 500)
-                        }}
-                        underlineStyle={styles.dropdown.underlineStyle}
-                        labelStyle={styles.dropdown.labelStyle}
-                        selectedMenuItemStyle={styles.dropdown.selectedMenuItemStyle}
-                        menuItemStyle={styles.dropdown.menuItemStyle}
-                        listStyle={styles.dropdown.listStyle}>
-                        <MenuItem value={constants.PROVIDER_DBET} primaryText="DBET Node"
-                                  style={styles.menuItem}/>
-                        <MenuItem value={constants.PROVIDER_LOCAL} primaryText="Local Node"
-                                  style={styles.menuItem}/>
-                        <MenuItem value={constants.PROVIDER_INFURA} primaryText="Infura"
-                                  style={styles.menuItem}/>
-                    </DropDownMenu>
-                </div>
-            },
-            enterCredentials: () => {
-                return <div className="col-10 col-md-8 mx-auto enter-credentials">
-                    <div className="row">
-                        <div className="col-12 mt-4 mb-2">
-                            <TextField
-                                type="text"
-                                fullWidth={true}
-                                multiLine={true}
-                                hintText={self.helpers().getHint()}
-                                hintStyle={styles.textField.hintStyle}
-                                inputStyle={styles.textField.inputStyle}
-                                floatingLabelStyle={styles.textField.floatingLabelStyle}
-                                floatingLabelFocusStyle={styles.textField.floatingLabelFocusStyle}
-                                underlineStyle={styles.textField.underlineStyle}
-                                underlineFocusStyle={styles.textField.underlineStyle}
-                                value={self.state.login == constants.LOGIN_MNEMONIC ?
-                                    self.state.mnemonic :
-                                    self.state.key}
-                                onChange={(event, value) => {
-                                    let state = self.state
-                                    if (state.login == constants.LOGIN_PRIVATE_KEY)
-                                        state.key = value
-                                    else if (state.login == constants.LOGIN_MNEMONIC)
-                                        state.mnemonic = value
-                                    self.setState(state)
-                                }}
-                                onKeyPress={self.helpers().loginWithKeyPress}
-                            />
-                        </div>
-                        {   self.state.login == constants.LOGIN_MNEMONIC &&
-                        <div className="col-12 mb-2 generate">
-                            <p className="text-center" onClick={self.actions().generateMnemonic}>Generate passphrase</p>
-                        </div>
-                        }
-                        {   self.state.login == constants.LOGIN_PRIVATE_KEY &&
-                        <div className="col-12 mb-2 generate">
-                            <p className="text-center" onClick={self.actions().generatePrivateKey}>Generate private key</p>
-                        </div>
-                        }
-                    </div>
-                </div>
-            },
-            loginButton: () => {
-                return <div className={"col-10 col-md-8 mx-auto login-button " +
-                (!self.helpers().isValidCredentials() ? 'disabled' : '')}
-                            onClick={() => {
-                                if (self.helpers().isValidCredentials())
-                                    self.actions().login()
-                            }}>
-                    <p className="text-center"><i className="fa fa-key mr-2"/> Login</p>
-                </div>
-            }
+    loginMnemonic = () => {
+        try {
+            const wallet = Wallet.fromMnemonic(this.state.mnemonic)
+            keyHandler.set(wallet.privateKey, wallet.address)
+            this.props.history.push('/')
+        } catch (e) {
+            this.toggleErrorDialog(
+                true,
+                'Error',
+                "Invalid mnemonic. Please make sure you're entering a valid mnemonic"
+            )
         }
     }
 
-    dialogs = () => {
-        const self = this
-        return {
-            error: () => {
-                return <ConfirmationDialog
-                    onClick={() => {
-                        self.helpers().toggleErrorDialog(false)
-                    }}
-                    onClose={() => {
-                        self.helpers().toggleErrorDialog(false)
-                    }}
-                    title={self.state.dialogs.error.title}
-                    message={self.state.dialogs.error.message}
-                    open={self.state.dialogs.error.open}
-                />
-            }
+    generateMnemonic = () => {
+        let mnemonic = bip39.generateMnemonic()
+        this.setState({ mnemonic: mnemonic })
+    }
+
+    generatePrivateKey = () => {
+        try {
+            let mnemonic = bip39.generateMnemonic()
+            const wallet = Wallet.fromMnemonic(mnemonic)
+            this.setState({ key: wallet.privateKey })
+        } catch (e) {
+            console.log('Error generating private key', e.message)
         }
     }
 
-    helpers = () => {
-        const self = this
-        return {
-            toggleErrorDialog: (open, title, message) => {
-                let dialogs = self.state.dialogs
-                dialogs.error = {
-                    open: open,
-                    title: title,
-                    message: message
-                }
-                self.setState({
-                    dialogs: dialogs
-                })
-            },
-            getHint: () => {
-                switch (self.state.login) {
-                    case constants.LOGIN_MNEMONIC:
-                        return "Enter your passphrase"
-                    case constants.LOGIN_PRIVATE_KEY:
-                        return "Enter your private key"
-                }
-            },
-            isValidCredentials: () => {
-                return ((self.state.login == constants.LOGIN_PRIVATE_KEY && self.state.key.length > 0 ||
-                self.state.login == constants.LOGIN_MNEMONIC && self.state.mnemonic.length > 0))
-            },
-            loginWithKeyPress: (ev) => {
-                if (ev.key === 'Enter') {
-                    ev.preventDefault()
-                    if (self.helpers().isValidCredentials())
-                        self.actions().login()
-                }
-            }
+    toggleErrorDialog = (open, title, message) => {
+        let dialogs = this.state.dialogs
+        dialogs.error = {
+            open: open,
+            title: title,
+            message: message
+        }
+        this.setState({
+            dialogs: dialogs
+        })
+    }
+
+    isValidCredentials = () => {
+        let isPrivateKeyValid =
+            this.state.login === constants.LOGIN_PRIVATE_KEY &&
+            this.state.key.length > 0
+        let isMnemonicValid =
+            this.state.login === constants.LOGIN_MNEMONIC &&
+            this.state.mnemonic.length > 0
+        return isPrivateKeyValid || isMnemonicValid
+    }
+
+    loginWithKeyPress = ev => {
+        if (ev.key === 'Enter') {
+            ev.preventDefault()
+            this.onLoginListener()
         }
     }
 
-    render() {
-        const self = this
+    onCloseErrorDialogListener = () => this.toggleErrorDialog(false)
+
+    onLoginListener = () => {
+        if (this.isValidCredentials()) {
+            this.login()
+        }
+    }
+
+    onLoginMethodChangeListener = (event, value) => {
+        let key = this.state.key
+        let mnemonic = this.state.mnemonic
+        if (value === constants.LOGIN_MNEMONIC) {
+            mnemonic = ''
+        } else {
+            key = ''
+        }
+        this.setState({
+            key: key,
+            mnemonic: mnemonic,
+            login: value
+        })
+    }
+
+    onLoginTextChangedListener = (event, value) => {
+        let state = this.state
+        if (state.login === constants.LOGIN_PRIVATE_KEY) {
+            state.key = value
+        } else if (state.login === constants.LOGIN_MNEMONIC) {
+            state.mnemonic = value
+        }
+        this.setState(state)
+    }
+
+    onProviderChangedListener = (event, value) => {
+        helper.setGethProvider(value)
+        this.setState({ provider: value })
+
+        // Wait for dropdown animation
+        setTimeout(() => {
+            window.location.reload()
+        }, 500)
+    }
+
+    renderErrorDialog = () => (
+        <ConfirmationDialog
+            onClick={this.onCloseErrorDialogListener}
+            onClose={this.onCloseErrorDialogListener}
+            title={this.state.dialogs.error.title}
+            message={this.state.dialogs.error.message}
+            open={this.state.dialogs.error.open}
+        />
+    )
+
+    renderCard = () => {
+        let value =
+            this.state.login === constants.LOGIN_MNEMONIC
+                ? this.state.mnemonic
+                : this.state.key
         return (
-            <MuiThemeProvider muiTheme={themes.getAppBar()}>
-                <div className="login">
-                    <div className="container h-100">
-                        <div className="row h-100">
-                            <div className="col">
-                                <div className="row">
-                                    {self.views().loginMethod()}
-                                    {self.views().enterCredentials()}
-                                    {self.views().loginButton()}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {self.dialogs().error()}
-                </div>
-            </MuiThemeProvider>
+            <Card className="login-card">
+                <LoginInner
+                    loginMethod={this.state.login}
+                    provider={this.state.provider}
+                    value={value}
+                    onChange={this.onLoginTextChangedListener}
+                    onLoginKeypress={this.loginWithKeyPress}
+                    onLoginMethodChangeListener={
+                        this.onLoginMethodChangeListener
+                    }
+                    onProviderChangedListener={this.onProviderChangedListener}
+                />
+
+                <LoginActions
+                    loginType={this.state.login}
+                    onGenerateMnemonicListener={this.generateMnemonic}
+                    onGeneratePrivateKeyListener={this.generatePrivateKey}
+                    isLoginDisabled={!this.isValidCredentials()}
+                    onLoginListener={this.onLoginListener}
+                />
+            </Card>
         )
     }
 
+    render() {
+        return (
+            <MuiThemeProvider muiTheme={themes.getMainTheme()}>
+                <main className="login">
+                    <div className="container">{this.renderCard()}</div>
+                    {this.renderErrorDialog()}
+                </main>
+            </MuiThemeProvider>
+        )
+    }
 }
-
-export default Login

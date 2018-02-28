@@ -2,11 +2,22 @@
  * Created by user on 2/23/2017.
  */
 
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import getMuiTheme from 'material-ui/styles/getMuiTheme'
+import darkBaseTheme  from 'material-ui/styles/baseThemes/darkBaseTheme'
 
 const constants = require('./../Constants')
 
 class Themes {
+
+    getMainTheme = () => getMuiTheme(darkBaseTheme, {
+        palette: {
+            primary1Color: constants.COLOR_GOLD,
+            primary2Color: constants.COLOR_GOLD_DARK,
+        },
+        appBar: {
+            height: 60,
+        },
+    })
 
     getAppBar = () => {
         return getMuiTheme({
