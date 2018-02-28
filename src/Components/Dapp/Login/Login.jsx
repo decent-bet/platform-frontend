@@ -1,9 +1,7 @@
 import React, { Component } from 'react'
-import { MuiThemeProvider, Card, CardText } from 'material-ui'
+import { MuiThemeProvider, Card } from 'material-ui'
 import LoginActions from './LoginActions'
-import LoginMethods from './LoginMethods'
-import LoginField from './LoginField'
-
+import LoginInner from './LoginInner'
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import Helper from '../../Helper'
 import KeyHandler from '../../Base/KeyHandler'
@@ -89,18 +87,6 @@ export default class Login extends Component {
         }
     }
 
-    getHint = () => {
-        switch (this.state.login) {
-            case constants.LOGIN_MNEMONIC:
-                return 'Enter your passphrase'
-            case constants.LOGIN_PRIVATE_KEY:
-                return 'Enter your private key'
-            default:
-                // Should never happen
-                return ''
-        }
-    }
-
     toggleErrorDialog = (open, title, message) => {
         let dialogs = this.state.dialogs
         dialogs.error = {
@@ -183,58 +169,41 @@ export default class Login extends Component {
         />
     )
 
-    render() {
-        let logoUrl = `${
-            process.env.PUBLIC_URL
-        }/assets/img/logos/dbet-white.png`
+    renderCard = () => {
         let value =
             this.state.login === constants.LOGIN_MNEMONIC
                 ? this.state.mnemonic
                 : this.state.key
         return (
+            <Card className="login-card">
+                <LoginInner
+                    loginMethod={this.state.login}
+                    provider={this.state.provider}
+                    value={value}
+                    onChange={this.onLoginTextChangedListener}
+                    onLoginKeypress={this.loginWithKeyPress}
+                    onLoginMethodChangeListener={
+                        this.onLoginMethodChangeListener
+                    }
+                    onProviderChangedListener={this.onProviderChangedListener}
+                />
+
+                <LoginActions
+                    loginType={this.state.login}
+                    onGenerateMnemonicListener={this.generateMnemonic}
+                    onGeneratePrivateKeyListener={this.generatePrivateKey}
+                    isLoginDisabled={!this.isValidCredentials()}
+                    onLoginListener={this.onLoginListener}
+                />
+            </Card>
+        )
+    }
+
+    render() {
+        return (
             <MuiThemeProvider muiTheme={themes.getMainTheme()}>
                 <main className="login">
-                    <div className="container">
-                        <Card className="login-card">
-                            <CardText className="login-inner">
-                                <div className="logo-container">
-                                    <img
-                                        className="logo"
-                                        src={logoUrl}
-                                        alt="Decent.bet Logo"
-                                    />
-                                </div>
-                                <LoginMethods
-                                    loginMethod={this.state.login}
-                                    provider={this.state.provider}
-                                    onLoginMethodChangeListener={
-                                        this.onLoginMethodChangeListener
-                                    }
-                                    onProviderChangedListener={
-                                        this.onProviderChangedListener
-                                    }
-                                />
-                                <LoginField
-                                    hintText={this.getHint()}
-                                    value={value}
-                                    onChange={this.onLoginTextChangedListener}
-                                    onLoginKeypress={this.loginWithKeyPress}
-                                />
-                            </CardText>
-
-                            <LoginActions
-                                loginType={this.state.login}
-                                onGenerateMnemonicListener={
-                                    this.generateMnemonic
-                                }
-                                onGeneratePrivateKeyListener={
-                                    this.generatePrivateKey
-                                }
-                                isLoginDisabled={!this.isValidCredentials()}
-                                onLoginListener={this.onLoginListener}
-                            />
-                        </Card>
-                    </div>
+                    <div className="container">{this.renderCard()}</div>
                     {this.renderErrorDialog()}
                 </main>
             </MuiThemeProvider>

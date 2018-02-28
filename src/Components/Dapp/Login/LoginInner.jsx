@@ -1,16 +1,36 @@
-import React, { Fragment } from 'react'
-import { RadioButtonGroup, RadioButton } from 'material-ui'
+import React from 'react'
+import { RadioButtonGroup, RadioButton, TextField, CardText } from 'material-ui'
 
 const constants = require('../../Constants')
+const logoUrl = `${process.env.PUBLIC_URL}/assets/img/logos/dbet-white.png`
 
-export default function LoginMethods({
+function getHint(valueType){
+    switch (valueType) {
+        case constants.LOGIN_MNEMONIC:
+            return 'Enter your passphrase'
+        case constants.LOGIN_PRIVATE_KEY:
+            return 'Enter your private key'
+        default:
+            // Should never happen
+            return ''
+    }
+}
+
+export default function LoginInner({
     loginMethod,
     provider,
+    value,
+    onChange,
+    onLoginKeypress,
     onLoginMethodChangeListener,
     onProviderChangedListener
 }) {
     return (
-        <Fragment>
+        <CardText className="login-inner">
+            <div className="logo-container">
+                <img className="logo" src={logoUrl} alt="Decent.bet Logo" />
+            </div>
+
             <div className="half">
                 <h3>Provider Node</h3>
                 <RadioButtonGroup
@@ -50,6 +70,16 @@ export default function LoginMethods({
                     />
                 </RadioButtonGroup>
             </div>
-        </Fragment>
+
+            <TextField
+                type="text"
+                fullWidth={true}
+                multiLine={true}
+                floatingLabelText={getHint(loginMethod)}
+                value={value}
+                onChange={onChange}
+                onKeyPress={onLoginKeypress}
+            />
+        </CardText>
     )
 }
