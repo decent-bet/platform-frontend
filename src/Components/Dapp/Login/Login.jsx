@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import { MuiThemeProvider } from 'material-ui'
+import { MuiThemeProvider, Card, CardText, CardActions, RaisedButton } from 'material-ui'
 import LoginMethods from './LoginMethods'
 import LoginField from './LoginField'
 
@@ -91,22 +91,6 @@ class Login extends Component {
         }
     }
 
-    views = () => {
-        const self = this
-        return {
-            loginButton: () => {
-                return <div className={"col-10 col-md-8 mx-auto login-button " +
-                (!self.helpers().isValidCredentials() ? 'disabled' : '')}
-                            onClick={() => {
-                                if (self.helpers().isValidCredentials())
-                                    self.actions().login()
-                            }}>
-                    <p className="text-center"><i className="fa fa-key mr-2"/> Login</p>
-                </div>
-            }
-        }
-    }
-
     dialogs = () => {
         const self = this
         return {
@@ -162,6 +146,12 @@ class Login extends Component {
         }
     }
 
+    onLoginListener = () => {
+        if (this.helpers().isValidCredentials()){
+            this.actions().login()
+        }
+    }
+
     onLoginMethodChangeListener = (event, index, value) => {
         let key = this.state.key
         let mnemonic = this.state.mnemonic
@@ -197,49 +187,63 @@ class Login extends Component {
         }, 500)
     }
 
-    render() {
-        const self = this
+    renderLoginButton = () => {
         return (
-            <MuiThemeProvider muiTheme={themes.getAppBar()}>
-                <div className="login">
-                    <div className="container h-100">
-                        <div className="row h-100">
-                            <div className="col">
-                                <div className="row">
-                                    <div className="col-10 col-md-8 mx-auto login-method">
-                                        <LoginMethods
-                                            loginMethod={this.state.login}
-                                            provider={this.state.provider}
-                                            onLoginMethodChangeListener={this.onLoginMethodChangeListener}
-                                            onProviderChangedListener={this.onProviderChangedListener}
-                                            />
-                                    </div>
+            <RaisedButton
+                className="login-button"
+                primary={true}
+                disabled={!this.helpers().isValidCredentials()}
+                onClick={this.onLoginListener}
+                label="Login"
+                icon={<i className="fa fa-key mr-2"/>}
+                />
+        )
+    }
 
-                                    <div className="col-10 col-md-8 mx-auto enter-credentials">
-                                        <div className="row">
-                                            <LoginField
-                                                hintText={this.helpers().getHint()}
-                                                loginType={this.state.login}
-                                                value={
-                                                    this.state.login === constants.LOGIN_MNEMONIC
-                                                        ? this.state.mnemonic
-                                                        : this.state.key
-                                                }
-                                                onChange={this.onLoginTextChangedListener}
-                                                onLoginKeypress={this.helpers().loginWithKeyPress}
-                                                onGenerateMnemonicListener={this.actions().generateMnemonic}
-                                                onGeneratePrivateKeyListener={this.actions().generatePrivateKey}
-                                            />
-                                        </div>
-                                    </div>
+    render() {
+        let logoUrl = `${process.env.PUBLIC_URL}/assets/img/logos/dbet-white.png`
+        return (
+            <MuiThemeProvider muiTheme={themes.getMainTheme()}>
+                <main className="login">
+                    <div className="container">
 
-                                    {self.views().loginButton()}
+                        <Card className="login-card">
+                            <CardText className="login-inner">
+                                <div className="logo-container">
+                                    <img
+                                        className="logo"
+                                        src={logoUrl}
+                                        alt="Decent.bet Logo"
+                                    />
                                 </div>
-                            </div>
-                        </div>
+                                <LoginMethods
+                                    loginMethod={this.state.login}
+                                    provider={this.state.provider}
+                                    onLoginMethodChangeListener={this.onLoginMethodChangeListener}
+                                    onProviderChangedListener={this.onProviderChangedListener}
+                                    />
+                                <LoginField
+                                    hintText={this.helpers().getHint()}
+                                    loginType={this.state.login}
+                                    value={
+                                        this.state.login === constants.LOGIN_MNEMONIC
+                                            ? this.state.mnemonic
+                                            : this.state.key
+                                    }
+                                    onChange={this.onLoginTextChangedListener}
+                                    onLoginKeypress={this.helpers().loginWithKeyPress}
+                                    onGenerateMnemonicListener={this.actions().generateMnemonic}
+                                    onGeneratePrivateKeyListener={this.actions().generatePrivateKey}
+                                />
+                            </CardText>
+
+                            <CardActions className="login-actions">
+                                {this.renderLoginButton()}
+                            </CardActions>
+                        </Card>
                     </div>
-                    {self.dialogs().error()}
-                </div>
+                    {this.dialogs().error()}
+                </main>
             </MuiThemeProvider>
         )
     }
