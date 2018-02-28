@@ -98,7 +98,7 @@ contract House is SafeMath, TimeProvider {
     // Time session 0 begins.
     uint public sessionZeroStartTime = 0;
 
-    uint public MIN_CREDIT_PURCHASE = 1000;
+    uint public MIN_CREDIT_PURCHASE = 1000 ether;
 
     // External Contracts
     AbstractDecentBetToken public decentBetToken;

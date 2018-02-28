@@ -112,12 +112,18 @@ contract('House', (accounts) => {
             await utils.assertFail(house.purchaseCredits(creditsToPurchase, {from: nonFounder}))
         })
 
+        it('disallows users from purchasing house credits if they try to purchase under 1000 DBETs', async () => {
+            const creditsToPurchase = '100000000000000000000'
+            await token.faucet({from: nonFounder})
+            await token.approve(house.address, creditsToPurchase, {from: nonFounder})
+            await utils.assertFail(house.purchaseCredits(creditsToPurchase, {from: nonFounder}))
+        })
+
         it('allows users to purchase house credits if they have a DBET balance', async () => {
             const creditsToPurchase = '1000000000000000000000'
             let currentSession = await house.currentSession()
             currentSession = currentSession.toNumber()
             let nextSession = currentSession + 1
-            await token.faucet({from: nonFounder})
             await token.approve(house.address, creditsToPurchase, {from: nonFounder})
             await house.purchaseCredits(creditsToPurchase, {from: nonFounder})
             let userCredits = await house.getUserCreditsForSession(nextSession, nonFounder)
@@ -629,15 +635,15 @@ contract('House', (accounts) => {
             assert.equal(prevSessionCredits, liquidatedCredits, 'Invalid amount of credits liquidated')
         })
 
-        // it('disallows users from claiming rolled over credits if they hadn\'t rolled over ' +
-        //    'during session one', async () => {
-        //
-        // })
-        //
-        // it('allows users to claim rolled over credits after session one', async () => {
-        //
-        // })
-        //
+        it('disallows users from claiming rolled over credits if they hadn\'t rolled over ' +
+           'during session one', async () => {
+
+        })
+
+        it('allows users to claim rolled over credits after session one', async () => {
+
+        })
+
         // it('disallows non-authorized addresses from picking lottery winners', async () => {
         //
         // })
