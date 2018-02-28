@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-import { RadioButtonGroup, RadioButton, Divider } from 'material-ui'
+import { RadioButtonGroup, RadioButton } from 'material-ui'
 
 const constants = require('../../Constants')
 
@@ -12,7 +12,7 @@ export default function LoginMethods({
     return (
         <Fragment>
             <div className="half">
-                <h3>Provider Type</h3>
+                <h3>Provider Node</h3>
                 <RadioButtonGroup
                     name="providerType"
                     valueSelected={provider}

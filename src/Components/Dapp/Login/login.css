@@ -26,7 +26,7 @@
 .login .login-card .login-actions {
     display: flex;
     flex-flow: row nowrap;
-    justify-content: space-around; 
+    justify-content: space-between; 
 }
 
 .login .login-card .login-actions > * {
@@ -62,10 +62,6 @@
     max-height: 100px;
     padding: 20px;
     object-fit: contain;
-}
-
-.login .login-card .login-inner .login-button {
-    margin: auto;
 }
 
 @media (max-width: 767px) {

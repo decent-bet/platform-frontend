@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
-import { MuiThemeProvider, Card, CardText, CardActions, RaisedButton } from 'material-ui'
+import { MuiThemeProvider, Card, CardText } from 'material-ui'
+import LoginActions from './LoginActions'
 import LoginMethods from './LoginMethods'
 import LoginField from './LoginField'
 
@@ -187,19 +188,6 @@ class Login extends Component {
         }, 500)
     }
 
-    renderLoginButton = () => {
-        return (
-            <RaisedButton
-                className="login-button"
-                primary={true}
-                disabled={!this.helpers().isValidCredentials()}
-                onClick={this.onLoginListener}
-                label="Login"
-                icon={<i className="fa fa-key mr-2"/>}
-                />
-        )
-    }
-
     render() {
         let logoUrl = `${process.env.PUBLIC_URL}/assets/img/logos/dbet-white.png`
         return (
@@ -224,7 +212,6 @@ class Login extends Component {
                                     />
                                 <LoginField
                                     hintText={this.helpers().getHint()}
-                                    loginType={this.state.login}
                                     value={
                                         this.state.login === constants.LOGIN_MNEMONIC
                                             ? this.state.mnemonic
@@ -232,14 +219,16 @@ class Login extends Component {
                                     }
                                     onChange={this.onLoginTextChangedListener}
                                     onLoginKeypress={this.helpers().loginWithKeyPress}
-                                    onGenerateMnemonicListener={this.actions().generateMnemonic}
-                                    onGeneratePrivateKeyListener={this.actions().generatePrivateKey}
                                 />
                             </CardText>
 
-                            <CardActions className="login-actions">
-                                {this.renderLoginButton()}
-                            </CardActions>
+                            <LoginActions
+                                loginType={this.state.login}
+                                onGenerateMnemonicListener={this.actions().generateMnemonic}
+                                onGeneratePrivateKeyListener={this.actions().generatePrivateKey}
+                                isLoginDisabled={!this.helpers().isValidCredentials()}
+                                onLoginListener={this.onLoginListener}
+                            />
                         </Card>
                     </div>
                     {this.dialogs().error()}
