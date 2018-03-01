@@ -1,15 +1,27 @@
-.casino {
-    min-height: 100vh;
+.casino .container {
+    display: grid;
+    padding: 30px 0px;
+    grid-template-columns: repeat(2, 1fr);
+    grid-row-gap: 30px;
+    grid-column-gap: 30px;
 }
 
-.casino .top .logo {
+.casino .logo-container {
+    grid-column: span 2;
+}
+
+.casino .description {
+    grid-column: span 2;
+}
+
+.casino .logo-container .logo {
     height: 48px;
     object-fit: cover;
     display: block;
     margin: 20px auto 0 auto;
 }
 
-.casino .top h3 {
+.casino .logo-container h3 {
     color: #f2b45c;
 }
 
@@ -17,10 +29,19 @@
     color: #f2b45c;
 }
 
+.casino .game-card .card {
+    border-radius: 15px !important;
+}
+
+.casino .game-card .card .background {
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    background-size: cover;
+    height: 300px;
+}
+
 .casino .game-card .title {
     text-align: center;
-    text-transform: uppercase;
-    background: rgba(0, 0, 0, 0.75);
     padding: 10px 0 10px 0;
 }
 

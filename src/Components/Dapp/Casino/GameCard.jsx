@@ -1,10 +1,6 @@
 import React from 'react'
-import { Card } from 'material-ui'
+import { Card, CardMedia, CardText } from 'material-ui'
 import NullableLink from './NullableLink'
-
-const styles = require('../../Base/styles').styles()
-styles.card.padding = 0
-styles.card.borderRadius = 15
 
 // The Text beow the card
 function Subtitle({ available }) {
@@ -30,25 +26,24 @@ export default function GameCard({ title, imgUrl, url, available }) {
         imgUrl +
         ')'
     return (
-        <div className="col-6 hvr-float game-card">
+        <section className="game-card">
             <NullableLink to={url}>
-                <Card style={styles.card} className="mb-4">
-                    <div
-                        style={{
-                            background: parsedBackground,
-                            backgroundSize: 'cover',
-                            paddingTop: 200,
-                            height: 300,
-                            borderRadius: styles.card.borderRadius
-                        }}
-                    >
-                        <div className="title">
-                            <h4 className="mb-0">{title}</h4>
-                            <Subtitle available={available} />
-                        </div>
-                    </div>
+                <Card className="card">
+                    <CardMedia>
+                        <div
+                            className="background"
+                            style={{
+                                background: parsedBackground
+                            }}
+                        />
+                    </CardMedia>
+
+                    <CardText className="title">
+                        <h4>{title}</h4>
+                        <Subtitle available={available} />
+                    </CardText>
                 </Card>
             </NullableLink>
-        </div>
+        </section>
     )
 }
