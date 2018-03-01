@@ -54,7 +54,7 @@ class Casino extends Component {
                 return <div className="row">
                     <div className="col">
                         <div className="top">
-                            <img src={process.env.PUBLIC_URL + '/assets/img/logos/dbet-white.png'} className="logo"/>
+                            <img src={process.env.PUBLIC_URL + '/assets/img/logos/dbet-white.svg'} className="logo"/>
                             <h3 className="text-center mt-3">CASINO</h3>
                         </div>
                     </div>
