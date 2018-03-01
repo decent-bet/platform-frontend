@@ -2,7 +2,7 @@ import React from 'react'
 import { Route, Switch } from 'react-router-dom'
 
 import Balances from '../Balances/Balances'
-import Casino from '../Casino/Casino'
+import Casino from '../Casino'
 import House from '../House/House'
 import Game from '../Casino/Slots/Game'
 import Slots from '../Casino/Slots/Slots'
