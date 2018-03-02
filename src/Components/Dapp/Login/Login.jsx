@@ -26,13 +26,9 @@ export default class Login extends Component {
             key: '',
             mnemonic: '',
             provider: helper.getGethProvider(),
-            dialogs: {
-                error: {
-                    open: false,
-                    title: '',
-                    message: ''
-                }
-            }
+            isErrorDialogOpen: false,
+            errorDialogTitle: '',
+            errorDialogMessage: ''
         }
     }
 
@@ -50,11 +46,12 @@ export default class Login extends Component {
             keyHandler.set(wallet.privateKey, wallet.address)
             this.props.history.push('/')
         } catch (e) {
-            this.toggleErrorDialog(
-                true,
-                'Error',
-                "Invalid private key. Please make sure you're entering a valid private key"
-            )
+            this.setState({
+                isErrorDialogOpen: true,
+                errorDialogTitle: 'Error',
+                errorDialogMessage:
+                    "Invalid private key. Please make sure you're entering a valid private key"
+            })
         }
     }
 
@@ -64,11 +61,12 @@ export default class Login extends Component {
             keyHandler.set(wallet.privateKey, wallet.address)
             this.props.history.push('/')
         } catch (e) {
-            this.toggleErrorDialog(
-                true,
-                'Error',
-                "Invalid mnemonic. Please make sure you're entering a valid mnemonic"
-            )
+            this.setState({
+                isErrorDialogOpen: true,
+                errorDialogTitle: 'Error',
+                errorDialogMessage:
+                    "Invalid mnemonic. Please make sure you're entering a valid mnemonic"
+            })
         }
     }
 
@@ -85,18 +83,6 @@ export default class Login extends Component {
         } catch (e) {
             console.log('Error generating private key', e.message)
         }
-    }
-
-    toggleErrorDialog = (open, title, message) => {
-        let dialogs = this.state.dialogs
-        dialogs.error = {
-            open: open,
-            title: title,
-            message: message
-        }
-        this.setState({
-            dialogs: dialogs
-        })
     }
 
     isValidCredentials = () => {
@@ -116,7 +102,8 @@ export default class Login extends Component {
         }
     }
 
-    onCloseErrorDialogListener = () => this.toggleErrorDialog(false)
+    onCloseErrorDialogListener = () =>
+        this.setState({ isErrorDialogOpen: false })
 
     onLoginListener = () => {
         if (this.isValidCredentials()) {
@@ -163,9 +150,9 @@ export default class Login extends Component {
         <ConfirmationDialog
             onClick={this.onCloseErrorDialogListener}
             onClose={this.onCloseErrorDialogListener}
-            title={this.state.dialogs.error.title}
-            message={this.state.dialogs.error.message}
-            open={this.state.dialogs.error.open}
+            title={this.state.errorDialogTitle}
+            message={this.state.errorDialogMessage}
+            open={this.state.isErrorDialogOpen}
         />
     )
 
