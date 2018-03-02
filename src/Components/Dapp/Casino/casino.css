@@ -1,3 +1,4 @@
+/* CSS Grid. Two Columns. */
 .casino .container {
     display: grid;
     padding: 30px 0px;
@@ -6,12 +7,9 @@
     grid-column-gap: 30px;
 }
 
-.casino .logo-container {
-    grid-column: span 2;
-}
-
-.casino .description {
-    grid-column: span 2;
+/* CSS Grid: span the whole row */
+.casino section {
+    grid-column: 1 / -1;
 }
 
 .casino .logo-container .logo {
@@ -29,14 +27,21 @@
     color: #f2b45c;
 }
 
-.casino .game-card .card {
+.casino .game-card {
     border-radius: 15px !important;
+    cursor: pointer;
 }
 
-.casino .game-card .card .background {
+/* will move the card when it is hovered */
+.casino .game-card:hover{
+    margin-bottom: 20px;
+    margin-top: -20px;
+}
+
+.casino .game-card .background {
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
-    background-size: cover;
+    background-size: cover !important;
     height: 300px;
 }
 

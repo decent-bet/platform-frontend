@@ -4,7 +4,7 @@ import GameCard from './GameCard'
 import './casino.css'
 
 // Main "Casino" Page
-export default function Casino() {
+export default function Casino(props) {
     let logoUrl = `${process.env.PUBLIC_URL}/assets/img/logos/dbet-white.svg`
     return (
         <main className="casino">
@@ -26,18 +26,22 @@ export default function Casino() {
                     imgUrl="backgrounds/slots.jpg"
                     url="/slots"
                     available={true}
+                    history={props.history}
                 />
                 <GameCard
                     title="Craps"
                     imgUrl="backgrounds/craps.jpg"
+                    history={props.history}
                 />
                 <GameCard
                     title="Roulette"
                     imgUrl="backgrounds/roulette.jpg"
+                    history={props.history}
                 />
                 <GameCard
                     title="Crypto price betting"
                     imgUrl="backgrounds/crypto-price-betting.jpg"
+                    history={props.history}
                 />
             </div>
         </main>
