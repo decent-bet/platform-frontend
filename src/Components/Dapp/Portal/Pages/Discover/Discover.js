@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import {Card, Tab, Tabs} from 'material-ui'
+import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 
 import './discover.css'
 
@@ -69,17 +70,17 @@ class Discover extends Component {
                         tabItemContainerStyle={styles.tabItemContainer}>
                         <Tab
                             label={<p className="mb-0">
-                                <span className="fa fa-heart icon mr-2"/> Favorites
+                                <FontAwesomeIcon icon="heart" /> Favorites
                             </p>}
                             buttonStyle={styles.button}/>
                         <Tab
                             label={<p className="mb-0">
-                                <span className="fa fa-id-badge icon mr-2"/> New
+                                <FontAwesomeIcon icon="id-badge" /> New
                             </p>}
                             buttonStyle={styles.button}/>
                         <Tab
                             label={<p className="mb-0">
-                                <span className="fa fa-star icon mr-2"/> Killer Games
+                                <FontAwesomeIcon icon="star" /> Killer Games
                             </p>}
                             buttonStyle={styles.button}/>
                     </Tabs>
@@ -89,7 +90,7 @@ class Discover extends Component {
                 return <div className="col-6 py-2 pl-0 pr-3">
                     <div className="top-right">
                         <p className="text-right text-uppercase clickable">
-                            Favorite Slots <span className="fa fa-caret-right icon ml-1 mr-2"/>
+                            Favorite Slots <FontAwesomeIcon icon="caret-right" />
                         </p>
                     </div>
                 </div>
@@ -113,7 +114,7 @@ class Discover extends Component {
                         className="clickable">
                     </Card>
                     <p className="mt-3 ml-2">
-                        {_offering.name}<span className="ml-3 icon fa fa-caret-right"/>
+                        {_offering.name} <FontAwesomeIcon icon="caret-right" className="ml-3 icon" />
                     </p>
                 </div>
             }
