@@ -23,6 +23,7 @@
     border-radius: 10px !important;
 }
 
+/* Login Dialog Actions */
 .login .login-card .login-actions {
     display: flex;
     flex-flow: row nowrap;
@@ -33,35 +34,21 @@
     flex: 0 auto;
 }
 
+/* Inner Login Dialog. Uses CSS Grid.  */
 .login .login-card .login-inner {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: space-around;
+    display: grid;
+    grid-template-columns: 1fr auto;
 }
 
-.login .login-card .login-inner > * {
-    flex: 1 100%;
+.login .login-card .login-inner .input {
+    grid-column: 1 / -1;
 }
 
-.login .login-card .login-inner .half{
-    flex: 0 50%;
-}
-
-.login .login-card .login-inner .generate {
-    flex: 0 auto;
-}
-
-.login .login-card .login-inner .logo-container {
-    flex: 0 100%;
-    display: flex;
-    justify-content: space-around;
-}
-
-.login .login-card .logo{
-    flex: 0 auto;
+.login .login-card header .logo{
     max-height: 100px;
-    padding: 20px;
-    object-fit: contain;
+    padding: 20px 0px;
+    object-fit: scale-down;
+    object-position: left;
 }
 
 @media (max-width: 767px) {
@@ -69,8 +56,9 @@
         background-size: 200%;
     }
 
-    .login .login-card .logo-container {
-        flex-basis: 100%;
+    /* Changes the layout of the main grid: 1 column only */
+    .login .login-card .login-inner {
+        grid-template-columns: 1fr;
     }
 
 }

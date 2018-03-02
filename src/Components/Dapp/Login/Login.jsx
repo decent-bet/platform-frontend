@@ -136,7 +136,7 @@ export default class Login extends Component {
         this.setState(state)
     }
 
-    onProviderChangedListener = (event, value) => {
+    onProviderChangedListener = (event, index, value) => {
         helper.setGethProvider(value)
         this.setState({ provider: value })
 
