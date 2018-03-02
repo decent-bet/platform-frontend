@@ -10,7 +10,7 @@ export default function LoginNodeTypes({
     return (
         <SelectField
             className="node-types"
-            floatingLabelText="Provider Node Type"
+            floatingLabelText="Provider Node"
             value={provider}
             onChange={onProviderChangedListener}
         >

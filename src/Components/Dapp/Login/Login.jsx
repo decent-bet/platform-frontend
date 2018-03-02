@@ -22,7 +22,7 @@ export default class Login extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            login: constants.LOGIN_PRIVATE_KEY,
+            login: constants.LOGIN_MNEMONIC,
             key: '',
             mnemonic: '',
             provider: helper.getGethProvider(),
