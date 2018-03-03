@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { MenuItem } from 'material-ui'
+import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 
 export default class DashboardDrawerItem extends Component {
     onClick = event => this.props.onViewChangeListener(this.props.viewToSelect)
@@ -7,10 +8,12 @@ export default class DashboardDrawerItem extends Component {
         let itemClasses = this.props.isSelected
             ? 'menu-item selected'
             : 'menu-item'
-        let iconClasses = `fa fa-${this.props.iconClass} menu-icon`
         return (
             <MenuItem className={itemClasses} onClick={this.onClick}>
-                <span className={iconClasses} />
+                <FontAwesomeIcon
+                    icon={this.props.iconClass}
+                    className="menu-icon fa-fw"
+                />
                 {`  ${this.props.title}`}
             </MenuItem>
         )

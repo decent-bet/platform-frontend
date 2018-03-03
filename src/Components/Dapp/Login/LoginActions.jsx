@@ -1,6 +1,7 @@
 import React from 'react'
 import { CardActions, RaisedButton } from 'material-ui'
 import GenerateButton from './GenerateButton'
+import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 
 export default function LoginActions({
     loginType,
@@ -22,7 +23,7 @@ export default function LoginActions({
                 disabled={isLoginDisabled}
                 onClick={onLoginListener}
                 label="Login"
-                icon={<i className="fa fa-key mr-2"/>}
+                icon={<FontAwesomeIcon icon="key" />}
                 />
         </CardActions>
     )

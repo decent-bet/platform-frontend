@@ -3,7 +3,7 @@
  */
 
 import React, {Component} from 'react'
-
+import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import {Card, RaisedButton} from 'material-ui'
 import PurchaseCreditsDialog from './Dialogs/PurchaseCreditsDialog'
 
@@ -365,9 +365,10 @@ class House extends Component {
                     </div>
                     <div className="col-12">
                         <RaisedButton
-                            label={<span className="fa fa-money text-white">
+                            icon={<FontAwesomeIcon icon="money-bill-alt" />}
+                            label={
                                 <span style={styles.buttonLabel }> Purchase Credits</span>
-                            </span>}
+                            }
                             className="float-right"
                             backgroundColor={constants.COLOR_ACCENT_DARK}
                             onClick={() => {
