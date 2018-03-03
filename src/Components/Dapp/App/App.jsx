@@ -15,48 +15,27 @@ export default class App extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            snackbar: {
-                open: false,
-                message: null
-            }
+            snackbarMessage: null,
+            isSnackBarOpen: false
         }
-    }
-
-    componentWillReceiveProps = () => {
-        this.helpers().toggleSnackbar(false, null)
     }
 
     componentWillMount = () => {
-        const self = this
         EventBus.on('showSnackbar', message => {
-            self.helpers().toggleSnackbar(true, message)
+            this.setState({
+                isSnackBarOpen: true,
+                snackbarMessage: message
+            })
         })
     }
 
-    helpers = () => {
-        const self = this
-        return {
-            toggleSnackbar: (open, message) => {
-                let snackbar = self.state.snackbar
-                snackbar.open = open
-                snackbar.message = message
-                self.setState(
-                    Object.assign(self.state.snackbar, {
-                        open: open,
-                        message: message
-                    })
-                )
-            }
-        }
-    }
-
     renderSnackBar = () => {
-        if (this.state.snackbar.message) {
+        if (this.state.snackbarMessage) {
             return (
                 <MuiThemeProvider muiTheme={themes.getSnackbar()}>
                     <Snackbar
-                        message={this.state.snackbar.message}
-                        open={this.state.snackbar.open}
+                        message={this.state.snackbarMessage}
+                        open={this.state.isSnackBarOpen}
                         autoHideDuration={6000}
                     />
                 </MuiThemeProvider>
