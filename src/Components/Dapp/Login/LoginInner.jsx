@@ -2,7 +2,7 @@ import React from 'react'
 import { RadioButtonGroup, RadioButton, TextField, CardText } from 'material-ui'
 
 const constants = require('../../Constants')
-const logoUrl = `${process.env.PUBLIC_URL}/assets/img/logos/dbet-white.png`
+const logoUrl = `${process.env.PUBLIC_URL}/assets/img/logos/dbet-white.svg`
 
 function getHint(valueType){
     switch (valueType) {

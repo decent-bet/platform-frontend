@@ -1,7 +1,7 @@
 import React from 'react'
 
 export default function DashboardDrawerHeader() {
-    let imgSrc = process.env.PUBLIC_URL + '/assets/img/logos/dbet-white.png'
+    let imgSrc = process.env.PUBLIC_URL + '/assets/img/logos/dbet-white.svg'
     return (
         <div className="container drawer">
             <div className="row">
