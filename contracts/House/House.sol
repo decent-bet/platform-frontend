@@ -389,6 +389,8 @@ contract House is SafeMath, TimeProvider {
             safeAdd(houseFunds[session].payouts[msg.sender], payout);
         houseFunds[session].totalUserCredits =
             safeSub(houseFunds[session].totalUserCredits, amount);
+        houseFunds[session].totalFunds =
+            safeSub(houseFunds[session].totalFunds, amount);
         houseFunds[session].userCredits[msg.sender].amount =
             safeSub(houseFunds[session].userCredits[msg.sender].amount, amount);
         houseFunds[session].userCredits[msg.sender].liquidated =
@@ -481,6 +483,11 @@ contract House is SafeMath, TimeProvider {
             adjustedCredits);
         houseFunds[currentSession].totalFunds = safeAdd(houseFunds[currentSession].totalFunds,
             adjustedCredits);
+
+        houseFunds[previousSession].totalUserCredits = safeSub(houseFunds[previousSession].totalUserCredits,
+                                                               rolledOverFromPreviousSession);
+        houseFunds[previousSession].totalFunds = safeSub(houseFunds[previousSession].totalFunds,
+            rolledOverFromPreviousSession);
 
         for(uint i = 0; i < sessions[currentSession].offerings.length; i++) {
             address houseOffering = sessions[currentSession].offerings[i];
@@ -655,12 +662,12 @@ contract House is SafeMath, TimeProvider {
 
     // Utility functions for front-end purposes.
     function getUserCreditsForSession(uint session, address _address) constant
-    returns (uint amount, uint liquidated, uint rolledOverToNextSession, bool exists,
+    returns (uint amount, uint liquidated, uint rolledOverToNextSession, uint claimedFromPreviousSession,
              uint totalFunds, uint totalUserCredits) {
         return (houseFunds[session].userCredits[_address].amount,
                 houseFunds[session].userCredits[_address].liquidated,
                 houseFunds[session].userCredits[_address].rolledOverToNextSession,
-                houseFunds[session].userCredits[_address].exists,
+                houseFunds[session].userCredits[_address].claimedFromPreviousSession,
                 houseFunds[session].totalFunds,
                 houseFunds[session].totalUserCredits);
     }

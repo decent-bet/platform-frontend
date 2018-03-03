@@ -637,11 +637,31 @@ contract('House', (accounts) => {
 
         it('disallows users from claiming rolled over credits if they hadn\'t rolled over ' +
            'during session one', async () => {
-
+            utils.assertFail(house.claimRolledOverCredits({from: nonInvestor}))
         })
 
         it('allows users to claim rolled over credits after session one', async () => {
+            let currentSession = await house.currentSession()
+            currentSession = currentSession.toNumber()
+            let previousSession = currentSession - 1
 
+            let userCreditsForCurrentSession = await house.getUserCreditsForSession(currentSession, nonFounder)
+            let userCreditsForPrevSession = await house.getUserCreditsForSession(previousSession, nonFounder)
+
+            let rolledOverFromPrev = userCreditsForPrevSession[2].toFixed()
+            let amountInCurrBeforeClaimingRollOver = userCreditsForCurrentSession[0].toFixed()
+
+            await house.claimRolledOverCredits({from: nonFounder})
+
+            userCreditsForCurrentSession = await house.getUserCreditsForSession(currentSession, nonFounder)
+
+            let claimedFromPrev = userCreditsForCurrentSession[3].toFixed()
+            let amountInCurrAfterClaimingRollOver = userCreditsForCurrentSession[0].toFixed()
+
+            assert.equal(rolledOverFromPrev, claimedFromPrev, 'Rolled over and claimed are not equal')
+            assert.equal(amountInCurrAfterClaimingRollOver,
+                         new BigNumber(amountInCurrBeforeClaimingRollOver).plus(rolledOverFromPrev).toFixed(),
+                         'Amount before and after claiming rolled over credits do not match')
         })
 
         // it('disallows non-authorized addresses from picking lottery winners', async () => {
