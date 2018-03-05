@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
-
 import {Card, CircularProgress, FlatButton, MuiThemeProvider} from 'material-ui'
+import SlotsGameCard from './SlotsGameCard'
 
 import GetSlotsChipsDialog from './Dialogs/GetSlotsChipsDialog'
 import NewChannelDialog from './Dialogs/NewChannelDialog'
@@ -367,49 +367,6 @@ class Slots extends Component {
     views = () => {
         const self = this
         return {
-            top: () => {
-                return <div className="row">
-                    <div className="col">
-                        <div className="top">
-                            <img src={process.env.PUBLIC_URL + '/assets/img/logos/dbet-white.svg'} className="logo"/>
-                            <h3 className="text-center mt-3">SLOTS</h3>
-                        </div>
-                    </div>
-                </div>
-            },
-            intro: () => {
-                return <div className="row">
-                    <div className="col-12" style={{marginTop: 30}}>
-                        <div className="intro">
-                            <h5 className="text-center text-uppercase">Select a slot machine from the variety <span
-                                className="text-gold">Decent.bet </span> offers to start a new channel</h5>
-                        </div>
-                    </div>
-                </div>
-            },
-            slotMachines: () => {
-                return <div className="row">
-                    <div className="col-12" style={{marginTop: 45}}>
-                        { self.views().slotsCard('Crypto Chaos', 'backgrounds/slots-crypto-chaos.png')}
-                    </div>
-                </div>
-            },
-            slotsCard: (name, imgUrl) => {
-                return <div className="col-6 hvr-float">
-                    <Card style={styles.card} className="mb-4">
-                        <div style={{
-                            background: 'url(' + process.env.PUBLIC_URL + 'assets/img/' + imgUrl + ')',
-                            backgroundSize: 'cover',
-                            paddingTop: 225,
-                            height: 300,
-                            borderRadius: styles.card.borderRadius
-                        }} onClick={() => {
-                            self.helpers().toggleDialog(DIALOG_NEW_CHANNEL, true)
-                        }}>
-                        </div>
-                    </Card>
-                </div>
-            },
             slotChannelsCard: () => {
                 return <div className="row channels">
                     <div className="col-12">
@@ -593,19 +550,47 @@ class Slots extends Component {
         }
     }
 
+    // Click the Slots Card
+    onSlotsGameClickedListener = () => this.helpers().toggleDialog(DIALOG_NEW_CHANNEL, true)
+
     render() {
-        const self = this
-        return <div className="slots">
-            <div className="container">
-                { self.views().top() }
-                { self.views().intro() }
-                { self.views().slotMachines() }
-                { self.views().slotChannelsCard() }
-                { self.dialogs().newChannel() }
-                { self.dialogs().getSlotsChips() }
-                { self.dialogs().withdrawSlotsChips() }
-            </div>
-        </div>
+        return (
+            <main className="slots">
+                <div className="container">
+
+                    <div className="row">
+                        <div className="col">
+                            <div className="top">
+                                <img src={process.env.PUBLIC_URL + '/assets/img/logos/dbet-white.svg'} className="logo"/>
+                                <h3 className="text-center mt-3">SLOTS</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="row">
+                        <div className="col-12" style={{marginTop: 30}}>
+                            <div className="intro">
+                                <h5 className="text-center text-uppercase">Select a slot machine from the variety <span
+                                    className="text-gold">Decent.bet </span> offers to start a new channel</h5>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="row">
+                        <div className="col-12" style={{marginTop: 45}}>
+                            <SlotsGameCard
+                                imageUrl='backgrounds/slots-crypto-chaos.png'
+                                onClickListener={this.onSlotsGameClickedListener}
+                            />
+                        </div>
+                    </div>
+                    { this.views().slotChannelsCard() }
+                    { this.dialogs().newChannel() }
+                    { this.dialogs().getSlotsChips() }
+                    { this.dialogs().withdrawSlotsChips() }
+                </div>
+            </main>
+        )
     }
 
 }
