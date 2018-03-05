@@ -13,6 +13,7 @@ class Themes {
         palette: {
             primary1Color: constants.COLOR_GOLD,
             primary2Color: constants.COLOR_GOLD_DARK,
+            accent1Color: constants.COLOR_BLUE
         },
         appBar: {
             height: 60,

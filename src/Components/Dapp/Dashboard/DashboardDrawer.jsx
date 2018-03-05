@@ -27,7 +27,7 @@ export default class DashboardDrawer extends Component {
                     isSelected={selectedView === constants.VIEW_BALANCES}
                     onViewChangeListener={onViewChangeListener}
                     title="Balances"
-                    iconClass="money"
+                    iconClass="money-bill-alt"
                 />
 
                 <DashboardDrawerItem
@@ -47,7 +47,7 @@ export default class DashboardDrawer extends Component {
                     isSelected={selectedView === constants.VIEW_PORTAL}
                     onViewChangeListener={onViewChangeListener}
                     title="Portal"
-                    iconClass="soccer-ball-o"
+                    iconClass="futbol"
                 />
 
                 <DashboardDrawerItem
@@ -63,7 +63,7 @@ export default class DashboardDrawer extends Component {
                     isSelected={false}
                     onViewChangeListener={onViewChangeListener}
                     title="Logout"
-                    iconClass="sign-out"
+                    iconClass="sign-out-alt"
                 />
 
                 {this.props.children}
