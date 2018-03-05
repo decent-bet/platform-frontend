@@ -4,7 +4,7 @@ import { Route, Switch, Redirect } from 'react-router-dom'
 import Balances from '../Balances/Balances'
 import House from '../House/House'
 import Game from '../Casino/Slots/Game'
-import Slots from '../Casino/Slots/Slots'
+import Slots from '../Casino/Slots'
 import Portal from '../Portal/Portal'
 
 const constants = require('../../Constants')
