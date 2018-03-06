@@ -399,13 +399,18 @@ class Slots extends Component {
         }
     }
 
-    // How many Chips are in the session? if null, then session isn't open yet 
+    // How many Chips are in the session? if session isn't open, print `placeholder`
     getChipBalance(placeholder=null){
-        let areTokensInSession = (this.state.currentSession >= 0 &&
-            this.state.balances[this.state.currentSession] >= 0)
-        return areTokensInSession ?
-                (helper.getWeb3().utils.fromWei(this.state.balances[this.state.currentSession].toString())) :
-                placeholder
+        if (this.state.currentSession >= 0){
+            if (this.state.balances[this.state.currentSession] >= 0){
+                // Session is open. Print token total
+                let sessionString = this.state.balances[this.state.currentSession].toString()
+                return helper.getWeb3().utils.fromWei(sessionString)
+            }
+        }
+
+        // Session not open. Print Placeholder
+        return placeholder
     }
 
     // Click the Slots Card
