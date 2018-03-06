@@ -20,17 +20,6 @@ const slotsChannelHandler = new SlotsChannelHandler()
 
 const constants = require('./../../../Constants')
 
-const styles = require('../../../Base/styles').styles()
-styles.card.padding = 0
-styles.card.borderRadius = 15
-styles.button = {
-    fontSize: 12,
-    marginTop: 12.5,
-    marginRight: 10,
-    fontFamily: 'Lato',
-    color: constants.COLOR_WHITE
-}
-
 const DIALOG_NEW_CHANNEL = 0, DIALOG_GET_CHIPS = 1, DIALOG_WITHDRAW_CHIPS = 2
 
 class Slots extends Component {
