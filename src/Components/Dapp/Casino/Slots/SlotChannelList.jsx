@@ -30,7 +30,7 @@ export default function SlotChannelList({
                     <div className="col">
                         <SlotChannelListInner
                             stateChannels={stateChannels}
-                            onDepositToChannelListener={stateChannels}
+                            onDepositToChannelListener={onDepositToChannelListener}
                         />
                     </div>
                 </div>
