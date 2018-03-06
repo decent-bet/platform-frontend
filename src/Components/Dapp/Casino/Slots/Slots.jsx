@@ -395,57 +395,50 @@ class Slots extends Component {
                         self.helpers().toggleDialog(DIALOG_GET_CHIPS, open)
                     }}
                 />
-            },
-            withdrawSlotsChips: () => {
-                return <WithdrawSlotsChipsDialog
-                    open={self.state.dialogs.withdrawChips.open}
-                    balance={(self.state.currentSession >= 0 &&
-                    self.state.balances[self.state.currentSession] >= 0) ?
-                        (helper.getWeb3().utils.fromWei(self.state.balances[self.state.currentSession].toString())) :
-                        null}
-                    onWithdrawChips={(amount) => {
-                        console.log('onWithdrawChips', amount, self.state.balances[self.state.currentSession])
-                        let balance = new BigNumber(self.state.balances[self.state.currentSession])
-                        if (balance.greaterThanOrEqualTo(amount))
-                            self.web3Setters().withdraw(amount.toString(), self.state.currentSession)
-                        self.helpers().toggleDialog(DIALOG_WITHDRAW_CHIPS, false)
-                    }}
-                    toggleDialog={(open) => {
-                        self.helpers().toggleDialog(DIALOG_WITHDRAW_CHIPS, open)
-                    }}
-                />
             }
         }
+    }
+
+    // How many Chips are in the session? if null, then session isn't open yet 
+    getChipBalance(placeholder=null){
+        let areTokensInSession = (this.state.currentSession >= 0 &&
+            this.state.balances[this.state.currentSession] >= 0)
+        return areTokensInSession ?
+                (helper.getWeb3().utils.fromWei(this.state.balances[this.state.currentSession].toString())) :
+                placeholder
     }
 
     // Click the Slots Card
     onSlotsGameClickedListener = () => this.helpers().toggleDialog(DIALOG_NEW_CHANNEL, true)
     
+    // Opens the dialog to withdraw chips
+    onWithdrawChipsDialogOpenListener = () => this.onWithdrawChipsDialogToggleListener(true)
+    onWithdrawChipsDialogToggleListener = isOpen => this.helpers().toggleDialog(DIALOG_WITHDRAW_CHIPS, isOpen)
+
     // Withdraw Chips from the State Channel
-    onWithdrawChipsListener = () => this.helpers().toggleDialog(DIALOG_WITHDRAW_CHIPS, true)
+    onWithdrawChipsListener = amount => {
+        console.log('onWithdrawChips', amount, this.state.balances[this.state.currentSession])
+        let balance = new BigNumber(this.state.balances[this.state.currentSession])
+        if (balance.greaterThanOrEqualTo(amount)){
+            this.web3Setters().withdraw(amount.toString(), this.state.currentSession)
+        }
+        this.onWithdrawChipsDialogToggleListener(false)
+    }
     
-    // Deposits Tokens and transforms them into Chips
-    onGetChipsListener = () => this.helpers().toggleDialog(DIALOG_GET_CHIPS, true)
+    // Opens the Dialog to deposits tokens and transform them into Chips
+    onGetChipsDialogOpenListener = () => this.helpers().toggleDialog(DIALOG_GET_CHIPS, true)
 
     renderChannelList = () => {
         // Prints the amount of available Chips, or a loader component
-        let chipsLabel = this.state.currentSession >= 0 &&
-            this.state.balances[this.state.currentSession] >= 0
-            ? helper
-                  .getWeb3()
-                  .utils.fromWei(
-                      this.state.balances[
-                          this.state.currentSession
-                      ].toString()
-                  ) + ' DBETs'
-            : <CircularProgress size={18} color={constants.COLOR_GOLD}/>
+        let chipBalance = this.getChipBalance(<CircularProgress size={18} color={constants.COLOR_GOLD}/>)
+        let chipsLabel = chipBalance ? chipBalance : `${chipBalance} DBETs`
         
         return (
             <div className="row channels">
                 <div className="col-12">
                     <ChipToolbar
-                        onWithdrawChipsListener={this.onWithdrawChipsListener}
-                        onGetChipsListener={this.onGetChipsListener}
+                        onWithdrawChipsListener={this.onWithdrawChipsDialogOpenListener}
+                        onGetChipsListener={this.onGetChipsDialogOpenListener}
                         chipsLabel={chipsLabel}
                     />
                 </div>
@@ -456,6 +449,17 @@ class Slots extends Component {
                     />
                 </div>
             </div>
+        )
+    }
+
+    renderWithdrawChipsDialog = () => {
+        return (
+            <WithdrawSlotsChipsDialog
+                open={this.state.dialogs.withdrawChips.open}
+                balance={this.getChipBalance()}
+                onWithdrawChips={this.onWithdrawChipsListener}
+                toggleDialog={this.onWithdrawChipsDialogToggleListener}
+            />
         )
     }
 
@@ -492,10 +496,10 @@ class Slots extends Component {
                     </div>
 
                     { this.renderChannelList() }
+                    { this.renderWithdrawChipsDialog() }
 
                     { this.dialogs().newChannel() }
                     { this.dialogs().getSlotsChips() }
-                    { this.dialogs().withdrawSlotsChips() }
                 </div>
             </main>
         )
