@@ -370,8 +370,10 @@ class Slots extends Component {
 
     renderChannelList = () => {
         // Prints the amount of available Chips, or a loader component
-        let chipBalance = this.getChipBalance(<CircularProgress size={18} color={constants.COLOR_GOLD}/>)
-        let chipsLabel = chipBalance ? chipBalance : `${chipBalance} DBETs`
+        let chipBalance = this.getChipBalance()
+        let chipsLabel = chipBalance 
+            ? `${chipBalance} DBETs` 
+            : <CircularProgress size={18} color={constants.COLOR_GOLD}/>
         
         return (
             <div className="row channels">
