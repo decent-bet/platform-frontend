@@ -11,8 +11,7 @@ export default class DashboardDrawer extends Component {
             isDrawerOpen,
             onDrawerStatusChangeListener,
             onViewChangeListener,
-            selectedView,
-            onLogoutListener
+            selectedView
         } = this.props
         return (
             <Drawer
@@ -65,7 +64,6 @@ export default class DashboardDrawer extends Component {
                     onViewChangeListener={onViewChangeListener}
                     title="Logout"
                     iconClass="sign-out-alt"
-                    onClick={onLogoutListener}
                 />
 
                 {this.props.children}

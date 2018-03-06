@@ -162,7 +162,6 @@ class Dashboard extends Component {
             onDrawerStatusChangeListener={this.onDrawerButtonPressedListener}
             onViewChangeListener={this.onViewChangeListener}
             selectedView={this.props.location.pathname}
-            onLogoutListener={this.onLogoutListener}
         >
             <ProviderSelector
                 onProviderChangeListener={this.onProviderChangeListener}
