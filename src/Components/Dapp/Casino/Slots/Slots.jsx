@@ -337,18 +337,6 @@ class Slots extends Component {
                 self.setState({
                     dialogs: dialogs
                 })
-            },
-            getFormattedChannelStatus: (status) => {
-                switch (status) {
-                    case constants.CHANNEL_STATUS_WAITING:
-                        return constants.FORMATTED_CHANNEL_STATUS_WAITING
-                    case constants.CHANNEL_STATUS_DEPOSITED:
-                        return constants.FORMATTED_CHANNEL_STATUS_DEPOSITED
-                    case constants.CHANNEL_STATUS_ACTIVATED:
-                        return constants.FORMATTED_CHANNEL_STATUS_ACTIVATED
-                    case constants.CHANNEL_STATUS_FINALIZED:
-                        return constants.FORMATTED_CHANNEL_STATUS_FINALIZED
-                }
             }
         }
     }
