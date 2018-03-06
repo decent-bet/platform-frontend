@@ -1,5 +1,5 @@
 import React, {Component, Fragment} from 'react'
-import {CircularProgress } from 'material-ui'
+import { CircularProgress, MuiThemeProvider } from 'material-ui'
 import SlotsGameCard from './SlotsGameCard'
 import SlotsChannelList from './SlotChannelList'
 import ChipToolbar from './ChipToolbar'
@@ -12,6 +12,8 @@ import EventBus from 'eventing-bus'
 import Helper from '../../../Helper'
 import SlotsChannelHandler from './Libraries/SlotsChannelHandler'
 
+import Themes from '../../../Base/Themes'
+
 import './slots.css'
 
 const BigNumber = require('bignumber.js')
@@ -19,6 +21,7 @@ const helper = new Helper()
 const slotsChannelHandler = new SlotsChannelHandler()
 
 const constants = require('./../../../Constants')
+const themes = new Themes()
 
 class Slots extends Component {
 
@@ -411,47 +414,49 @@ class Slots extends Component {
             <NewChannelDialog
                 open={this.state.isDialogNewChannelOpen}
                 onCreateChannel={this.onCreateChannelListener}
-                toggleDialog={this.onGetChipsDialogOpenListener}
+                toggleDialog={this.onNewChannelDialogToggleListener}
             />
         </Fragment>
     )
 
     render() {
         return (
-            <main className="slots">
-                <div className="container">
+            <MuiThemeProvider muiTheme={themes.getMainTheme()}>
+                <main className="slots">
+                    <div className="container">
 
-                    <div className="row">
-                        <div className="col">
-                            <div className="top">
-                                <img src={process.env.PUBLIC_URL + '/assets/img/logos/dbet-white.svg'} className="logo"/>
-                                <h3 className="text-center mt-3">SLOTS</h3>
+                        <div className="row">
+                            <div className="col">
+                                <div className="top">
+                                    <img src={process.env.PUBLIC_URL + '/assets/img/logos/dbet-white.svg'} className="logo"/>
+                                    <h3 className="text-center mt-3">SLOTS</h3>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="row">
-                        <div className="col-12" style={{marginTop: 30}}>
-                            <div className="intro">
-                                <h5 className="text-center text-uppercase">Select a slot machine from the variety <span
-                                    className="text-gold">Decent.bet </span> offers to start a new channel</h5>
+                        <div className="row">
+                            <div className="col-12" style={{marginTop: 30}}>
+                                <div className="intro">
+                                    <h5 className="text-center text-uppercase">Select a slot machine from the variety <span
+                                        className="text-gold">Decent.bet </span> offers to start a new channel</h5>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="row">
-                        <div className="col-12" style={{marginTop: 45}}>
-                            <SlotsGameCard
-                                imageUrl='backgrounds/slots-crypto-chaos.png'
-                                onClickListener={this.onSlotsGameClickedListener}
-                            />
+                        <div className="row">
+                            <div className="col-12" style={{marginTop: 45}}>
+                                <SlotsGameCard
+                                    imageUrl='backgrounds/slots-crypto-chaos.png'
+                                    onClickListener={this.onSlotsGameClickedListener}
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    { this.renderChannelList() }
-                    { this.renderDialogs() }
-                </div>
-            </main>
+                        { this.renderChannelList() }
+                        { this.renderDialogs() }
+                    </div>
+                </main>
+            </MuiThemeProvider>
         )
     }
 
