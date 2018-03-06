@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, {Component, Fragment} from 'react'
 import {CircularProgress } from 'material-ui'
 import SlotsGameCard from './SlotsGameCard'
 import SlotsChannelList from './SlotChannelList'
@@ -379,23 +379,6 @@ class Slots extends Component {
                     }}
                 />
             },
-            getSlotsChips: () => {
-                return <GetSlotsChipsDialog
-                    open={self.state.dialogs.getChips.open}
-                    allowance={self.state.allowance}
-                    onGetChips={(amount) => {
-                        let allowance = new BigNumber(self.state.allowance)
-                        if (allowance.lessThan(amount))
-                            self.web3Setters().approveAndDeposit(amount.toString())
-                        else
-                            self.web3Setters().deposit(amount.toString())
-                        self.helpers().toggleDialog(DIALOG_GET_CHIPS, false)
-                    }}
-                    toggleDialog={(open) => {
-                        self.helpers().toggleDialog(DIALOG_GET_CHIPS, open)
-                    }}
-                />
-            }
         }
     }
 
@@ -431,7 +414,19 @@ class Slots extends Component {
     }
     
     // Opens the Dialog to deposits tokens and transform them into Chips
-    onGetChipsDialogOpenListener = () => this.helpers().toggleDialog(DIALOG_GET_CHIPS, true)
+    onGetChipsDialogOpenListener = () => this.onGetChipsDialogToggleListener(true)
+    onGetChipsDialogToggleListener = isOpen => this.helpers().toggleDialog(DIALOG_GET_CHIPS, isOpen)
+
+    // Deposit Tokens and convert them to Chips
+    onGetChipsListener = amount => {
+        let allowance = new BigNumber(this.state.allowance)
+        if (allowance.lessThan(amount)){
+            this.web3Setters().approveAndDeposit(amount.toString())
+        } else {
+            this.web3Setters().deposit(amount.toString())
+        }
+        this.helpers().toggleDialog(DIALOG_GET_CHIPS, false)
+    }
 
     renderChannelList = () => {
         // Prints the amount of available Chips, or a loader component
@@ -457,16 +452,22 @@ class Slots extends Component {
         )
     }
 
-    renderWithdrawChipsDialog = () => {
-        return (
+    renderDialogs = () => (
+        <Fragment>
             <WithdrawSlotsChipsDialog
                 open={this.state.dialogs.withdrawChips.open}
                 balance={this.getChipBalance()}
                 onWithdrawChips={this.onWithdrawChipsListener}
                 toggleDialog={this.onWithdrawChipsDialogToggleListener}
             />
-        )
-    }
+            <GetSlotsChipsDialog
+                open={this.state.dialogs.getChips.open}
+                allowance={this.state.allowance}
+                onGetChips={this.onGetChipsListener}
+                toggleDialog={this.onGetChipsDialogToggleListener}
+            />
+        </Fragment>
+    )
 
     render() {
         return (
@@ -501,10 +502,9 @@ class Slots extends Component {
                     </div>
 
                     { this.renderChannelList() }
-                    { this.renderWithdrawChipsDialog() }
+                    { this.renderDialogs() }
 
                     { this.dialogs().newChannel() }
-                    { this.dialogs().getSlotsChips() }
                 </div>
             </main>
         )
