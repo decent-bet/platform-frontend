@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
-import {Card, CircularProgress, FlatButton, MuiThemeProvider} from 'material-ui'
+import {CircularProgress } from 'material-ui'
 import SlotsGameCard from './SlotsGameCard'
+import SlotsChannelList from './SlotChannelList'
 
 import GetSlotsChipsDialog from './Dialogs/GetSlotsChipsDialog'
 import NewChannelDialog from './Dialogs/NewChannelDialog'
@@ -9,14 +10,12 @@ import WithdrawSlotsChipsDialog from './Dialogs/WithdrawSlotsChipsDialog'
 import EventBus from 'eventing-bus'
 import Helper from '../../../Helper'
 import SlotsChannelHandler from './Libraries/SlotsChannelHandler'
-import Themes from '../../../Base/Themes'
 
 import './slots.css'
 
 const BigNumber = require('bignumber.js')
 const helper = new Helper()
 const slotsChannelHandler = new SlotsChannelHandler()
-const themes = new Themes()
 
 const constants = require('./../../../Constants')
 
@@ -364,138 +363,6 @@ class Slots extends Component {
         }
     }
 
-    views = () => {
-        const self = this
-        return {
-            slotChannelsCard: () => {
-                return <div className="row channels">
-                    <div className="col-12">
-                        {/** Slots chips are merely DBETs that're deposited into the Slots Channel Manager contract
-                         and can be withdrawn at any time*/}
-                        <button className="btn btn-sm btn-primary hvr-fade float-right"
-                                style={styles.button}>
-                            Slots chips:
-                            <span className="ml-1">{
-                                (self.state.currentSession >= 0 &&
-                                self.state.balances[self.state.currentSession] >= 0) ?
-                                    (helper.getWeb3().utils
-                                        .fromWei(self.state.balances[self.state.currentSession].toString()) + ' DBETs') :
-                                    self.views().tinyLoader()
-                            }
-                            </span>
-                        </button>
-                        <button className="btn btn-sm btn-primary hvr-fade float-right text"
-                                style={styles.button}
-                                onClick={() => {
-                                    self.helpers().toggleDialog(DIALOG_WITHDRAW_CHIPS, true)
-                                }}>
-                            Withdraw Chips
-                        </button>
-                        <button className="btn btn-sm btn-primary hvr-fade float-right text"
-                                style={styles.button}
-                                onClick={() => {
-                                    self.helpers().toggleDialog(DIALOG_GET_CHIPS, true)
-                                }}>
-                            Get slots chips
-                        </button>
-                    </div>
-                    <div className="col-12 mt-4">
-                        <Card style={styles.card} className="p-4">
-                            <section>
-                                <h3 className="text-center text-uppercase mb-3">Open channels</h3>
-                                <small className="text-white"><span
-                                    className="text-gold font-weight-bold">Decent.bet </span>
-                                    relies on "State Channels" to
-                                    ensure casino users can enjoy lightning fast games while still being secured by
-                                    smart
-                                    contracts
-                                    on the blockchain. Listed below are channels created from your current address
-                                    which can be continued or closed at any point in time.
-                                </small>
-                                { self.views().slotChannels() }
-                            </section>
-                        </Card>
-                    </div>
-                </div>
-            },
-            slotChannels: () => {
-                return <div className="row">
-                    <div className="col">
-                        <table className="table table-striped mt-4">
-                            <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Deposit</th>
-                                <th>Status</th>
-                                <th>Options</th>
-                            </tr>
-                            </thead>
-                            { Object.keys(self.state.channels).length > 0 &&
-                            <tbody>
-                            {   Object.keys(self.state.channels).map((id, index) =>
-                                <tr>
-                                    <th scope="row"><p>{id}</p></th>
-                                    <td>
-                                        <p>
-                                            {
-                                                self.state.channels.hasOwnProperty(id) &&
-                                                self.state.channels[id].hasOwnProperty('initialDeposit') ?
-                                                    helper.getWeb3().utils.fromWei(self.state.channels[id]
-                                                        .initialDeposit.toString()) :
-                                                    self.views().tinyLoader()
-                                            } DBETs
-                                        </p>
-                                    </td>
-                                    <td>
-                                        <p>{ self.helpers().getFormattedChannelStatus(self.state.channels[id].status) }
-                                        </p>
-                                    </td>
-                                    <MuiThemeProvider muiTheme={themes.getButtons()}>
-                                        <td>
-                                            <FlatButton
-                                                label="Deposit"
-                                                disabled={self.state.channels[id].status !==
-                                                constants.CHANNEL_STATUS_WAITING}
-                                                onClick={() => {
-                                                    self.web3Setters().depositToChannel(id)
-                                                }}/>
-
-                                            <FlatButton
-                                                label="Play"
-                                                className="ml-4"
-                                                disabled={self.state.channels[id].status !== constants.CHANNEL_STATUS_ACTIVATED}
-                                                href={'/slots/game?id=' + id}/>
-
-                                            <FlatButton
-                                                label="Claim DBETs"
-                                                disabled={
-                                                    !(self.state.channels[id].status == constants.CHANNEL_STATUS_FINALIZED && !self.state.channels[id].hasOwnProperty('claimed'))
-                                                }
-                                                className="ml-4"
-                                                href={'/slots/game?id=' + id}/>
-                                        </td>
-                                    </MuiThemeProvider>
-                                </tr>
-                            )}
-                            </tbody>
-                            }
-                        </table>
-                        {   Object.keys(self.state.channels).length == 0 &&
-                        <div className="row">
-                            <div className="col">
-                                <h5 className="text-center text-uppercase">No channels available yet..</h5>
-                            </div>
-                        </div>
-                        }
-                    </div>
-                </div>
-            },
-            tinyLoader: () => {
-                return <CircularProgress size={18} color={constants.COLOR_GOLD}/>
-            }
-        }
-    }
-
     dialogs = () => {
         const self = this
         return {
@@ -552,8 +419,22 @@ class Slots extends Component {
 
     // Click the Slots Card
     onSlotsGameClickedListener = () => this.helpers().toggleDialog(DIALOG_NEW_CHANNEL, true)
+    onWithdrawChipsListener = () => this.helpers().toggleDialog(DIALOG_WITHDRAW_CHIPS, true)
+    onGetChipsListener = () => this.helpers().toggleDialog(DIALOG_GET_CHIPS, true)
 
     render() {
+
+        // Prints the amount of available Chips, or a loader component
+        let chipsLabel = this.state.currentSession >= 0 &&
+            this.state.balances[this.state.currentSession] >= 0
+            ? helper
+                  .getWeb3()
+                  .utils.fromWei(
+                      this.state.balances[
+                          this.state.currentSession
+                      ].toString()
+                  ) + ' DBETs'
+            : <CircularProgress size={18} color={constants.COLOR_GOLD}/>
         return (
             <main className="slots">
                 <div className="container">
@@ -584,7 +465,14 @@ class Slots extends Component {
                             />
                         </div>
                     </div>
-                    { this.views().slotChannelsCard() }
+                    
+                    <SlotsChannelList
+                        stateChannels={this.state.channels}
+                        onWithdrawChipsListener={this.onWithdrawChipsListener}
+                        onGetChipsListener={this.onGetChipsListener}
+                        chipsLabel={chipsLabel}
+                        onDepositToChannelListener={this.web3Setters().depositToChannel}
+                    />
                     { this.dialogs().newChannel() }
                     { this.dialogs().getSlotsChips() }
                     { this.dialogs().withdrawSlotsChips() }
