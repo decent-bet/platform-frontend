@@ -20,8 +20,6 @@ const slotsChannelHandler = new SlotsChannelHandler()
 
 const constants = require('./../../../Constants')
 
-const DIALOG_NEW_CHANNEL = 0, DIALOG_GET_CHIPS = 1, DIALOG_WITHDRAW_CHIPS = 2
-
 class Slots extends Component {
 
     constructor(props) {
@@ -32,17 +30,9 @@ class Slots extends Component {
             allowance: null,
             channels: {},
             balances: {},
-            dialogs: {
-                newChannel: {
-                    open: false
-                },
-                getChips: {
-                    open: false
-                },
-                withdrawChips: {
-                    open: false
-                }
-            }
+            isDialogNewChannelOpen: false,
+            isDialogGetChipsOpen: false,
+            isDialogWithdrawChipsOpen: false
         }
     }
 
@@ -322,25 +312,6 @@ class Slots extends Component {
         }
     }
 
-    helpers = () => {
-        const self = this
-        return {
-            toggleDialog: (dialog, open) => {
-                console.log('Toggle dialog', dialog, open)
-                let dialogs = self.state.dialogs
-                if (dialog === DIALOG_NEW_CHANNEL)
-                    dialogs.newChannel.open = open
-                else if (dialog === DIALOG_GET_CHIPS)
-                    dialogs.getChips.open = open
-                else if (dialog === DIALOG_WITHDRAW_CHIPS)
-                    dialogs.withdrawChips.open = open
-                self.setState({
-                    dialogs: dialogs
-                })
-            }
-        }
-    }
-
     // How many Chips are in the session? if session isn't open, print `placeholder`
     getChipBalance(placeholder=null){
         if (this.state.currentSession >= 0){
@@ -363,14 +334,14 @@ class Slots extends Component {
 
     // Opens the New Channel Dialog
     onNewChannelDialogOpenListener = () => this.onNewChannelDialogToggleListener(true)
-    onNewChannelDialogToggleListener = isOpen => this.helpers().toggleDialog(DIALOG_NEW_CHANNEL, isOpen)
+    onNewChannelDialogToggleListener = isOpen => this.setState({ isDialogNewChannelOpen: isOpen })
 
     // Click the Slots Card
-    onSlotsGameClickedListener = () => this.helpers().toggleDialog(DIALOG_NEW_CHANNEL, true)
+    onSlotsGameClickedListener = () => this.onNewChannelDialogOpenListener(true)
     
     // Opens the dialog to withdraw chips
     onWithdrawChipsDialogOpenListener = () => this.onWithdrawChipsDialogToggleListener(true)
-    onWithdrawChipsDialogToggleListener = isOpen => this.helpers().toggleDialog(DIALOG_WITHDRAW_CHIPS, isOpen)
+    onWithdrawChipsDialogToggleListener = isOpen => this.setState({ isDialogWithdrawChipsOpen: isOpen })
 
     // Withdraw Chips from the State Channel
     onWithdrawChipsListener = amount => {
@@ -384,7 +355,7 @@ class Slots extends Component {
     
     // Opens the Dialog to deposits tokens and transform them into Chips
     onGetChipsDialogOpenListener = () => this.onGetChipsDialogToggleListener(true)
-    onGetChipsDialogToggleListener = isOpen => this.helpers().toggleDialog(DIALOG_GET_CHIPS, isOpen)
+    onGetChipsDialogToggleListener = isOpen => this.setState({ isDialogGetChipsOpen: isOpen })
 
     // Deposit Tokens and convert them to Chips
     onGetChipsListener = amount => {
@@ -394,7 +365,7 @@ class Slots extends Component {
         } else {
             this.web3Setters().deposit(amount.toString())
         }
-        this.helpers().toggleDialog(DIALOG_GET_CHIPS, false)
+        this.onGetChipsDialogToggleListener(false)
     }
 
     renderChannelList = () => {
@@ -424,19 +395,19 @@ class Slots extends Component {
     renderDialogs = () => (
         <Fragment>
             <WithdrawSlotsChipsDialog
-                open={this.state.dialogs.withdrawChips.open}
+                open={this.state.isDialogWithdrawChipsOpen}
                 balance={this.getChipBalance('')}
                 onWithdrawChips={this.onWithdrawChipsListener}
                 toggleDialog={this.onWithdrawChipsDialogToggleListener}
             />
             <GetSlotsChipsDialog
-                open={this.state.dialogs.getChips.open}
+                open={this.state.isDialogGetChipsOpen}
                 allowance={this.state.allowance}
                 onGetChips={this.onGetChipsListener}
                 toggleDialog={this.onGetChipsDialogToggleListener}
             />
             <NewChannelDialog
-                open={this.state.dialogs.newChannel.open}
+                open={this.state.isDialogNewChannelOpen}
                 onCreateChannel={this.onCreateChannelListener}
                 toggleDialog={this.onGetChipsDialogOpenListener}
             />
