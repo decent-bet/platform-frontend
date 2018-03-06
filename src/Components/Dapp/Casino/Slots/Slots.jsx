@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import {CircularProgress } from 'material-ui'
 import SlotsGameCard from './SlotsGameCard'
 import SlotsChannelList from './SlotChannelList'
+import ChipToolbar from './ChipToolbar'
 
 import GetSlotsChipsDialog from './Dialogs/GetSlotsChipsDialog'
 import NewChannelDialog from './Dialogs/NewChannelDialog'
@@ -419,11 +420,14 @@ class Slots extends Component {
 
     // Click the Slots Card
     onSlotsGameClickedListener = () => this.helpers().toggleDialog(DIALOG_NEW_CHANNEL, true)
+    
+    // Withdraw Chips from the State Channel
     onWithdrawChipsListener = () => this.helpers().toggleDialog(DIALOG_WITHDRAW_CHIPS, true)
+    
+    // Deposits Tokens and transforms them into Chips
     onGetChipsListener = () => this.helpers().toggleDialog(DIALOG_GET_CHIPS, true)
 
-    render() {
-
+    renderChannelList = () => {
         // Prints the amount of available Chips, or a loader component
         let chipsLabel = this.state.currentSession >= 0 &&
             this.state.balances[this.state.currentSession] >= 0
@@ -435,6 +439,27 @@ class Slots extends Component {
                       ].toString()
                   ) + ' DBETs'
             : <CircularProgress size={18} color={constants.COLOR_GOLD}/>
+        
+        return (
+            <div className="row channels">
+                <div className="col-12">
+                    <ChipToolbar
+                        onWithdrawChipsListener={this.onWithdrawChipsListener}
+                        onGetChipsListener={this.onGetChipsListener}
+                        chipsLabel={chipsLabel}
+                    />
+                </div>
+                <div className="col-12 mt-4">
+                    <SlotsChannelList
+                        stateChannels={this.state.channels}
+                        onDepositToChannelListener={this.web3Setters().depositToChannel}
+                    />
+                </div>
+            </div>
+        )
+    }
+
+    render() {
         return (
             <main className="slots">
                 <div className="container">
@@ -465,14 +490,9 @@ class Slots extends Component {
                             />
                         </div>
                     </div>
-                    
-                    <SlotsChannelList
-                        stateChannels={this.state.channels}
-                        onWithdrawChipsListener={this.onWithdrawChipsListener}
-                        onGetChipsListener={this.onGetChipsListener}
-                        chipsLabel={chipsLabel}
-                        onDepositToChannelListener={this.web3Setters().depositToChannel}
-                    />
+
+                    { this.renderChannelList() }
+
                     { this.dialogs().newChannel() }
                     { this.dialogs().getSlotsChips() }
                     { this.dialogs().withdrawSlotsChips() }
