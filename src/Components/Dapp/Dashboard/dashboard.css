@@ -84,6 +84,7 @@ input::-webkit-inner-spin-button {
 
 .dashboard .main {
     padding-top: 60px;
+    height: 100%;
 }
 
 .dashboard .details .logo {

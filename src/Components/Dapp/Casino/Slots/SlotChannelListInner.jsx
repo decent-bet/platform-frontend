@@ -42,13 +42,9 @@ export default function SlotChannelListInner({
         )
     } else {
         return (
-            <div className="row mt-4">
-                <div className="col">
-                    <h5 className="text-center text-uppercase">
-                        No channels available yet..
-                    </h5>
-                </div>
-            </div>
+            <h5 className="text-center">
+                No channels available yet
+            </h5>
         )
     }
 }

@@ -1,39 +1,62 @@
+/* Page structure with CSS Grid */
 .slots {
-    min-height: 100vh;
-    padding-bottom: 50px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 30px;
+    margin: 20px 0px;
 }
 
-.slots .top .logo {
+@media (max-width: 714px) {
+    .slots {
+        grid-template-columns: 1fr;
+    }
+}
+
+.slots > section {
+    grid-column: 1 / -1;
+}
+
+.slots > .channel-list-card {
+    grid-column: 1 / -1;
+}
+
+/* Center the logo in the middle of the page */
+.slots .logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.slots .logo-container .logo {
     height: 48px;
-    object-fit: cover;
-    display: block;
-    margin: 20px auto 0 auto;
+    flex: 1;
+    object-fit: fill;
 }
 
-.slots .top h3 {
+/* Game Card */
+.slots .game-card {
+    cursor: pointer;
+    border-radius: 15px !important;
+}
+
+.slots .game-card img {
+    border-radius: 15px;
+}
+
+/* Typography */
+.slots .title-container h3 {
     color: #f2b45c;
-}
-
-.slots .intro h5 {
-    text-transform: uppercase;
 }
 
 .slots .text-gold {
     color: #f2b45c;
 }
 
-.slots .channels {
-    margin-top: 20px;
-}
-
-.slots .channels h3 {
-    font-family: GothamMedium;
+.slots th {
+    text-transform: uppercase;
 }
 
 .slots th,
 .slots td {
-    color: #ffffff;
-    text-transform: uppercase;
     font-family: GothamLight;
     font-size: 12px;
 }

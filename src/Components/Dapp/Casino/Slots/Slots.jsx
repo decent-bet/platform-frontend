@@ -465,7 +465,7 @@ export default class Slots extends Component {
         this.onGetChipsDialogToggleListener(false)
     }
 
-    renderChannelList = () => {
+    renderChipToolbar = () => {
         // Prints the amount of available Chips, or a loader component
         let chipBalance = this.getChipBalance()
         let progressbar = (
@@ -474,23 +474,15 @@ export default class Slots extends Component {
         let chipsLabel = chipBalance ? `${chipBalance} DBETs` : progressbar
 
         return (
-            <div className="row channels">
-                <div className="col-12">
-                    <ChipToolbar
-                        onWithdrawChipsListener={
-                            this.onWithdrawChipsDialogOpenListener
-                        }
-                        onGetChipsListener={this.onGetChipsDialogOpenListener}
-                        chipsLabel={chipsLabel}
-                    />
-                </div>
-                <div className="col-12 mt-4">
-                    <SlotsChannelList
-                        stateChannels={this.state.channels}
-                        onDepositToChannelListener={this.depositToChannel}
-                    />
-                </div>
-            </div>
+            <section className="chip-toolbar-container">
+                <ChipToolbar
+                    onWithdrawChipsListener={
+                        this.onWithdrawChipsDialogOpenListener
+                    }
+                    onGetChipsListener={this.onGetChipsDialogOpenListener}
+                    chipsLabel={chipsLabel}
+                />
+            </section>
         )
     }
 
@@ -517,55 +509,44 @@ export default class Slots extends Component {
     )
 
     render() {
+        let logoUrl =
+            process.env.PUBLIC_URL + '/assets/img/logos/dbet-white.svg'
         return (
             <MuiThemeProvider muiTheme={themes.getMainTheme()}>
-                <main className="slots">
-                    <div className="container">
-                        <div className="row">
-                            <div className="col">
-                                <div className="top">
-                                    <img
-                                        src={
-                                            process.env.PUBLIC_URL +
-                                            '/assets/img/logos/dbet-white.svg'
-                                        }
-                                        className="logo"
-                                        alt='Decent.bet Logo'
-                                    />
-                                    <h3 className="text-center mt-3">SLOTS</h3>
-                                </div>
-                            </div>
-                        </div>
+                <main className="slots container">
+                    <section className="logo-container">
+                        <img
+                            src={logoUrl}
+                            className="logo"
+                            alt="Decent.bet Logo"
+                        />
+                    </section>
 
-                        <div className="row">
-                            <div className="col-12" style={{ marginTop: 30 }}>
-                                <div className="intro">
-                                    <h5 className="text-center text-uppercase">
-                                        Select a slot machine from the variety{' '}
-                                        <span className="text-gold">
-                                            Decent.bet{' '}
-                                        </span>{' '}
-                                        offers to start a new channel
-                                    </h5>
-                                </div>
-                            </div>
-                        </div>
+                    <section className="title-container">
+                        <h3 className="text-center">SLOTS</h3>
+                    </section>
 
-                        <div className="row">
-                            <div className="col-12" style={{ marginTop: 45 }}>
-                                <SlotsGameCard
-                                    imageUrl="backgrounds/slots-crypto-chaos.png"
-                                    onClickListener={
-                                        this.onSlotsGameClickedListener
-                                    }
-                                />
-                            </div>
-                        </div>
+                    <section className="intro-container">
+                        <h5 className="text-center">
+                            Select a slot machine from the variety{' '}
+                            <span className="text-gold">Decent.bet </span>{' '}
+                            offers to start a new channel
+                        </h5>
+                    </section>
 
-                        {this.renderChannelList()}
-                        {this.renderDialogs()}
-                    </div>
+                    <SlotsGameCard
+                        imageUrl="backgrounds/slots-crypto-chaos.png"
+                        onClickListener={this.onSlotsGameClickedListener}
+                    />
+
+                    {this.renderChipToolbar()}
+
+                    <SlotsChannelList
+                        stateChannels={this.state.channels}
+                        onDepositToChannelListener={this.depositToChannel}
+                    />
                 </main>
+                {this.renderDialogs()}
             </MuiThemeProvider>
         )
     }
