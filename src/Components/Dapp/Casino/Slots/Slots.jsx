@@ -58,8 +58,8 @@ class Slots extends Component {
     }
 
     initWeb3Data = () => {
-        this.web3Getters().currentSession()
-        this.web3Getters().allowance()
+        this.initCurrentSession()
+        this.initAllowance()
     }
 
     initWatchers = () => {
@@ -186,7 +186,7 @@ class Slots extends Component {
                         console.log('Deposit event error', err)
                     else {
                         console.log('Deposit event', event.args)
-                        self.web3Getters().balanceOf(event.args.session.toNumber())
+                        self.initCurrentSessionBalance(event.args.session.toNumber())
                     }
                 })
             },
@@ -197,57 +197,55 @@ class Slots extends Component {
                         console.log('Withdraw event error', err)
                     else {
                         console.log('Withdraw event', event.args)
-                        self.web3Getters().balanceOf(event.args.session.toNumber())
+                        self.initCurrentSessionBalance(event.args.session.toNumber())
                     }
                 })
             }
         }
     }
 
-    web3Getters = () => {
-        const self = this
-        return {
-            currentSession: () => {
-                helper.getContractHelper().getWrappers().slotsChannelManager()
-                    .currentSession().then((session) => {
-                    session = session.toNumber()
-                    console.log('Current session', session)
-                    self.setState({
-                        currentSession: session
-                    })
-                    /** Init data that depends on current session */
-                    self.web3Getters().balanceOf(session)
-                }).catch((err) => {
-                    console.log('Error retrieving current session', err.message)
-                })
-            },
-            balanceOf: (session) => {
-                helper.getContractHelper().getWrappers().slotsChannelManager()
-                    .balanceOf(helper.getWeb3().eth.defaultAccount, session).then((balance) => {
-                    let balances = self.state.balances
-                    balances[session] = balance.toFixed()
-                    console.log('Balances', balances)
-                    self.setState({
-                        balances: balances
-                    })
-                }).catch((err) => {
-                    console.log('Error retrieving balance', err.message)
-                })
-            },
-            allowance: () => {
-                console.log('Retrieving allowance',
-                    helper.getWeb3().eth.defaultAccount,
-                    helper.getContractHelper().getSlotsChannelManagerInstance().address)
-                helper.getContractHelper().getWrappers().token().allowance(helper.getWeb3().eth.defaultAccount,
-                    helper.getContractHelper().getSlotsChannelManagerInstance().address).then((allowance) => {
-                    console.log('Successfully retrieved slots channel manager allowance', allowance)
-                    self.setState({
-                        allowance: allowance.toFixed()
-                    })
-                }).catch((err) => {
-                    console.log('Error retrieving slots channel manager allowance', err.message)
-                })
-            }
+    // Starts the current session
+    initCurrentSession = async () => {
+        try {
+            let session = await helper
+                .getContractHelper().getWrappers().slotsChannelManager().currentSession()
+            session = session.toNumber()
+            console.log('Current session', session)
+            this.setState({ currentSession: session })
+            this.initCurrentSessionBalance(session)
+        } catch (err){
+            console.log('Error retrieving current session', err.message)
+        }
+    }
+
+    // Get the current session balance
+    initCurrentSessionBalance = async session => {
+        try {
+            let balance = await helper.getContractHelper().getWrappers().slotsChannelManager()
+                .balanceOf(helper.getWeb3().eth.defaultAccount, session)
+            let balances = this.state.balances
+            balances[session] = balance.toFixed()
+            console.log('Balances', balances)
+            this.setState({ balances: balances })
+        } catch (err){
+            console.log('Error retrieving balance', err.message)
+        }
+    }
+
+    // Get the allowance
+    initAllowance = async () => {
+
+        let contractHelper = helper.getContractHelper()
+        let defaultAccount = helper.getWeb3().eth.defaultAccount
+        let slotsAddress = contractHelper.getSlotsChannelManagerInstance().address
+
+        console.log('Retrieving allowance', defaultAccount, slotsAddress)
+        try {
+            let allowance = await contractHelper.getWrappers().token().allowance(defaultAccount, slotsAddress)
+            console.log('Successfully retrieved slots channel manager allowance', allowance)
+            this.setState({ allowance: allowance.toFixed() })
+        } catch (err) {
+            console.log('Error retrieving slots channel manager allowance', err.message)
         }
     }
 
