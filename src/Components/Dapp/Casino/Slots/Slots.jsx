@@ -1,4 +1,4 @@
-import React, {Component, Fragment} from 'react'
+import React, { Component, Fragment } from 'react'
 import { CircularProgress, MuiThemeProvider } from 'material-ui'
 import SlotsGameCard from './SlotsGameCard'
 import SlotsChannelList from './SlotChannelList'
@@ -20,8 +20,7 @@ const slotsChannelHandler = new SlotsChannelHandler()
 const constants = require('./../../../Constants')
 const themes = new Themes()
 
-class Slots extends Component {
-
+export default class Slots extends Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -60,11 +59,14 @@ class Slots extends Component {
     }
 
     initWatchers = () => {
-        let channelManager = helper.getContractHelper().getWrappers().slotsChannelManager()
+        let channelManager = helper
+            .getContractHelper()
+            .getWrappers()
+            .slotsChannelManager()
 
         // Start watching the channels
         channelManager.logNewChannel().watch(this.watcherNewChannelCallback)
-        
+
         // Listen for Token deposits into Chips
         channelManager.logDeposit().watch(this.watcherDepositCallback)
 
@@ -79,7 +81,12 @@ class Slots extends Component {
         } else {
             let id = event.args.id.toNumber()
             let user = event.args.user.toString()
-            console.log('New channel event', id, user, helper.getWeb3().eth.defaultAccount)
+            console.log(
+                'New channel event',
+                id,
+                user,
+                helper.getWeb3().eth.defaultAccount
+            )
 
             let channels = this.state.channels
             if (!channels.hasOwnProperty(id)) {
@@ -100,88 +107,110 @@ class Slots extends Component {
 
     // Watcher for deposits to a channel
     watcherChannelDeposit = id => {
-        helper.getContractHelper().getWrappers().slotsChannelManager()
-            .logChannelDeposit(id).watch((err, event) => {
-            if (err) {
-                console.log('Deposit channel event error', err)
-            } else {
-                let _id = event.args.id.toString()
-                console.log('Deposit channel event', event.args, _id, id)
-                let channels = this.state.channels
-                if (channels.hasOwnProperty(_id)) {
-                    if (channels[_id].status !== constants.CHANNEL_STATUS_ACTIVATED &&
-                        channels[_id].status !== constants.CHANNEL_STATUS_FINALIZED)
-                        channels[_id].status = constants.CHANNEL_STATUS_DEPOSITED
-                    this.setState({  channels: channels })
+        helper
+            .getContractHelper()
+            .getWrappers()
+            .slotsChannelManager()
+            .logChannelDeposit(id)
+            .watch((err, event) => {
+                if (err) {
+                    console.log('Deposit channel event error', err)
+                } else {
+                    let _id = event.args.id.toString()
+                    console.log('Deposit channel event', event.args, _id, id)
+                    let channels = this.state.channels
+                    if (channels.hasOwnProperty(_id)) {
+                        if (
+                            channels[_id].status !==
+                                constants.CHANNEL_STATUS_ACTIVATED &&
+                            channels[_id].status !==
+                                constants.CHANNEL_STATUS_FINALIZED
+                        )
+                            channels[_id].status =
+                                constants.CHANNEL_STATUS_DEPOSITED
+                        this.setState({ channels: channels })
+                    }
                 }
-            }
-        })
+            })
     }
 
     // Watcher that monitors channel activation
     watcherChannelActivate = id => {
-        helper.getContractHelper().getWrappers().slotsChannelManager()
-            .logChannelActivate(id).watch((err, event) => {
-            if (err)
-                console.log('Activate channel event error', err)
-            else {
-                let _id = event.args.id.toString()
-                console.log('Activate channel event', event.args, _id, id)
-                let channels = this.state.channels
-                if (channels.hasOwnProperty(_id)) {
-                    if (channels[_id].status !== constants.CHANNEL_STATUS_FINALIZED)
-                        channels[_id].status = constants.CHANNEL_STATUS_ACTIVATED
-                    this.setState({ channels: channels })
+        helper
+            .getContractHelper()
+            .getWrappers()
+            .slotsChannelManager()
+            .logChannelActivate(id)
+            .watch((err, event) => {
+                if (err) console.log('Activate channel event error', err)
+                else {
+                    let _id = event.args.id.toString()
+                    console.log('Activate channel event', event.args, _id, id)
+                    let channels = this.state.channels
+                    if (channels.hasOwnProperty(_id)) {
+                        if (
+                            channels[_id].status !==
+                            constants.CHANNEL_STATUS_FINALIZED
+                        )
+                            channels[_id].status =
+                                constants.CHANNEL_STATUS_ACTIVATED
+                        this.setState({ channels: channels })
+                    }
                 }
-            }
-        })
+            })
     }
 
     // Watcher that monitors channel finalization
     watcherChannelFinalized = id => {
-        helper.getContractHelper().getWrappers().slotsChannelManager()
-            .logChannelFinalized(id).watch((err, event) => {
-            if (err)
-                console.log('Finalized channel event error', err)
-            else {
-                console.log('Finalized channel event', event.args)
-                let _id = event.args.id.toString()
-                console.log('Finalized channel event', event.args, _id, id)
-                let channels = this.state.channels
-                if (channels.hasOwnProperty(_id)) {
-                    channels[_id].status = constants.CHANNEL_STATUS_FINALIZED
-                    this.setState({
-                        channels: channels
-                    })
+        helper
+            .getContractHelper()
+            .getWrappers()
+            .slotsChannelManager()
+            .logChannelFinalized(id)
+            .watch((err, event) => {
+                if (err) console.log('Finalized channel event error', err)
+                else {
+                    console.log('Finalized channel event', event.args)
+                    let _id = event.args.id.toString()
+                    console.log('Finalized channel event', event.args, _id, id)
+                    let channels = this.state.channels
+                    if (channels.hasOwnProperty(_id)) {
+                        channels[_id].status =
+                            constants.CHANNEL_STATUS_FINALIZED
+                        this.setState({ channels: channels })
+                    }
                 }
-            }
-        })
+            })
     }
 
     // Watcher that monitors the claiming of a channel's Chips
-    watcherClaimChannelTokens = (id) => {
-        helper.getContractHelper().getWrappers().slotsChannelManager()
-            .logClaimChannelTokens(id).watch((err, event) => {
-            if (err) {
-                console.log('Claim channel tokens event error', err)
-            } else {
-                console.log('Claim channel tokens event', event.args)
-                let _id = event.args.id.toString()
-                let isHouse = event.args.isHouse
-                let channels = this.state.channels
-                if (channels.hasOwnProperty(_id)) {
-                    if (!channels[_id].hasOwnProperty('claimed'))
-                        channels[_id].claimed = {}
-                    channels[_id].claimed[isHouse] = true
-                    this.setState({ channels: channels })
+    watcherClaimChannelTokens = id => {
+        helper
+            .getContractHelper()
+            .getWrappers()
+            .slotsChannelManager()
+            .logClaimChannelTokens(id)
+            .watch((err, event) => {
+                if (err) {
+                    console.log('Claim channel tokens event error', err)
+                } else {
+                    console.log('Claim channel tokens event', event.args)
+                    let _id = event.args.id.toString()
+                    let isHouse = event.args.isHouse
+                    let channels = this.state.channels
+                    if (channels.hasOwnProperty(_id)) {
+                        if (!channels[_id].hasOwnProperty('claimed'))
+                            channels[_id].claimed = {}
+                        channels[_id].claimed[isHouse] = true
+                        this.setState({ channels: channels })
+                    }
                 }
-            }
-        })
+            })
     }
 
     // Callback for when a Chips are deposited
     watcherDepositCallback = (err, event) => {
-        if (err){
+        if (err) {
             console.log('Deposit event error', err)
         } else {
             console.log('Deposit event', event.args)
@@ -191,7 +220,7 @@ class Slots extends Component {
     }
 
     // Watches for the Withdraw event
-    watcherWithdrawCallback =  (err, event) => {
+    watcherWithdrawCallback = (err, event) => {
         if (err) {
             console.log('Withdraw event error', err)
         } else {
@@ -205,12 +234,15 @@ class Slots extends Component {
     initCurrentSession = async () => {
         try {
             let session = await helper
-                .getContractHelper().getWrappers().slotsChannelManager().currentSession()
+                .getContractHelper()
+                .getWrappers()
+                .slotsChannelManager()
+                .currentSession()
             session = session.toNumber()
             console.log('Current session', session)
             this.setState({ currentSession: session })
             this.initCurrentSessionBalance(session)
-        } catch (err){
+        } catch (err) {
             console.log('Error retrieving current session', err.message)
         }
     }
@@ -218,31 +250,43 @@ class Slots extends Component {
     // Get the current session balance
     initCurrentSessionBalance = async session => {
         try {
-            let balance = await helper.getContractHelper().getWrappers().slotsChannelManager()
+            let balance = await helper
+                .getContractHelper()
+                .getWrappers()
+                .slotsChannelManager()
                 .balanceOf(helper.getWeb3().eth.defaultAccount, session)
             let balances = this.state.balances
             balances[session] = balance.toFixed()
             console.log('Balances', balances)
             this.setState({ balances: balances })
-        } catch (err){
+        } catch (err) {
             console.log('Error retrieving balance', err.message)
         }
     }
 
     // Get the allowance
     initAllowance = async () => {
-
         let contractHelper = helper.getContractHelper()
         let defaultAccount = helper.getWeb3().eth.defaultAccount
-        let slotsAddress = contractHelper.getSlotsChannelManagerInstance().address
+        let slotsAddress = contractHelper.getSlotsChannelManagerInstance()
+            .address
 
         console.log('Retrieving allowance', defaultAccount, slotsAddress)
         try {
-            let allowance = await contractHelper.getWrappers().token().allowance(defaultAccount, slotsAddress)
-            console.log('Successfully retrieved slots channel manager allowance', allowance)
+            let allowance = await contractHelper
+                .getWrappers()
+                .token()
+                .allowance(defaultAccount, slotsAddress)
+            console.log(
+                'Successfully retrieved slots channel manager allowance',
+                allowance
+            )
             this.setState({ allowance: allowance.toFixed() })
         } catch (err) {
-            console.log('Error retrieving slots channel manager allowance', err.message)
+            console.log(
+                'Error retrieving slots channel manager allowance',
+                err.message
+            )
         }
     }
 
@@ -250,9 +294,15 @@ class Slots extends Component {
     createChannel = async deposit => {
         console.log('Creating channel with deposit', deposit)
         try {
-            let tx = await helper.getContractHelper().getWrappers().slotsChannelManager().createChannel(deposit)
+            let tx = await helper
+                .getContractHelper()
+                .getWrappers()
+                .slotsChannelManager()
+                .createChannel(deposit)
             console.log('Successfully sent create channel tx', tx)
-            helper.toggleSnackbar('Successfully sent create channel transaction')
+            helper.toggleSnackbar(
+                'Successfully sent create channel transaction'
+            )
         } catch (err) {
             console.log('Error creating new channel', err.message)
         }
@@ -264,15 +314,30 @@ class Slots extends Component {
         console.log('Depositing to channel', id, 'with deposit', initialDeposit)
 
         let params = await slotsChannelHandler.getChannelDepositParamsAsync(id)
-        let {initialUserNumber, finalUserHash} = params
+        let { initialUserNumber, finalUserHash } = params
 
         try {
-            console.log('Depositing to channel with hashes', initialUserNumber, finalUserHash)
-            let tx = await helper.getContractHelper().getWrappers().slotsChannelManager()
+            console.log(
+                'Depositing to channel with hashes',
+                initialUserNumber,
+                finalUserHash
+            )
+            let tx = await helper
+                .getContractHelper()
+                .getWrappers()
+                .slotsChannelManager()
                 .depositToChannel(id, initialUserNumber, finalUserHash)
-            console.log('Successfully sent deposit to channel', id, ' - tx',
-                initialUserNumber, finalUserHash, tx)
-            helper.toggleSnackbar('Successfully sent deposit transaction to channel')
+            console.log(
+                'Successfully sent deposit to channel',
+                id,
+                ' - tx',
+                initialUserNumber,
+                finalUserHash,
+                tx
+            )
+            helper.toggleSnackbar(
+                'Successfully sent deposit transaction to channel'
+            )
         } catch (err) {
             console.log('Error sending deposit to channel', err.message)
         }
@@ -284,8 +349,12 @@ class Slots extends Component {
         console.log('Approving', amount, 'for Slots Channel Manager')
         try {
             let contractHelper = helper.getContractHelper()
-            let contractAddress = contractHelper.getSlotsChannelManagerInstance().address
-            let tx = await contractHelper.getWrappers().token().approve(contractAddress, amount)
+            let contractAddress = contractHelper.getSlotsChannelManagerInstance()
+                .address
+            let tx = await contractHelper
+                .getWrappers()
+                .token()
+                .approve(contractAddress, amount)
             console.log('Successfully sent approve tx', tx)
             this.depositChips(amount)
             helper.toggleSnackbar('Successfully sent approve transaction')
@@ -299,7 +368,11 @@ class Slots extends Component {
     depositChips = async amount => {
         console.log('Depositing', amount, 'to Slots Channel Manager')
         try {
-            let tx = await helper.getContractHelper().getWrappers().slotsChannelManager().deposit(amount)
+            let tx = await helper
+                .getContractHelper()
+                .getWrappers()
+                .slotsChannelManager()
+                .deposit(amount)
             console.log('Successfully sent deposit tx', tx)
             helper.toggleSnackbar('Successfully sent deposit transaction')
         } catch (err) {
@@ -310,7 +383,11 @@ class Slots extends Component {
     // Withdraw Chips and return them as Tokens to the Wallet
     withdrawChips = async (amount, session) => {
         try {
-            let tx = await helper.getContractHelper().getWrappers().slotsChannelManager().withdraw(amount, session)
+            let tx = await helper
+                .getContractHelper()
+                .getWrappers()
+                .slotsChannelManager()
+                .withdraw(amount, session)
             console.log('Successfully sent withdraw tx', tx)
             helper.toggleSnackbar('Successfully sent withdraw transaction')
         } catch (err) {
@@ -319,11 +396,13 @@ class Slots extends Component {
     }
 
     // How many Chips are in the session? if session isn't open, print `placeholder`
-    getChipBalance(placeholder=null){
-        if (this.state.currentSession >= 0){
-            if (this.state.balances[this.state.currentSession] >= 0){
+    getChipBalance = (placeholder = null) => {
+        if (this.state.currentSession >= 0) {
+            if (this.state.balances[this.state.currentSession] >= 0) {
                 // Session is open. Print token total
-                let sessionString = this.state.balances[this.state.currentSession].toString()
+                let sessionString = this.state.balances[
+                    this.state.currentSession
+                ].toString()
                 return helper.getWeb3().utils.fromWei(sessionString)
             }
         }
@@ -339,34 +418,46 @@ class Slots extends Component {
     }
 
     // Opens the New Channel Dialog
-    onNewChannelDialogOpenListener = () => this.onNewChannelDialogToggleListener(true)
-    onNewChannelDialogToggleListener = isOpen => this.setState({ isDialogNewChannelOpen: isOpen })
+    onNewChannelDialogOpenListener = () =>
+        this.onNewChannelDialogToggleListener(true)
+    onNewChannelDialogToggleListener = isOpen =>
+        this.setState({ isDialogNewChannelOpen: isOpen })
 
     // Click the Slots Card
     onSlotsGameClickedListener = () => this.onNewChannelDialogOpenListener(true)
-    
+
     // Opens the dialog to withdraw chips
-    onWithdrawChipsDialogOpenListener = () => this.onWithdrawChipsDialogToggleListener(true)
-    onWithdrawChipsDialogToggleListener = isOpen => this.setState({ isDialogWithdrawChipsOpen: isOpen })
+    onWithdrawChipsDialogOpenListener = () =>
+        this.onWithdrawChipsDialogToggleListener(true)
+    onWithdrawChipsDialogToggleListener = isOpen =>
+        this.setState({ isDialogWithdrawChipsOpen: isOpen })
 
     // Withdraw Chips from the State Channel
     onWithdrawChipsListener = amount => {
-        console.log('onWithdrawChips', amount, this.state.balances[this.state.currentSession])
-        let balance = new BigNumber(this.state.balances[this.state.currentSession])
-        if (balance.greaterThanOrEqualTo(amount)){
+        console.log(
+            'onWithdrawChips',
+            amount,
+            this.state.balances[this.state.currentSession]
+        )
+        let balance = new BigNumber(
+            this.state.balances[this.state.currentSession]
+        )
+        if (balance.greaterThanOrEqualTo(amount)) {
             this.withdrawChips(amount.toString(), this.state.currentSession)
         }
         this.onWithdrawChipsDialogToggleListener(false)
     }
-    
+
     // Opens the Dialog to deposits tokens and transform them into Chips
-    onGetChipsDialogOpenListener = () => this.onGetChipsDialogToggleListener(true)
-    onGetChipsDialogToggleListener = isOpen => this.setState({ isDialogGetChipsOpen: isOpen })
+    onGetChipsDialogOpenListener = () =>
+        this.onGetChipsDialogToggleListener(true)
+    onGetChipsDialogToggleListener = isOpen =>
+        this.setState({ isDialogGetChipsOpen: isOpen })
 
     // Deposit Tokens and convert them to Chips
     onGetChipsListener = amount => {
         let allowance = new BigNumber(this.state.allowance)
-        if (allowance.lessThan(amount)){
+        if (allowance.lessThan(amount)) {
             this.approveAndDeposit(amount.toString())
         } else {
             this.depositChips(amount.toString())
@@ -377,15 +468,18 @@ class Slots extends Component {
     renderChannelList = () => {
         // Prints the amount of available Chips, or a loader component
         let chipBalance = this.getChipBalance()
-        let chipsLabel = chipBalance 
-            ? `${chipBalance} DBETs` 
-            : <CircularProgress size={18} color={constants.COLOR_GOLD}/>
-        
+        let progressbar = (
+            <CircularProgress size={18} color={constants.COLOR_GOLD} />
+        )
+        let chipsLabel = chipBalance ? `${chipBalance} DBETs` : progressbar
+
         return (
             <div className="row channels">
                 <div className="col-12">
                     <ChipToolbar
-                        onWithdrawChipsListener={this.onWithdrawChipsDialogOpenListener}
+                        onWithdrawChipsListener={
+                            this.onWithdrawChipsDialogOpenListener
+                        }
                         onGetChipsListener={this.onGetChipsDialogOpenListener}
                         chipsLabel={chipsLabel}
                     />
@@ -427,42 +521,52 @@ class Slots extends Component {
             <MuiThemeProvider muiTheme={themes.getMainTheme()}>
                 <main className="slots">
                     <div className="container">
-
                         <div className="row">
                             <div className="col">
                                 <div className="top">
-                                    <img src={process.env.PUBLIC_URL + '/assets/img/logos/dbet-white.svg'} className="logo"/>
+                                    <img
+                                        src={
+                                            process.env.PUBLIC_URL +
+                                            '/assets/img/logos/dbet-white.svg'
+                                        }
+                                        className="logo"
+                                        alt='Decent.bet Logo'
+                                    />
                                     <h3 className="text-center mt-3">SLOTS</h3>
                                 </div>
                             </div>
                         </div>
 
                         <div className="row">
-                            <div className="col-12" style={{marginTop: 30}}>
+                            <div className="col-12" style={{ marginTop: 30 }}>
                                 <div className="intro">
-                                    <h5 className="text-center text-uppercase">Select a slot machine from the variety <span
-                                        className="text-gold">Decent.bet </span> offers to start a new channel</h5>
+                                    <h5 className="text-center text-uppercase">
+                                        Select a slot machine from the variety{' '}
+                                        <span className="text-gold">
+                                            Decent.bet{' '}
+                                        </span>{' '}
+                                        offers to start a new channel
+                                    </h5>
                                 </div>
                             </div>
                         </div>
 
                         <div className="row">
-                            <div className="col-12" style={{marginTop: 45}}>
+                            <div className="col-12" style={{ marginTop: 45 }}>
                                 <SlotsGameCard
-                                    imageUrl='backgrounds/slots-crypto-chaos.png'
-                                    onClickListener={this.onSlotsGameClickedListener}
+                                    imageUrl="backgrounds/slots-crypto-chaos.png"
+                                    onClickListener={
+                                        this.onSlotsGameClickedListener
+                                    }
                                 />
                             </div>
                         </div>
 
-                        { this.renderChannelList() }
-                        { this.renderDialogs() }
+                        {this.renderChannelList()}
+                        {this.renderDialogs()}
                     </div>
                 </main>
             </MuiThemeProvider>
         )
     }
-
 }
-
-export default Slots
