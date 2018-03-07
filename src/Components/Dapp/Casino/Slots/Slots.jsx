@@ -3,15 +3,12 @@ import { CircularProgress, MuiThemeProvider } from 'material-ui'
 import SlotsGameCard from './SlotsGameCard'
 import SlotsChannelList from './SlotChannelList'
 import ChipToolbar from './ChipToolbar'
-
 import GetSlotsChipsDialog from './Dialogs/GetSlotsChipsDialog'
 import NewChannelDialog from './Dialogs/NewChannelDialog'
 import WithdrawSlotsChipsDialog from './Dialogs/WithdrawSlotsChipsDialog'
-
 import EventBus from 'eventing-bus'
 import Helper from '../../../Helper'
 import SlotsChannelHandler from './Libraries/SlotsChannelHandler'
-
 import Themes from '../../../Base/Themes'
 
 import './slots.css'
@@ -262,23 +259,23 @@ class Slots extends Component {
     }
 
     // Send a deposit transaction to channel
-    depositToChannel = id => {
-        console.log('Depositing to channel',
-            id, 'with deposit', this.state.channels[id].initialDeposit)
-        slotsChannelHandler.getChannelDepositParams(id, (err, params) => {
-            let initialUserNumber = params.initialUserNumber
-            let finalUserHash = params.finalUserHash
+    depositToChannel = async id => {
+        let initialDeposit = this.state.channels[id].initialDeposit
+        console.log('Depositing to channel', id, 'with deposit', initialDeposit)
 
+        let params = await slotsChannelHandler.getChannelDepositParamsAsync(id)
+        let {initialUserNumber, finalUserHash} = params
+
+        try {
             console.log('Depositing to channel with hashes', initialUserNumber, finalUserHash)
-            helper.getContractHelper().getWrappers().slotsChannelManager()
-                .depositToChannel(id, initialUserNumber, finalUserHash).then((tx) => {
-                console.log('Successfully sent deposit to channel', id, ' - tx',
-                    initialUserNumber, finalUserHash, tx)
-                helper.toggleSnackbar('Successfully sent deposit transaction to channel')
-            }).catch((err) => {
-                console.log('Error sending deposit to channel', err.message)
-            })
-        })
+            let tx = await helper.getContractHelper().getWrappers().slotsChannelManager()
+                .depositToChannel(id, initialUserNumber, finalUserHash)
+            console.log('Successfully sent deposit to channel', id, ' - tx',
+                initialUserNumber, finalUserHash, tx)
+            helper.toggleSnackbar('Successfully sent deposit transaction to channel')
+        } catch (err) {
+            console.log('Error sending deposit to channel', err.message)
+        }
         // helper.getContractHelper().getWrappers().slotsChannelManager().depositToChannel(id,)
     }
 

@@ -6,6 +6,7 @@ import SlotsConstants from './Constants'
 import KeyHandler from '../../../../Base/KeyHandler'
 
 import sha256 from 'crypto-js/sha256'
+import Promise from 'bluebird'
 
 const async = require('async')
 const BigNumber = require('bignumber.js')
@@ -47,6 +48,16 @@ export default class SlotsChannelHandler {
                 })
             } else
                 callback(true, res)
+        })
+    }
+
+    /*
+    * Promise Wrapper for getChannelDepositParams.
+    * Used for Async functions
+    */
+    getChannelDepositParamsAsync = id => {
+        return Promise.fromCallback(resolver => {
+            return this.getChannelDepositParams(id, resolver)
         })
     }
 
