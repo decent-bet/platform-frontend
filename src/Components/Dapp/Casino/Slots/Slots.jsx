@@ -60,144 +60,144 @@ class Slots extends Component {
     }
 
     initWatchers = () => {
-        this.watchers().newChannel()
-        this.watchers().deposit()
-        this.watchers().withdraw()
+        let channelManager = helper.getContractHelper().getWrappers().slotsChannelManager()
+
+        // Start watching the channels
+        channelManager.logNewChannel().watch(this.watcherNewChannelCallback)
+        
+        // Listen for Token deposits into Chips
+        channelManager.logDeposit().watch(this.watcherDepositCallback)
+
+        // Listen for Chip withdrawal into Tokens
+        channelManager.logWithdraw().watch(this.watcherWithdrawCallback)
     }
 
-    watchers = () => {
-        const self = this
-        return {
-            newChannel: () => {
-                helper.getContractHelper().getWrappers().slotsChannelManager()
-                    .logNewChannel().watch((err, event) => {
-                    if (err)
-                        console.log('New channel event error', err)
-                    else {
-                        let id = event.args.id.toNumber()
-                        let user = event.args.user.toString()
-                        console.log('New channel event', id, user, helper.getWeb3().eth.defaultAccount)
+    // Called whenever a new channel is created
+    watcherNewChannelCallback = (err, event) => {
+        if (err) {
+            console.log('New channel event error', err)
+        } else {
+            let id = event.args.id.toNumber()
+            let user = event.args.user.toString()
+            console.log('New channel event', id, user, helper.getWeb3().eth.defaultAccount)
 
-                        let channels = self.state.channels
-                        if (!channels.hasOwnProperty(id)) {
-                            channels[id] = {}
-                            channels[id].status = constants.CHANNEL_STATUS_WAITING
-                        }
-                        console.log('Channels', channels)
-
-                        channels[id].initialDeposit = event.args.initialDeposit.toFixed()
-                        self.setState({
-                            channels: channels
-                        })
-
-                        this.watchers().channelDeposit(id)
-                        this.watchers().channelActivate(id)
-                        this.watchers().channelFinalized(id)
-                        this.watchers().claimChannelTokens(id)
-                    }
-                })
-            },
-            channelDeposit: (id) => {
-                helper.getContractHelper().getWrappers().slotsChannelManager()
-                    .logChannelDeposit(id).watch((err, event) => {
-                    if (err)
-                        console.log('Deposit channel event error', err)
-                    else {
-                        let _id = event.args.id.toString()
-                        console.log('Deposit channel event', event.args, _id, id)
-                        let channels = self.state.channels
-                        if (channels.hasOwnProperty(_id)) {
-                            if (channels[_id].status !== constants.CHANNEL_STATUS_ACTIVATED &&
-                                channels[_id].status !== constants.CHANNEL_STATUS_FINALIZED)
-                                channels[_id].status = constants.CHANNEL_STATUS_DEPOSITED
-                            self.setState({
-                                channels: channels
-                            })
-                        }
-                    }
-                })
-            },
-            channelActivate: (id) => {
-                helper.getContractHelper().getWrappers().slotsChannelManager()
-                    .logChannelActivate(id).watch((err, event) => {
-                    if (err)
-                        console.log('Activate channel event error', err)
-                    else {
-                        let _id = event.args.id.toString()
-                        console.log('Activate channel event', event.args, _id, id)
-                        let channels = self.state.channels
-                        if (channels.hasOwnProperty(_id)) {
-                            if (channels[_id].status !== constants.CHANNEL_STATUS_FINALIZED)
-                                channels[_id].status = constants.CHANNEL_STATUS_ACTIVATED
-                            self.setState({
-                                channels: channels
-                            })
-                        }
-                    }
-                })
-            },
-            channelFinalized: (id) => {
-                helper.getContractHelper().getWrappers().slotsChannelManager()
-                    .logChannelFinalized(id).watch((err, event) => {
-                    if (err)
-                        console.log('Finalized channel event error', err)
-                    else {
-                        console.log('Finalized channel event', event.args)
-                        let _id = event.args.id.toString()
-                        console.log('Finalized channel event', event.args, _id, id)
-                        let channels = self.state.channels
-                        if (channels.hasOwnProperty(_id)) {
-                            channels[_id].status = constants.CHANNEL_STATUS_FINALIZED
-                            self.setState({
-                                channels: channels
-                            })
-                        }
-                    }
-                })
-            },
-            claimChannelTokens: (id) => {
-                helper.getContractHelper().getWrappers().slotsChannelManager()
-                    .logClaimChannelTokens(id).watch((err, event) => {
-                    if (err)
-                        console.log('Claim channel tokens event error', err)
-                    else {
-                        console.log('Claim channel tokens event', event.args)
-                        let _id = event.args.id.toString()
-                        let isHouse = event.args.isHouse
-                        let channels = self.state.channels
-                        if (channels.hasOwnProperty(_id)) {
-                            if (!channels[_id].hasOwnProperty('claimed'))
-                                channels[_id].claimed = {}
-                            channels[_id].claimed[isHouse] = true
-                            self.setState({
-                                channels: channels
-                            })
-                        }
-                    }
-                })
-            },
-            deposit: () => {
-                helper.getContractHelper().getWrappers().slotsChannelManager()
-                    .logDeposit().watch((err, event) => {
-                    if (err)
-                        console.log('Deposit event error', err)
-                    else {
-                        console.log('Deposit event', event.args)
-                        self.initCurrentSessionBalance(event.args.session.toNumber())
-                    }
-                })
-            },
-            withdraw: () => {
-                helper.getContractHelper().getWrappers().slotsChannelManager()
-                    .logWithdraw().watch((err, event) => {
-                    if (err)
-                        console.log('Withdraw event error', err)
-                    else {
-                        console.log('Withdraw event', event.args)
-                        self.initCurrentSessionBalance(event.args.session.toNumber())
-                    }
-                })
+            let channels = this.state.channels
+            if (!channels.hasOwnProperty(id)) {
+                channels[id] = {}
+                channels[id].status = constants.CHANNEL_STATUS_WAITING
             }
+            console.log('Channels', channels)
+
+            channels[id].initialDeposit = event.args.initialDeposit.toFixed()
+            this.setState({ channels: channels })
+
+            this.watcherChannelDeposit(id)
+            this.watcherChannelActivate(id)
+            this.watcherChannelFinalized(id)
+            this.watcherClaimChannelTokens(id)
+        }
+    }
+
+    // Watcher for deposits to a channel
+    watcherChannelDeposit = id => {
+        helper.getContractHelper().getWrappers().slotsChannelManager()
+            .logChannelDeposit(id).watch((err, event) => {
+            if (err) {
+                console.log('Deposit channel event error', err)
+            } else {
+                let _id = event.args.id.toString()
+                console.log('Deposit channel event', event.args, _id, id)
+                let channels = this.state.channels
+                if (channels.hasOwnProperty(_id)) {
+                    if (channels[_id].status !== constants.CHANNEL_STATUS_ACTIVATED &&
+                        channels[_id].status !== constants.CHANNEL_STATUS_FINALIZED)
+                        channels[_id].status = constants.CHANNEL_STATUS_DEPOSITED
+                    this.setState({  channels: channels })
+                }
+            }
+        })
+    }
+
+    // Watcher that monitors channel activation
+    watcherChannelActivate = id => {
+        helper.getContractHelper().getWrappers().slotsChannelManager()
+            .logChannelActivate(id).watch((err, event) => {
+            if (err)
+                console.log('Activate channel event error', err)
+            else {
+                let _id = event.args.id.toString()
+                console.log('Activate channel event', event.args, _id, id)
+                let channels = this.state.channels
+                if (channels.hasOwnProperty(_id)) {
+                    if (channels[_id].status !== constants.CHANNEL_STATUS_FINALIZED)
+                        channels[_id].status = constants.CHANNEL_STATUS_ACTIVATED
+                    this.setState({ channels: channels })
+                }
+            }
+        })
+    }
+
+    // Watcher that monitors channel finalization
+    watcherChannelFinalized = id => {
+        helper.getContractHelper().getWrappers().slotsChannelManager()
+            .logChannelFinalized(id).watch((err, event) => {
+            if (err)
+                console.log('Finalized channel event error', err)
+            else {
+                console.log('Finalized channel event', event.args)
+                let _id = event.args.id.toString()
+                console.log('Finalized channel event', event.args, _id, id)
+                let channels = this.state.channels
+                if (channels.hasOwnProperty(_id)) {
+                    channels[_id].status = constants.CHANNEL_STATUS_FINALIZED
+                    this.setState({
+                        channels: channels
+                    })
+                }
+            }
+        })
+    }
+
+    // Watcher that monitors the claiming of a channel's Chips
+    watcherClaimChannelTokens = (id) => {
+        helper.getContractHelper().getWrappers().slotsChannelManager()
+            .logClaimChannelTokens(id).watch((err, event) => {
+            if (err) {
+                console.log('Claim channel tokens event error', err)
+            } else {
+                console.log('Claim channel tokens event', event.args)
+                let _id = event.args.id.toString()
+                let isHouse = event.args.isHouse
+                let channels = this.state.channels
+                if (channels.hasOwnProperty(_id)) {
+                    if (!channels[_id].hasOwnProperty('claimed'))
+                        channels[_id].claimed = {}
+                    channels[_id].claimed[isHouse] = true
+                    this.setState({ channels: channels })
+                }
+            }
+        })
+    }
+
+    // Callback for when a Chips are deposited
+    watcherDepositCallback = (err, event) => {
+        if (err){
+            console.log('Deposit event error', err)
+        } else {
+            console.log('Deposit event', event.args)
+            let balance = event.args.session.toNumber()
+            this.initCurrentSessionBalance(balance)
+        }
+    }
+
+    // Watches for the Withdraw event
+    watcherWithdrawCallback =  (err, event) => {
+        if (err) {
+            console.log('Withdraw event error', err)
+        } else {
+            console.log('Withdraw event', event.args)
+            let balance = event.args.session.toNumber()
+            this.initCurrentSessionBalance(balance)
         }
     }
 
