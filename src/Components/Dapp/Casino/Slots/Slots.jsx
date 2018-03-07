@@ -250,14 +250,15 @@ class Slots extends Component {
     }
 
     // Create a state channel
-    createChannel = deposit => {
+    createChannel = async deposit => {
         console.log('Creating channel with deposit', deposit)
-        helper.getContractHelper().getWrappers().slotsChannelManager().createChannel(deposit).then((tx) => {
+        try {
+            let tx = await helper.getContractHelper().getWrappers().slotsChannelManager().createChannel(deposit)
             console.log('Successfully sent create channel tx', tx)
             helper.toggleSnackbar('Successfully sent create channel transaction')
-        }).catch((err) => {
+        } catch (err) {
             console.log('Error creating new channel', err.message)
-        })
+        }
     }
 
     // Send a deposit transaction to channel
@@ -282,39 +283,42 @@ class Slots extends Component {
     }
 
     // Increase allowance and then deposit new Chips
-    approveAndDeposit = (amount) => {
+    approveAndDeposit = async amount => {
         console.log('Approving', amount, 'for Slots Channel Manager')
-        helper.getContractHelper().getWrappers().token()
-            .approve(helper.getContractHelper().getSlotsChannelManagerInstance().address,
-                amount).then((tx) => {
+        try {
+            let contractHelper = helper.getContractHelper()
+            let contractAddress = contractHelper.getSlotsChannelManagerInstance().address
+            let tx = await contractHelper.getWrappers().token().approve(contractAddress, amount)
             console.log('Successfully sent approve tx', tx)
             this.depositChips(amount)
             helper.toggleSnackbar('Successfully sent approve transaction')
             return null
-        }).catch((err) => {
+        } catch (err) {
             console.log('Error sending approve tx', err.message)
-        })
+        }
     }
 
     // Deposit new Chips, sourced from wallet's tokens
-    depositChips = amount => {
+    depositChips = async amount => {
         console.log('Depositing', amount, 'to Slots Channel Manager')
-        helper.getContractHelper().getWrappers().slotsChannelManager().deposit(amount).then((tx) => {
+        try {
+            let tx = await helper.getContractHelper().getWrappers().slotsChannelManager().deposit(amount)
             console.log('Successfully sent deposit tx', tx)
             helper.toggleSnackbar('Successfully sent deposit transaction')
-        }).catch((err) => {
+        } catch (err) {
             console.log('Error sending deposit tx', err.message)
-        })
+        }
     }
 
     // Withdraw Chips and return them as Tokens to the Wallet
-    withdrawChips = (amount, session) => {
-        helper.getContractHelper().getWrappers().slotsChannelManager().withdraw(amount, session).then((tx) => {
+    withdrawChips = async (amount, session) => {
+        try {
+            let tx = await helper.getContractHelper().getWrappers().slotsChannelManager().withdraw(amount, session)
             console.log('Successfully sent withdraw tx', tx)
             helper.toggleSnackbar('Successfully sent withdraw transaction')
-        }).catch((err) => {
+        } catch (err) {
             console.log('Error sending withdraw tx', err.message)
-        })
+        }
     }
 
     // How many Chips are in the session? if session isn't open, print `placeholder`
