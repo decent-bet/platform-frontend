@@ -251,68 +251,72 @@ class Slots extends Component {
         }
     }
 
-    web3Setters = () => {
-        const self = this
-        return {
-            createChannel: (deposit) => {
-                console.log('Creating channel with deposit', deposit)
-                helper.getContractHelper().getWrappers().slotsChannelManager().createChannel(deposit).then((tx) => {
-                    console.log('Successfully sent create channel tx', tx)
-                    helper.toggleSnackbar('Successfully sent create channel transaction')
-                }).catch((err) => {
-                    console.log('Error creating new channel', err.message)
-                })
-            },
-            depositToChannel: (id) => {
-                console.log('Depositing to channel',
-                    id, 'with deposit', self.state.channels[id].initialDeposit)
-                slotsChannelHandler.getChannelDepositParams(id, (err, params) => {
-                    let initialUserNumber = params.initialUserNumber
-                    let finalUserHash = params.finalUserHash
+    // Create a state channel
+    createChannel = deposit => {
+        console.log('Creating channel with deposit', deposit)
+        helper.getContractHelper().getWrappers().slotsChannelManager().createChannel(deposit).then((tx) => {
+            console.log('Successfully sent create channel tx', tx)
+            helper.toggleSnackbar('Successfully sent create channel transaction')
+        }).catch((err) => {
+            console.log('Error creating new channel', err.message)
+        })
+    }
 
-                    console.log('Depositing to channel with hashes', initialUserNumber, finalUserHash)
-                    helper.getContractHelper().getWrappers().slotsChannelManager()
-                        .depositToChannel(id, initialUserNumber, finalUserHash).then((tx) => {
-                        console.log('Successfully sent deposit to channel', id, ' - tx',
-                            initialUserNumber, finalUserHash, tx)
-                        helper.toggleSnackbar('Successfully sent deposit transaction to channel')
-                    }).catch((err) => {
-                        console.log('Error sending deposit to channel', err.message)
-                    })
-                })
-                // helper.getContractHelper().getWrappers().slotsChannelManager().depositToChannel(id,)
-            },
-            approveAndDeposit: (amount) => {
-                console.log('Approving', amount, 'for Slots Channel Manager')
-                helper.getContractHelper().getWrappers().token()
-                    .approve(helper.getContractHelper().getSlotsChannelManagerInstance().address,
-                        amount).then((tx) => {
-                    console.log('Successfully sent approve tx', tx)
-                    self.web3Setters().deposit(amount)
-                    helper.toggleSnackbar('Successfully sent approve transaction')
-                    return null
-                }).catch((err) => {
-                    console.log('Error sending approve tx', err.message)
-                })
-            },
-            deposit: (amount) => {
-                console.log('Depositing', amount, 'to Slots Channel Manager')
-                helper.getContractHelper().getWrappers().slotsChannelManager().deposit(amount).then((tx) => {
-                    console.log('Successfully sent deposit tx', tx)
-                    helper.toggleSnackbar('Successfully sent deposit transaction')
-                }).catch((err) => {
-                    console.log('Error sending deposit tx', err.message)
-                })
-            },
-            withdraw: (amount, session) => {
-                helper.getContractHelper().getWrappers().slotsChannelManager().withdraw(amount, session).then((tx) => {
-                    console.log('Successfully sent withdraw tx', tx)
-                    helper.toggleSnackbar('Successfully sent withdraw transaction')
-                }).catch((err) => {
-                    console.log('Error sending withdraw tx', err.message)
-                })
-            }
-        }
+    // Send a deposit transaction to channel
+    depositToChannel = id => {
+        console.log('Depositing to channel',
+            id, 'with deposit', this.state.channels[id].initialDeposit)
+        slotsChannelHandler.getChannelDepositParams(id, (err, params) => {
+            let initialUserNumber = params.initialUserNumber
+            let finalUserHash = params.finalUserHash
+
+            console.log('Depositing to channel with hashes', initialUserNumber, finalUserHash)
+            helper.getContractHelper().getWrappers().slotsChannelManager()
+                .depositToChannel(id, initialUserNumber, finalUserHash).then((tx) => {
+                console.log('Successfully sent deposit to channel', id, ' - tx',
+                    initialUserNumber, finalUserHash, tx)
+                helper.toggleSnackbar('Successfully sent deposit transaction to channel')
+            }).catch((err) => {
+                console.log('Error sending deposit to channel', err.message)
+            })
+        })
+        // helper.getContractHelper().getWrappers().slotsChannelManager().depositToChannel(id,)
+    }
+
+    // Increase allowance and then deposit new Chips
+    approveAndDeposit = (amount) => {
+        console.log('Approving', amount, 'for Slots Channel Manager')
+        helper.getContractHelper().getWrappers().token()
+            .approve(helper.getContractHelper().getSlotsChannelManagerInstance().address,
+                amount).then((tx) => {
+            console.log('Successfully sent approve tx', tx)
+            this.depositChips(amount)
+            helper.toggleSnackbar('Successfully sent approve transaction')
+            return null
+        }).catch((err) => {
+            console.log('Error sending approve tx', err.message)
+        })
+    }
+
+    // Deposit new Chips, sourced from wallet's tokens
+    depositChips = amount => {
+        console.log('Depositing', amount, 'to Slots Channel Manager')
+        helper.getContractHelper().getWrappers().slotsChannelManager().deposit(amount).then((tx) => {
+            console.log('Successfully sent deposit tx', tx)
+            helper.toggleSnackbar('Successfully sent deposit transaction')
+        }).catch((err) => {
+            console.log('Error sending deposit tx', err.message)
+        })
+    }
+
+    // Withdraw Chips and return them as Tokens to the Wallet
+    withdrawChips = (amount, session) => {
+        helper.getContractHelper().getWrappers().slotsChannelManager().withdraw(amount, session).then((tx) => {
+            console.log('Successfully sent withdraw tx', tx)
+            helper.toggleSnackbar('Successfully sent withdraw transaction')
+        }).catch((err) => {
+            console.log('Error sending withdraw tx', err.message)
+        })
     }
 
     // How many Chips are in the session? if session isn't open, print `placeholder`
@@ -331,7 +335,7 @@ class Slots extends Component {
 
     // Create a new Channel
     onCreateChannelListener = deposit => {
-        this.web3Setters().createChannel(deposit.toString())
+        this.createChannel(deposit.toString())
         this.onNewChannelDialogToggleListener(false)
     }
 
@@ -351,7 +355,7 @@ class Slots extends Component {
         console.log('onWithdrawChips', amount, this.state.balances[this.state.currentSession])
         let balance = new BigNumber(this.state.balances[this.state.currentSession])
         if (balance.greaterThanOrEqualTo(amount)){
-            this.web3Setters().withdraw(amount.toString(), this.state.currentSession)
+            this.withdrawChips(amount.toString(), this.state.currentSession)
         }
         this.onWithdrawChipsDialogToggleListener(false)
     }
@@ -364,9 +368,9 @@ class Slots extends Component {
     onGetChipsListener = amount => {
         let allowance = new BigNumber(this.state.allowance)
         if (allowance.lessThan(amount)){
-            this.web3Setters().approveAndDeposit(amount.toString())
+            this.approveAndDeposit(amount.toString())
         } else {
-            this.web3Setters().deposit(amount.toString())
+            this.depositChips(amount.toString())
         }
         this.onGetChipsDialogToggleListener(false)
     }
@@ -390,7 +394,7 @@ class Slots extends Component {
                 <div className="col-12 mt-4">
                     <SlotsChannelList
                         stateChannels={this.state.channels}
-                        onDepositToChannelListener={this.web3Setters().depositToChannel}
+                        onDepositToChannelListener={this.depositToChannel}
                     />
                 </div>
             </div>
