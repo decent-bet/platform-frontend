@@ -18,7 +18,7 @@ import Themes from '../../Base/Themes'
 const helper = new Helper()
 const themes = new Themes()
 
-class Dashboard extends Component {
+export default class Dashboard extends Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -72,14 +72,15 @@ class Dashboard extends Component {
         this.initBalance()
     }
 
-    initBalance = () => {
+    initBalance = async () => {
         // Get balance from Web3
-        helper
+        let balance = await helper
             .getContractHelper()
             .getWrappers()
             .token()
             .balanceOf(helper.getWeb3().eth.defaultAccount)
-            .then(balance => this.setState({ balance: balance }))
+
+        this.setState({ balance: balance })
     }
 
     initWatchers = () => {
@@ -108,20 +109,21 @@ class Dashboard extends Component {
             })
     }
 
-    onFaucetClickedListener = () => {
-        helper
-            .getContractHelper()
-            .getWrappers()
-            .token()
-            .faucet()
-            .then(tx => {
-                console.log('Sent faucet tx', tx)
-                helper.toggleSnackbar('Successfully sent faucet transaction')
-            })
-            .catch(err => {
-                helper.toggleSnackbar('Error sending faucet transaction')
-                console.log('Error sending faucet tx', err.message)
-            })
+    // Faucet Button Clicked. Execute Faucet
+    onFaucetClickedListener = async () => {
+        try {
+            let tx = await helper
+                .getContractHelper()
+                .getWrappers()
+                .token()
+                .faucet()
+
+            console.log('Sent faucet tx', tx)
+            helper.toggleSnackbar('Successfully sent faucet transaction')
+        } catch (err) {
+            helper.toggleSnackbar('Error sending faucet transaction')
+            console.log('Error sending faucet tx', err.message)
+        }
     }
 
     onDrawerButtonPressedListener = open => this.setState({ drawerOpen: open })
@@ -203,5 +205,3 @@ class Dashboard extends Component {
         )
     }
 }
-
-export default Dashboard
