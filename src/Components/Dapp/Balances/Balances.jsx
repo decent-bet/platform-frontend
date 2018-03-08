@@ -134,11 +134,10 @@ export default class Balances extends Component {
         }
     }
 
-    views = () => {
-        const self = this
-        return {
-            header: () => {
-                return (
+    render() {
+        return (
+            <div className="balances">
+                <div className="container">
                     <div className="header mb-4">
                         <h1 className="text-center">
                             DECENT<span className="color-gold">.BET</span>{' '}
@@ -148,10 +147,7 @@ export default class Balances extends Component {
                             Balances from available house offerings
                         </p>
                     </div>
-                )
-            },
-            currentSession: () => {
-                return (
+
                     <div className="row mt-4 current-session">
                         <div className="col pull-right">
                             <p className="text-right">
@@ -162,10 +158,7 @@ export default class Balances extends Component {
                             </p>
                         </div>
                     </div>
-                )
-            },
-            balances: () => {
-                return (
+
                     <div className="row stats">
                         <div className="col-4 text-center hvr-float">
                             <Card style={styles.card} zDepth={4}>
@@ -208,19 +201,6 @@ export default class Balances extends Component {
                             </Card>
                         </div>
                     </div>
-                )
-            }
-        }
-    }
-
-    render() {
-        const self = this
-        return (
-            <div className="balances">
-                <div className="container">
-                    {self.views().header()}
-                    {self.views().currentSession()}
-                    {self.views().balances()}
                 </div>
             </div>
         )
