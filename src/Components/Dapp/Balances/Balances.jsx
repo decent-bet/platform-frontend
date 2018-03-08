@@ -19,12 +19,8 @@ export default class Balances extends Component {
         this.state = {
             address: helper.getWeb3().eth.defaultAccount,
             currentSession: 0,
-            bettingProvider: {
-                balance: 0
-            },
-            slotsChannelManager: {
-                balance: 0
-            }
+            bettingProviderBalance: 0,
+            slotsChannelManagerBalance: 0
         }
     }
 
@@ -45,92 +41,54 @@ export default class Balances extends Component {
     }
 
     initWeb3Data = () => {
-        this.web3Getters()
-            .houseProvider()
-            .currentSession()
+        this.initHouseProvider()
     }
 
-    web3Getters = () => {
-        const self = this
-
+    initHouseProvider = async () => {
         let houseContract = helper
             .getContractHelper()
             .getWrappers()
             .house()
-        let slotsContract = helper
-            .getContractHelper()
-            .getWrappers()
-            .slotsChannelManager()
+
+        // Get the current session
+        let session = await houseContract.getCurrentSession()
+
+        this.setState({ currentSession: session.toNumber() })
+        this.initBettingProvider(session)
+        this.initSlotChannelManager(session)
+    }
+
+    initBettingProvider = async session => {
         let sportsBookContract = helper
             .getContractHelper()
             .getWrappers()
             .bettingProvider()
 
-        return {
-            houseProvider: () => {
-                return {
-                    currentSession: () => {
-                        houseContract.getCurrentSession().then(session => {
-                            self.setState({
-                                currentSession: session.toNumber()
-                            })
+        try {
+            let balance = await sportsBookContract.balanceOf(
+                this.state.address,
+                session
+            )
+            this.setState({ bettingProviderBalance: balance.toNumber() })
+        } catch (err) {
+            console.log('Error retrieving sportsBook balance', err.message)
+        }
+    }
 
-                            self
-                                .web3Getters()
-                                .bettingProvider()
-                                .currentBalance(session)
-                            self
-                                .web3Getters()
-                                .slotsChannelManager()
-                                .currentBalance(session)
-                        })
-                    }
-                }
-            },
-            bettingProvider: () => {
-                return {
-                    currentBalance: session => {
-                        sportsBookContract
-                            .balanceOf(self.state.address, session)
-                            .then(balance => {
-                                let bp = self.state.bettingProvider
+    initSlotChannelManager = async session => {
+        let slotsContract = helper
+            .getContractHelper()
+            .getWrappers()
+            .slotsChannelManager()
 
-                                bp.balance = balance.toNumber()
-                                self.setState({
-                                    bettingProvider: bp
-                                })
-                            })
-                            .catch(err => {
-                                console.log(
-                                    'Error retrieving sportsBook balance',
-                                    err.message
-                                )
-                            })
-                    }
-                }
-            },
-            slotsChannelManager: () => {
-                return {
-                    currentBalance: session => {
-                        slotsContract
-                            .balanceOf(self.state.address, session)
-                            .then(balance => {
-                                let sp = self.state.slotsChannelManager
-
-                                sp.balance = balance.toNumber()
-                                self.setState({
-                                    slotsChannelManager: sp
-                                })
-                            })
-                            .catch(err => {
-                                console.log(
-                                    'Error retrieving balance',
-                                    err.message
-                                )
-                            })
-                    }
-                }
-            }
+        try {
+            let balance = await slotsContract.balanceOf(
+                this.state.address,
+                session
+            )
+            this.setState({ slotsChannelManager: balance.toNumber() })
+        } catch (err) {
+            console.log('Error retrieving balance', err.message)
         }
     }
 
@@ -151,7 +109,7 @@ export default class Balances extends Component {
                     <CardText>
                         <h4>
                             {helper.formatEther(
-                                this.state.slotsChannelManager.balance
+                                this.state.slotsChannelManagerBalance
                             )}{' '}
                             DBETs
                         </h4>
@@ -163,7 +121,7 @@ export default class Balances extends Component {
                     <CardText>
                         <h4>
                             {helper.formatEther(
-                                this.state.bettingProvider.balance
+                                this.state.bettingProviderBalance
                             )}{' '}
                             DBETs
                         </h4>
