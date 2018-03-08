@@ -44,6 +44,7 @@ export default class Balances extends Component {
         this.initHouseProvider()
     }
 
+    // Get the session for the other providers
     initHouseProvider = async () => {
         let houseContract = helper
             .getContractHelper()
@@ -58,6 +59,7 @@ export default class Balances extends Component {
         this.initSlotChannelManager(session)
     }
 
+    // Get the balance for the Sportsbook
     initBettingProvider = async session => {
         let sportsBookContract = helper
             .getContractHelper()
@@ -75,6 +77,7 @@ export default class Balances extends Component {
         }
     }
 
+    // Get the balance of the Slots
     initSlotChannelManager = async session => {
         let slotsContract = helper
             .getContractHelper()
