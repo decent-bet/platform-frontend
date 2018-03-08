@@ -3,7 +3,7 @@
  */
 
 import React, { Component } from 'react'
-import { Card } from 'material-ui'
+import { Card, CardHeader, CardText } from 'material-ui'
 import Helper from '../../Helper'
 import EventBus from 'eventing-bus'
 
@@ -136,73 +136,51 @@ export default class Balances extends Component {
 
     render() {
         return (
-            <div className="balances">
-                <div className="container">
-                    <div className="header mb-4">
-                        <h1 className="text-center">
-                            DECENT<span className="color-gold">.BET</span>{' '}
-                            BALANCES
-                        </h1>
-                        <p className="lead text-uppercase text-center">
-                            Balances from available house offerings
-                        </p>
-                    </div>
+            <main className="balances container">
+                <header>
+                    <h1 className="text-center">
+                        DECENT<span className="color-gold">.BET</span> Balances
+                    </h1>
+                    <p className="lead text-center">
+                        Balances from available house offerings
+                    </p>
+                </header>
 
-                    <div className="row mt-4 current-session">
-                        <div className="col pull-right">
-                            <p className="text-right">
-                                CURRENT SESSION{' '}
-                                <span className="session">
-                                    {this.state.currentSession}
-                                </span>
-                            </p>
-                        </div>
-                    </div>
+                <Card style={styles.card} zDepth={4} className="hvr-float">
+                    <CardHeader title="Slots" />
+                    <CardText>
+                        <h4>
+                            {helper.formatEther(
+                                this.state.slotsChannelManager.balance
+                            )}{' '}
+                            DBETs
+                        </h4>
+                    </CardText>
+                </Card>
 
-                    <div className="row stats">
-                        <div className="col-4 text-center hvr-float">
-                            <Card style={styles.card} zDepth={4}>
-                                <div className="container">
-                                    <div className="row">
-                                        <div className="col">
-                                            <h4 className="header">SLOTS</h4>
-                                            <h4 className="stat mt-3">
-                                                {helper.formatEther(
-                                                    this.state
-                                                        .slotsChannelManager
-                                                        .balance
-                                                )}{' '}
-                                                DBETs
-                                            </h4>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card>
-                        </div>
+                <Card style={styles.card} zDepth={4} className="hvr-float">
+                    <CardHeader title="Sportsbook" />
+                    <CardText>
+                        <h4>
+                            {helper.formatEther(
+                                this.state.bettingProvider.balance
+                            )}{' '}
+                            DBETs
+                        </h4>
+                    </CardText>
+                </Card>
 
-                        <div className="col-4 text-center hvr-float">
-                            <Card style={styles.card} zDepth={4}>
-                                <div className="container">
-                                    <div className="row">
-                                        <div className="col">
-                                            <h4 className="header">
-                                                SPORTBOOK
-                                            </h4>
-                                            <h4 className="stat mt-3">
-                                                {helper.formatEther(
-                                                    this.state.bettingProvider
-                                                        .balance
-                                                )}{' '}
-                                                DBETs
-                                            </h4>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                <Card
+                    style={styles.card}
+                    zDepth={4}
+                    className="session-container hvr-float"
+                >
+                    <CardHeader title="Current Session" />
+                    <CardText>
+                        <h4>#{this.state.currentSession}</h4>
+                    </CardText>
+                </Card>
+            </main>
         )
     }
 }
