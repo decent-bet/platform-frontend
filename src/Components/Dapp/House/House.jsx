@@ -8,6 +8,7 @@ import { Card, RaisedButton } from 'material-ui'
 import PurchaseCreditsDialog from './Dialogs/PurchaseCreditsDialog'
 import EventBus from 'eventing-bus'
 import Helper from '../../Helper'
+import LotteryList from './LotteryList'
 
 import './house.css'
 
@@ -481,15 +482,6 @@ export default class House extends Component {
             getCurrentSessionLottery: () => {
                 let session = self.helpers().getCurrentSession()
                 return {
-                    userTickets: () => {
-                        return self.state.lotteries[session]
-                            ? Object.keys(
-                                  self.state.lotteries[session].tickets[
-                                      helper.getWeb3().eth.defaultAccount
-                                  ]
-                              )
-                            : null
-                    },
                     details: () => {
                         return self.state.lotteries[session]
                     }
@@ -693,165 +685,6 @@ export default class House extends Component {
                         </div>
                     </div>
                 )
-            },
-            lotteryInfo: () => {
-                return (
-                    <div className="row lottery">
-                        <div className="col-6 text-center hvr-float">
-                            <Card style={styles.card} zDepth={4}>
-                                <div className="container">
-                                    <div className="row">
-                                        <div className="col">
-                                            <h4 className="header mb-2">
-                                                YOUR TICKETS
-                                            </h4>
-                                            {self.state.lotteries[
-                                                self.state.currentSession == 0
-                                                    ? 1
-                                                    : self.state.currentSession
-                                            ] && (
-                                                <table className="table table-striped">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>#</th>
-                                                            <th>
-                                                                Ticket Number
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    {self.state.lotteries[
-                                                        self
-                                                            .helpers()
-                                                            .getCurrentSession()
-                                                    ] &&
-                                                        self.state.lotteries[
-                                                            self
-                                                                .helpers()
-                                                                .getCurrentSession()
-                                                        ].tickets[
-                                                            helper.getWeb3().eth
-                                                                .defaultAccount
-                                                        ] && (
-                                                            <tbody>
-                                                                {self
-                                                                    .helpers()
-                                                                    .getCurrentSessionLottery()
-                                                                    .userTickets()
-                                                                    .map(
-                                                                        (
-                                                                            ticket,
-                                                                            index
-                                                                        ) => (
-                                                                            <tr>
-                                                                                <td
-                                                                                >
-                                                                                    {
-                                                                                        index
-                                                                                    }
-                                                                                </td>
-                                                                                <td
-                                                                                >
-                                                                                    {
-                                                                                        ticket
-                                                                                    }
-                                                                                </td>
-                                                                            </tr>
-                                                                        )
-                                                                    )}
-                                                            </tbody>
-                                                        )}
-                                                </table>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card>
-                        </div>
-                        <div className="col-6 text-center hvr-float">
-                            <Card style={styles.card} zDepth={4}>
-                                <div className="container">
-                                    <div className="row">
-                                        <div className="col-12">
-                                            <h4 className="header mb-2">
-                                                STATISTICS
-                                            </h4>
-                                        </div>
-                                        {self
-                                            .helpers()
-                                            .getCurrentSessionLottery()
-                                            .details() && (
-                                            <div className="col-12 mt-4 statistics">
-                                                <div className="row">
-                                                    <div className="col-6">
-                                                        <span className="stat float-left">
-                                                            TICKETS SOLD&ensp;
-                                                        </span>
-                                                    </div>
-                                                    <div className="col-6">
-                                                        <span className="float-right text-white">
-                                                            {
-                                                                self
-                                                                    .helpers()
-                                                                    .getCurrentSessionLottery()
-                                                                    .details()
-                                                                    .ticketCount
-                                                            }{' '}
-                                                            TICKETS
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div className="row mt-3">
-                                                    <div className="col-6">
-                                                        <span className="stat float-left">
-                                                            PAYOUT&ensp;
-                                                        </span>
-                                                    </div>
-                                                    <div className="col-6">
-                                                        <span className="float-right text-white">
-                                                            {
-                                                                self
-                                                                    .helpers()
-                                                                    .getCurrentSessionLottery()
-                                                                    .details()
-                                                                    .payout
-                                                            }{' '}
-                                                            DBETS
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div className="row mt-3">
-                                                    <div className="col-6">
-                                                        <span className="stat float-left">
-                                                            WINNER
-                                                            ANNOUNCED&ensp;
-                                                        </span>
-                                                    </div>
-                                                    <div className="col-6">
-                                                        <span className="float-right text-white">
-                                                            {self
-                                                                .helpers()
-                                                                .getCurrentSessionLottery()
-                                                                .details()
-                                                                .finalized ? (
-                                                                <span className="text-success">
-                                                                    YES
-                                                                </span>
-                                                            ) : (
-                                                                <span className="text-danger">
-                                                                    NO
-                                                                </span>
-                                                            )}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </Card>
-                        </div>
-                    </div>
-                )
             }
         }
     }
@@ -929,6 +762,103 @@ export default class House extends Component {
         />
     )
 
+    renderLotteryCard = () => {
+        let currentSession = this.helpers().getCurrentSession()
+        let currentLottery = this.state.lotteries[currentSession]
+        return (
+            <div className="row lottery">
+                <div className="col-6 text-center hvr-float">
+                    <Card style={styles.card} zDepth={4}>
+                        <div className="container">
+                            <div className="row">
+                                <div className="col">
+                                    <h4 className="header mb-2">
+                                        YOUR TICKETS
+                                    </h4>
+                                    <LotteryList lottery={currentLottery} />
+                                </div>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+                <div className="col-6 text-center hvr-float">
+                    <Card style={styles.card} zDepth={4}>
+                        <div className="container">
+                            <div className="row">
+                                <div className="col-12">
+                                    <h4 className="header mb-2">STATISTICS</h4>
+                                </div>
+                                {this.helpers()
+                                    .getCurrentSessionLottery()
+                                    .details() && (
+                                    <div className="col-12 mt-4 statistics">
+                                        <div className="row">
+                                            <div className="col-6">
+                                                <span className="stat float-left">
+                                                    TICKETS SOLD&ensp;
+                                                </span>
+                                            </div>
+                                            <div className="col-6">
+                                                <span className="float-right text-white">
+                                                    {
+                                                        this.helpers()
+                                                            .getCurrentSessionLottery()
+                                                            .details()
+                                                            .ticketCount
+                                                    }{' '}
+                                                    TICKETS
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="row mt-3">
+                                            <div className="col-6">
+                                                <span className="stat float-left">
+                                                    PAYOUT&ensp;
+                                                </span>
+                                            </div>
+                                            <div className="col-6">
+                                                <span className="float-right text-white">
+                                                    {
+                                                        this.helpers()
+                                                            .getCurrentSessionLottery()
+                                                            .details().payout
+                                                    }{' '}
+                                                    DBETS
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="row mt-3">
+                                            <div className="col-6">
+                                                <span className="stat float-left">
+                                                    WINNER ANNOUNCED&ensp;
+                                                </span>
+                                            </div>
+                                            <div className="col-6">
+                                                <span className="float-right text-white">
+                                                    {this.helpers()
+                                                        .getCurrentSessionLottery()
+                                                        .details().finalized ? (
+                                                        <span className="text-success">
+                                                            YES
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-danger">
+                                                            NO
+                                                        </span>
+                                                    )}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+            </div>
+        )
+    }
+
     render() {
         return (
             <main className="house">
@@ -938,7 +868,7 @@ export default class House extends Component {
                     <h3 className="text-center sub-header">SESSION STATS</h3>
                     {this.views().sessionStats()}
                     <h3 className="text-center sub-header">LOTTERY</h3>
-                    {this.views().lotteryInfo()}
+                    {this.renderLotteryCard()}
                 </div>
                 {this.renderPurchaseCreditDialog()}
             </main>
