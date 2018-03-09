@@ -56,86 +56,62 @@ export default class House extends Component {
         this.initAuthorizedAddresses(0, true)
         this.initHouseAllowance()
         this.initDbetBalance()
-        this.watchers().transferFrom()
-        this.watchers().transferTo()
+        this.watcherTransfer()
     }
 
-    watchers = () => {
-        const self = this
-        return {
-            purchasedCredits: sessionNumber => {
-                let purchasedCreditsEvent = helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .house()
-                    .logPurchasedCredits(sessionNumber, 'latest')
-                purchasedCreditsEvent.watch((err, event) => {
-                    if (err)
-                        console.log('Purchased credits event error: ' + err)
-                    else {
-                        let balance = event.args.balance
-                        let credits = self.state.credits
-                        credits[sessionNumber] = balance.toFixed(0)
-                        self.setState({
-                            credits: credits
-                        })
-                        self.initSessionData(self.currentSessionID())
-                        console.log('Purchased credits event: ', event)
-                    }
-                })
-            },
-            liquidateCredits: sessionNumber => {
-                let liquidateCreditsEvent = helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .house()
-                    .logLiquidateCredits(sessionNumber)
-                liquidateCreditsEvent.watch((err, event) => {
-                    if (err)
-                        console.log('Liquidate credits event error: ' + err)
-                    else {
-                        let creditHolder = event.args.creditHolder
-                        let session = event.args.session
-                        let amount = event.args.amount
-                        let payout = event.args.payout
-                        let balance = event.args.balance
-
-                        let credits = self.state.credits
-                        credits[sessionNumber] = balance.toFixed(0)
-                        self.setState({
-                            credits: credits
-                        })
-                        console.log('Liquidate credits event: ', event)
-                    }
-                })
-            },
-            transferFrom: () => {
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .token()
-                    .logTransfer(self.state.address, true)
-                    .watch((err, event) => {
-                        console.log('transferFrom', err, JSON.stringify(event))
-                        if (!err) {
-                            self.initDbetBalance()
-                        }
-                    })
-            },
-            transferTo: () => {
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .token()
-                    .logTransfer(self.state.address, false)
-                    .watch((err, event) => {
-                        console.log('transferTo', err, JSON.stringify(event))
-                        if (!err) {
-                            self.initDbetBalance()
-                        }
-                    })
+    /**
+     * Watches for purchased credits and updates when called.
+     * @param sessionNumber Session Number
+     */
+    watcherPurchasedCredits = async sessionNumber => {
+        let listener = (err, event) => {
+            if (err) {
+                console.log('Purchased credits event error: ' + err)
+            } else {
+                let balance = event.args.balance
+                let credits = this.state.credits
+                credits[sessionNumber] = balance.toFixed(0)
+                this.setState({ credits: credits })
+                this.initSessionData(this.currentSessionID())
+                console.log('Purchased credits event: ', event)
             }
         }
+
+        helper
+            .getContractHelper()
+            .getWrappers()
+            .house()
+            .logPurchasedCredits(sessionNumber, 'latest')
+            .watch(listener)
+    }
+
+    /**
+     * Watcher for all transfers in this wallet
+     */
+    watcherTransfer = () => {
+        //Listener for both watchers
+        let listener = (err, event) => {
+            console.log('transferFrom', err, JSON.stringify(event))
+            if (!err) {
+                this.initDbetBalance()
+            }
+        }
+
+        // Transfer For
+        helper
+            .getContractHelper()
+            .getWrappers()
+            .token()
+            .logTransfer(this.state.address, true)
+            .watch(listener)
+
+        // Transter To
+        helper
+            .getContractHelper()
+            .getWrappers()
+            .token()
+            .logTransfer(this.state.address, false)
+            .watch(listener)
     }
 
     /**
@@ -152,7 +128,7 @@ export default class House extends Component {
             session = session.toFixed(0)
             this.setState({ currentSession: session })
             this.initSessionData(this.currentSessionID())
-            this.watchers().purchasedCredits(this.currentSessionID())
+            this.watcherPurchasedCredits(this.currentSessionID())
         } catch (err) {
             console.log('Error retrieving current session')
         }
