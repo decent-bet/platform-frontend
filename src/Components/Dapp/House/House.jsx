@@ -856,54 +856,46 @@ export default class House extends Component {
         }
     }
 
-    web3Setters = () => {
-        const self = this
-        return {
-            /**
-             * Purchase session credits. Amount must be converted to 18 decimal places before buying.
-             * @param amount
-             */
-            purchaseCredits: amount => {
-                console.log('Purchasing credits', amount)
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .house()
-                    .purchaseCredits(amount)
-                    .then(tx => {
-                        console.log(
-                            'Successfully sent purchase credits tx',
-                            JSON.stringify(tx)
-                        )
-                    })
-                    .catch(err => {
-                        console.log(
-                            'Error sending purchase credits tx',
-                            err.message
-                        )
-                    })
-            },
-            /**
-             * Approves the house contract to withdraw 'amount' DBETs from the user's ETH address and
-             * purchases 'amount' credits
-             * @param amount
-             */
-            approveAndPurchaseCredits: amount => {
-                let house = helper.getContractHelper().getHouseInstance()
-                    .address
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .token()
-                    .approve(house, amount)
-                    .then(tx => {
-                        console.log('Successfully sent approve tx', tx)
-                        self.web3Setters().purchaseCredits(amount)
-                    })
-                    .catch(err => {
-                        console.log('Error sending approve tx', err)
-                    })
-            }
+    /**
+     * Purchase session credits. Amount must be converted to 18 decimal places before buying.
+     * @param amount
+     */
+    purchaseCredits = async amount => {
+        console.log('Purchasing credits', amount)
+
+        try {
+            let tx = await helper
+                .getContractHelper()
+                .getWrappers()
+                .house()
+                .purchaseCredits(amount)
+            console.log(
+                'Successfully sent purchase credits tx',
+                JSON.stringify(tx)
+            )
+        } catch (err) {
+            console.log('Error sending purchase credits tx', err.message)
+        }
+    }
+
+    /**
+     * Approves the house contract to withdraw 'amount' DBETs from the user's ETH address and
+     * purchases 'amount' credits
+     * @param amount
+     */
+    approveAndPurchaseCredits = async amount => {
+        let house = helper.getContractHelper().getHouseInstance().address
+
+        try {
+            let tx = await helper
+                .getContractHelper()
+                .getWrappers()
+                .token()
+                .approve(house, amount)
+            console.log('Successfully sent approve tx', tx)
+            this.purchaseCredits(amount)
+        } catch (err) {
+            console.log('Error sending approve tx', err)
         }
     }
 
@@ -916,9 +908,9 @@ export default class House extends Component {
             .times(ethUnits.units.ether)
             .toFixed()
         if (isAllowanceAvailable) {
-            this.web3Setters().purchaseCredits(formattedAmount)
+            this.purchaseCredits(formattedAmount)
         } else {
-            this.web3Setters().approveAndPurchaseCredits(formattedAmount)
+            this.approveAndPurchaseCredits(formattedAmount)
         }
     }
 
