@@ -485,48 +485,6 @@ export default class House extends Component {
         }
     }
 
-    views = () => {
-        const self = this
-        return {
-            header: () => {
-                return (
-                    <div className="row">
-                        <div className="col-12">
-                            <h1 className="text-center">
-                                DECENT<span className="color-gold">.BET</span>{' '}
-                                HOUSE
-                            </h1>
-                        </div>
-                        <div className="col-12">
-                            <RaisedButton
-                                icon={<FontAwesomeIcon icon="money-bill-alt" />}
-                                label={
-                                    <span style={styles.buttonLabel}>
-                                        {' '}
-                                        Purchase Credits
-                                    </span>
-                                }
-                                className="float-right"
-                                backgroundColor={constants.COLOR_ACCENT_DARK}
-                                onClick={() => {
-                                    self.setState({
-                                        isDialogPurchaseCreditsOpen: true
-                                    })
-                                }}
-                            />
-                        </div>
-                        <div className="col-12">
-                            <small className="text-white float-right mt-2">
-                                HOUSE ALLOWANCE:{' '}
-                                {helper.formatEther(self.state.allowance)} DBETs
-                            </small>
-                        </div>
-                    </div>
-                )
-            }
-        }
-    }
-
     /**
      * Purchase session credits. Amount must be converted to 18 decimal places before buying.
      * @param amount
@@ -589,6 +547,12 @@ export default class House extends Component {
     }
 
     /**
+     * Listener that opens the Purchase Dialog
+     */
+    onOpenPurchaseDialogListener = () =>
+        this.onTogglePurchaseDialogListener(true)
+
+    /**
      * Toggles the PurchaseDialog on and off
      * @param {boolean} enabled Open or Closed?
      */
@@ -605,6 +569,38 @@ export default class House extends Component {
             toggleDialog={this.onTogglePurchaseDialogListener}
         />
     )
+
+    renderHeader = () => {
+        return (
+            <div className="row">
+                <div className="col-12">
+                    <h1 className="text-center">
+                        DECENT<span className="color-gold">.BET</span> House
+                    </h1>
+                </div>
+                <div className="col-12">
+                    <RaisedButton
+                        icon={<FontAwesomeIcon icon="money-bill-alt" />}
+                        label={
+                            <span style={styles.buttonLabel}>
+                                {' '}
+                                Purchase Credits
+                            </span>
+                        }
+                        className="float-right"
+                        backgroundColor={constants.COLOR_ACCENT_DARK}
+                        onClick={this.onOpenPurchaseDialogListener}
+                    />
+                </div>
+                <div className="col-12">
+                    <small className="text-white float-right mt-2">
+                        HOUSE ALLOWANCE:{' '}
+                        {helper.formatEther(this.state.allowance)} DBETs
+                    </small>
+                </div>
+            </div>
+        )
+    }
 
     renderHouseStats = () => {
         let currentSession = this.helpers().getCurrentSession()
@@ -651,7 +647,7 @@ export default class House extends Component {
         return (
             <main className="house">
                 <div className="container">
-                    {this.views().header()}
+                    {this.renderHeader()}
                     {this.renderHouseStats()}
                     <h3 className="text-center sub-header">SESSION STATS</h3>
                     {this.renderSessionStats()}
