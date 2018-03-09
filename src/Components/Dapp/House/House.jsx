@@ -4,10 +4,11 @@
 
 import React, { Component } from 'react'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
-import { Card, RaisedButton } from 'material-ui'
+import { RaisedButton } from 'material-ui'
 import PurchaseCreditsDialog from './Dialogs/PurchaseCreditsDialog'
 import EventBus from 'eventing-bus'
 import Helper from '../../Helper'
+import HouseStats from './HouseStats'
 import LotteryDetails from './LotteryDetails'
 import LotteryTicketsCard from './LotteryTicketsCard'
 import SessionStats from './SessionStats'
@@ -522,79 +523,6 @@ export default class House extends Component {
                         </div>
                     </div>
                 )
-            },
-            houseStats: () => {
-                return (
-                    <div className="row stats">
-                        <div className="col-4 text-center hvr-float">
-                            <Card style={styles.card} zDepth={4}>
-                                <div className="container">
-                                    <div className="row">
-                                        <div className="col">
-                                            <h4 className="header">
-                                                CURRENT SESSION
-                                            </h4>
-                                            <h4 className="stat mt-3">
-                                                {self.state.currentSession}
-                                            </h4>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card>
-                        </div>
-                        <div className="col-4 text-center hvr-float">
-                            <Card style={styles.card} zDepth={4}>
-                                <div className="container">
-                                    <div className="row">
-                                        <div className="col">
-                                            <h4 className="header mb-2">
-                                                AUTHORIZED ADDRESSES
-                                            </h4>
-                                            {self.state.addresses.authorized
-                                                .length > 0 &&
-                                                self.state.addresses.authorized.map(
-                                                    address => (
-                                                        <p className="stat mt-3 address">
-                                                            {address}
-                                                        </p>
-                                                    )
-                                                )}
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card>
-                        </div>
-                        <div className="col-4 text-center hvr-float">
-                            <Card style={styles.card} zDepth={4}>
-                                <div className="container">
-                                    <div className="row">
-                                        <div className="col">
-                                            <h4 className="header">
-                                                CREDITS AVAILABLE
-                                            </h4>
-                                            <h4 className="stat mt-3">
-                                                {self.state.credits.hasOwnProperty(
-                                                    self
-                                                        .helpers()
-                                                        .getCurrentSession()
-                                                )
-                                                    ? helper.formatEther(
-                                                          self.state.credits[
-                                                              self
-                                                                  .helpers()
-                                                                  .getCurrentSession()
-                                                          ]
-                                                      )
-                                                    : '0'}{' '}
-                                                CREDITS
-                                            </h4>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card>
-                        </div>
-                    </div>
-                )
             }
         }
     }
@@ -678,6 +606,23 @@ export default class House extends Component {
         />
     )
 
+    renderHouseStats = () => {
+        let currentSession = this.helpers().getCurrentSession()
+        let currentSessionCredits = this.state.credits[currentSession]
+        let availableCredits = currentSessionCredits
+            ? helper.formatEther(currentSessionCredits)
+            : '0'
+        return (
+            <div className="row stats">
+                <HouseStats
+                    currentSession={currentSession}
+                    authorizedAddresses={this.state.addresses.authorized}
+                    availableCredits={availableCredits}
+                />
+            </div>
+        )
+    }
+
     renderLotteryDetails = () => {
         let currentSession = this.helpers().getCurrentSession()
         let currentLottery = this.state.lotteries[currentSession]
@@ -707,7 +652,7 @@ export default class House extends Component {
             <main className="house">
                 <div className="container">
                     {this.views().header()}
-                    {this.views().houseStats()}
+                    {this.renderHouseStats()}
                     <h3 className="text-center sub-header">SESSION STATS</h3>
                     {this.renderSessionStats()}
                     <h3 className="text-center sub-header">LOTTERY</h3>
