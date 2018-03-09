@@ -7,7 +7,6 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import { Card, RaisedButton } from 'material-ui'
 import PurchaseCreditsDialog from './Dialogs/PurchaseCreditsDialog'
 import EventBus from 'eventing-bus'
-
 import Helper from '../../Helper'
 
 import './house.css'
@@ -16,9 +15,6 @@ const BigNumber = require('bignumber.js')
 const constants = require('./../../Constants')
 const ethUnits = require('ethereum-units')
 const helper = new Helper()
-
-const DIALOG_PURCHASE_CREDITS = 0
-
 const styles = require('../../Base/styles').styles()
 
 export default class House extends Component {
@@ -35,11 +31,7 @@ export default class House extends Component {
             },
             houseFunds: {},
             lotteries: {},
-            dialogs: {
-                purchaseCredits: {
-                    open: false
-                }
-            }
+            isDialogPurchaseCreditsOpen: false
         }
     }
 
@@ -480,14 +472,6 @@ export default class House extends Component {
             getCurrentSessionHouseFunds: () => {
                 return self.state.houseFunds[self.helpers().getCurrentSession()]
             },
-            toggleDialog: (dialog, open) => {
-                let dialogs = self.state.dialogs
-                if (dialog == DIALOG_PURCHASE_CREDITS)
-                    dialogs.purchaseCredits.open = open
-                self.setState({
-                    dialogs: dialogs
-                })
-            },
             initSessionData: session => {
                 self.web3Getters().getUserCreditsForSession(session)
                 self.web3Getters().houseFunds(session)
@@ -538,12 +522,9 @@ export default class House extends Component {
                                 className="float-right"
                                 backgroundColor={constants.COLOR_ACCENT_DARK}
                                 onClick={() => {
-                                    self
-                                        .helpers()
-                                        .toggleDialog(
-                                            DIALOG_PURCHASE_CREDITS,
-                                            true
-                                        )
+                                    self.setState({
+                                        isDialogPurchaseCreditsOpen: true
+                                    })
                                 }}
                             />
                         </div>
@@ -926,57 +907,49 @@ export default class House extends Component {
         }
     }
 
-    dialogs = () => {
-        const self = this
-        return {
-            purchaseCredits: () => {
-                return (
-                    <PurchaseCreditsDialog
-                        open={self.state.dialogs.purchaseCredits.open}
-                        sessionNumber={self.state.currentSession}
-                        onConfirm={amount => {
-                            let isAllowanceAvailable = new BigNumber(amount)
-                                .times(ethUnits.units.ether)
-                                .lessThanOrEqualTo(self.state.allowance)
-                            let formattedAmount = new BigNumber(amount)
-                                .times(ethUnits.units.ether)
-                                .toFixed()
-                            if (isAllowanceAvailable)
-                                self
-                                    .web3Setters()
-                                    .purchaseCredits(formattedAmount)
-                            else
-                                self
-                                    .web3Setters()
-                                    .approveAndPurchaseCredits(formattedAmount)
-                        }}
-                        allowance={self.state.allowance}
-                        balance={self.state.balance}
-                        toggleDialog={enabled => {
-                            self
-                                .helpers()
-                                .toggleDialog(DIALOG_PURCHASE_CREDITS, enabled)
-                        }}
-                    />
-                )
-            }
+    // Gives the order to purchase House Credits
+    onCreditPurchaseListener = amount => {
+        let isAllowanceAvailable = new BigNumber(amount)
+            .times(ethUnits.units.ether)
+            .lessThanOrEqualTo(this.state.allowance)
+        let formattedAmount = new BigNumber(amount)
+            .times(ethUnits.units.ether)
+            .toFixed()
+        if (isAllowanceAvailable) {
+            this.web3Setters().purchaseCredits(formattedAmount)
+        } else {
+            this.web3Setters().approveAndPurchaseCredits(formattedAmount)
         }
     }
 
+    // Toggles the ConfirmPurchaseDialog
+    onTogglePurchaseDialogListener = enabled =>
+        this.setState({ isDialogPurchaseCreditsOpen: enabled })
+
+    renderPurchaseCreditDialog = () => (
+        <PurchaseCreditsDialog
+            open={this.state.isDialogPurchaseCreditsOpen}
+            sessionNumber={this.state.currentSession}
+            onConfirm={this.onCreditPurchaseListener}
+            allowance={this.state.allowance}
+            balance={this.state.balance}
+            toggleDialog={this.onTogglePurchaseDialogListener}
+        />
+    )
+
     render() {
-        const self = this
         return (
-            <div className="house">
+            <main className="house">
                 <div className="container">
-                    {self.views().header()}
-                    {self.views().houseStats()}
+                    {this.views().header()}
+                    {this.views().houseStats()}
                     <h3 className="text-center sub-header">SESSION STATS</h3>
-                    {self.views().sessionStats()}
+                    {this.views().sessionStats()}
                     <h3 className="text-center sub-header">LOTTERY</h3>
-                    {self.views().lotteryInfo()}
-                    {self.dialogs().purchaseCredits()}
+                    {this.views().lotteryInfo()}
                 </div>
-            </div>
+                {this.renderPurchaseCreditDialog()}
+            </main>
         )
     }
 }
