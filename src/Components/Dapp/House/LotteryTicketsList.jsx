@@ -1,6 +1,6 @@
 import React from 'react'
 import Helper from '../../Helper'
-import LotteryListItem from './LotteryListItem'
+import LotteryTicketsListItem from './LotteryTicketsListItem'
 
 const helper = new Helper()
 
@@ -8,7 +8,7 @@ const helper = new Helper()
  * Lists all the current Lottery Tickets for this wallet.
  * @param {Lottery} lottery Current Lottery
  */
-export default function LotteryList({ lottery }) {
+export default function LotteryTicketsList({ lottery }) {
     if (!lottery) {
         return <p>No lotteries yet</p>
     }
@@ -35,7 +35,7 @@ export default function LotteryList({ lottery }) {
 
             <tbody>
                 {userTickets.map((ticket, index) => (
-                    <LotteryListItem
+                    <LotteryTicketsListItem
                         key={ticket}
                         index={index}
                         ticket={ticket}

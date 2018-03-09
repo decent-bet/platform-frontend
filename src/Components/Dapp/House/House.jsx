@@ -9,7 +9,7 @@ import PurchaseCreditsDialog from './Dialogs/PurchaseCreditsDialog'
 import EventBus from 'eventing-bus'
 import Helper from '../../Helper'
 import LotteryDetails from './LotteryDetails'
-import LotteryList from './LotteryList'
+import LotteryTicketsCard from './LotteryTicketsCard'
 
 import './house.css'
 
@@ -755,24 +755,15 @@ export default class House extends Component {
         />
     )
 
-    renderLotteryCard = () => {
+    renderLotteryDetails = () => {
         let currentSession = this.helpers().getCurrentSession()
         let currentLottery = this.state.lotteries[currentSession]
         return (
             <div className="row lottery">
                 <div className="col-6 text-center hvr-float">
-                    <Card style={styles.card} zDepth={4}>
-                        <div className="container">
-                            <div className="row">
-                                <div className="col">
-                                    <h4 className="header mb-2">
-                                        YOUR TICKETS
-                                    </h4>
-                                    <LotteryList lottery={currentLottery} />
-                                </div>
-                            </div>
-                        </div>
-                    </Card>
+                    <LotteryTicketsCard
+                        lottery={currentLottery} 
+                    />
                 </div>
                 <div className="col-6 text-center hvr-float">
                     <LotteryDetails lottery={currentLottery} />
@@ -790,7 +781,7 @@ export default class House extends Component {
                     <h3 className="text-center sub-header">SESSION STATS</h3>
                     {this.views().sessionStats()}
                     <h3 className="text-center sub-header">LOTTERY</h3>
-                    {this.renderLotteryCard()}
+                    {this.renderLotteryDetails()}
                 </div>
                 {this.renderPurchaseCreditDialog()}
             </main>

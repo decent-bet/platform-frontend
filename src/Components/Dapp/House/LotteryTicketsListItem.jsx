@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function LotteryListItem({ index, ticket }) {
+export default function LotteryTicketsListItem({ index, ticket }) {
     return (
         <tr>
             <td>{index}</td>
