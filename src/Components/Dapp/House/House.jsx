@@ -725,7 +725,10 @@ export default class House extends Component {
         }
     }
 
-    // Gives the order to purchase House Credits
+    /**
+     * Executes confirmed Credit purchase
+     * @param {BigNumber} amount How Much?
+     */
     onCreditPurchaseListener = amount => {
         let isAllowanceAvailable = new BigNumber(amount)
             .times(ethUnits.units.ether)
@@ -740,7 +743,10 @@ export default class House extends Component {
         }
     }
 
-    // Toggles the ConfirmPurchaseDialog
+    /**
+     * Toggles the PurchaseDialog on and off
+     * @param {boolean} enabled Open or Closed?
+     */
     onTogglePurchaseDialogListener = enabled =>
         this.setState({ isDialogPurchaseCreditsOpen: enabled })
 
