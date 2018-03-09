@@ -2,7 +2,7 @@ import React from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom'
 
 import Balances from '../Balances'
-import House from '../House/House'
+import House from '../House'
 import Game from '../Casino/Slots/Game'
 import Slots from '../Casino/Slots'
 import Portal from '../Portal/Portal'

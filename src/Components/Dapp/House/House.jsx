@@ -6,6 +6,7 @@ import React, {Component} from 'react'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import {Card, RaisedButton} from 'material-ui'
 import PurchaseCreditsDialog from './Dialogs/PurchaseCreditsDialog'
+import EventBus from 'eventing-bus'
 
 import Helper from '../../Helper'
 
@@ -44,8 +45,18 @@ class House extends Component {
     }
 
     componentWillMount = () => {
-        this.initData()
-        this.initWatchers()
+        if (window.web3Loaded) { 
+            this.initData()
+            this.initWatchers()
+        } else {
+            let web3Loaded = EventBus.on('web3Loaded', () => {
+                
+                this.initData()
+                this.initWatchers()
+                // Unregister callback
+                web3Loaded()
+            })
+        }
     }
 
     initData = () => {
