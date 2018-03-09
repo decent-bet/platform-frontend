@@ -31,7 +31,7 @@ export default function SessionStats({ houseFunds }) {
                                     Total House Funds
                                 </h4>
                                 <h4 className="stat mt-3">
-                                    {totalFunds} DBETS
+                                    {totalFunds} DBETs
                                 </h4>
                             </div>
                         </div>
@@ -60,10 +60,10 @@ export default function SessionStats({ houseFunds }) {
                         <div className="row">
                             <div className="col">
                                 <h4 className="header mb-2">
-                                    PROFIT GENERATED
+                                    Profit Generated
                                 </h4>
                                 <h4 className="stat mt-3">
-                                    {totalProfit} DBETS
+                                    {totalProfit} DBETs
                                 </h4>
                             </div>
                         </div>
