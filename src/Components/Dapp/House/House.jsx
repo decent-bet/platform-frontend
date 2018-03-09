@@ -10,6 +10,7 @@ import EventBus from 'eventing-bus'
 import Helper from '../../Helper'
 import LotteryDetails from './LotteryDetails'
 import LotteryTicketsCard from './LotteryTicketsCard'
+import SessionStats from './SessionStats'
 
 import './house.css'
 
@@ -594,90 +595,6 @@ export default class House extends Component {
                         </div>
                     </div>
                 )
-            },
-            sessionStats: () => {
-                return (
-                    <div className="row stats">
-                        <div className="col-4 text-center hvr-float">
-                            <Card style={styles.card} zDepth={4}>
-                                <div className="container">
-                                    <div className="row">
-                                        <div className="col">
-                                            <h4 className="header mb-2">
-                                                TOTAL HOUSE FUNDS
-                                            </h4>
-                                            <h4 className="stat mt-3">
-                                                {self
-                                                    .helpers()
-                                                    .getCurrentSessionHouseFunds()
-                                                    ? helper.formatEther(
-                                                          self
-                                                              .helpers()
-                                                              .getCurrentSessionHouseFunds()
-                                                              .totalFunds
-                                                      )
-                                                    : '0'}{' '}
-                                                DBETS
-                                            </h4>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card>
-                        </div>
-                        <div className="col-4 text-center hvr-float">
-                            <Card style={styles.card} zDepth={4}>
-                                <div className="container">
-                                    <div className="row">
-                                        <div className="col">
-                                            <h4 className="header mb-2">
-                                                TOTAL HOUSE CREDITS
-                                            </h4>
-                                            <h4 className="stat mt-3">
-                                                {self
-                                                    .helpers()
-                                                    .getCurrentSessionHouseFunds()
-                                                    ? helper.formatEther(
-                                                          self
-                                                              .helpers()
-                                                              .getCurrentSessionHouseFunds()
-                                                              .totalUserCredits
-                                                      )
-                                                    : '0'}{' '}
-                                                CREDITS
-                                            </h4>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card>
-                        </div>
-                        <div className="col-4 text-center hvr-float">
-                            <Card style={styles.card} zDepth={4}>
-                                <div className="container">
-                                    <div className="row">
-                                        <div className="col">
-                                            <h4 className="header mb-2">
-                                                PROFIT GENERATED
-                                            </h4>
-                                            <h4 className="stat mt-3">
-                                                {self
-                                                    .helpers()
-                                                    .getCurrentSessionHouseFunds()
-                                                    ? helper.formatEther(
-                                                          self
-                                                              .helpers()
-                                                              .getCurrentSessionHouseFunds()
-                                                              .profit
-                                                      )
-                                                    : '0'}{' '}
-                                                DBETS
-                                            </h4>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card>
-                        </div>
-                    </div>
-                )
             }
         }
     }
@@ -767,13 +684,20 @@ export default class House extends Component {
         return (
             <div className="row lottery">
                 <div className="col-6 text-center hvr-float">
-                    <LotteryTicketsCard
-                        lottery={currentLottery} 
-                    />
+                    <LotteryTicketsCard lottery={currentLottery} />
                 </div>
                 <div className="col-6 text-center hvr-float">
                     <LotteryDetails lottery={currentLottery} />
                 </div>
+            </div>
+        )
+    }
+
+    renderSessionStats = () => {
+        let houseFunds = this.helpers().getCurrentSessionHouseFunds()
+        return (
+            <div className="row stats">
+                <SessionStats houseFunds={houseFunds} />
             </div>
         )
     }
@@ -785,7 +709,7 @@ export default class House extends Component {
                     {this.views().header()}
                     {this.views().houseStats()}
                     <h3 className="text-center sub-header">SESSION STATS</h3>
-                    {this.views().sessionStats()}
+                    {this.renderSessionStats()}
                     <h3 className="text-center sub-header">LOTTERY</h3>
                     {this.renderLotteryDetails()}
                 </div>
