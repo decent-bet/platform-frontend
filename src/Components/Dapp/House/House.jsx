@@ -42,11 +42,9 @@ export default class House extends Component {
     componentWillMount = () => {
         if (window.web3Loaded) {
             this.initData()
-            this.initWatchers()
         } else {
             let web3Loaded = EventBus.on('web3Loaded', () => {
                 this.initData()
-                this.initWatchers()
                 // Unregister callback
                 web3Loaded()
             })
@@ -54,13 +52,10 @@ export default class House extends Component {
     }
 
     initData = () => {
-        this.web3Getters().currentSession()
-        this.web3Getters().authorizedAddresses(0, true)
-        this.web3Getters().houseAllowance()
-        this.web3Getters().dbetBalance()
-    }
-
-    initWatchers = () => {
+        this.initCurrentSessionID()
+        this.initAuthorizedAddresses(0, true)
+        this.initHouseAllowance()
+        this.initDbetBalance()
         this.watchers().transferFrom()
         this.watchers().transferTo()
     }
@@ -123,7 +118,7 @@ export default class House extends Component {
                     .watch((err, event) => {
                         console.log('transferFrom', err, JSON.stringify(event))
                         if (!err) {
-                            self.web3Getters().dbetBalance()
+                            self.initDbetBalance()
                         }
                     })
             },
@@ -136,326 +131,254 @@ export default class House extends Component {
                     .watch((err, event) => {
                         console.log('transferTo', err, JSON.stringify(event))
                         if (!err) {
-                            self.web3Getters().dbetBalance()
+                            self.initDbetBalance()
                         }
                     })
             }
         }
     }
 
-    web3Getters = () => {
-        const self = this
-        return {
-            /**
-             * Returns the current session in the house contract.
-             */
-            currentSession: () => {
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .house()
-                    .getCurrentSession()
-                    .then(session => {
-                        session = session.toFixed(0)
-                        self.setState({
-                            currentSession: session
-                        })
-                        self.initSessionData(self.currentSessionID())
-                        self
-                            .watchers()
-                            .purchasedCredits(self.currentSessionID())
-                    })
-                    .catch(err => {
-                        console.log('Error retrieving current session')
-                    })
-            },
-            /**
-             * Iterates over authorized addresses available in the house contract.
-             * @param index
-             * @param iterate
-             */
-            authorizedAddresses: (index, iterate) => {
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .house()
-                    .getAuthorizedAddresses(index)
-                    .then(address => {
-                        if (address !== '0x') {
-                            let addresses = self.state.addresses
-                            addresses.authorized.push(address)
-                            self.setState({
-                                addresses: addresses
-                            })
-                            if (iterate)
-                                self
-                                    .web3Getters()
-                                    .authorizedAddresses(index + 1, true)
-                        }
-                    })
-                    .catch(err => {
-                        console.log(
-                            'Error retrieving authorized address',
-                            index,
-                            iterate
-                        )
-                    })
-            },
-            /**
-             * Retrieves the users credits for a session
-             * @param sessionNumber
-             */
-            getUserCreditsForSession: sessionNumber => {
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .house()
-                    .getUserCreditsForSession(
-                        sessionNumber,
-                        helper.getWeb3().eth.defaultAccount
-                    )
-                    .then(userCredits => {
-                        // 0 - Amount, 1 - Liquidated, 2 - Rolled over, 3 - Exists
-                        console.log(
-                            'getUserCreditsForSession',
-                            userCredits[0].toFixed(0)
-                        )
-                        let credits = self.state.credits
-                        credits[sessionNumber] = userCredits[0].toFixed(0)
-                        self.setState({
-                            credits: credits
-                        })
-                    })
-                    .catch(err => {
-                        console.log(
-                            'Error retrieving user credits for session',
-                            sessionNumber
-                        )
-                    })
-            },
-            /**
-             * Retrieve session details - Start time, end time and isActive
-             * @param sessionNumber
-             */
-            session: sessionNumber => {
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .house()
-                    .getSession(sessionNumber)
-                    .then(session => {
-                        let sessions = self.state.sessions
+    /**
+     * intializes the current House Session ID
+     */
+    initCurrentSessionID = async () => {
+        try {
+            let session = await helper
+                .getContractHelper()
+                .getWrappers()
+                .house()
+                .getCurrentSession()
 
-                        let _session = {}
-                        _session.startTime = session[0].toFixed(0)
-                        _session.endTime = session[1].toFixed(0)
-                        _session.active = session[2]
-                        sessions[sessionNumber] = _session
+            session = session.toFixed(0)
+            this.setState({ currentSession: session })
+            this.initSessionData(this.currentSessionID())
+            this.watchers().purchasedCredits(this.currentSessionID())
+        } catch (err) {
+            console.log('Error retrieving current session')
+        }
+    }
 
-                        self.setState({
-                            sessions: sessions
-                        })
-                    })
-                    .catch(err => {
-                        console.log(
-                            'Error retrieving session details',
-                            sessionNumber
-                        )
-                    })
-            },
-            /**
-             * Retrieve house fund details for a session - Total funds, purchased user credits, user credits
-             * available, house payouts, withdrawn and profit
-             * @param sessionNumber
-             */
-            houseFunds: sessionNumber => {
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .house()
-                    .getHouseFunds(sessionNumber)
-                    .then(houseFunds => {
-                        houseFunds = {
-                            totalFunds: houseFunds[0].toFixed(0),
-                            totalPurchasedUserCredits: houseFunds[1].toFixed(0),
-                            totalUserCredits: houseFunds[2].toFixed(0),
-                            totalHousePayouts: houseFunds[3].toFixed(0),
-                            totalWithdrawn: houseFunds[4].toFixed(0),
-                            profit: houseFunds[5].toFixed(0)
-                        }
-                        let _houseFunds = self.state.houseFunds
-                        _houseFunds[sessionNumber] = houseFunds
-                        console.log('houseFunds', JSON.stringify(_houseFunds))
-                        self.setState({
-                            houseFunds: _houseFunds
-                        })
-                    })
-                    .catch(err => {
-                        console.log(
-                            'Error retrieving house funds',
-                            sessionNumber,
-                            err
-                        )
-                    })
-            },
-            /**
-             * Returns the allowance assigned to the house for DBETs assigned to the user's ETH address
-             */
-            houseAllowance: () => {
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .token()
-                    .allowance(
-                        helper.getWeb3().eth.defaultAccount,
-                        helper.getContractHelper().getHouseInstance().address
-                    )
-                    .then(allowance => {
-                        console.log(
-                            'Retrieved house allowance',
-                            allowance.toString()
-                        )
-                        self.setState({
-                            allowance: allowance.toFixed(0)
-                        })
-                    })
-                    .catch(err => {
-                        console.log(
-                            'Error retrieving house allowance',
-                            err.message
-                        )
-                    })
-            },
-            /**
-             * Returns DBET balance for the logged in address
-             */
-            dbetBalance: () => {
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .token()
-                    .balanceOf(helper.getWeb3().eth.defaultAccount)
-                    .then(balance => {
-                        console.log(
-                            'Retrieved DBET balance',
-                            balance.toString()
-                        )
-                        balance = helper.formatEther(balance)
-                        self.setState({
-                            balance: balance
-                        })
-                    })
-                    .catch(err => {
-                        console.log(
-                            'Error retrieving DBET balance',
-                            err.message
-                        )
-                    })
-            },
-            /**
-             * Returns details for a session's lottery
-             */
-            lottery: session => {
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .house()
-                    .lotteries(session)
-                    .then(lottery => {
-                        lottery = {
-                            ticketCount: lottery[0].toFixed(0),
-                            winningTicket: lottery[1].toFixed(0),
-                            payout: lottery[2].toFixed(0),
-                            claimed: lottery[3],
-                            finalized: lottery[4],
-                            tickets: {}
-                        }
-                        let lotteries = self.state.lotteries
-                        lotteries[session] = lottery
-                        self.setState({
-                            lotteries: lotteries
-                        })
-                        self.web3Getters().lotteryUserTickets(session, 0)
-                        console.log('Lottery', session, lottery)
-                    })
-                    .catch(err => {
-                        console.log(
-                            'Error retrieving lottery details',
-                            session,
-                            err.message
-                        )
-                    })
-            },
-            /**
-             * Returns ticket numbers for a session lottery for the user at an index.
-             * @param session
-             * @param index
-             */
-            lotteryUserTickets: (session, index) => {
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .house()
-                    .lotteryUserTickets(
-                        session,
-                        helper.getWeb3().eth.defaultAccount,
-                        index
-                    )
-                    .then(ticket => {
-                        let lotteries = self.state.lotteries
-                        let lottery = lotteries[session]
-                        if (
-                            !lottery.tickets.hasOwnProperty(
-                                helper.getWeb3().eth.defaultAccount
-                            ) ||
-                            index == 0
-                        )
-                            lottery.tickets[
-                                helper.getWeb3().eth.defaultAccount
-                            ] = {}
-                        lottery.tickets[helper.getWeb3().eth.defaultAccount][
-                            ticket.toFixed(0)
-                        ] = true
-                        self.setState({
-                            lotteries: lotteries
-                        })
-                        self
-                            .web3Getters()
-                            .lotteryUserTickets(session, index + 1)
-                    })
-                    .catch(err => {
-                        console.log(
-                            'Error retrieving lottery user tickets',
-                            session,
-                            index,
-                            err.message,
-                            JSON.stringify(
-                                self.state.lotteries[session].tickets[
-                                    helper.getWeb3().eth.defaultAccount
-                                ]
-                            )
-                        )
-                    })
-            },
-            /**
-             * Returns the ticket holder for a ticket number.
-             */
-            lotteryTicketHolder: (session, ticketNumber) => {
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .house()
-                    .lotteryTicketHolder(session, ticketNumber)
-                    .then(tickets => {})
-                    .catch(err => {
-                        console.log(
-                            'Error retrieving lottery ticket holder',
-                            session,
-                            ticketNumber,
-                            err.message
-                        )
-                    })
+    /**
+     * Iterates over authorized addresses available in the house contract.
+     * @param index
+     * @param iterate
+     */
+    initAuthorizedAddresses = async (index, iterate) => {
+        try {
+            let address = await helper
+                .getContractHelper()
+                .getWrappers()
+                .house()
+                .getAuthorizedAddresses(index)
+            if (address !== '0x') {
+                let addresses = this.state.addresses
+                addresses.authorized.push(address)
+                this.setState({ addresses: addresses })
+                if (iterate) {
+                    this.authorizedAddresses(index + 1, true)
+                }
             }
+        } catch (err) {
+            console.log('Error retrieving authorized address', index, iterate)
+        }
+    }
+
+    /**
+     * Retrieves the users credits for a session
+     * @param sessionNumber
+     */
+    getUserCreditsForSession = async sessionNumber => {
+        try {
+            let defaultAccount = helper.getWeb3().eth.defaultAccount
+            let userCredits = await helper
+                .getContractHelper()
+                .getWrappers()
+                .house()
+                .getUserCreditsForSession(sessionNumber, defaultAccount)
+
+            // 0 - Amount, 1 - Liquidated, 2 - Rolled over, 3 - Exists
+            console.log('getUserCreditsForSession', userCredits[0].toFixed(0))
+            let credits = this.state.credits
+            credits[sessionNumber] = userCredits[0].toFixed(0)
+            this.setState({ credits: credits })
+        } catch (err) {
+            console.log(
+                'Error retrieving user credits for session',
+                sessionNumber
+            )
+        }
+    }
+
+    /**
+     * Retrieve session details - Start time, end time and isActive
+     * @param sessionNumber
+     */
+    initSessionDetails = async sessionNumber => {
+        try {
+            let session = await helper
+                .getContractHelper()
+                .getWrappers()
+                .house()
+                .getSession(sessionNumber)
+
+            let sessions = this.state.sessions
+
+            let _session = {}
+            _session.startTime = session[0].toFixed(0)
+            _session.endTime = session[1].toFixed(0)
+            _session.active = session[2]
+            sessions[sessionNumber] = _session
+
+            this.setState({ sessions: sessions })
+        } catch (err) {
+            console.log('Error retrieving session details', sessionNumber)
+        }
+    }
+
+    /**
+     * Retrieve house fund details for a session - Total funds, purchased user credits, user credits
+     * available, house payouts, withdrawn and profit
+     * @param sessionNumber
+     */
+    initHouseFunds = async sessionNumber => {
+        try {
+            let houseFunds = await helper
+                .getContractHelper()
+                .getWrappers()
+                .house()
+                .getHouseFunds(sessionNumber)
+
+            houseFunds = {
+                totalFunds: houseFunds[0].toFixed(0),
+                totalPurchasedUserCredits: houseFunds[1].toFixed(0),
+                totalUserCredits: houseFunds[2].toFixed(0),
+                totalHousePayouts: houseFunds[3].toFixed(0),
+                totalWithdrawn: houseFunds[4].toFixed(0),
+                profit: houseFunds[5].toFixed(0)
+            }
+            let _houseFunds = this.state.houseFunds
+            _houseFunds[sessionNumber] = houseFunds
+            console.log('houseFunds', JSON.stringify(_houseFunds))
+            this.setState({ houseFunds: _houseFunds })
+        } catch (err) {
+            console.log('Error retrieving house funds', sessionNumber, err)
+        }
+    }
+
+    /**
+     * Returns the allowance assigned to the house for DBETs assigned to the user's ETH address
+     */
+    initHouseAllowance = async () => {
+        try {
+            let allowance = await helper
+                .getContractHelper()
+                .getWrappers()
+                .token()
+                .allowance(
+                    helper.getWeb3().eth.defaultAccount,
+                    helper.getContractHelper().getHouseInstance().address
+                )
+
+            console.log('Retrieved house allowance', allowance.toString())
+            this.setState({ allowance: allowance.toFixed(0) })
+        } catch (err) {
+            console.log('Error retrieving house allowance', err.message)
+        }
+    }
+
+    /**
+     * Returns DBET balance for the logged in address
+     */
+    initDbetBalance = async () => {
+        try {
+            let balance = await helper
+                .getContractHelper()
+                .getWrappers()
+                .token()
+                .balanceOf(helper.getWeb3().eth.defaultAccount)
+
+            console.log('Retrieved DBET balance', balance.toString())
+            balance = helper.formatEther(balance)
+            this.setState({ balance: balance })
+        } catch (err) {
+            console.log('Error retrieving DBET balance', err.message)
+        }
+    }
+
+    /**
+     * Returns details for a session's lottery
+     */
+    initLottery = async session => {
+        try {
+            let lottery = await helper
+                .getContractHelper()
+                .getWrappers()
+                .house()
+                .lotteries(session)
+
+            lottery = {
+                ticketCount: lottery[0].toFixed(0),
+                winningTicket: lottery[1].toFixed(0),
+                payout: lottery[2].toFixed(0),
+                claimed: lottery[3],
+                finalized: lottery[4],
+                tickets: {}
+            }
+            let lotteries = this.state.lotteries
+            lotteries[session] = lottery
+            this.setState({ lotteries: lotteries })
+            this.initLotteryUserTickets(session, 0)
+            console.log('Lottery', session, lottery)
+        } catch (err) {
+            console.log(
+                'Error retrieving lottery details',
+                session,
+                err.message
+            )
+        }
+    }
+
+    /**
+     * Returns ticket numbers for a session lottery for the user at an index.
+     * @param session
+     * @param index
+     */
+    initLotteryUserTickets = async (session, index) => {
+        try {
+            let ticket = await helper
+                .getContractHelper()
+                .getWrappers()
+                .house()
+                .lotteryUserTickets(
+                    session,
+                    helper.getWeb3().eth.defaultAccount,
+                    index
+                )
+
+            let defaultAccount = helper.getWeb3().eth.defaultAccount
+            let lotteries = this.state.lotteries
+            let lottery = lotteries[session]
+            if (
+                !lottery.tickets.hasOwnProperty(defaultAccount) ||
+                index === 0
+            ) {
+                lottery.tickets[defaultAccount] = {}
+            }
+            lottery.tickets[defaultAccount][ticket.toFixed(0)] = true
+            this.setState({ lotteries: lotteries })
+            this.initLotteryUserTickets(session, index + 1)
+        } catch (err) {
+            console.log(
+                'Error retrieving lottery user tickets',
+                session,
+                index,
+                err.message,
+                JSON.stringify(
+                    this.state.lotteries[session].tickets[
+                        helper.getWeb3().eth.defaultAccount
+                    ]
+                )
+            )
         }
     }
 
@@ -470,10 +393,10 @@ export default class House extends Component {
      * @param session session ID to initialize
      */
     initSessionData = session => {
-        this.web3Getters().getUserCreditsForSession(session)
-        this.web3Getters().houseFunds(session)
-        this.web3Getters().session(session)
-        this.web3Getters().lottery(session)
+        this.getUserCreditsForSession(session)
+        this.initHouseFunds(session)
+        this.initSessionDetails(session)
+        this.initLottery(session)
     }
 
     /**
