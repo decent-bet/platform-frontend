@@ -84,9 +84,7 @@ export default class House extends Component {
                         self.setState({
                             credits: credits
                         })
-                        self
-                            .helpers()
-                            .initSessionData(self.helpers().getCurrentSession())
+                        self.initSessionData(self.currentSessionID())
                         console.log('Purchased credits event: ', event)
                     }
                 })
@@ -162,14 +160,10 @@ export default class House extends Component {
                         self.setState({
                             currentSession: session
                         })
-                        self
-                            .helpers()
-                            .initSessionData(self.helpers().getCurrentSession())
+                        self.initSessionData(self.currentSessionID())
                         self
                             .watchers()
-                            .purchasedCredits(
-                                self.helpers().getCurrentSession()
-                            )
+                            .purchasedCredits(self.currentSessionID())
                     })
                     .catch(err => {
                         console.log('Error retrieving current session')
@@ -465,24 +459,21 @@ export default class House extends Component {
         }
     }
 
-    helpers = () => {
-        const self = this
-        return {
-            getCurrentSession: () => {
-                return self.state.currentSession == 0
-                    ? 1
-                    : self.state.currentSession
-            },
-            getCurrentSessionHouseFunds: () => {
-                return self.state.houseFunds[self.helpers().getCurrentSession()]
-            },
-            initSessionData: session => {
-                self.web3Getters().getUserCreditsForSession(session)
-                self.web3Getters().houseFunds(session)
-                self.web3Getters().session(session)
-                self.web3Getters().lottery(session)
-            }
-        }
+    /**
+     * Get the current session's ID, or 0 if it isn't started yet
+     */
+    currentSessionID = () =>
+        this.state.currentSession === 0 ? 1 : this.state.currentSession
+
+    /**
+     * Initialize all the data for the session
+     * @param session session ID to initialize
+     */
+    initSessionData = session => {
+        this.web3Getters().getUserCreditsForSession(session)
+        this.web3Getters().houseFunds(session)
+        this.web3Getters().session(session)
+        this.web3Getters().lottery(session)
     }
 
     /**
@@ -603,7 +594,7 @@ export default class House extends Component {
     }
 
     renderHouseStats = () => {
-        let currentSession = this.helpers().getCurrentSession()
+        let currentSession = this.currentSessionID()
         let currentSessionCredits = this.state.credits[currentSession]
         let availableCredits = currentSessionCredits
             ? helper.formatEther(currentSessionCredits)
@@ -620,7 +611,7 @@ export default class House extends Component {
     }
 
     renderLotteryDetails = () => {
-        let currentSession = this.helpers().getCurrentSession()
+        let currentSession = this.currentSessionID()
         let currentLottery = this.state.lotteries[currentSession]
         return (
             <div className="row lottery">
@@ -635,7 +626,7 @@ export default class House extends Component {
     }
 
     renderSessionStats = () => {
-        let houseFunds = this.helpers().getCurrentSessionHouseFunds()
+        let houseFunds = this.state.houseFunds[this.currentSessionID()]
         return (
             <div className="row stats">
                 <SessionStats houseFunds={houseFunds} />
