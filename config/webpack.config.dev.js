@@ -1,22 +1,21 @@
-var autoprefixer = require('autoprefixer');
-var webpack = require('webpack');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
-var CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
-var InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
-var WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin');
-var getClientEnvironment = require('./env');
-var paths = require('./paths');
-
+var webpack = require('webpack')
+var HtmlWebpackPlugin = require('html-webpack-plugin')
+var ExtractTextPlugin = require('extract-text-webpack-plugin')
+var CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin')
+var InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
+var WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin')
+var getClientEnvironment = require('./env')
+var paths = require('./paths')
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // In development, we always serve from the root. This makes config easier.
-var publicPath = '/';
+var publicPath = '/'
 // `publicUrl` is just like `publicPath`, but we will provide it to our app
 // as %PUBLIC_URL% in `index.html` and `process.env.PUBLIC_URL` in JavaScript.
 // Omit trailing slash as %PUBLIC_PATH%/xyz looks better than %PUBLIC_PATH%xyz.
-var publicUrl = '';
+var publicUrl = ''
 // Get environment variables to inject into our app.
-var env = getClientEnvironment(publicUrl);
+var env = getClientEnvironment(publicUrl)
 
 // This is the development configuration.
 // It is focused on developer experience and fast rebuilds.
@@ -66,12 +65,12 @@ module.exports = {
         // We use `fallback` instead of `root` because we want `node_modules` to "win"
         // if there any conflicts. This matches Node resolution mechanism.
         // https://github.com/facebookincubator/create-react-app/issues/253
-        fallback: paths.nodePaths,
+        modules: [...paths.nodePaths, 'node_modules'],
         // These are the reasonable defaults supported by the Node ecosystem.
         // We also include JSX as a common component filename extension to support
         // some tools, although we do not recommend using it, see:
         // https://github.com/facebookincubator/create-react-app/issues/290
-        extensions: ['.js', '.json', '.jsx', ''],
+        extensions: ['.js', '.json', '.jsx', '*'],
         alias: {
             // Support React Native Web
             // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
@@ -80,16 +79,15 @@ module.exports = {
     },
 
     module: {
-        // First, run the linter.
-        // It's important to do this before Babel processes the JS.
-        preLoaders: [
+        rules: [
             {
+                // First, run the linter.
+                // It's important to do this before Babel processes the JS.
                 test: /\.(js|jsx)$/,
-                loader: 'eslint',
+                loader: 'eslint-loader',
                 include: paths.appSrc,
-            }
-        ],
-        loaders: [
+                enforce: 'pre'
+            },
             // Default loader: load all assets that are not handled
             // by other loaders with the url loader.
             // Note: This list needs to be updated with every change of extensions
@@ -114,7 +112,7 @@ module.exports = {
                     /\.woff2$/,
                     /\.(ttf|svg|eot)$/
                 ],
-                loader: 'url',
+                loader: 'url-loader',
                 query: {
                     limit: 10000,
                     name: 'static/media/[name].[hash:8].[ext]'
@@ -124,9 +122,8 @@ module.exports = {
             {
                 test: /\.(js|jsx)$/,
                 include: paths.appSrc,
-                loader: 'babel',
+                loader: 'babel-loader',
                 query: {
-
                     // This is a feature of `babel-loader` for webpack (not Babel itself).
                     // It enables caching results in ./node_modules/.cache/babel-loader/
                     // directory for faster rebuilds.
@@ -140,18 +137,34 @@ module.exports = {
             // in development "style" loader enables hot editing of CSS.
             {
                 test: /\.css$/,
-                loader: 'style!css?importLoaders=1!postcss'
+                use: ExtractTextPlugin.extract({
+                    fallback: 'style-loader',
+                    use: [
+                        {
+                            loader: 'css-loader',
+                            options: {
+                                importLoaders: 1
+                            }
+                        },
+                        {
+                            loader: 'postcss-loader',
+                            options: {
+                                config: { path: 'config/postcss.config.js' }
+                            }
+                        }
+                    ]
+                })
             },
             // JSON is not enabled by default in Webpack but both Node and Browserify
             // allow it implicitly so we also enable it.
             {
                 test: /\.json$/,
-                loader: 'json'
+                loader: 'json-loader'
             },
             // "file" loader for svg
             {
                 test: /\.svg$/,
-                loader: 'file',
+                loader: 'file-loader',
                 query: {
                     name: 'static/media/[name].[hash:8].[ext]'
                 }
@@ -159,50 +172,36 @@ module.exports = {
             // "file" loader for fonts
             {
                 test: /\.woff$/,
-                loader: 'file',
+                loader: 'file-loader',
                 query: {
                     name: 'fonts/[name].[hash].[ext]'
                 }
             },
             {
                 test: /\.woff2$/,
-                loader: 'file',
+                loader: 'file-loader',
                 query: {
                     name: 'fonts/[name].[hash].[ext]'
                 }
             },
             {
                 test: /\.(ttf|eot)$/,
-                loader: 'file',
+                loader: 'file-loader',
                 query: {
                     name: 'fonts/[name].[hash].[ext]'
                 }
-            },
-            // Truffle solidity loader to watch for changes in Solidity files and hot
+            }
+            // Truffle solidity loader to watch for changes in Solitiy files and hot
             // reload contracts with webpack.
             //
             // CURRENTLY REMOVED DUE TO INCOMPATIBILITY WITH TRUFFLE 3
             // Compile and migrate contracts manually.
             //
             /*{
-             test: /\.sol$/,
-             loader: 'truffle-solidity?network_id=123'
-             }*/
+        test: /\.sol$/,
+        loader: 'truffle-solidity?network_id=123'
+      }*/
         ]
-    },
-
-    // We use PostCSS for autoprefixing only.
-    postcss: function () {
-        return [
-            autoprefixer({
-                browsers: [
-                    '>1%',
-                    'last 4 versions',
-                    'Firefox ESR',
-                    'not ie < 9', // React doesn't support IE8 anyway
-                ]
-            }),
-        ];
     },
     plugins: [
         // Makes the public URL available as %PUBLIC_URL% in index.html, e.g.:
@@ -214,8 +213,10 @@ module.exports = {
         // Generates an `index.html` file with the <script> injected.
         new HtmlWebpackPlugin({
             inject: true,
-            template: paths.appHtml,
+            template: paths.appHtml
         }),
+        // Note: this won't work without ExtractTextPlugin.extract(..) in `loaders`.
+        new ExtractTextPlugin('static/css/[name].css'),
         // Makes some environment variables available to the JS code, for example:
         // if (process.env.NODE_ENV === 'development') { ... }. See `./env.js`.
         new webpack.DefinePlugin(env),
@@ -238,4 +239,4 @@ module.exports = {
         net: 'empty',
         tls: 'empty'
     }
-};
+}

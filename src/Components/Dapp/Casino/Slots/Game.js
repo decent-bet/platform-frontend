@@ -2,13 +2,15 @@ import React, {Component} from 'react'
 
 import {Card, FlatButton, MuiThemeProvider} from 'material-ui'
 
-const queryString = require('query-string')
-
 import EventBus from 'eventing-bus'
 import Helper from '../../../Helper'
 import Iframe from '../../../Base/Iframe'
 import SlotsChannelHandler from './Libraries/SlotsChannelHandler'
 import Themes from '../../../Base/Themes'
+
+import './game.css'
+
+const queryString = require('query-string')
 
 const async = require('async')
 const styles = require('../../../Base/styles').styles()
@@ -17,13 +19,13 @@ const themes = new Themes()
 const helper = new Helper()
 const slotsChannelHandler = new SlotsChannelHandler()
 
-import './game.css'
-
 class Game extends Component {
 
     constructor(props) {
         super(props)
+        // eslint-disable-next-line
         const query = queryString.parse(location.search)
+
         this.state = {
             id: query.id,
             aesKey: null,

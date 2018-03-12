@@ -6,12 +6,11 @@ import React, { Component } from 'react'
 import { Card, CardHeader, CardText } from 'material-ui'
 import Helper from '../../Helper'
 import EventBus from 'eventing-bus'
+import './balances.css'
 
 const helper = new Helper()
 
 const styles = require('../../Base/styles').styles()
-
-import './balances.css'
 
 export default class Balances extends Component {
     constructor(props) {
