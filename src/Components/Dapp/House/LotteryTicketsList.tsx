@@ -1,14 +1,19 @@
-import React from 'react'
+import * as React from 'react'
 import Helper from '../../Helper'
 import LotteryTicketsListItem from './LotteryTicketsListItem'
 
 const helper = new Helper()
 
+export interface LotteryTicketsProps {
+    lottery: any
+}
+
 /**
  * Lists all the current Lottery Tickets for this wallet.
  * @param {Lottery} lottery Current Lottery
  */
-export default function LotteryTicketsList({ lottery }) {
+export default function LotteryTicketsList(props: LotteryTicketsProps) {
+    let { lottery } = props
     if (!lottery) {
         return <p>No lotteries yet</p>
     }

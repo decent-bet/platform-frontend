@@ -44,7 +44,7 @@ export default class PurchaseCreditsDialog extends React.Component<
     constructor(props: PurchaseCreditsDialogProps) {
         super(props)
         this.state = {
-            amount: '0',
+            amount: '',
             valid: {
                 error: false,
                 message: ''
@@ -63,20 +63,15 @@ export default class PurchaseCreditsDialog extends React.Component<
     onConfirmListener = (): void => {
         let amount = parseInt(this.state.amount)
         let balance = this.props.balance
+        let listener = this.props.onConfirm
         if (amount <= balance) {
-            this.props.onConfirm(amount)
+            listener(amount)
             this.toggleDialog(false)
         } else {
-            this.setState({
-                valid: {
-                    error: true,
-                    message: amount
-                        ? 'You do not have enough DBETs to purchase ' +
-                          amount +
-                          ' credits'
-                        : 'Please enter a valid amount of DBETs'
-                }
-            })
+            let message = amount
+                ? `You do not have enough DBETs to purchase ${amount} credits`
+                : 'Please enter a valid amount of DBETs'
+            this.setState({ valid: { error: true, message: message } })
         }
     }
 
@@ -89,6 +84,7 @@ export default class PurchaseCreditsDialog extends React.Component<
             this.state.amount.length == 0 || parseInt(this.state.amount) == 0
         return (
             <FlatButton
+                labelStyle={styles.floatingLabelStyle}
                 label="Purchase"
                 disabled={isDisabled}
                 primary={true}
@@ -116,6 +112,13 @@ export default class PurchaseCreditsDialog extends React.Component<
                     value={this.state.amount}
                     onChange={this.onChangeListener}
                     errorText={errorText}
+                    hintStyle={{ color: '#949494' }}
+                    inputStyle={styles.inputStyle}
+                    floatingLabelStyle={styles.floatingLabelStyle}
+                    floatingLabelFocusStyle={styles.floatingLabelFocusStyle}
+                    underlineStyle={styles.underlineStyle}
+                    underlineFocusStyle={styles.underlineStyle}
+                    underlineDisabledStyle={styles.underlineDisabledStyle}
                 />
                 <small className="color-gold">
                     Available balance: {this.props.balance} DBETs

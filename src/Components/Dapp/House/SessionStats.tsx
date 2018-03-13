@@ -1,15 +1,20 @@
-import React, { Fragment } from 'react'
+import * as React from 'react'
 import { Card } from 'material-ui'
 import Helper from '../../Helper'
 
 const helper = new Helper()
 const styles = require('../../Base/styles').styles()
 
+export interface SessionStatsProps {
+    houseFunds: any
+}
+
 /**
  * Prints all details of the House Funds
- * @param {HouseFunds} houseFunds House Funds 
+ * @param {HouseFunds} houseFunds House Funds
  */
-export default function SessionStats({ houseFunds }) {
+export default function SessionStats(props: SessionStatsProps) {
+    let { houseFunds } = props
     let totalFunds = houseFunds
         ? helper.formatEther(houseFunds.totalFunds)
         : '0'
@@ -21,9 +26,9 @@ export default function SessionStats({ houseFunds }) {
     let totalProfit = houseFunds ? helper.formatEther(houseFunds.profit) : '0'
 
     return (
-        <Fragment>
+        <>
             <div className="col-4 text-center hvr-float">
-                <Card style={styles.card} zDepth={4}>
+                <Card style={styles.card}>
                     <div className="container">
                         <div className="row">
                             <div className="col">
@@ -39,7 +44,7 @@ export default function SessionStats({ houseFunds }) {
                 </Card>
             </div>
             <div className="col-4 text-center hvr-float">
-                <Card style={styles.card} zDepth={4}>
+                <Card style={styles.card}>
                     <div className="container">
                         <div className="row">
                             <div className="col">
@@ -55,7 +60,7 @@ export default function SessionStats({ houseFunds }) {
                 </Card>
             </div>
             <div className="col-4 text-center hvr-float">
-                <Card style={styles.card} zDepth={4}>
+                <Card style={styles.card}>
                     <div className="container">
                         <div className="row">
                             <div className="col">
@@ -70,6 +75,6 @@ export default function SessionStats({ houseFunds }) {
                     </div>
                 </Card>
             </div>
-        </Fragment>
+        </>
     )
 }
