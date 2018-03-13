@@ -6,7 +6,14 @@
         "allowJs": true,
         "module": "commonjs",
         "target": "es2015",
-        "jsx": "react"
+        "jsx": "react",
+        "typeRoots": [
+            "./@types",
+            "node_modules/@types"
+        ]
     },
-    "include": ["./src/**/*"]
+    "include": ["./src/**/*"],
+    "files": [
+        "./node_modules/@types/react-fontawesome/index.d.ts"
+    ]
 }

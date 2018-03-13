@@ -2,11 +2,11 @@
  * Created by user on 8/21/2017.
  */
 
-import React, { Component } from 'react'
-import FontAwesomeIcon from '@fortawesome/react-fontawesome'
+import * as React from 'react'
+//import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import { RaisedButton } from 'material-ui'
 import PurchaseCreditsDialog from './Dialogs/PurchaseCreditsDialog'
-import EventBus from 'eventing-bus'
+import * as EventingBus from 'eventing-bus'
 import Helper from '../../Helper'
 import HouseStats from './HouseStats'
 import LotteryDetails from './LotteryDetails'
@@ -21,14 +21,36 @@ const ethUnits = require('ethereum-units')
 const helper = new Helper()
 const styles = require('../../Base/styles').styles()
 
-export default class House extends Component {
-    constructor(props) {
+export interface HouseState {
+    address: string
+    currentSession: number
+    allowance: number
+    balance: number
+    sessions: Map<string, Session>
+    credits: any
+    addresses: {
+        authorized: string[]
+    }
+    houseFunds: any
+    lotteries: any
+    isDialogPurchaseCreditsOpen: boolean
+}
+
+export type Session = {
+    startTime: number
+    endTime: number
+    active: string
+}
+
+export default class House extends React.Component<{}, HouseState> {
+    constructor(props: any) {
         super(props)
         this.state = {
+            address: '',
             currentSession: 0,
             allowance: 0,
             balance: 0,
-            sessions: {},
+            sessions: new Map<string, Session>(),
             credits: {},
             addresses: {
                 authorized: []
@@ -39,11 +61,11 @@ export default class House extends Component {
         }
     }
 
-    componentWillMount = () => {
-        if (window.web3Loaded) {
+    componentWillMount() {
+        if ((window as any).web3Loaded) {
             this.initData()
         } else {
-            let web3Loaded = EventBus.on('web3Loaded', () => {
+            let web3Loaded = (EventingBus as any).on('web3Loaded', () => {
                 this.initData()
                 // Unregister callback
                 web3Loaded()
@@ -63,8 +85,8 @@ export default class House extends Component {
      * Watches for purchased credits and updates when called.
      * @param sessionNumber Session Number
      */
-    watcherPurchasedCredits = async sessionNumber => {
-        let listener = (err, event) => {
+    watcherPurchasedCredits = async (sessionNumber: number) => {
+        let listener = (err: any, event: any) => {
             if (err) {
                 console.log('Purchased credits event error: ' + err)
             } else {
@@ -90,7 +112,7 @@ export default class House extends Component {
      */
     watcherTransfer = () => {
         //Listener for both watchers
-        let listener = (err, event) => {
+        let listener = (err: any, event: any) => {
             console.log('transferFrom', err, JSON.stringify(event))
             if (!err) {
                 this.initDbetBalance()
@@ -139,7 +161,7 @@ export default class House extends Component {
      * @param index
      * @param iterate
      */
-    initAuthorizedAddresses = async (index, iterate) => {
+    initAuthorizedAddresses = async (index: number, iterate: boolean) => {
         try {
             let address = await helper
                 .getContractHelper()
@@ -151,7 +173,7 @@ export default class House extends Component {
                 addresses.authorized.push(address)
                 this.setState({ addresses: addresses })
                 if (iterate) {
-                    this.authorizedAddresses(index + 1, true)
+                    this.initAuthorizedAddresses(index + 1, true)
                 }
             }
         } catch (err) {
@@ -163,7 +185,7 @@ export default class House extends Component {
      * Retrieves the users credits for a session
      * @param sessionNumber
      */
-    getUserCreditsForSession = async sessionNumber => {
+    getUserCreditsForSession = async (sessionNumber: number) => {
         try {
             let defaultAccount = helper.getWeb3().eth.defaultAccount
             let userCredits = await helper
@@ -189,7 +211,7 @@ export default class House extends Component {
      * Retrieve session details - Start time, end time and isActive
      * @param sessionNumber
      */
-    initSessionDetails = async sessionNumber => {
+    initSessionDetails = async (sessionNumber: number) => {
         try {
             let session = await helper
                 .getContractHelper()
@@ -199,12 +221,13 @@ export default class House extends Component {
 
             let sessions = this.state.sessions
 
-            let _session = {}
-            _session.startTime = session[0].toFixed(0)
-            _session.endTime = session[1].toFixed(0)
-            _session.active = session[2]
-            sessions[sessionNumber] = _session
+            let _session: Session = {
+                startTime: session[0].toFixed(0),
+                endTime: session[1].toFixed(0),
+                active: session[2]
+            }
 
+            sessions.set(sessionNumber.toString(), _session)
             this.setState({ sessions: sessions })
         } catch (err) {
             console.log('Error retrieving session details', sessionNumber)
@@ -216,7 +239,7 @@ export default class House extends Component {
      * available, house payouts, withdrawn and profit
      * @param sessionNumber
      */
-    initHouseFunds = async sessionNumber => {
+    initHouseFunds = async (sessionNumber: number) => {
         try {
             let houseFunds = await helper
                 .getContractHelper()
@@ -284,7 +307,7 @@ export default class House extends Component {
     /**
      * Returns details for a session's lottery
      */
-    initLottery = async session => {
+    initLottery = async (session: number) => {
         try {
             let lottery = await helper
                 .getContractHelper()
@@ -319,7 +342,7 @@ export default class House extends Component {
      * @param session
      * @param index
      */
-    initLotteryUserTickets = async (session, index) => {
+    initLotteryUserTickets = async (session: number, index: number) => {
         try {
             let ticket = await helper
                 .getContractHelper()
@@ -368,7 +391,7 @@ export default class House extends Component {
      * Initialize all the data for the session
      * @param session session ID to initialize
      */
-    initSessionData = session => {
+    initSessionData = (session: number) => {
         this.getUserCreditsForSession(session)
         this.initHouseFunds(session)
         this.initSessionDetails(session)
@@ -379,7 +402,7 @@ export default class House extends Component {
      * Purchase session credits. Amount must be converted to 18 decimal places before buying.
      * @param amount
      */
-    purchaseCredits = async amount => {
+    purchaseCredits = async (amount: any) => {
         console.log('Purchasing credits', amount)
 
         try {
@@ -402,7 +425,7 @@ export default class House extends Component {
      * purchases 'amount' credits
      * @param amount
      */
-    approveAndPurchaseCredits = async amount => {
+    approveAndPurchaseCredits = async (amount: any) => {
         let house = helper.getContractHelper().getHouseInstance().address
 
         try {
@@ -422,14 +445,10 @@ export default class House extends Component {
      * Executes confirmed Credit purchase
      * @param {BigNumber} amount How Much?
      */
-    onCreditPurchaseListener = amount => {
-        let isAllowanceAvailable = new BigNumber(amount)
-            .times(ethUnits.units.ether)
-            .lessThanOrEqualTo(this.state.allowance)
-        let formattedAmount = new BigNumber(amount)
-            .times(ethUnits.units.ether)
-            .toFixed()
-        if (isAllowanceAvailable) {
+    onCreditPurchaseListener = (amount: number) => {
+        let amountInEther = new BigNumber(amount) * ethUnits.units.ether
+        let formattedAmount = amountInEther.toFixed()
+        if (amountInEther <= this.state.allowance) {
             this.purchaseCredits(formattedAmount)
         } else {
             this.approveAndPurchaseCredits(formattedAmount)
@@ -446,7 +465,7 @@ export default class House extends Component {
      * Toggles the PurchaseDialog on and off
      * @param {boolean} enabled Open or Closed?
      */
-    onTogglePurchaseDialogListener = enabled =>
+    onTogglePurchaseDialogListener = (enabled: boolean) =>
         this.setState({ isDialogPurchaseCreditsOpen: enabled })
 
     renderPurchaseCreditDialog = () => (
@@ -470,7 +489,6 @@ export default class House extends Component {
                 </div>
                 <div className="col-12">
                     <RaisedButton
-                        icon={<FontAwesomeIcon icon="money-bill-alt" />}
                         label={
                             <span style={styles.buttonLabel}>
                                 {' '}
