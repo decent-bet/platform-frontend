@@ -4,6 +4,10 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin')
 var CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin')
 var InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
 var WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin')
+// `CheckerPlugin` is optional. Use it if you want async error reporting.
+// We need this plugin to detect a `--watch` mode. It may be removed later
+// after https://github.com/webpack/webpack/issues/3460 will be resolved.
+const { CheckerPlugin } = require('awesome-typescript-loader')
 var getClientEnvironment = require('./env')
 var paths = require('./paths')
 
@@ -70,7 +74,7 @@ module.exports = {
         // We also include JSX as a common component filename extension to support
         // some tools, although we do not recommend using it, see:
         // https://github.com/facebookincubator/create-react-app/issues/290
-        extensions: ['.js', '.json', '.jsx', '*'],
+        extensions: ['.js', '.json', '.jsx', '.ts', '.tsx', '*'],
         alias: {
             // Support React Native Web
             // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
@@ -88,6 +92,8 @@ module.exports = {
                 include: paths.appSrc,
                 enforce: 'pre'
             },
+            // All files with a '.ts' or '.tsx' extension will be handled by 'awesome-typescript-loader'.
+            { test: /\.tsx?$/, loader: "awesome-typescript-loader" },
             // Default loader: load all assets that are not handled
             // by other loaders with the url loader.
             // Note: This list needs to be updated with every change of extensions
@@ -106,6 +112,7 @@ module.exports = {
                 exclude: [
                     /\.html$/,
                     /\.(js|jsx)$/,
+                    /\.(ts|tsx)$/,
                     /\.css$/,
                     /\.json$/,
                     /\.woff$/,
@@ -230,7 +237,8 @@ module.exports = {
         // to restart the development server for Webpack to discover it. This plugin
         // makes the discovery automatic so you don't have to restart.
         // See https://github.com/facebookincubator/create-react-app/issues/186
-        new WatchMissingNodeModulesPlugin(paths.appNodeModules)
+        new WatchMissingNodeModulesPlugin(paths.appNodeModules),
+        new CheckerPlugin()
     ],
     // Some libraries import Node modules but don't use them in the browser.
     // Tell Webpack to provide empty mocks for them so importing them works.

@@ -20,5 +20,5 @@ injectTapEventPlugin()
 const web3Loader = new Web3Loader()
 web3Loader.init()
 
-let landingApp = React.createElement(App)
+let landingApp = React.createElement(App, {compiler:"TypeScript"})
 ReactDOM.render(landingApp, document.getElementById('root'))
