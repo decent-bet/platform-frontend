@@ -14,6 +14,6 @@
     },
     "include": ["./src/**/*"],
     "files": [
-        "./node_modules/@types/react-fontawesome/index.d.ts"
+        "./node_modules/web3-typescript-typings/index.d.ts"
     ]
 }

@@ -4,12 +4,13 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin')
 var CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin')
 var InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
 var WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin')
+var getClientEnvironment = require('./env')
+var paths = require('./paths')
+
 // `CheckerPlugin` is optional. Use it if you want async error reporting.
 // We need this plugin to detect a `--watch` mode. It may be removed later
 // after https://github.com/webpack/webpack/issues/3460 will be resolved.
 const { CheckerPlugin } = require('awesome-typescript-loader')
-var getClientEnvironment = require('./env')
-var paths = require('./paths')
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // In development, we always serve from the root. This makes config easier.
@@ -93,7 +94,7 @@ module.exports = {
                 enforce: 'pre'
             },
             // All files with a '.ts' or '.tsx' extension will be handled by 'awesome-typescript-loader'.
-            { test: /\.tsx?$/, loader: "awesome-typescript-loader" },
+            { test: /\.tsx?$/, loader: 'awesome-typescript-loader' },
             // Default loader: load all assets that are not handled
             // by other loaders with the url loader.
             // Note: This list needs to be updated with every change of extensions
