@@ -3,7 +3,7 @@
  */
 
 import * as React from 'react'
-//import FontAwesomeIcon from '@fortawesome/react-fontawesome'
+import * as  FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import { RaisedButton } from 'material-ui'
 import PurchaseCreditsDialog from './Dialogs/PurchaseCreditsDialog'
 import * as EventingBus from 'eventing-bus'
@@ -489,6 +489,7 @@ export default class House extends React.Component<{}, HouseState> {
                 </div>
                 <div className="col-12">
                     <RaisedButton
+                        icon={<FontAwesomeIcon.FontAwesomeIcon icon="money-bill-alt" />}
                         label={
                             <span style={styles.buttonLabel}>
                                 {' '}
