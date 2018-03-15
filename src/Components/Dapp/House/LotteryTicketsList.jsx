@@ -25,7 +25,7 @@ export default function LotteryTicketsList({ lottery }) {
 
     let userTickets = Object.keys(lotteryTickets)
     return (
-        <table className="table table-striped">
+        <table className="table">
             <thead>
                 <tr>
                     <th>#</th>

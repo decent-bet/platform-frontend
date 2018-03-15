@@ -2,9 +2,9 @@
  * Created by user on 8/21/2017.
  */
 
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
-import { RaisedButton } from 'material-ui'
+import { RaisedButton, Card, CardText, CardActions } from 'material-ui'
 import PurchaseCreditsDialog from './Dialogs/PurchaseCreditsDialog'
 import EventBus from 'eventing-bus'
 import Helper from '../../Helper'
@@ -16,10 +16,8 @@ import { BigNumber } from 'bignumber.js'
 
 import './house.css'
 
-const constants = require('./../../Constants')
 const ethUnits = require('ethereum-units')
 const helper = new Helper()
-const styles = require('../../Base/styles').styles()
 
 export default class House extends Component {
     constructor(props) {
@@ -457,34 +455,28 @@ export default class House extends Component {
     )
 
     renderHeader = () => {
+        let allowance = helper.formatEther(this.state.allowance)
         return (
-            <div className="row">
-                <div className="col-12">
+            <Fragment>
+                <header>
                     <h1 className="text-center">
                         DECENT<span className="color-gold">.BET</span> House
                     </h1>
-                </div>
-                <div className="col-12">
-                    <RaisedButton
-                        icon={<FontAwesomeIcon icon="money-bill-alt" />}
-                        label={
-                            <span style={styles.buttonLabel}>
-                                {' '}
-                                Purchase Credits
-                            </span>
-                        }
-                        className="float-right"
-                        backgroundColor={constants.COLOR_ACCENT_DARK}
-                        onClick={this.onOpenPurchaseDialogListener}
-                    />
-                </div>
-                <div className="col-12">
-                    <small className="text-white float-right mt-2">
-                        HOUSE ALLOWANCE:{' '}
-                        {helper.formatEther(this.state.allowance)} DBETs
-                    </small>
-                </div>
-            </div>
+                </header>
+
+                <Card>
+                    <CardText>{`House Allowance: ${allowance} DBETs`}</CardText>
+                    <CardActions>
+                        <RaisedButton
+                            icon={<FontAwesomeIcon icon="money-bill-alt" />}
+                            label="Purchase Credits"
+                            secondary={true}
+                            fullWidth={true}
+                            onClick={this.onOpenPurchaseDialogListener}
+                        />
+                    </CardActions>
+                </Card>
+            </Fragment>
         )
     }
 
@@ -495,13 +487,11 @@ export default class House extends Component {
             ? helper.formatEther(currentSessionCredits)
             : '0'
         return (
-            <div className="row stats">
-                <HouseStats
-                    currentSession={currentSession}
-                    authorizedAddresses={this.state.addresses.authorized}
-                    availableCredits={availableCredits}
-                />
-            </div>
+            <HouseStats
+                currentSession={currentSession}
+                authorizedAddresses={this.state.addresses.authorized}
+                availableCredits={availableCredits}
+            />
         )
     }
 
@@ -509,24 +499,16 @@ export default class House extends Component {
         let currentSession = this.currentSessionID()
         let currentLottery = this.state.lotteries[currentSession]
         return (
-            <div className="row lottery">
-                <div className="col-6 text-center hvr-float">
-                    <LotteryTicketsCard lottery={currentLottery} />
-                </div>
-                <div className="col-6 text-center hvr-float">
-                    <LotteryDetails lottery={currentLottery} />
-                </div>
-            </div>
+            <Fragment>
+                <LotteryTicketsCard lottery={currentLottery} />
+                <LotteryDetails lottery={currentLottery} />
+            </Fragment>
         )
     }
 
     renderSessionStats = () => {
         let houseFunds = this.state.houseFunds[this.currentSessionID()]
-        return (
-            <div className="row stats">
-                <SessionStats houseFunds={houseFunds} />
-            </div>
-        )
+        return <SessionStats houseFunds={houseFunds} />
     }
 
     render() {
@@ -535,9 +517,15 @@ export default class House extends Component {
                 <div className="container">
                     {this.renderHeader()}
                     {this.renderHouseStats()}
-                    <h3 className="text-center sub-header">SESSION STATS</h3>
+
+                    <section>
+                        <h3>SESSION STATS</h3>
+                    </section>
                     {this.renderSessionStats()}
-                    <h3 className="text-center sub-header">LOTTERY</h3>
+
+                    <section>
+                        <h3>LOTTERY</h3>
+                    </section>
                     {this.renderLotteryDetails()}
                 </div>
                 {this.renderPurchaseCreditDialog()}

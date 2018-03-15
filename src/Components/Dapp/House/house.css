@@ -1,52 +1,39 @@
-.house .stats,
-.house .lottery {
-    margin-top: 60px;
+/* 
+Structure 
+*/
+.house .container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 15px;
+    padding: 60px 15px; 
 }
 
-.house .lottery {
-    padding-bottom: 60px;
+/* Reduce to 1 column in MD screens */
+@media(max-width: 947px){
+    .house .container{
+        grid-template-columns: 1fr;
+    }
 }
 
-.house .stats .header,
-.house .lottery .header {
-    color: #f2b45c !important;
-    font-family: GothamMedium;
-    font-size: 30px;
+.house .container > header {
+    grid-column: 1 / -2;
 }
 
-.house .stat {
-    color: #ffffff;
+.house .container > section {
+    grid-column: 1 / -1;
 }
 
-.house .address {
-    font-size: 12px;
-    word-wrap: break-word;
+.house table.card-table {
+    width: 100%;
 }
 
-.house .sub-header {
-    margin-top: 50px;
-    font-family: GothamMedium;
-    font-size: 36px;
+/*
+Typography
+*/
+.house table.card-table th {
+    text-align: left;
 }
 
-.house table {
-    margin-top: 30px;
-}
-
-.house tr,
-.house td,
-.house th {
-    color: #ffffff;
-    font-family: GothamMedium;
-    text-align: center;
-}
-
-.house th {
-    color: #f2b45c !important;
-    text-transform: uppercase;
-}
-
-.house .lottery .statistics .stat {
-    color: #f2b45c !important;
-    font-family: GothamMedium;
+.house table.card-table td {
+    text-align: right;
 }

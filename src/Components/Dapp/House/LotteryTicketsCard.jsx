@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card } from 'material-ui'
+import { Card, CardHeader, CardText } from 'material-ui'
 import LotteryTicketsList from './LotteryTicketsList'
 
 const styles = require('../../Base/styles').styles()
@@ -10,17 +10,11 @@ const styles = require('../../Base/styles').styles()
  */
 export default function LotteryTicketsCard({ lottery }) {
     return (
-        <Card style={styles.card} zDepth={4}>
-            <div className="container">
-                <div className="row">
-                    <div className="col">
-                        <h4 className="header mb-2">
-                            YOUR TICKETS
-                        </h4>
-                        <LotteryTicketsList lottery={lottery} />
-                    </div>
-                </div>
-            </div>
+        <Card className="hvr-float" style={styles.card}>
+            <CardHeader title="Your Tickets" />
+            <CardText>
+                <LotteryTicketsList lottery={lottery} />
+            </CardText>
         </Card>
     )
 }
