@@ -12,10 +12,10 @@ import HouseStats from './HouseStats'
 import LotteryDetails from './LotteryDetails'
 import LotteryTicketsCard from './LotteryTicketsCard'
 import SessionStats from './SessionStats'
+import { BigNumber } from 'bignumber.js'
 
 import './house.css'
 
-const BigNumber = require('bignumber.js')
 const constants = require('./../../Constants')
 const ethUnits = require('ethereum-units')
 const helper = new Helper()
@@ -423,13 +423,10 @@ export default class House extends Component {
      * @param {BigNumber} amount How Much?
      */
     onCreditPurchaseListener = amount => {
-        let isAllowanceAvailable = new BigNumber(amount)
-            .times(ethUnits.units.ether)
-            .lessThanOrEqualTo(this.state.allowance)
-        let formattedAmount = new BigNumber(amount)
-            .times(ethUnits.units.ether)
-            .toFixed()
-        if (isAllowanceAvailable) {
+        let bigAmount = new BigNumber(amount)
+        let ether = bigAmount.times(ethUnits.units.ether)
+        let formattedAmount = ether.toFixed()
+        if (ether.isLessThanOrEqualTo(this.state.allowance)) {
             this.purchaseCredits(formattedAmount)
         } else {
             this.approveAndPurchaseCredits(formattedAmount)
@@ -440,23 +437,22 @@ export default class House extends Component {
      * Listener that opens the Purchase Dialog
      */
     onOpenPurchaseDialogListener = () =>
-        this.onTogglePurchaseDialogListener(true)
+        this.setState({ isDialogPurchaseCreditsOpen: true })
 
     /**
-     * Toggles the PurchaseDialog on and off
-     * @param {boolean} enabled Open or Closed?
+     * Listener to close the Purchase Dialog
      */
-    onTogglePurchaseDialogListener = enabled =>
-        this.setState({ isDialogPurchaseCreditsOpen: enabled })
+    onClosePurchaseDialogListener = () =>
+        this.setState({ isDialogPurchaseCreditsOpen: false })
 
     renderPurchaseCreditDialog = () => (
         <PurchaseCreditsDialog
-            open={this.state.isDialogPurchaseCreditsOpen}
+            isOpen={this.state.isDialogPurchaseCreditsOpen}
             sessionNumber={this.state.currentSession}
-            onConfirm={this.onCreditPurchaseListener}
+            onConfirmListener={this.onCreditPurchaseListener}
             allowance={this.state.allowance}
             balance={this.state.balance}
-            toggleDialog={this.onTogglePurchaseDialogListener}
+            onCloseListener={this.onClosePurchaseDialogListener}
         />
     )
 
