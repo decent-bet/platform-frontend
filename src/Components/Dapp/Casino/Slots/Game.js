@@ -6,7 +6,7 @@ import EventBus from 'eventing-bus'
 import Helper from '../../../Helper'
 import Iframe from '../../../Base/Iframe'
 import SlotsChannelHandler from './Libraries/SlotsChannelHandler'
-import Themes from '../../../Base/Themes'
+import { ButtonsTheme } from '../../../Base/Themes'
 
 import './game.css'
 
@@ -14,7 +14,6 @@ const queryString = require('query-string')
 
 const async = require('async')
 const styles = require('../../../Base/styles').styles()
-const themes = new Themes()
 
 const helper = new Helper()
 const slotsChannelHandler = new SlotsChannelHandler()
@@ -251,7 +250,7 @@ class Game extends Component {
                                     Channel' button below</p>
                             </div>
                             <div className="col-12">
-                                <MuiThemeProvider muiTheme={themes.getButtons()}>
+                                <MuiThemeProvider muiTheme={ButtonsTheme}>
                                     <FlatButton
                                         label="Close Channel"
                                         disabled={self.state.finalized}
@@ -273,7 +272,7 @@ class Game extends Component {
                                     channel</p>
                             </div>
                             <div className="col-12">
-                                <MuiThemeProvider muiTheme={themes.getButtons()}>
+                                <MuiThemeProvider muiTheme={ButtonsTheme}>
                                     <FlatButton
                                         label="Claim DBETs"
                                         disabled={!self.state.closed || self.state.claimed[false]}

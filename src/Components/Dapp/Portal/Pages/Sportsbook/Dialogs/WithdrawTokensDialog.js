@@ -1,10 +1,8 @@
 import React, {Component} from 'react'
-
 import {Dialog, FlatButton, MuiThemeProvider, TextField} from 'material-ui'
-import Themes from '../../../../../Base/Themes'
+import { DialogTheme } from '../../../../../Base/Themes'
 
 const styles = require('../../../../../Base/DialogStyles').styles
-const themes = new Themes()
 
 class WithdrawTokensDialog extends Component {
 
@@ -37,7 +35,7 @@ class WithdrawTokensDialog extends Component {
     render() {
         const self = this
         return (
-            <MuiThemeProvider muiTheme={themes.getDialog()}>
+            <MuiThemeProvider muiTheme={DialogTheme}>
                 <Dialog
                     title={"WITHDRAW TOKENS FOR SESSION " + self.state.sessionNumber}
                     titleStyle={styles.titleStyle}

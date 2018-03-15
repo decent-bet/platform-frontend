@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { CircularProgress, MuiThemeProvider } from 'material-ui'
+import { CircularProgress } from 'material-ui'
 import SlotsGameCard from './SlotsGameCard'
 import SlotsChannelList from './SlotChannelList'
 import ChipToolbar from './ChipToolbar'
@@ -9,16 +9,13 @@ import WithdrawSlotsChipsDialog from './Dialogs/WithdrawSlotsChipsDialog'
 import EventBus from 'eventing-bus'
 import Helper from '../../../Helper'
 import SlotsChannelHandler from './Libraries/SlotsChannelHandler'
-import Themes from '../../../Base/Themes'
 
 import './slots.css'
 
 const BigNumber = require('bignumber.js')
 const helper = new Helper()
 const slotsChannelHandler = new SlotsChannelHandler()
-
 const constants = require('./../../../Constants')
-const themes = new Themes()
 
 export default class Slots extends Component {
     constructor(props) {
@@ -512,42 +509,37 @@ export default class Slots extends Component {
         let logoUrl =
             process.env.PUBLIC_URL + '/assets/img/logos/dbet-white.svg'
         return (
-            <MuiThemeProvider muiTheme={themes.getMainTheme()}>
-                <main className="slots container">
-                    <section className="logo-container">
-                        <img
-                            src={logoUrl}
-                            className="logo"
-                            alt="Decent.bet Logo"
-                        />
-                    </section>
+            <main className="slots container">
+                <section className="logo-container">
+                    <img src={logoUrl} className="logo" alt="Decent.bet Logo" />
+                </section>
 
-                    <section className="title-container">
-                        <h3 className="text-center">SLOTS</h3>
-                    </section>
+                <section className="title-container">
+                    <h3 className="text-center">SLOTS</h3>
+                </section>
 
-                    <section className="intro-container">
-                        <h5 className="text-center">
-                            Select a slot machine from the variety{' '}
-                            <span className="text-gold">Decent.bet </span>{' '}
-                            offers to start a new channel
-                        </h5>
-                    </section>
+                <section className="intro-container">
+                    <h5 className="text-center">
+                        Select a slot machine from the variety{' '}
+                        <span className="text-gold">Decent.bet </span> offers to
+                        start a new channel
+                    </h5>
+                </section>
 
-                    <SlotsGameCard
-                        imageUrl="backgrounds/slots-crypto-chaos.png"
-                        onClickListener={this.onSlotsGameClickedListener}
-                    />
+                <SlotsGameCard
+                    imageUrl="backgrounds/slots-crypto-chaos.png"
+                    onClickListener={this.onSlotsGameClickedListener}
+                />
 
-                    {this.renderChipToolbar()}
+                {this.renderChipToolbar()}
 
-                    <SlotsChannelList
-                        stateChannels={this.state.channels}
-                        onDepositToChannelListener={this.depositToChannel}
-                    />
-                </main>
+                <SlotsChannelList
+                    stateChannels={this.state.channels}
+                    onDepositToChannelListener={this.depositToChannel}
+                />
+
                 {this.renderDialogs()}
-            </MuiThemeProvider>
+            </main>
         )
     }
 }

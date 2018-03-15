@@ -1,10 +1,6 @@
 import React, {Component} from 'react'
-
 import {Dialog, FlatButton, MuiThemeProvider} from 'material-ui'
-
-import Themes from '../Themes'
-
-const themes = new Themes()
+import {DialogTheme} from '../Themes'
 
 class ConfirmationDialog extends Component {
 
@@ -28,7 +24,7 @@ class ConfirmationDialog extends Component {
         const self = this
         return (
             <div>
-                <MuiThemeProvider muiTheme={themes.getDialog()}>
+                <MuiThemeProvider muiTheme={DialogTheme}>
                     <Dialog
                         title={self.props.title}
                         actions={<FlatButton

@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
 import { FlatButton, MuiThemeProvider, CircularProgress } from 'material-ui'
 import Helper from '../../../Helper'
-import Themes from '../../../Base/Themes'
+import { ButtonsTheme } from '../../../Base/Themes'
 
-const themes = new Themes()
 const helper = new Helper()
 const constants = require('./../../../Constants')
 
@@ -52,7 +51,7 @@ export default class SlotChannelListItem extends Component {
                 <td>
                     <p>{this.getFormattedChannelStatus()}</p>
                 </td>
-                <MuiThemeProvider muiTheme={themes.getButtons()}>
+                <MuiThemeProvider muiTheme={ButtonsTheme}>
                     <td>
                         <FlatButton
                             label="Deposit"

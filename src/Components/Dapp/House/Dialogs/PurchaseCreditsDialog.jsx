@@ -3,9 +3,7 @@
  */
 
 import React, { Component } from 'react'
-import { Dialog, FlatButton, TextField } from 'material-ui'
-
-const styles = require('./../../../Base/DialogStyles').styles
+import { Dialog, RaisedButton, TextField } from 'material-ui'
 
 export default class PurchaseCreditsDialog extends Component {
     constructor(props) {
@@ -51,11 +49,9 @@ export default class PurchaseCreditsDialog extends Component {
         return (
             <Dialog
                 title={title}
-                titleStyle={styles.titleStyle}
                 actions={
-                    <FlatButton
+                    <RaisedButton
                         label="Purchase"
-                        labelStyle={styles.floatingLabelStyle}
                         disabled={!isValueValid}
                         primary={true}
                         onClick={this.onClickListener}
@@ -68,13 +64,6 @@ export default class PurchaseCreditsDialog extends Component {
                 <TextField
                     floatingLabelText="Amount"
                     fullWidth={true}
-                    hintStyle={{ color: '#949494' }}
-                    inputStyle={styles.inputStyle}
-                    floatingLabelStyle={styles.floatingLabelStyle}
-                    floatingLabelFocusStyle={styles.floatingLabelFocusStyle}
-                    underlineStyle={styles.underlineStyle}
-                    underlineFocusStyle={styles.underlineStyle}
-                    underlineDisabledStyle={styles.underlineDisabledStyle}
                     type="number"
                     value={this.state.amount}
                     onChange={this.onAmountChangedListener}

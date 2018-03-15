@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 import { BrowserRouter, Switch } from 'react-router-dom'
 import { MuiThemeProvider, Snackbar } from 'material-ui'
 import Dashboard from '../Dashboard'
@@ -6,10 +6,9 @@ import Login from '../Login'
 import PrivateRoute from './PrivateRoute'
 import LogoutRoute from './LogoutRoute'
 import EventBus from 'eventing-bus'
-import Themes from '../../Base/Themes'
+import { MainTheme, SnackbarTheme } from '../../Base/Themes'
 
 const constants = require('../../Constants')
-const themes = new Themes()
 
 export default class App extends Component {
     constructor(props) {
@@ -32,7 +31,7 @@ export default class App extends Component {
     renderSnackBar = () => {
         if (this.state.snackbarMessage) {
             return (
-                <MuiThemeProvider muiTheme={themes.getSnackbar()}>
+                <MuiThemeProvider muiTheme={SnackbarTheme}>
                     <Snackbar
                         message={this.state.snackbarMessage}
                         open={this.state.isSnackBarOpen}
@@ -47,7 +46,7 @@ export default class App extends Component {
 
     render() {
         return (
-            <Fragment>
+            <MuiThemeProvider muiTheme={MainTheme}>
                 <BrowserRouter>
                     <Switch>
                         <LogoutRoute
@@ -59,7 +58,7 @@ export default class App extends Component {
                 </BrowserRouter>
 
                 {this.renderSnackBar()}
-            </Fragment>
+            </MuiThemeProvider>
         )
     }
 }

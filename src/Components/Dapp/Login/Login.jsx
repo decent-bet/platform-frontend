@@ -1,11 +1,10 @@
 import React, { Component } from 'react'
-import { MuiThemeProvider, Card } from 'material-ui'
+import { Card } from 'material-ui'
 import LoginActions from './LoginActions'
 import LoginInner from './LoginInner'
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import Helper from '../../Helper'
 import KeyHandler from '../../Base/KeyHandler'
-import Themes from '../../Base/Themes'
 
 import './login.css'
 
@@ -13,10 +12,8 @@ const bip39 = require('bip39')
 const constants = require('../../Constants')
 const ethers = require('ethers')
 const Wallet = ethers.Wallet
-
 const helper = new Helper()
 const keyHandler = new KeyHandler()
-const themes = new Themes()
 
 export default class Login extends Component {
     constructor(props) {
@@ -188,12 +185,10 @@ export default class Login extends Component {
 
     render() {
         return (
-            <MuiThemeProvider muiTheme={themes.getMainTheme()}>
-                <main className="login">
-                    <div className="container">{this.renderCard()}</div>
-                    {this.renderErrorDialog()}
-                </main>
-            </MuiThemeProvider>
+            <main className="login">
+                <div className="container">{this.renderCard()}</div>
+                {this.renderErrorDialog()}
+            </main>
         )
     }
 }

@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react'
-import { MuiThemeProvider } from 'material-ui'
 
 import DashboardAppBar from './DashboardAppBar'
 import DashboardAppBarToolbar from './DashboardAppBarToolbar'
@@ -13,10 +12,8 @@ import './dashboard.css'
 
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import Helper from '../../Helper'
-import Themes from '../../Base/Themes'
 
 const helper = new Helper()
-const themes = new Themes()
 
 export default class Dashboard extends Component {
     constructor(props) {
@@ -198,10 +195,6 @@ export default class Dashboard extends Component {
     }
 
     render() {
-        return (
-            <MuiThemeProvider muiTheme={themes.getAppBar()}>
-                <div className="dashboard">{this.renderDashboard()}</div>
-            </MuiThemeProvider>
-        )
+        return <div className="dashboard">{this.renderDashboard()}</div>
     }
 }
