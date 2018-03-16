@@ -9,10 +9,10 @@ import WithdrawSlotsChipsDialog from './Dialogs/WithdrawSlotsChipsDialog'
 import EventBus from 'eventing-bus'
 import Helper from '../../../Helper'
 import SlotsChannelHandler from './Libraries/SlotsChannelHandler'
+import { BigNumber } from 'bignumber.js'
 
 import './slots.css'
 
-const BigNumber = require('bignumber.js')
 const helper = new Helper()
 const slotsChannelHandler = new SlotsChannelHandler()
 const constants = require('./../../../Constants')
@@ -454,7 +454,7 @@ export default class Slots extends Component {
     // Deposit Tokens and convert them to Chips
     onGetChipsListener = amount => {
         let allowance = new BigNumber(this.state.allowance)
-        if (allowance.lessThan(amount)) {
+        if (allowance.isLessThan(amount)) {
             this.approveAndDeposit(amount.toString())
         } else {
             this.depositChips(amount.toString())
