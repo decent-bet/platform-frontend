@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import { BrowserRouter, Switch } from 'react-router-dom'
 import { MuiThemeProvider, Snackbar } from 'material-ui'
 import Dashboard from '../Dashboard'
@@ -47,17 +47,19 @@ export default class App extends Component {
     render() {
         return (
             <MuiThemeProvider muiTheme={MainTheme}>
-                <BrowserRouter>
-                    <Switch>
-                        <LogoutRoute
-                            path={constants.VIEW_LOGIN}
-                            component={Login}
-                        />
-                        <PrivateRoute component={Dashboard} />
-                    </Switch>
-                </BrowserRouter>
+                <Fragment>
+                    <BrowserRouter>
+                        <Switch>
+                            <LogoutRoute
+                                path={constants.VIEW_LOGIN}
+                                component={Login}
+                            />
+                            <PrivateRoute component={Dashboard} />
+                        </Switch>
+                    </BrowserRouter>
 
-                {this.renderSnackBar()}
+                    {this.renderSnackBar()}
+                </Fragment>
             </MuiThemeProvider>
         )
     }
