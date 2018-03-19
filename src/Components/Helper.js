@@ -6,12 +6,10 @@ const ethUnits = require('ethereum-units')
 const BigNumber = require('bignumber.js')
 const constants = require('./Constants')
 
-const IS_DEV = false
-
 class Helper {
 
     isDev = () => {
-        return IS_DEV
+        return process.env["NODE_ENV"] === "production"
     }
 
     getWeb3 = () => {
