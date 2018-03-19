@@ -463,18 +463,14 @@ export default class Slots extends Component {
         let progressbar = (
             <CircularProgress size={18} color={constants.COLOR_GOLD} />
         )
-        let chipsLabel = chipBalance ? `${chipBalance} DBETs` : progressbar
+        let chipsLabel = chipBalance ? chipBalance : progressbar
 
         return (
-            <section className="chip-toolbar-container">
-                <ChipToolbar
-                    onWithdrawChipsListener={
-                        this.onWithdrawChipsDialogOpenListener
-                    }
-                    onGetChipsListener={this.onGetChipsDialogOpenListener}
-                    chipsLabel={chipsLabel}
-                />
-            </section>
+            <ChipToolbar
+                onWithdrawChipsListener={this.onWithdrawChipsDialogOpenListener}
+                onGetChipsListener={this.onGetChipsDialogOpenListener}
+                chipsLabel={chipsLabel}
+            />
         )
     }
 
