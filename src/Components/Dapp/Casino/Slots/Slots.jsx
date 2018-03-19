@@ -431,15 +431,10 @@ export default class Slots extends Component {
 
     // Withdraw Chips from the State Channel
     onWithdrawChipsListener = amount => {
-        console.log(
-            'onWithdrawChips',
-            amount,
-            this.state.balances[this.state.currentSession]
-        )
-        let balance = new BigNumber(
-            this.state.balances[this.state.currentSession]
-        )
-        if (balance.greaterThanOrEqualTo(amount)) {
+        let rawBalance = this.state.balances[this.state.currentSession]
+        console.log('onWithdrawChips', amount, rawBalance)
+        let balance = new BigNumber(rawBalance)
+        if (balance.isGreaterThanOrEqualTo(amount)) {
             this.withdrawChips(amount.toString(), this.state.currentSession)
         }
         this.onWithdrawChipsDialogToggleListener(false)
