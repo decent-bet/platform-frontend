@@ -49,6 +49,13 @@ input::-webkit-inner-spin-button {
     font-family: GothamLight;
 }
 
+.dashboard .appbar .logo-container {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    width: fit-content;
+}
+
 .dashboard .appbar .logo {
     width: 110px;
     object-fit: contain;
