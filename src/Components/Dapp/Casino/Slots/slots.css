@@ -62,6 +62,10 @@
     color: #f2b45c;
 }
 
+.slots .slot-channel-row .slot-channel-button span {
+    text-transform: capitalize !important; /* Capitalization for the flatbuttons */
+}
+
 .slots th {
     text-transform: uppercase;
 }

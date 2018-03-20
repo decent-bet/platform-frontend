@@ -395,11 +395,10 @@ export default class Slots extends Component {
     // How many Chips are in the session? if session isn't open, print `placeholder`
     getChipBalance = (placeholder = null) => {
         if (this.state.currentSession >= 0) {
-            if (this.state.balances[this.state.currentSession] >= 0) {
+            let balance = this.state.balances[this.state.currentSession]
+            if (balance >= 0) {
                 // Session is open. Print token total
-                let sessionString = this.state.balances[
-                    this.state.currentSession
-                ].toString()
+                let sessionString = balance.toString()
                 return helper.getWeb3().utils.fromWei(sessionString)
             }
         }
@@ -463,7 +462,11 @@ export default class Slots extends Component {
         let progressbar = (
             <CircularProgress size={18} color={constants.COLOR_GOLD} />
         )
-        let chipsLabel = chipBalance ? chipBalance : progressbar
+
+        // inspiration for the regex: https://stackoverflow.com/a/14428340
+        let chipsLabel = chipBalance
+            ? chipBalance.replace(/(\d)(?=(\d{3}))/g, '$1,') // Adds a space every three digits
+            : progressbar
 
         return (
             <ChipToolbar
@@ -517,12 +520,12 @@ export default class Slots extends Component {
                     </h5>
                 </section>
 
+                {this.renderChipToolbar()}
+
                 <SlotsGameCard
                     imageUrl="backgrounds/slots-crypto-chaos.png"
                     onClickListener={this.onSlotsGameClickedListener}
                 />
-
-                {this.renderChipToolbar()}
 
                 <SlotsChannelList
                     stateChannels={this.state.channels}
