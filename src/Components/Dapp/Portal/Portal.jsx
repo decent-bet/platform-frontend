@@ -1,52 +1,26 @@
-import React, {Component} from 'react'
-
+import React from 'react'
 import Discover from './Pages/Discover/Discover'
 import SportsBook from './Pages/Sportsbook/Sportsbook'
-import Navbar from './Navbar'
+import PortalNavbar from './PortalNavbar'
+import { Route, Redirect, Switch } from 'react-router'
 
 import './portal.css'
 
 const constants = require('../../Constants')
 
-export default class Portal extends Component {
-
-    constructor(props) {
-        super(props)
-        this.state = {
-            active: constants.PORTAL_PAGE_SPORTSBOOK
-        }
-    }
-
-    views = () => {
-        const self = this
-        return {
-            navbar: () => {
-                return <Navbar
-                    active={self.state.active}
-                    onSelectPage={(page) => {
-                        self.setState({
-                            active: page
-                        })
-                    }}
-                />
-            }
-        }
-    }
-
-    render() {
-        const self = this
-        return (
-            <div className="portal">
-                {self.views().navbar()}
-                {   self.state.active == constants.PORTAL_PAGE_DISCOVER &&
-                <Discover/>
-                }
-                {   self.state.active == constants.PORTAL_PAGE_SPORTSBOOK &&
-                <SportsBook/>
-                }
-            </div>
-        )
-    }
-
-
+export default function Portal(props) {
+    let { match } = props // This is injected by React-Router
+    let discoverPageUrl = `${match.url}/${constants.PORTAL_PAGE_DISCOVER}`
+    let sportsbookPageUrl = `${match.url}/${constants.PORTAL_PAGE_SPORTSBOOK}`
+    return (
+        <main className="portal">
+            <PortalNavbar matchUrl={match.url} />
+            <Switch>
+                <Route path={discoverPageUrl} component={Discover} />
+                <Route path={sportsbookPageUrl} component={SportsBook} />
+                {/*FALLBACK ROUTE */}
+                <Redirect to={discoverPageUrl} />
+            </Switch>
+        </main>
+    )
 }
