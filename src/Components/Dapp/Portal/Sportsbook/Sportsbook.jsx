@@ -6,7 +6,7 @@ import DepositTokensDialog from './Dialogs/DepositTokensDialog'
 import WithdrawTokensDialog from './Dialogs/WithdrawTokensDialog'
 
 import ArrayCache from '../../../Base/ArrayCache'
-import BettingReturnsCalculator from '../Modules/BettingReturnsCalculator'
+import BettingReturnsCalculator from '../BettingReturnsCalculator'
 import EventBus from 'eventing-bus'
 import Helper from '../../../Helper'
 
