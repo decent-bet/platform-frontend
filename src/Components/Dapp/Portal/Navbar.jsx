@@ -1,13 +1,11 @@
 import React, {Component} from 'react'
 
-import Helper from '../../../Helper'
+import Helper from '../../Helper'
 
-import './navbar.css'
-
-const constants = require('../../../Constants')
+const constants = require('../../Constants')
 const helper = new Helper()
 
-class Navbar extends Component {
+export default class Navbar extends Component {
 
     constructor(props) {
         super(props)
@@ -58,5 +56,3 @@ class Navbar extends Component {
     }
 
 }
-
-export default Navbar

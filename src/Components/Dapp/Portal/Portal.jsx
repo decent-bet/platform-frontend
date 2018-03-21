@@ -2,13 +2,13 @@ import React, {Component} from 'react'
 
 import Discover from './Pages/Discover/Discover'
 import SportsBook from './Pages/Sportsbook/Sportsbook'
-import Navbar from './Components/Navbar'
+import Navbar from './Navbar'
 
 import './portal.css'
 
 const constants = require('../../Constants')
 
-class Portal extends Component {
+export default class Portal extends Component {
 
     constructor(props) {
         super(props)
@@ -50,5 +50,3 @@ class Portal extends Component {
 
 
 }
-
-export default Portal

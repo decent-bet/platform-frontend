@@ -2,3 +2,55 @@
     min-height: 100vh;
     background: #000000;
 }
+
+/*
+ * NAVBAR
+*/
+
+.portal .navbar {
+    height: 60px;
+    background: #2a3040; /* Old Browsers */
+    background: -webkit-linear-gradient(top, #282e40, #121822); /*Safari 5.1-6*/
+    background: -o-linear-gradient(top, #282e40, #121822); /*Opera 11.1-12*/
+    background: -moz-linear-gradient(top, #282e40, #121822); /*Fx 3.6-15*/
+    background: linear-gradient(to bottom, #282e40, #121822); /*Standard*/
+    padding: 0 !important;
+}
+
+.portal .navbar-nav {
+    width: 100% !important;
+    height: 100%;
+}
+
+.portal .navbar-collapse {
+    height: 100%;
+}
+
+.portal .navbar .nav-item {
+    border-left: solid 1px rgba(255, 255, 255, 0.4);
+    height: 60px;
+    padding-top: 20px;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+.portal .navbar .nav-item:last-child {
+    border-right: solid 1px rgb(91, 94, 104);
+}
+
+.portal .navbar .nav-item.active a,
+.portal .navbar .nav-item a:hover {
+    color: #f2b45c;
+}
+
+.portal .navbar .nav-link {
+    padding: 0;
+}
+
+.portal .navbar .nav-item a {
+    text-transform: uppercase;
+    text-align: center;
+    color: #FFFFFF;
+    font-family: TradeGothic;
+    font-size: 0.95rem;
+}
