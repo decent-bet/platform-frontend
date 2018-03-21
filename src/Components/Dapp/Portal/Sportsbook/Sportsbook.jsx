@@ -8,8 +8,8 @@ import {
     TextField
 } from 'material-ui'
 import ConfirmationDialog from '../../../Base/Dialogs/ConfirmationDialog'
-import DepositTokensDialog from './Dialogs/DepositTokensDialog'
-import WithdrawTokensDialog from './Dialogs/WithdrawTokensDialog'
+import DepositTokensDialog from './DepositTokensDialog'
+import WithdrawTokensDialog from './WithdrawTokensDialog'
 
 import ArrayCache from '../../../Base/ArrayCache'
 import BettingReturnsCalculator from '../BettingReturnsCalculator'
