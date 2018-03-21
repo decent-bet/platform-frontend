@@ -1,6 +1,6 @@
 import React from 'react'
-import Discover from './Pages/Discover/Discover'
-import SportsBook from './Pages/Sportsbook/Sportsbook'
+import Discover from './Discover'
+import SportsBook from './Sportsbook'
 import PortalNavbar from './PortalNavbar'
 import { Route, Redirect, Switch } from 'react-router'
 

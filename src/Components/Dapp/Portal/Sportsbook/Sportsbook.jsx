@@ -1,14 +1,14 @@
 import React, {Component} from 'react'
 
 import {Card, CircularProgress, DropDownMenu, Menu, MenuItem, TextField} from 'material-ui'
-import ConfirmationDialog from '../../../../Base/Dialogs/ConfirmationDialog'
+import ConfirmationDialog from '../../../Base/Dialogs/ConfirmationDialog'
 import DepositTokensDialog from './Dialogs/DepositTokensDialog'
 import WithdrawTokensDialog from './Dialogs/WithdrawTokensDialog'
 
-import ArrayCache from '../../../../Base/ArrayCache'
-import BettingReturnsCalculator from '../../Modules/BettingReturnsCalculator'
+import ArrayCache from '../../../Base/ArrayCache'
+import BettingReturnsCalculator from '../Modules/BettingReturnsCalculator'
 import EventBus from 'eventing-bus'
-import Helper from '../../../../Helper'
+import Helper from '../../../Helper'
 
 import './sportsbook.css'
 
@@ -16,14 +16,14 @@ const arrayCache = new ArrayCache()
 const async = require('async')
 const bettingReturnsCalculator = new BettingReturnsCalculator()
 const BigNumber = require('bignumber.js')
-const constants = require('../../../../Constants')
+const constants = require('../../../Constants')
 const ethUnits = require('ethereum-units')
 const helper = new Helper()
 const swarm = require('swarm-js').at("http://swarm-gateways.net")
 
 const IPFS = require('ipfs-mini')
 const ipfs = new IPFS({host: 'ipfs.infura.io', port: 5001, protocol: 'https'})
-const styles = require('../../../../Base/styles').styles()
+const styles = require('../../../Base/styles').styles()
 
 const DIALOG_CONFIRM_BET = 0, DIALOG_DEPOSIT_TOKENS = 1, DIALOG_WITHDRAW_TOKENS = 2
 

@@ -1,17 +1,16 @@
 import React, {Component} from 'react'
 import {Dialog, FlatButton, MuiThemeProvider, TextField} from 'material-ui'
-import { DialogTheme } from '../../../../../Base/Themes'
+import { DialogTheme } from '../../../../Base/Themes'
 
-const styles = require('../../../../../Base/DialogStyles').styles
+const styles = require('../../../../Base/DialogStyles').styles
 
-class DepositTokensDialog extends Component {
+class WithdrawTokensDialog extends Component {
 
     constructor(props) {
         super(props)
         this.state = {
             open: false,
             sessionNumber: props.sessionNumber,
-            allowance: props.allowance,
             balance: props.balance,
             amount: '',
             valid: {
@@ -25,7 +24,6 @@ class DepositTokensDialog extends Component {
         this.setState({
             open: props.open,
             sessionNumber: props.sessionNumber,
-            allowance: props.allowance,
             balance: props.balance
         })
     }
@@ -39,13 +37,13 @@ class DepositTokensDialog extends Component {
         return (
             <MuiThemeProvider muiTheme={DialogTheme}>
                 <Dialog
-                    title={"DEPOSIT TOKENS TO SPORTSBOOK FOR SESSION " + self.state.sessionNumber}
+                    title={"WITHDRAW TOKENS FOR SESSION " + self.state.sessionNumber}
                     titleStyle={styles.titleStyle}
                     actions={<FlatButton
-                        label="Deposit"
+                        label="Withdraw"
                         primary={true}
                         disabled={self.state.amount.length == 0 || parseInt(self.state.amount) == 0}
-                        onClick={ () => {
+                        onClick={() => {
                             let amount = parseInt(self.state.amount)
                             let balance = parseInt(self.state.balance)
                             console.log(amount, balance)
@@ -57,7 +55,7 @@ class DepositTokensDialog extends Component {
                                     valid: {
                                         error: true,
                                         message: amount ?
-                                            'You do not have enough DBETs. Please enter a valid amount and try again.' :
+                                            'Ammount is greater than available DBETs. Please enter a valid amount and try again.' :
                                             'Please enter a valid amount of DBETs'
                                     }
                                 })
@@ -91,7 +89,7 @@ class DepositTokensDialog extends Component {
                                         })
                                     }}
                                 />
-                                {   self.state.valid.error &&
+                                {self.state.valid.error &&
                                 <section>
                                     <small className="text-danger">
                                         { self.state.valid.message }
@@ -99,15 +97,7 @@ class DepositTokensDialog extends Component {
                                     <br/>
                                 </section>
                                 }
-                                <small className="color-gold">Available balance: {self.state.balance} DBETs
-                                </small>
-                                <br/>
-                                <small className="text-white">Please note that if you haven't set an allowance for the
-                                    sportsbook
-                                    to transfer DBETs to it's contract address, you will be prompted to do so now and
-                                    will
-                                    have to send 2 transactions to the network.
-                                </small>
+                                <small className="color-gold">Available balance: {self.state.balance} DBETs</small>
                             </div>
                         </div>
                     </div>
@@ -115,7 +105,6 @@ class DepositTokensDialog extends Component {
             </MuiThemeProvider>
         )
     }
-
 }
 
-export default DepositTokensDialog
+export default WithdrawTokensDialog
