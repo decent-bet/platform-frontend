@@ -1,16 +1,10 @@
 import React, { Component } from 'react'
 
-import {
-    Card,
-    CircularProgress,
-    DropDownMenu,
-    MenuItem,
-    TextField
-} from 'material-ui'
+import { Card, CircularProgress } from 'material-ui'
 import ConfirmationDialog from '../../../Base/Dialogs/ConfirmationDialog'
 import DepositTokensDialog from './DepositTokensDialog'
 import WithdrawTokensDialog from './WithdrawTokensDialog'
-
+import GamesCard from './GamesCard'
 import ArrayCache from '../../../Base/ArrayCache'
 import BettingReturnsCalculator from '../BettingReturnsCalculator'
 import EventBus from 'eventing-bus'
@@ -1874,189 +1868,6 @@ export default class Sportsbook extends Component {
     views = () => {
         const self = this
         return {
-            games: () => {
-                let games = []
-                Object.keys(self.state.bettingProvider.games).map(gameId => {
-                    let game = self.state.bettingProvider.games[gameId]
-                    game.id = gameId
-                    games.push(game)
-                })
-                return (
-                    <section>
-                        <section>
-                            <Card style={styles.card} className="mt-4 p-4">
-                                <div className="row">
-                                    <div className="col-12">
-                                        <h4 className="text-uppercase">
-                                            Available Games
-                                        </h4>
-                                        <hr />
-                                    </div>
-                                </div>
-                                {Object.keys(self.state.bettingProvider.games)
-                                    .length == 0 && (
-                                    <div className="row">
-                                        <div className="col-12 mt-4">
-                                            <p className="text-center">
-                                                No games available
-                                            </p>
-                                        </div>
-                                    </div>
-                                )}
-                                {Object.keys(self.state.bettingProvider.games)
-                                    .length > 0 &&
-                                    games.map((game, index) => (
-                                        <div className="row">
-                                            <div className="col-12">
-                                                <div className="row">
-                                                    <div className="col-11">
-                                                        {game.hasOwnProperty(
-                                                            'oracleGameId'
-                                                        ) &&
-                                                            self
-                                                                .helpers()
-                                                                .isTeamNamesAvailable(
-                                                                    game.oracleGameId
-                                                                ) && (
-                                                                <p className="mb-1 teams">
-                                                                    {self.state
-                                                                        .sportsOracle
-                                                                        .games[
-                                                                        game
-                                                                            .oracleGameId
-                                                                    ].team1 +
-                                                                        ' vs ' +
-                                                                        self
-                                                                            .state
-                                                                            .sportsOracle
-                                                                            .games[
-                                                                            game
-                                                                                .oracleGameId
-                                                                        ].team2}
-                                                                </p>
-                                                            )}
-                                                        {!game ||
-                                                            !game.hasOwnProperty(
-                                                                'oracleGameId'
-                                                            ) ||
-                                                            (!self
-                                                                .helpers()
-                                                                .isTeamNamesAvailable(
-                                                                    game.oracleGameId
-                                                                ) && (
-                                                                <p className="mb-1">
-                                                                    Loading team
-                                                                    names..
-                                                                </p>
-                                                            ))}
-                                                    </div>
-                                                    <div className="col-1">
-                                                        <small className="float-right">
-                                                            {'#' +
-                                                                game.oracleGameId}
-                                                        </small>
-                                                    </div>
-                                                    <div className="col-12">
-                                                        {self
-                                                            .helpers()
-                                                            .isGameBettingPeriodOver(
-                                                                game.id
-                                                            ) && (
-                                                            <small className="badge badge-danger text-uppercase">
-                                                                Bets Ended
-                                                            </small>
-                                                        )}
-                                                        {!self
-                                                            .helpers()
-                                                            .isGameBettingPeriodOver(
-                                                                game.id
-                                                            ) && (
-                                                            <small className="badge badge-success text-uppercase">
-                                                                Bets Running
-                                                            </small>
-                                                        )}
-                                                        <br />
-                                                        <small>
-                                                            {'Cut-off time:' +
-                                                                new Date(
-                                                                    game.cutOffTime *
-                                                                        1000
-                                                                ).toLocaleString()}
-                                                        </small>
-                                                        <br />
-                                                        <small>
-                                                            {self
-                                                                .helpers()
-                                                                .getGameStartTime(
-                                                                    game.oracleGameId
-                                                                )}
-                                                        </small>
-                                                        <small className="float-right">
-                                                            {self
-                                                                .helpers()
-                                                                .getLeagueName(
-                                                                    game.oracleGameId
-                                                                )}
-                                                        </small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {self.state.odds.hasOwnProperty(
-                                                game.id
-                                            ) && (
-                                                <div className="col-12">
-                                                    <hr />
-                                                    <p className="mt-2">
-                                                        Available Odds
-                                                    </p>
-                                                    {self
-                                                        .views()
-                                                        .gameOdds(game.id)}
-                                                </div>
-                                            )}
-                                            {!self.state.odds.hasOwnProperty(
-                                                game.id
-                                            ) && (
-                                                <div className="col-12 game-odds">
-                                                    <hr />
-                                                    <p className="mt-2">
-                                                        Available Odds
-                                                    </p>
-                                                    {self
-                                                        .views()
-                                                        .noAvailableOdds()}
-                                                </div>
-                                            )}
-                                            <div className="col-12">
-                                                <hr />
-                                                <p className="mt-2">
-                                                    Bet Limits
-                                                </p>
-                                                {self
-                                                    .views()
-                                                    .betLimits(game.id)}
-                                            </div>
-                                            <div className="col-12">
-                                                <hr />
-                                                <p className="mt-2">
-                                                    Bet Information
-                                                </p>
-                                                {self
-                                                    .views()
-                                                    .betInformation(game.id)}
-                                            </div>
-                                            {index != games.length - 1 && (
-                                                <div className="col-12">
-                                                    <hr />
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                            </Card>
-                        </section>
-                    </section>
-                )
-            },
             stats: () => {
                 return (
                     <section>
@@ -2136,634 +1947,6 @@ export default class Sportsbook extends Component {
                             </div>
                         </Card>
                     </section>
-                )
-            },
-            gameOdds: gameId => {
-                const odds = self.state.odds[gameId]
-                let gameOdds = {
-                    spread: [],
-                    moneyline: [],
-                    totals: [],
-                    teamTotals: []
-                }
-
-                Object.keys(odds).forEach(oddsId => {
-                    const _odds = odds[oddsId]
-                    if (_odds.betType == constants.ODDS_TYPE_SPREAD) {
-                        gameOdds.spread.push(_odds)
-                    } else if (_odds.betType == constants.ODDS_TYPE_MONEYLINE) {
-                        gameOdds.moneyline.push(_odds)
-                    } else if (_odds.betType == constants.ODDS_TYPE_TOTALS) {
-                        gameOdds.totals.push(_odds)
-                    } else if (
-                        _odds.betType == constants.ODDS_TYPE_TEAM_TOTALS
-                    ) {
-                        gameOdds.teamTotals.push(_odds)
-                    }
-                })
-
-                return (
-                    <div className="row game-odds">
-                        {gameOdds.spread.length > 0 &&
-                            self.views().spreadOdds(gameId, gameOdds)}
-                        {gameOdds.moneyline.length > 0 &&
-                            self.views().moneylineOdds(gameId, gameOdds)}
-                        {gameOdds.totals.length > 0 &&
-                            self.views().totalsOdds(gameId, gameOdds)}
-                        {gameOdds.teamTotals.length > 0 &&
-                            self.views().teamTotalsOdds(gameId, gameOdds)}
-                        {Object.keys(odds).length == 0 &&
-                            self.views().noAvailableOdds()}
-                    </div>
-                )
-            },
-            spreadOdds: (gameId, gameOdds) => {
-                return (
-                    <div className="col-12">
-                        <div className="row">
-                            <div className="col-3">
-                                <p className="text-center mt-1 type">SPREAD</p>
-                            </div>
-                            <div className="col-9">
-                                {gameOdds.spread.map(_odds => (
-                                    <div className="row">
-                                        <div className="col-3">
-                                            <p className="key">Handicap</p>
-                                            <p>
-                                                {self
-                                                    .helpers()
-                                                    .formatOddsNumber(
-                                                        _odds.handicap
-                                                    )}
-                                            </p>
-                                        </div>
-                                        <div className="col-3">
-                                            <p className="key">Home</p>
-                                            <p>
-                                                {self
-                                                    .helpers()
-                                                    .formatOddsNumber(
-                                                        _odds.team1
-                                                    )}
-                                            </p>
-                                        </div>
-                                        <div className="col-3">
-                                            <p className="key">Away</p>
-                                            <p>
-                                                {self
-                                                    .helpers()
-                                                    .formatOddsNumber(
-                                                        _odds.team2
-                                                    )}
-                                            </p>
-                                        </div>
-                                        <div className="col-3">
-                                            <p className="key">Period</p>
-                                            <p>
-                                                {self
-                                                    .helpers()
-                                                    .getPeriodDescription(
-                                                        gameId,
-                                                        _odds.period
-                                                    )}
-                                            </p>
-                                        </div>
-                                        {!self
-                                            .helpers()
-                                            .isGameBettingPeriodOver(
-                                                gameId
-                                            ) && (
-                                            <div className="col-12 mt-1 mb-4">
-                                                {self
-                                                    .views()
-                                                    .betNow(
-                                                        constants.ODDS_TYPE_SPREAD,
-                                                        gameId,
-                                                        _odds.id
-                                                    )}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                )
-            },
-            moneylineOdds: (gameId, gameOdds) => {
-                return (
-                    <div className="col-12 mt-3">
-                        <div className="row">
-                            <div className="col-3">
-                                <p className="text-center mt-1 type">
-                                    MONEYLINE
-                                </p>
-                            </div>
-                            <div className="col-9">
-                                {gameOdds.moneyline.map(_odds => (
-                                    <div className="row">
-                                        <div className="col-3">
-                                            <p className="key">Home</p>
-                                            <p>
-                                                {self
-                                                    .helpers()
-                                                    .formatOddsNumber(
-                                                        _odds.team1
-                                                    )}
-                                            </p>
-                                        </div>
-                                        <div className="col-3">
-                                            <p className="key">Away</p>
-                                            <p>
-                                                {self
-                                                    .helpers()
-                                                    .formatOddsNumber(
-                                                        _odds.team2
-                                                    )}
-                                            </p>
-                                        </div>
-                                        <div className="col-3">
-                                            <p className="key">Draw</p>
-                                            <p>
-                                                {self
-                                                    .helpers()
-                                                    .formatOddsNumber(
-                                                        _odds.draw
-                                                    )}
-                                            </p>
-                                        </div>
-                                        <div className="col-3">
-                                            <p className="key">Period</p>
-                                            <p>
-                                                {self
-                                                    .helpers()
-                                                    .getPeriodDescription(
-                                                        gameId,
-                                                        _odds.period
-                                                    )}
-                                            </p>
-                                        </div>
-                                        {!self
-                                            .helpers()
-                                            .isGameBettingPeriodOver(
-                                                gameId
-                                            ) && (
-                                            <div className="col-12 mt-1 mb-4">
-                                                {self
-                                                    .views()
-                                                    .betNow(
-                                                        constants.ODDS_TYPE_MONEYLINE,
-                                                        gameId,
-                                                        _odds.id
-                                                    )}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                )
-            },
-            totalsOdds: (gameId, gameOdds) => {
-                return (
-                    <div className="col-12 mt-3">
-                        <div className="row">
-                            <div className="col-3">
-                                <p className="text-center mt-1 type">TOTALS</p>
-                            </div>
-                            <div className="col-9">
-                                {gameOdds.totals.map(_odds => (
-                                    <div className="row">
-                                        <div className="col-3">
-                                            <p className="key">Points</p>
-                                            <p>
-                                                {self
-                                                    .helpers()
-                                                    .formatOddsNumber(
-                                                        _odds.points
-                                                    )}
-                                            </p>
-                                        </div>
-                                        <div className="col-3">
-                                            <p className="key">Over</p>
-                                            <p>
-                                                {self
-                                                    .helpers()
-                                                    .formatOddsNumber(
-                                                        _odds.over
-                                                    )}
-                                            </p>
-                                        </div>
-                                        <div className="col-3">
-                                            <p className="key">Under</p>
-                                            <p>
-                                                {self
-                                                    .helpers()
-                                                    .formatOddsNumber(
-                                                        _odds.under
-                                                    )}
-                                            </p>
-                                        </div>
-                                        <div className="col-3">
-                                            <p className="key">Period</p>
-                                            <p>
-                                                {self
-                                                    .helpers()
-                                                    .getPeriodDescription(
-                                                        gameId,
-                                                        _odds.period
-                                                    )}
-                                            </p>
-                                        </div>
-                                        {!self
-                                            .helpers()
-                                            .isGameBettingPeriodOver(
-                                                gameId
-                                            ) && (
-                                            <div className="col-12 mt-1 mb-4">
-                                                {self
-                                                    .views()
-                                                    .betNow(
-                                                        constants.ODDS_TYPE_TOTALS,
-                                                        gameId,
-                                                        _odds.id
-                                                    )}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                )
-            },
-            teamTotalsOdds: (gameId, gameOdds) => {
-                return (
-                    <div className="col-12 mt-3">
-                        <div className="row">
-                            <div className="col-3">
-                                <p className="text-center mt-1 type">
-                                    TEAM TOTALS
-                                </p>
-                            </div>
-                            <div className="col-9">
-                                {gameOdds.teamTotals.map(_odds => (
-                                    <div className="row mt-1">
-                                        <div className="col-2">
-                                            <p className="key">Team</p>
-                                            <p>
-                                                {_odds.isTeam1
-                                                    ? 'Home'
-                                                    : 'Away'}
-                                            </p>
-                                        </div>
-                                        <div className="col-2">
-                                            <p className="key">Points</p>
-                                            <p>
-                                                {self
-                                                    .helpers()
-                                                    .formatOddsNumber(
-                                                        _odds.points
-                                                    )}
-                                            </p>
-                                        </div>
-                                        <div className="col-2">
-                                            <p className="key">Over</p>
-                                            <p>
-                                                {self
-                                                    .helpers()
-                                                    .formatOddsNumber(
-                                                        _odds.over
-                                                    )}
-                                            </p>
-                                        </div>
-                                        <div className="col-2">
-                                            <p className="key">Under</p>
-                                            <p>
-                                                {self
-                                                    .helpers()
-                                                    .formatOddsNumber(
-                                                        _odds.under
-                                                    )}
-                                            </p>
-                                        </div>
-                                        <div className="col-3">
-                                            <p className="key">Period</p>
-                                            <p>
-                                                {self
-                                                    .helpers()
-                                                    .getPeriodDescription(
-                                                        gameId,
-                                                        _odds.period
-                                                    )}
-                                            </p>
-                                        </div>
-                                        <div className="col-12 mt-1 mb-4">
-                                            {!self
-                                                .helpers()
-                                                .isGameBettingPeriodOver(
-                                                    gameId
-                                                ) && (
-                                                <div className="col-12 mt-1 mb-4">
-                                                    {self
-                                                        .views()
-                                                        .betNow(
-                                                            constants.ODDS_TYPE_TEAM_TOTALS,
-                                                            gameId,
-                                                            _odds.id
-                                                        )}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                )
-            },
-            betNow: (type, gameId, oddsId) => {
-                return (
-                    <div className="row mt-2">
-                        <div className="col-4">
-                            <TextField
-                                floatingLabelText="Bet Amount"
-                                fullWidth={true}
-                                hintStyle={{ color: '#949494' }}
-                                inputStyle={styles.textField.inputStyle}
-                                floatingLabelStyle={
-                                    styles.textField.floatingLabelStyle
-                                }
-                                floatingLabelFocusStyle={
-                                    styles.textField.floatingLabelFocusStyle
-                                }
-                                underlineStyle={styles.textField.underlineStyle}
-                                underlineFocusStyle={
-                                    styles.textField.underlineStyle
-                                }
-                                underlineDisabledStyle={
-                                    styles.textField.underlineDisabledStyle
-                                }
-                                type="number"
-                                disabled={
-                                    self.state.bettingProvider.time != null &&
-                                    self.state.bettingProvider.games[gameId]
-                                        .cutOffTime <=
-                                        self.state.bettingProvider.time
-                                }
-                                value={
-                                    self.helpers().doesOddsExist(gameId, oddsId)
-                                        ? self.state.odds[gameId][oddsId]
-                                              .betAmount
-                                        : ''
-                                }
-                                onChange={(event, value) => {
-                                    let odds = self.state.odds
-                                    odds[gameId][oddsId].betAmount = value
-                                    console.log(
-                                        'Changed betAmount',
-                                        odds,
-                                        gameId,
-                                        oddsId
-                                    )
-                                    self.setState({
-                                        odds: odds
-                                    })
-                                }}
-                            />
-                        </div>
-                        <div className="col-4">
-                            {(self.state.odds[gameId][oddsId].betType ==
-                                constants.ODDS_TYPE_SPREAD ||
-                                self.state.odds[gameId][oddsId].betType ==
-                                    constants.ODDS_TYPE_MONEYLINE) && (
-                                <DropDownMenu
-                                    className="mx-auto mt-3"
-                                    autoWidth={false}
-                                    style={{ width: '100%' }}
-                                    value={
-                                        self
-                                            .helpers()
-                                            .doesOddsExist(gameId, oddsId)
-                                            ? self.state.odds[gameId][oddsId]
-                                                  .selectedChoice
-                                            : constants.BET_CHOICE_TEAM1
-                                    }
-                                    onChange={(event, index, value) => {
-                                        let odds = self.state.odds
-                                        odds[gameId][
-                                            oddsId
-                                        ].selectedChoice = value
-                                        self.setState({
-                                            odds: odds
-                                        })
-                                    }}
-                                >
-                                    <MenuItem
-                                        value={constants.BET_CHOICE_TEAM1}
-                                        primaryText={self
-                                            .helpers()
-                                            .getTeamName(true, gameId)}
-                                    />
-                                    <MenuItem
-                                        value={constants.BET_CHOICE_TEAM2}
-                                        primaryText={self
-                                            .helpers()
-                                            .getTeamName(false, gameId)}
-                                    />
-                                    {type == constants.ODDS_TYPE_MONEYLINE && (
-                                        <MenuItem
-                                            value={constants.BET_CHOICE_DRAW}
-                                            primaryText="Draw"
-                                        />
-                                    )}
-                                </DropDownMenu>
-                            )}
-                            {(self.state.odds[gameId][oddsId].betType ==
-                                constants.ODDS_TYPE_TOTALS ||
-                                self.state.odds[gameId][oddsId].betType ==
-                                    constants.ODDS_TYPE_TEAM_TOTALS) && (
-                                <DropDownMenu
-                                    className="mx-auto mt-3"
-                                    autoWidth={false}
-                                    style={{ width: '100%' }}
-                                    value={
-                                        self
-                                            .helpers()
-                                            .doesOddsExist(gameId, oddsId)
-                                            ? self.state.odds[gameId][oddsId]
-                                                  .selectedChoice
-                                            : constants.BET_CHOICE_OVER
-                                    }
-                                    onChange={(event, index, value) => {
-                                        let odds = self.state.odds
-                                        odds[gameId][
-                                            oddsId
-                                        ].selectedChoice = value
-                                        self.setState({
-                                            odds: odds
-                                        })
-                                    }}
-                                >
-                                    <MenuItem
-                                        value={constants.BET_CHOICE_OVER}
-                                        primaryText="Over"
-                                    />
-                                    <MenuItem
-                                        value={constants.BET_CHOICE_UNDER}
-                                        primaryText="Under"
-                                    />
-                                </DropDownMenu>
-                            )}
-                        </div>
-                        <div className="col-4 pt-1">
-                            <p className="text-center key">MAX WIN</p>
-                            <p className="text-center">
-                                {self.helpers().getMaxWin(gameId, oddsId)} DBETs
-                            </p>
-                        </div>
-                        <div className="col-12">
-                            <button
-                                className="btn btn-sm btn-primary mx-auto"
-                                disabled={
-                                    self.state.bettingProvider.games[gameId]
-                                        .cutOffTime <= helper.getTimestamp() ||
-                                    self
-                                        .helpers()
-                                        .isEmpty(
-                                            self.state.odds[gameId][oddsId]
-                                                .betAmount
-                                        ) ||
-                                    self
-                                        .helpers()
-                                        .exceedsMaxBetAmount(gameId, oddsId) ||
-                                    self
-                                        .helpers()
-                                        .exceedsBetLimits(gameId, oddsId) ||
-                                    !self.state.bettingProvider
-                                        .depositedTokens ||
-                                    self.state.bettingProvider
-                                        .depositedTokens == 0
-                                }
-                                onClick={() => {
-                                    let dialogs = self.state.dialogs
-                                    dialogs.confirmBet.message = self
-                                        .helpers()
-                                        .getConfirmBetMessage(gameId, oddsId)
-                                    dialogs.confirmBet.selectedBet = {
-                                        gameId: gameId,
-                                        oddsId: oddsId
-                                    }
-                                    dialogs.confirmBet.open = true
-                                    self.setState({
-                                        dialogs: dialogs
-                                    })
-                                }}
-                            >
-                                BET NOW
-                            </button>
-                        </div>
-                    </div>
-                )
-            },
-            noAvailableOdds: () => {
-                return (
-                    <div className="col-12 mt-3">
-                        <p className="text-center mt-1 no-odds">
-                            NO ODDS AVAILABLE AT THE MOMENT
-                        </p>
-                    </div>
-                )
-            },
-            betLimits: gameId => {
-                const betLimits =
-                    self.state.bettingProvider.games[gameId].betLimits
-                const maxBetLimit =
-                    self.state.bettingProvider.games[gameId].maxBetLimit
-                return (
-                    <div className="col-12 bet-limits">
-                        <div className="row">
-                            <div className="col-12 mb-3">
-                                <p className="text-center key">MAX BET LIMIT</p>
-                                <p className="text-center">
-                                    {maxBetLimit} DBETs
-                                </p>
-                            </div>
-                        </div>
-                        {Object.keys(betLimits).map(period => (
-                            <div className="row">
-                                <div className="col-12 mb-3">
-                                    <p className="text-center key">PERIOD</p>
-                                    <p className="text-center">
-                                        {self
-                                            .helpers()
-                                            .getPeriodDescription(
-                                                gameId,
-                                                period
-                                            )}
-                                    </p>
-                                </div>
-                                <div className="col-3">
-                                    <p className="text-center key">SPREAD</p>
-                                    <p className="text-center">
-                                        {betLimits[period].spread} DBETs
-                                    </p>
-                                </div>
-                                <div className="col-3">
-                                    <p className="text-center key">MONEYLINE</p>
-                                    <p className="text-center">
-                                        {betLimits[period].moneyline} DBETs
-                                    </p>
-                                </div>
-                                <div className="col-3">
-                                    <p className="text-center key">TOTALS</p>
-                                    <p className="text-center">
-                                        {betLimits[period].totals} DBETs
-                                    </p>
-                                </div>
-                                <div className="col-3">
-                                    <p className="text-center key">
-                                        TEAM TOTALS
-                                    </p>
-                                    <p className="text-center">
-                                        {betLimits[period].teamTotals} DBETs
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )
-            },
-            betInformation: gameId => {
-                let game = self.state.bettingProvider.games[gameId]
-                return (
-                    <div className="row mt-4">
-                        <div className="col-4">
-                            <p className="text-center key">Bet Amount</p>
-                            <p className="text-center">
-                                {game.betAmount} DBETs
-                            </p>
-                        </div>
-                        <div className="col-4">
-                            <p className="text-center key">Bet Count</p>
-                            <p className="text-center">{game.betCount}</p>
-                        </div>
-                        <div className="col-4">
-                            <p className="text-center key">Your bets</p>
-                            <p className="text-center">
-                                {self.state.bettingProvider.placedBets.hasOwnProperty(
-                                    game.id
-                                )
-                                    ? Object.keys(
-                                          self.state.bettingProvider.placedBets[
-                                              game.id
-                                          ]
-                                      ).length
-                                    : 0}
-                            </p>
-                        </div>
-                    </div>
                 )
             },
             placedBets: () => {
@@ -3277,25 +2460,6 @@ export default class Sportsbook extends Component {
                         .bettingProvider()
                         .gameOdds(gameId, i++)
             },
-            getPeriodDescription: (gameId, period) => {
-                let oracleGameId =
-                    self.state.bettingProvider.games[gameId].oracleGameId
-                let periodDescription = 'Loading..'
-                Object.keys(self.state.sportsOracle.games).forEach(
-                    _oracleGameId => {
-                        if (oracleGameId == _oracleGameId) {
-                            let game =
-                                self.state.sportsOracle.games[_oracleGameId]
-                            if (game && game.periodDescriptions)
-                                game.periodDescriptions.forEach(_period => {
-                                    if (_period.number == period)
-                                        periodDescription = _period.description
-                                })
-                        }
-                    }
-                )
-                return periodDescription
-            },
             toggleDialog: (type, enabled) => {
                 let dialogs = self.state.dialogs
                 switch (type) {
@@ -3311,21 +2475,6 @@ export default class Sportsbook extends Component {
                 }
                 self.setState({ dialogs: dialogs })
             },
-            getConfirmBetMessage: (gameId, oddsId) => {
-                let oddsObj = self.state.odds[gameId][oddsId]
-                let betAmount = oddsObj.betAmount
-                let selectedChoice = oddsObj.selectedChoice
-
-                return (
-                    'You are now placing a bet of ' +
-                    oddsObj.betAmount +
-                    ' DBETs for ' +
-                    self.helpers().getTeamName(true, gameId) +
-                    ' vs. ' +
-                    self.helpers().getTeamName(false, gameId) +
-                    '. Please click OK to confirm your bet'
-                )
-            },
             getOracleGame: id => {
                 return self.state.sportsOracle.games[id]
             },
@@ -3336,9 +2485,6 @@ export default class Sportsbook extends Component {
                     oddsObj.selectedChoice,
                     oddsObj.betAmount
                 )
-            },
-            formatOddsNumber: val => {
-                return val > 0 ? '+' + val : val
             },
             doesOddsExist: (gameId, oddsId) => {
                 return (
@@ -3359,6 +2505,7 @@ export default class Sportsbook extends Component {
                 return totalBetAmount > maxBetLimit
             },
             exceedsBetLimits: (gameId, oddsId) => {
+                //*Deprecated */
                 let betAmount = parseInt(
                     self.state.odds[gameId][oddsId].betAmount
                 )
@@ -3455,6 +2602,59 @@ export default class Sportsbook extends Component {
         }
     }
 
+    onSetBetAmountListener = (gameId, oddsId, betAmount) => {
+        let odds = this.state.odds
+        odds[gameId][oddsId].betAmount = betAmount
+        console.log('Changed betAmount', odds, gameId, oddsId)
+        this.setState({ odds: odds })
+    }
+
+    onSetBetTeamListener = (gameId, oddsId, value) => {
+        let odds = this.state.odds
+        odds[gameId][oddsId].selectedChoice = value
+        this.setState({ odds: odds })
+    }
+
+    onSetTeamTotalListener = (gameId, oddsId, value) => {
+        let odds = this.state.odds
+        odds[gameId][oddsId].selectedChoice = value
+        this.setState({ odds: odds })
+    }
+
+    onOpenConfirmBetDialogListener = (gameId, oddsId) => {
+        let dialogs = this.state.dialogs
+        let oddsObj = this.state.odds[gameId][oddsId]
+
+        dialogs.confirmBet.message =
+            'You are now placing a bet of ' +
+            oddsObj.betAmount +
+            ' DBETs for ' +
+            this.helpers().getTeamName(true, gameId) +
+            ' vs. ' +
+            this.helpers().getTeamName(false, gameId) +
+            '. Please click OK to confirm your bet'
+
+        dialogs.confirmBet.selectedBet = {
+            gameId: gameId,
+            oddsId: oddsId
+        }
+        dialogs.confirmBet.open = true
+        this.setState({ dialogs: dialogs })
+    }
+
+    renderGamesCard = () => (
+        <GamesCard
+            bettingProvider={this.state.bettingProvider}
+            sportsOracle={this.state.sportsOracle}
+            oddsMap={this.state.odds}
+            onSetBetAmountListener={this.onSetBetAmountListener}
+            onSetBetTeamListener={this.onSetBetTeamListener}
+            onSetTeamTotalListener={this.onSetTeamTotalListener}
+            onOpenConfirmBetDialogListener={this.onOpenConfirmBetDialogListener}
+            depositedTokens={this.state.bettingProvider.depositedTokens}
+        />
+    )
+
     render() {
         const self = this
         return (
@@ -3464,7 +2664,7 @@ export default class Sportsbook extends Component {
                         <div className="col-10">
                             <div className="row">
                                 <div className="col-8">
-                                    {self.views().games()}
+                                    {this.renderGamesCard()}
                                     {self.views().placedBets()}
                                 </div>
                                 <div className="col-4">
