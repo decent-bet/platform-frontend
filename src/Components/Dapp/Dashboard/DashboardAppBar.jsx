@@ -19,7 +19,8 @@ export default function DashboardAppBar({ children, onToggleDrawerListener }) {
             showMenuIconButton={true}
             onLeftIconButtonClick={onToggleDrawerListener}
             title={<DashboardAppBarLogo />}
-            iconElementRight={children}
-        />
+        >
+            {children}
+        </AppBar>
     )
 }

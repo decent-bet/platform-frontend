@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import { FlatButton, RaisedButton } from 'material-ui'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Helper from '../../Helper'
@@ -22,9 +22,9 @@ export default function DashboardAppBarToolbar({
 }) {
     let balanceText = `Balance: ${getFormattedBalance(etherBalance)} DBETs`
     return (
-        <Fragment>
+        <div className="appbar-toolbar">
             <FlatButton
-                className="hidden-md-down mr-2"
+                className="hidden-md-down"
                 label={
                     <CopyToClipboard text={address} onCopy={copyConfirmation}>
                         <span>Public Address: {address}</span>
@@ -41,6 +41,6 @@ export default function DashboardAppBarToolbar({
                 label="Claim faucet"
                 onClick={onFaucetClickedListener}
             />
-        </Fragment>
+        </div>
     )
 }

@@ -61,6 +61,15 @@ input::-webkit-inner-spin-button {
     object-fit: contain;
 }
 
+.dashboard .appbar .appbar-toolbar {
+    display: flex;
+    align-items: center;
+}
+
+.dashboard .appbar .appbar-toolbar > * {
+    margin-left: .5rem;
+}
+
 .dashboard .drawer .logo {
     height: 150px;
     width: 80%;
