@@ -3,7 +3,8 @@ import SlotChannelListItem from './SlotChannelListItem'
 
 export default function SlotChannelListInner({
     stateChannels,
-    onDepositToChannelListener
+    onDepositToChannelListener,
+    onGoToGameroomListener
 }) {
     let stateChannelList = Object.keys(stateChannels)
     if (stateChannelList.length > 0) {
@@ -31,6 +32,7 @@ export default function SlotChannelListInner({
                                     onDepositToChannelListener={
                                         onDepositToChannelListener
                                     }
+                                    onGoToGameroomListener={onGoToGameroomListener}
                                 />
                             )
                         } else {

@@ -8,7 +8,7 @@ import NewChannelDialog from './Dialogs/NewChannelDialog'
 import WithdrawSlotsChipsDialog from './Dialogs/WithdrawSlotsChipsDialog'
 import EventBus from 'eventing-bus'
 import Helper from '../../../Helper'
-import SlotsChannelHandler from './Libraries/SlotsChannelHandler'
+import SlotsChannelHandler from '../SlotsChannelHandler'
 import { BigNumber } from 'bignumber.js'
 
 import './slots.css'
@@ -457,6 +457,9 @@ export default class Slots extends Component {
         this.onGetChipsDialogToggleListener(false)
     }
 
+    onGoToGameroomListener = gameID =>
+        this.props.history.push(`/slots/${gameID}`)
+
     renderChipToolbar = () => {
         // Prints the amount of available Chips, or a loader component
         let chipBalance = this.getChipBalance()
@@ -531,6 +534,7 @@ export default class Slots extends Component {
                 <SlotsChannelList
                     stateChannels={this.state.channels}
                     onDepositToChannelListener={this.depositToChannel}
+                    onGoToGameroomListener={this.onGoToGameroomListener}
                 />
 
                 {this.renderDialogs()}

@@ -7,7 +7,8 @@ styles.card.borderRadius = 15
 
 export default function SlotChannelList({
     stateChannels,
-    onDepositToChannelListener
+    onDepositToChannelListener,
+    onGoToGameroomListener
 }) {
     return (
         <Card className="channel-list-card" style={styles.card}>
@@ -27,6 +28,7 @@ export default function SlotChannelList({
                 <SlotChannelListInner
                     stateChannels={stateChannels}
                     onDepositToChannelListener={onDepositToChannelListener}
+                    onGoToGameroomListener={onGoToGameroomListener}
                 />
             </CardText>
         </Card>
