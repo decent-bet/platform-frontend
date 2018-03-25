@@ -5,7 +5,7 @@ import Balances from '../Balances'
 import House from '../House'
 import Game from '../Casino/Slots/Game'
 import Slots from '../Casino/Slots'
-import Portal from '../Portal/Portal'
+import Portal from '../Portal'
 
 const constants = require('../../Constants')
 
