@@ -28,7 +28,7 @@ export default class WithdrawTokensDialog extends Component {
     onWithdrawListener = () => {
         if (this.isValid()) {
             this.props.onConfirm(this.state.amount)
-            this.toggleDialog(false)
+            this.onCloseDialogListener()
         }
     }
 
