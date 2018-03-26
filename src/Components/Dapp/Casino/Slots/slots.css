@@ -16,7 +16,8 @@
     grid-column: 1 / -1;
 }
 
-.slots > .channel-list-card {
+.slots > .channel-list-card,
+.slots > .chip-toolbar-container {
     grid-column: 1 / -1;
 }
 
@@ -42,6 +43,16 @@
     border-radius: 15px;
 }
 
+.slots .chip-toolbar-container {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-items: space-between;
+}
+
+.slots .chip-toolbar-container > * {
+    flex: 0 auto;
+}
+
 /* Typography */
 .slots .title-container h3 {
     color: #f2b45c;
@@ -49,6 +60,10 @@
 
 .slots .text-gold {
     color: #f2b45c;
+}
+
+.slots .slot-channel-row .slot-channel-button span {
+    text-transform: capitalize !important; /* Capitalization for the flatbuttons */
 }
 
 .slots th {

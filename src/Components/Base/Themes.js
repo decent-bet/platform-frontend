@@ -19,7 +19,10 @@ const MainTheme = getMuiTheme(darkBaseTheme, {
         textColor: constants.COLOR_WHITE,
         color: constants.COLOR_PRIMARY,
         height: 60
-    }
+    },
+    button: {
+        textTransform: 'capitalize'
+    },
 })
 
 // DEPRECATED: Theme used for the snackbar

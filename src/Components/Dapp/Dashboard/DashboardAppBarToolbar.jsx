@@ -1,5 +1,5 @@
-import React, { Fragment } from 'react'
-import { FlatButton } from 'material-ui'
+import React from 'react'
+import { FlatButton, RaisedButton } from 'material-ui'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Helper from '../../Helper'
 
@@ -11,6 +11,10 @@ function getFormattedBalance(balance) {
     else return 0
 }
 
+function copyConfirmation() {
+    helper.toggleSnackbar('Copied address to clipboard')
+}
+
 export default function DashboardAppBarToolbar({
     address,
     onFaucetClickedListener,
@@ -18,34 +22,25 @@ export default function DashboardAppBarToolbar({
 }) {
     let balanceText = `Balance: ${getFormattedBalance(etherBalance)} DBETs`
     return (
-        <Fragment>
+        <div className="appbar-toolbar">
             <FlatButton
-                className="hidden-md-down mr-2"
+                className="hidden-md-down"
                 label={
-                    <CopyToClipboard
-                        text={address}
-                        onCopy={() =>
-                            helper.toggleSnackbar('Copied address to clipboard')
-                        }
-                    >
-                        <span>Address: {address}</span>
+                    <CopyToClipboard text={address} onCopy={copyConfirmation}>
+                        <span>Public Address: {address}</span>
                     </CopyToClipboard>
                 }
                 labelStyle={styles.addressLabel}
             />
-            <button
-                className="btn btn-sm btn-primary hvr-fade"
-                style={styles.appbarButton}
+            <FlatButton
+                labelStyle={styles.addressLabel}
+                label={balanceText}
+            />
+            <RaisedButton
+                secondary={true}
+                label="Claim faucet"
                 onClick={onFaucetClickedListener}
-            >
-                Claim Faucet
-            </button>
-            <button
-                className="btn btn-sm btn-primary hvr-fade"
-                style={styles.appbarButton}
-            >
-                {balanceText}
-            </button>
-        </Fragment>
+            />
+        </div>
     )
 }

@@ -44,7 +44,7 @@ export default class SlotChannelListItem extends Component {
     render() {
         let { id, stateChannel } = this.props
         return (
-            <tr>
+            <tr className="slot-channel-row">
                 <th scope="row">
                     <p>{id}</p>
                 </th>
@@ -57,6 +57,7 @@ export default class SlotChannelListItem extends Component {
                 <MuiThemeProvider muiTheme={ButtonsTheme}>
                     <td>
                         <FlatButton
+                            className="slot-channel-button"
                             label="Deposit"
                             disabled={
                                 stateChannel.status !==
@@ -67,7 +68,7 @@ export default class SlotChannelListItem extends Component {
 
                         <FlatButton
                             label="Play"
-                            className="ml-4"
+                            className="slot-channel-button"
                             disabled={
                                 stateChannel.status !==
                                 constants.CHANNEL_STATUS_ACTIVATED
@@ -77,6 +78,7 @@ export default class SlotChannelListItem extends Component {
 
                         <FlatButton
                             label="Claim DBETs"
+                            className="slot-channel-button"
                             disabled={
                                 !(
                                     stateChannel.status ===
@@ -84,7 +86,6 @@ export default class SlotChannelListItem extends Component {
                                     !stateChannel.hasOwnProperty('claimed')
                                 )
                             }
-                            className="ml-4"
                             onClick={this.onGoToGameroomListenerWrapper}
                         />
                     </td>

@@ -55,8 +55,8 @@ class ContractHelper {
 
         for (let c of [bettingProvider, decentBetToken, house, slotsChannelFinalizer, slotsChannelManager, sportsOracle]) {
             c.setProvider(provider)
-            
-            // Dirty hack for web3@1.0.0 support for localhost testrpc, 
+
+            // Dirty hack for web3@1.0.0 support for localhost testrpc,
             // see https://github.com/trufflesuite/truffle-contract/issues/56#issuecomment-331084530
             if (typeof c.currentProvider.sendAsync !== "function") {
                 c.currentProvider.sendAsync = function() {
@@ -450,7 +450,7 @@ class ContractHelper {
                      */
                     deposit: (amount) => {
                         console.log('Depositing', amount, 'to sportsbook as', window.web3Object.eth.defaultAccount)
-                        
+
                         let encodedFunctionCall = ethAbi.encodeFunctionCall({
                             name: 'deposit',
                             type: 'function',
@@ -472,7 +472,7 @@ class ContractHelper {
                     },
                     withdraw: (amount, session) => {
                         console.log('Withdraw', amount, 'from sportsbook as', window.web3Object.eth.defaultAccount)
-                        
+
                         let encodedFunctionCall = ethAbi.encodeFunctionCall({
                             name: 'withdraw',
                             type: 'function',
@@ -566,7 +566,7 @@ class ContractHelper {
                     },
                     updateGamePeriodBetLimits: (id, period, limits) => {
                         console.log('updateGamePeriodBetLimits', id, period, limits)
-                        
+
                         let encodedFunctionCall = ethAbi.encodeFunctionCall({
                             name: 'updateGamePeriodBetLimits',
                             type: 'function',
@@ -596,7 +596,7 @@ class ContractHelper {
                     },
                     pushGameOdds: (id, refId, period, handicap, team1, team2, draw, betType, points, over, under, isTeam1) => {
                         console.log('pushGameOdds params', id, refId, period, handicap, team1, team2, draw, betType, points, over, under, isTeam1)
-                        
+
                         let encodedFunctionCall = ethAbi.encodeFunctionCall({
                             name: 'pushGameOdds',
                             type: 'function',
@@ -661,7 +661,7 @@ class ContractHelper {
                         )
                     },
                     updateGameOdds: (id, oddsId, betType, handicap, team1, team2, draw, points, over, under) => {
-                        
+
                         let encodedFunctionCall = ethAbi.encodeFunctionCall({
                             name: 'updateGameOdds',
                             type: 'function',
@@ -671,42 +671,42 @@ class ContractHelper {
                                     type: 'uint256'
                                 },
                                 {
-                                    name: 'oddsId', 
-                                    type: 'uint256'   
+                                    name: 'oddsId',
+                                    type: 'uint256'
                                 },
                                 {
-                                    name: 'betType', 
-                                    type: 'uint256'   
+                                    name: 'betType',
+                                    type: 'uint256'
                                 },
                                 {
-                                    name: 'handicap', 
-                                    type: 'int256'   
+                                    name: 'handicap',
+                                    type: 'int256'
                                 },
                                 {
-                                    name: 'team1', 
-                                    type: 'int256'   
+                                    name: 'team1',
+                                    type: 'int256'
                                 },
                                 {
-                                    name: 'team2', 
-                                    type: 'int256'   
+                                    name: 'team2',
+                                    type: 'int256'
                                 },
                                 {
-                                    name: 'draw', 
-                                    type: 'int256'   
+                                    name: 'draw',
+                                    type: 'int256'
                                 },
                                 {
-                                    name: 'points', 
-                                    type: 'uint256'   
+                                    name: 'points',
+                                    type: 'uint256'
                                 },
                                 {
-                                    name: 'over', 
-                                    type: 'int256'   
+                                    name: 'over',
+                                    type: 'int256'
                                 },
                                 {
-                                    name: 'under', 
-                                    type: 'int256'   
+                                    name: 'under',
+                                    type: 'int256'
                                 }
-                                
+
                             ]
                         }, [id, oddsId, betType, handicap, team1, team2, draw, points, over, under])
 
@@ -729,20 +729,20 @@ class ContractHelper {
                                     type: 'uint256'
                                 },
                                 {
-                                    name: 'period', 
-                                    type: 'uint256'   
+                                    name: 'period',
+                                    type: 'uint256'
                                 },
                                 {
-                                    name: 'result', 
-                                    type: 'int256'   
+                                    name: 'result',
+                                    type: 'int256'
                                 },
                                 {
-                                    name: 'team1Points', 
-                                    type: 'uint256'   
+                                    name: 'team1Points',
+                                    type: 'uint256'
                                 },
                                 {
-                                    name: 'team2Points', 
-                                    type: 'uint256'   
+                                    name: 'team2Points',
+                                    type: 'uint256'
                                 }
                             ]
                         }, [id, period, result, team1Points, team2Points])
@@ -767,20 +767,20 @@ class ContractHelper {
                                     type: 'uint256'
                                 },
                                 {
-                                    name: 'oddsId', 
-                                    type: 'uint256'   
+                                    name: 'oddsId',
+                                    type: 'uint256'
                                 },
                                 {
-                                    name: 'betType', 
-                                    type: 'uint256'   
+                                    name: 'betType',
+                                    type: 'uint256'
                                 },
                                 {
-                                    name: 'choice', 
-                                    type: 'uint256'   
+                                    name: 'choice',
+                                    type: 'uint256'
                                 },
                                 {
-                                    name: 'amount', 
-                                    type: 'uint256'   
+                                    name: 'amount',
+                                    type: 'uint256'
                                 }
                             ]
                         }, [gameId, oddsId, betType, choice, amount])
@@ -803,12 +803,12 @@ class ContractHelper {
                                     type: 'uint256'
                                 },
                                 {
-                                    name: 'betId', 
-                                    type: 'uint256'   
+                                    name: 'betId',
+                                    type: 'uint256'
                                 },
                                 {
-                                    name: 'bettor', 
-                                    type: 'address'   
+                                    name: 'bettor',
+                                    type: 'address'
                                 }
                             ]
                         }, [gameId, betId, bettor])
@@ -869,14 +869,14 @@ class ContractHelper {
                         })
                     },
                     logDeposit: (fromBlock, toBlock) => {
-                        return bettingProviderInstance.Deposit({}, {
+                        return bettingProviderInstance.LogDeposit({}, {
                             _address: window.web3Object.eth.defaultAccount,
                             fromBlock: fromBlock ? fromBlock : 'latest',
                             toBlock: toBlock ? toBlock : 'latest'
                         })
                     },
                     logWithdraw: (fromBlock, toBlock) => {
-                        return bettingProviderInstance.Withdraw({}, {
+                        return bettingProviderInstance.LogWithdraw({}, {
                             fromBlock: fromBlock ? fromBlock : 'latest',
                             toBlock: toBlock ? toBlock : 'latest'
                         })

@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 function DashboardAppBarLogo() {
     let imageUrl = process.env.PUBLIC_URL + '/assets/img/logos/dbet-white.svg'
     return (
-        <Link to="/">
+        <Link to="/" className="logo-container">
             <img src={imageUrl} className="logo" alt="Decent.bet" />
         </Link>
     )
@@ -19,7 +19,8 @@ export default function DashboardAppBar({ children, onToggleDrawerListener }) {
             showMenuIconButton={true}
             onLeftIconButtonClick={onToggleDrawerListener}
             title={<DashboardAppBarLogo />}
-            iconElementRight={children}
-        />
+        >
+            {children}
+        </AppBar>
     )
 }
