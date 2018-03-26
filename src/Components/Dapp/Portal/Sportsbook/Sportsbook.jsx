@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react'
-
 import { Card, CircularProgress } from 'material-ui'
 import ConfirmationDialog from '../../../Base/Dialogs/ConfirmationDialog'
 import DepositTokensDialog from './DepositTokensDialog'
 import WithdrawTokensDialog from './WithdrawTokensDialog'
 import GamesCard from './GamesCard'
+import Stats from './Stats'
 import ArrayCache from '../../../Base/ArrayCache'
 import BettingReturnsCalculator from '../BettingReturnsCalculator'
 import EventBus from 'eventing-bus'
@@ -1868,87 +1868,6 @@ export default class Sportsbook extends Component {
     views = () => {
         const self = this
         return {
-            stats: () => {
-                return (
-                    <section>
-                        <Card style={styles.card} className="mt-4 p-4">
-                            <div className="row stats">
-                                <div className="col-12 mb-4">
-                                    <h4 className="text-uppercase text-center">
-                                        Sportsbook Stats
-                                    </h4>
-                                </div>
-                                <div className="col-6">
-                                    <p className="key">Current Session</p>
-                                    <p>
-                                        {
-                                            self.state.bettingProvider
-                                                .currentSession
-                                        }
-                                    </p>
-                                </div>
-                                <div className="col-6">
-                                    <p className="key text-center">
-                                        Your Session Balance
-                                    </p>
-                                    <p>
-                                        {
-                                            self.state.bettingProvider
-                                                .depositedTokens
-                                        }{' '}
-                                        DBETs
-                                    </p>
-                                    <button
-                                        className="btn btn-primary btn-sm mx-auto px-2"
-                                        onClick={() => {
-                                            self
-                                                .helpers()
-                                                .toggleDialog(
-                                                    DIALOG_DEPOSIT_TOKENS,
-                                                    true
-                                                )
-                                        }}
-                                    >
-                                        Deposit
-                                    </button>
-                                    <button
-                                        className="btn btn-primary btn-sm mx-auto mt-2"
-                                        onClick={() => {
-                                            self
-                                                .helpers()
-                                                .toggleDialog(
-                                                    DIALOG_WITHDRAW_TOKENS,
-                                                    true
-                                                )
-                                        }}
-                                    >
-                                        Withdraw
-                                    </button>
-                                </div>
-                                <div className="col-6">
-                                    <p className="key">Sportsbook balance</p>
-                                    <p>
-                                        {helper.commafy(
-                                            self.state.bettingProvider.balance
-                                        )}{' '}
-                                        DBETs
-                                    </p>
-                                </div>
-                                {self.state.bettingProvider.depositedTokens ==
-                                    0 && (
-                                    <div className="col-12 mt-4">
-                                        <p className="text-danger text-center text-uppercase small">
-                                            Please deposit tokens into the
-                                            sportsbook contract before placing
-                                            any bets
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                        </Card>
-                    </section>
-                )
-            },
             placedBets: () => {
                 return (
                     <section className="mt-4">
@@ -2531,6 +2450,9 @@ export default class Sportsbook extends Component {
             : this.web3Setters().approveAndDepositTokens(formattedAmount)
     }
 
+    onDepositTokensDialogOpen = () =>
+        this.helpers().toggleDialog(DIALOG_DEPOSIT_TOKENS, true)
+
     onSetBetAmountListener = (gameId, oddsId, betAmount) => {
         let odds = this.state.odds
         odds[gameId][oddsId].betAmount = betAmount
@@ -2581,6 +2503,9 @@ export default class Sportsbook extends Component {
         dialogs.confirmBet.open = true
         this.setState({ dialogs: dialogs })
     }
+
+    onOpenWithdrawDialog = () =>
+        this.helpers().toggleDialog(DIALOG_WITHDRAW_TOKENS, true)
 
     onWithdrawListener = amount => {
         let formattedAmount = new BigNumber(amount)
@@ -2645,7 +2570,17 @@ export default class Sportsbook extends Component {
                                     {self.views().placedBets()}
                                 </div>
                                 <div className="col-4">
-                                    {self.views().stats()}
+                                    <Stats
+                                        bettingProvider={
+                                            this.state.bettingProvider
+                                        }
+                                        onDepositTokensDialogOpen={
+                                            this.onDepositTokensDialogOpen
+                                        }
+                                        onOpenWithdrawDialog={
+                                            this.onOpenWithdrawDialog
+                                        }
+                                    />
                                 </div>
                             </div>
                         </div>
