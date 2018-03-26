@@ -2190,7 +2190,7 @@ export default class Sportsbook extends Component {
                         onConfirm={amount => {
                             let isAllowanceAvailable = new BigNumber(amount)
                                 .times(ethUnits.units.ether)
-                                .lessThanOrEqualTo(
+                                .isLessThanOrEqualTo(
                                     self.state.bettingProvider.allowance
                                 )
                             let formattedAmount = new BigNumber(amount)
