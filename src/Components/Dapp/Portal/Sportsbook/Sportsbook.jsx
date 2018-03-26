@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 
 import { Card, CircularProgress } from 'material-ui'
 import ConfirmationDialog from '../../../Base/Dialogs/ConfirmationDialog'
@@ -2156,95 +2156,6 @@ export default class Sportsbook extends Component {
         }
     }
 
-    dialogs = () => {
-        const self = this
-        return {
-            confirmBet: () => {
-                return (
-                    <ConfirmationDialog
-                        open={self.state.dialogs.confirmBet.open}
-                        title={self.state.dialogs.confirmBet.title}
-                        message={self.state.dialogs.confirmBet.message}
-                        onClick={() => {
-                            let selectedBet =
-                                self.state.dialogs.confirmBet.selectedBet
-                            let gameId = selectedBet.gameId
-                            let oddsId = selectedBet.oddsId
-                            self.web3Setters().placeBet(gameId, oddsId)
-                        }}
-                        onClose={() => {
-                            self
-                                .helpers()
-                                .toggleDialog(DIALOG_CONFIRM_BET, false)
-                        }}
-                    />
-                )
-            },
-            depositTokens: () => {
-                return (
-                    <DepositTokensDialog
-                        open={self.state.dialogs.depositTokens.open}
-                        sessionNumber={
-                            self.state.bettingProvider.currentSession
-                        }
-                        onConfirm={amount => {
-                            let isAllowanceAvailable = new BigNumber(amount)
-                                .times(ethUnits.units.ether)
-                                .isLessThanOrEqualTo(
-                                    self.state.bettingProvider.allowance
-                                )
-                            let formattedAmount = new BigNumber(amount)
-                                .times(ethUnits.units.ether)
-                                .toFixed()
-                            if (isAllowanceAvailable)
-                                self
-                                    .web3Setters()
-                                    .depositTokens(formattedAmount)
-                            else
-                                self
-                                    .web3Setters()
-                                    .approveAndDepositTokens(formattedAmount)
-                        }}
-                        allowance={self.state.bettingProvider.allowance}
-                        balance={self.state.token.balance}
-                        toggleDialog={enabled => {
-                            self
-                                .helpers()
-                                .toggleDialog(DIALOG_DEPOSIT_TOKENS, enabled)
-                        }}
-                    />
-                )
-            },
-            withdrawTokens: () => {
-                return (
-                    <WithdrawTokensDialog
-                        open={self.state.dialogs.withdrawTokens.open}
-                        sessionNumber={
-                            self.state.bettingProvider.currentSession
-                        }
-                        onConfirm={amount => {
-                            let formattedAmount = new BigNumber(amount)
-                                .times(ethUnits.units.ether)
-                                .toFixed()
-                            self
-                                .web3Setters()
-                                .withdrawTokens(
-                                    formattedAmount,
-                                    self.state.bettingProvider.currentSession
-                                )
-                        }}
-                        balance={self.state.bettingProvider.depositedTokens}
-                        toggleDialog={enabled => {
-                            self
-                                .helpers()
-                                .toggleDialog(DIALOG_WITHDRAW_TOKENS, enabled)
-                        }}
-                    />
-                )
-            }
-        }
-    }
-
     helpers = () => {
         const self = this
         return {
@@ -2602,6 +2513,24 @@ export default class Sportsbook extends Component {
         }
     }
 
+    onConfirmBetListener = () => {
+        let selectedBet = this.state.dialogs.confirmBet.selectedBet
+        let gameId = selectedBet.gameId
+        let oddsId = selectedBet.oddsId
+        this.web3Setters().placeBet(gameId, oddsId)
+    }
+
+    onConfirmDepositListener = amount => {
+        let bigAllowance = new BigNumber(amount).times(ethUnits.units.ether)
+        let isAllowanceAvailable = bigAllowance.isLessThanOrEqualTo(
+            this.state.bettingProvider.allowance
+        )
+        let formattedAmount = bigAllowance.toFixed()
+        isAllowanceAvailable
+            ? this.web3Setters().depositTokens(formattedAmount)
+            : this.web3Setters().approveAndDepositTokens(formattedAmount)
+    }
+
     onSetBetAmountListener = (gameId, oddsId, betAmount) => {
         let odds = this.state.odds
         odds[gameId][oddsId].betAmount = betAmount
@@ -2620,6 +2549,17 @@ export default class Sportsbook extends Component {
         odds[gameId][oddsId].selectedChoice = value
         this.setState({ odds: odds })
     }
+
+    onToggleWithdrawDialog = enabled => {
+        this.helpers().toggleDialog(DIALOG_WITHDRAW_TOKENS, enabled)
+    }
+
+    onToggleDepositDialogListener = enabled => {
+        this.helpers().toggleDialog(DIALOG_DEPOSIT_TOKENS, enabled)
+    }
+
+    onCloseConfirmBetDialogListener = () =>
+        this.helpers().toggleDialog(DIALOG_CONFIRM_BET, false)
 
     onOpenConfirmBetDialogListener = (gameId, oddsId) => {
         let dialogs = this.state.dialogs
@@ -2641,6 +2581,43 @@ export default class Sportsbook extends Component {
         dialogs.confirmBet.open = true
         this.setState({ dialogs: dialogs })
     }
+
+    onWithdrawListener = amount => {
+        let formattedAmount = new BigNumber(amount)
+            .times(ethUnits.units.ether)
+            .toFixed()
+        this.web3Setters().withdrawTokens(
+            formattedAmount,
+            this.state.bettingProvider.currentSession
+        )
+    }
+
+    renderDialogs = () => (
+        <Fragment>
+            <ConfirmationDialog
+                open={this.state.dialogs.confirmBet.open}
+                title={this.state.dialogs.confirmBet.title}
+                message={this.state.dialogs.confirmBet.message}
+                onClick={this.onConfirmBetListener}
+                onClose={this.onCloseConfirmBetDialogListener}
+            />
+            <DepositTokensDialog
+                open={this.state.dialogs.depositTokens.open}
+                sessionNumber={this.state.bettingProvider.currentSession}
+                onConfirm={this.onConfirmDepositListener}
+                allowance={this.state.bettingProvider.allowance}
+                balance={this.state.token.balance}
+                toggleDialog={this.onToggleDepositDialogListener}
+            />
+            <WithdrawTokensDialog
+                open={this.state.dialogs.withdrawTokens.open}
+                sessionNumber={this.state.bettingProvider.currentSession}
+                onConfirm={this.onWithdrawListener}
+                balance={this.state.bettingProvider.depositedTokens}
+                toggleDialog={this.onToggleWithdrawDialog}
+            />
+        </Fragment>
+    )
 
     renderGamesCard = () => (
         <GamesCard
@@ -2674,9 +2651,7 @@ export default class Sportsbook extends Component {
                         </div>
                         <div className="col-2" />
                     </div>
-                    {self.dialogs().confirmBet()}
-                    {self.dialogs().depositTokens()}
-                    {self.dialogs().withdrawTokens()}
+                    {this.renderDialogs()}
                 </div>
             </div>
         )
