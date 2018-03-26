@@ -38,6 +38,9 @@ export default class SlotChannelListItem extends Component {
     onDepositClickedListener = () =>
         this.props.onDepositToChannelListener(this.props.id)
 
+    onGoToGameroomListenerWrapper = () =>
+        this.props.onGoToGameroomListener(this.props.id)
+
     render() {
         let { id, stateChannel } = this.props
         return (
@@ -70,7 +73,7 @@ export default class SlotChannelListItem extends Component {
                                 stateChannel.status !==
                                 constants.CHANNEL_STATUS_ACTIVATED
                             }
-                            href={'/slots/game?id=' + id}
+                            onClick={this.onGoToGameroomListenerWrapper}
                         />
 
                         <FlatButton
@@ -83,7 +86,7 @@ export default class SlotChannelListItem extends Component {
                                     !stateChannel.hasOwnProperty('claimed')
                                 )
                             }
-                            href={'/slots/game?id=' + id}
+                            onClick={this.onGoToGameroomListenerWrapper}
                         />
                     </td>
                 </MuiThemeProvider>

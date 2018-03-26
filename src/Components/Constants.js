@@ -22,8 +22,8 @@ export const
     VIEW_CASINO = '/',
     VIEW_PORTAL = '/portal',
     VIEW_HOUSE = '/house',
-    VIEW_SLOTS = '/slots',
-    VIEW_SLOTS_GAME = '/slots/game',
+    VIEW_SLOTS = '/slots/landing',
+    VIEW_SLOTS_GAME = '/slots/:id', // Parameter in the route
     VIEW_LOGIN = '/login',
 
     VIEW_DEFAULT = VIEW_CASINO,
