@@ -4,8 +4,7 @@ export const styles = () => {
     return {
         card: {
             background: constants.COLOR_PRIMARY_DARK_TRANSLUCENT,
-            borderRadius: 5,
-            cursor: 'pointer',
+            borderRadius: 15,
             padding: 20
         },
         buttonLabel: {

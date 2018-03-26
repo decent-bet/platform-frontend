@@ -1,4 +1,12 @@
-import React, { Fragment } from 'react'
+import React from 'react'
+import {
+    RaisedButton,
+    Card,
+    CardHeader,
+    CardText,
+    CardActions
+} from 'material-ui'
+import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 
 const constants = require('./../../../Constants')
 const styles = require('../../../Base/styles').styles()
@@ -9,6 +17,7 @@ styles.button = {
     fontFamily: 'Lato',
     color: constants.COLOR_WHITE
 }
+styles.card.borderRadius = 15
 
 /** Slots chips are merely DBETs that're deposited into the Slots Channel Manager contract
  and can be withdrawn at any time*/
@@ -18,28 +27,27 @@ export default function ChipToolbar({
     chipsLabel
 }) {
     return (
-        <Fragment>
-            <button
-                className="btn btn-sm btn-primary hvr-fade float-right"
-                style={styles.button}
-            >
-                Slots chips:
-                <span className="ml-1">{chipsLabel}</span>
-            </button>
-            <button
-                className="btn btn-sm btn-primary hvr-fade float-right text"
-                style={styles.button}
-                onClick={onWithdrawChipsListener}
-            >
-                Withdraw Chips
-            </button>
-            <button
-                className="btn btn-sm btn-primary hvr-fade float-right text"
-                style={styles.button}
-                onClick={onGetChipsListener}
-            >
-                Get slots chips
-            </button>
-        </Fragment>
+        <Card style={styles.card} className="chip-toolbar-container">
+            <CardText>
+                <b>{chipsLabel} DBET Chips Available.</b>
+                <br />
+                Chips are DBET tokens that can be used in games.
+            </CardText>
+
+            <CardActions>
+                <RaisedButton
+                    icon={<FontAwesomeIcon icon="plus" />}
+                    secondary={true}
+                    onClick={onGetChipsListener}
+                    label="Add more chips"
+                />
+                <RaisedButton
+                    icon={<FontAwesomeIcon icon="minus" />}
+                    secondary={true}
+                    onClick={onWithdrawChipsListener}
+                    label="Withdraw Chips"
+                />
+            </CardActions>
+        </Card>
     )
 }

@@ -49,9 +49,25 @@ input::-webkit-inner-spin-button {
     font-family: GothamLight;
 }
 
+.dashboard .appbar .logo-container {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    width: fit-content;
+}
+
 .dashboard .appbar .logo {
     width: 110px;
     object-fit: contain;
+}
+
+.dashboard .appbar .appbar-toolbar {
+    display: flex;
+    align-items: center;
+}
+
+.dashboard .appbar .appbar-toolbar > * {
+    margin-left: .5rem;
 }
 
 .dashboard .drawer .logo {
