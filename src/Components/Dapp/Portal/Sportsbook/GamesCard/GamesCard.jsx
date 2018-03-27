@@ -18,7 +18,7 @@ export default function GamesCard({
         let game = games[gameId]
         game.id = gameId
         game.odds = oddsMap[game.id]
-        game.oracleInfo = sportsOracle[game.oracleGameId]
+        game.oracleInfo = sportsOracle.games[game.oracleGameId]
         game.placedBets = bettingProvider.placedBets[game.id]
         return game
     })

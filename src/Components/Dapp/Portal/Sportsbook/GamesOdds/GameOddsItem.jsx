@@ -29,8 +29,10 @@ export default function MoneylineOdds({
                         <p className="key">Period</p>
                         <p>{getPeriodDescription(game, _odds.period)}</p>
                     </div>
-                    {// Setup the Buy Button
-                    betNowButtonWrapper(_odds, game)}
+                    <div className="col-12">
+                        {// Setup the Buy Button
+                        betNowButtonWrapper(_odds, game)}
+                    </div>
                 </div>
             )
         })

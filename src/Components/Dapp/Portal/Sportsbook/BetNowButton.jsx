@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
-import { DropDownMenu, MenuItem, TextField } from 'material-ui'
+import { DropDownMenu, MenuItem, TextField, RaisedButton } from 'material-ui'
 import BettingReturnsCalculator from '../BettingReturnsCalculator'
 import Helper from '../../../Helper'
 
-const styles = require('../../../Base/styles').styles()
 const constants = require('../../../Constants')
 const bettingReturnsCalculator = new BettingReturnsCalculator()
 const helper = new Helper()
@@ -32,6 +31,11 @@ export default class BetNowButton extends Component {
         onSetTeamTotalListener(game.id, oddItem.id, value)
     }
 
+    onSubmitListener = () => {
+        let { game, oddItem, onOpenConfirmBetDialogListener } = this.props
+        onOpenConfirmBetDialogListener(game.id, oddItem.id)
+    }
+
     isDisabled = () => {
         let time = this.props.bettingProviderTime
         let game = this.props.game
@@ -49,21 +53,23 @@ export default class BetNowButton extends Component {
         let betType = oddItem.betType
         let betLimits = game.betLimits[oddItem.period]
         let limit
-        if (betType === constants.ODDS_TYPE_SPREAD) {
-            limit = betLimits.spread
-        } else if (betType === constants.ODDS_TYPE_MONEYLINE) {
-            limit = betLimits.moneyline
-        } else if (betType === constants.ODDS_TYPE_TOTALS) {
-            limit = betLimits.totals
-        } else if (betType === constants.ODDS_TYPE_TEAM_TOTALS) {
-            limit = betLimits.teamTotals
+        if (betLimits) {
+            if (betType === constants.ODDS_TYPE_SPREAD) {
+                limit = betLimits.spread
+            } else if (betType === constants.ODDS_TYPE_MONEYLINE) {
+                limit = betLimits.moneyline
+            } else if (betType === constants.ODDS_TYPE_TOTALS) {
+                limit = betLimits.totals
+            } else if (betType === constants.ODDS_TYPE_TEAM_TOTALS) {
+                limit = betLimits.teamTotals
+            }
+            console.log(
+                'exceedsBetLimits',
+                totalBetAmount,
+                limit,
+                totalBetAmount > limit
+            )
         }
-        console.log(
-            'exceedsBetLimits',
-            totalBetAmount,
-            limit,
-            totalBetAmount > limit
-        )
 
         return (
             game.cutOffTime <= helper.getTimestamp() ||
@@ -159,17 +165,6 @@ export default class BetNowButton extends Component {
                     <TextField
                         floatingLabelText="Bet Amount"
                         fullWidth={true}
-                        hintStyle={{ color: '#949494' }}
-                        inputStyle={styles.textField.inputStyle}
-                        floatingLabelStyle={styles.textField.floatingLabelStyle}
-                        floatingLabelFocusStyle={
-                            styles.textField.floatingLabelFocusStyle
-                        }
-                        underlineStyle={styles.textField.underlineStyle}
-                        underlineFocusStyle={styles.textField.underlineStyle}
-                        underlineDisabledStyle={
-                            styles.textField.underlineDisabledStyle
-                        }
                         type="number"
                         disabled={this.isDisabled()}
                         value={value}
@@ -184,14 +179,14 @@ export default class BetNowButton extends Component {
                     <p className="text-center key">MAX WIN</p>
                     <p className="text-center">{this.getMaxWin()} DBETs</p>
                 </div>
-                <div className="col-12">
-                    <button
-                        className="btn btn-sm btn-primary mx-auto"
+                <div className="col-10">
+                    <RaisedButton
+                        secondary={true}
+                        fullWidth={true}
+                        label="Bet Now"
                         disabled={this.isSubmitDisabled()}
-                        onClick={this.props.onOpenConfirmBetDialogListener}
-                    >
-                        BET NOW
-                    </button>
+                        onClick={this.onSubmitListener}
+                    />
                 </div>
             </div>
         )
