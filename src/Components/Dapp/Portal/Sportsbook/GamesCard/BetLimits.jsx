@@ -12,8 +12,8 @@ export default function BetLimits({ game }) {
                     <p className="text-center">{maxBetLimit} DBETs</p>
                 </div>
             </div>
-            {Object.keys(betLimits).map(period => (
-                <div className="row">
+            {Object.keys(betLimits).map((period, index) => (
+                <div className="row" key={index}>
                     <div className="col-12 mb-3">
                         <p className="text-center key">PERIOD</p>
                         <p className="text-center">

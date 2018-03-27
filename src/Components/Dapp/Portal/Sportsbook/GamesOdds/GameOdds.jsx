@@ -39,6 +39,7 @@ export default function GameOdds({ game, betNowButtonWrapper }) {
         if (gameOdds.spread.length > 0) {
             content.push(
                 <GameOddsItem
+                    key="spread"
                     title="Spread"
                     oddsArray={gameOdds.spread}
                     {...parameters}
@@ -48,6 +49,7 @@ export default function GameOdds({ game, betNowButtonWrapper }) {
         if (gameOdds.moneyline.length > 0) {
             content.push(
                 <GameOddsItem
+                    key="moneyline"
                     title="Moneyline"
                     oddsArray={gameOdds.moneyline}
                     {...parameters}
@@ -57,6 +59,7 @@ export default function GameOdds({ game, betNowButtonWrapper }) {
         if (gameOdds.totals.length > 0) {
             content.push(
                 <GameOddsItem
+                    key="totals"
                     title="Totals"
                     oddsArray={gameOdds.totals}
                     {...parameters}
@@ -66,6 +69,7 @@ export default function GameOdds({ game, betNowButtonWrapper }) {
         if (gameOdds.teamTotals.length > 0) {
             content.push(
                 <GameOddsItem
+                    key="tematotals"
                     title="Team Totals"
                     oddsArray={gameOdds.teamTotals}
                     {...parameters}
