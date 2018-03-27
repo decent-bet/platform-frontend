@@ -56,7 +56,12 @@ export default function GamesCardItem({
                     </div>
                 </div>
             </div>
-            <GameOdds game={game} betNowButtonWrapper={betNowButtonWrapper} />
+            <div className="col-12 mt-3">
+                <GameOdds
+                    game={game}
+                    betNowButtonWrapper={betNowButtonWrapper}
+                />
+            </div>
             <div className="col-12">
                 <hr />
                 <p className="mt-2">Bet Limits</p>

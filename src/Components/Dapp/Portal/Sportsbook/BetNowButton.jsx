@@ -44,7 +44,7 @@ export default class BetNowButton extends Component {
 
     isSubmitDisabled = () => {
         let { game, oddItem, depositedTokens } = this.props
-        let isBetEmpty = oddItem.betAmount === 0 || oddItem === ''
+        let isBetEmpty = !oddItem.betAmount
 
         let totalBetAmount =
             parseInt(oddItem.betAmount, 10) + parseInt(game.betAmount, 10)
@@ -179,7 +179,7 @@ export default class BetNowButton extends Component {
                     <p className="text-center key">MAX WIN</p>
                     <p className="text-center">{this.getMaxWin()} DBETs</p>
                 </div>
-                <div className="col-10">
+                <div className="col-12">
                     <RaisedButton
                         secondary={true}
                         fullWidth={true}
