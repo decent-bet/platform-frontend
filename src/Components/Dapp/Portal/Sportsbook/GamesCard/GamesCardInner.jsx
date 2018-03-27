@@ -4,12 +4,8 @@ import GamesCardItem from './GamesCardItem'
 export default function GamesCardInner({
     gamesMap,
     sportsOracle,
-    gameProviderTime,
-    depositedTokens,
-    onSetBetAmountListener,
-    onSetBetTeamListener,
-    onSetTeamTotalListener,
-    onOpenConfirmBetDialogListener
+    bettingProviderTime,
+    betNowButtonWrapper
 }) {
     if (gamesMap.length < 1) {
         return (
@@ -21,18 +17,12 @@ export default function GamesCardInner({
         )
     } else {
         return gamesMap.map((game, index) => (
-            <Fragment>
+            <Fragment key={index}>
                 <GamesCardItem
-                    key={index}
                     game={game}
                     index={index}
-                    depositedToken={depositedTokens}
-                    onSetBetAmountListener={onSetBetAmountListener}
-                    onSetBetTeamListener={onSetBetTeamListener}
-                    onSetTeamTotalListener={onSetTeamTotalListener}
-                    onOpenConfirmBetDialogListener={
-                        onOpenConfirmBetDialogListener
-                    }
+                    bettingProviderTime={bettingProviderTime}
+                    betNowButtonWrapper={betNowButtonWrapper}
                 />
 
                 {index !== gamesMap.length - 1 && (

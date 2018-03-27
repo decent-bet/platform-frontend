@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import { Card, CircularProgress } from 'material-ui'
 import ConfirmationDialog from '../../../Base/Dialogs/ConfirmationDialog'
+import BetNowButton from './BetNowButton'
 import DepositTokensDialog from './DepositTokensDialog'
 import WithdrawTokensDialog from './WithdrawTokensDialog'
 import GamesCard from './GamesCard'
@@ -2549,13 +2550,42 @@ export default class Sportsbook extends Component {
             bettingProvider={this.state.bettingProvider}
             sportsOracle={this.state.sportsOracle}
             oddsMap={this.state.odds}
-            onSetBetAmountListener={this.onSetBetAmountListener}
-            onSetBetTeamListener={this.onSetBetTeamListener}
-            onSetTeamTotalListener={this.onSetTeamTotalListener}
-            onOpenConfirmBetDialogListener={this.onOpenConfirmBetDialogListener}
-            depositedTokens={this.state.bettingProvider.depositedTokens}
+            betNowButtonWrapper={this.renderBetNowButton}
         />
     )
+
+    /**
+     * Sets up the "Bet Now" button in each "odds" row for each "game".
+     *
+     * @param oddItem The odds to bet on
+     * @param {Constant} oddType The Type of odds
+     * @param gameItem The Game From where the odds were extracted
+     */
+    renderBetNowButton = (oddItem, oddType, gameItem) => {
+        let { time, depositedTokens } = this.state.bettingProvider
+        if (time != null) {
+            if (gameItem.cutOffTime < time) {
+                return (
+                    <BetNowButton
+                        oddItem={oddItem}
+                        oddsType={oddType}
+                        game={gameItem}
+                        depositedTokens={depositedTokens}
+                        bettingProviderTime={time}
+                        onSetBetAmountListener={this.onSetBetAmountListener}
+                        onSetBetTeamListener={this.onSetBetTeamListener}
+                        onSetTeamTotalListener={this.onSetTeamTotalListener}
+                        onOpenConfirmBetDialogListener={
+                            this.onOpenConfirmBetDialogListener
+                        }
+                    />
+                )
+            }
+        }
+
+        // Fallback. Render nothing.
+        return null
+    }
 
     render() {
         const self = this

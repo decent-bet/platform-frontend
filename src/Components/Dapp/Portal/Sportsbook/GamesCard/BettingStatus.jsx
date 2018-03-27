@@ -4,8 +4,8 @@ function isGameBettingPeriodOver(game, bettingProviderTime) {
     return bettingProviderTime != null && game.cutOffTime < bettingProviderTime
 }
 
-export default function BettingStatus({ game, gameProviderTime }) {
-    if (isGameBettingPeriodOver(game)) {
+export default function BettingStatus({ game, bettingProviderTime }) {
+    if (isGameBettingPeriodOver(game, bettingProviderTime)) {
         return (
             <small className="badge badge-danger text-uppercase">
                 Bets Ended

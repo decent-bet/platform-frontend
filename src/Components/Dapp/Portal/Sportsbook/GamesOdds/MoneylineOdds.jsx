@@ -1,42 +1,11 @@
 import React from 'react'
-import BetNowButton from '../BetNowButton'
 import { formatOddsNumber, getPeriodDescription } from '../functions'
 
 const constants = require('../../../../Constants')
 
-export default function MoneylineOdds({
-    game,
-    bettingProviderTime,
-    depositedTokens,
-    onOpenConfirmBetDialogListener,
-    onSetBetAmountListener,
-    onSetBetTeamListener,
-    onSetTeamTotalListener
-}) {
+export default function MoneylineOdds({ game, betNowButtonWrapper }) {
     // Each Row
     let listener = (_odds, index) => {
-        //Setup the Buy Button
-        let buttonContent = null
-        if (bettingProviderTime != null) {
-            if (game.cutOffTime < bettingProviderTime) {
-                buttonContent = (
-                    <BetNowButton
-                        oddItem={_odds}
-                        oddsType={constants.ODDS_TYPE_MONEYLINE}
-                        game={game}
-                        depositedTokens={depositedTokens}
-                        bettingProviderTime={bettingProviderTime}
-                        onSetBetAmountListener={onSetBetAmountListener}
-                        onSetBetTeamListener={onSetBetTeamListener}
-                        onSetTeamTotalListener={onSetTeamTotalListener}
-                        onOpenConfirmBetDialogListener={
-                            onOpenConfirmBetDialogListener
-                        }
-                    />
-                )
-            }
-        }
-
         return (
             <div className="row" key={index}>
                 <div className="col-3">
@@ -55,7 +24,8 @@ export default function MoneylineOdds({
                     <p className="key">Period</p>
                     <p>{getPeriodDescription(game, _odds.period)}</p>
                 </div>
-                {buttonContent}
+                {// Setup the Buy Button
+                betNowButtonWrapper(_odds, constants.ODDS_TYPE_MONEYLINE, game)}
             </div>
         )
     }

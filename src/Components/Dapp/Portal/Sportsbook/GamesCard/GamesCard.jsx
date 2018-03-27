@@ -6,13 +6,9 @@ const styles = require('../../../../Base/styles').styles()
 
 export default function GamesCard({
     bettingProvider,
-    depositedTokens,
     sportsOracle,
     oddsMap,
-    onSetBetAmountListener,
-    onSetBetTeamListener,
-    onSetTeamTotalListener,
-    onOpenConfirmBetDialogListener
+    betNowButtonWrapper
 }) {
     let { games, time } = bettingProvider
 
@@ -39,15 +35,9 @@ export default function GamesCard({
 
                 <GamesCardInner
                     gamesMap={gamesMap}
-                    depositedTokens={depositedTokens}
+                    bettingProviderTime={time}
                     sportsOracle={sportsOracle}
-                    gameproviderTime={time}
-                    onSetBetAmountListener={onSetBetAmountListener}
-                    onSetBetTeamListener={onSetBetTeamListener}
-                    onSetTeamTotalListener={onSetTeamTotalListener}
-                    onOpenConfirmBetDialogListener={
-                        onOpenConfirmBetDialogListener
-                    }
+                    betNowButtonWrapper={betNowButtonWrapper}
                 />
             </Card>
         </section>

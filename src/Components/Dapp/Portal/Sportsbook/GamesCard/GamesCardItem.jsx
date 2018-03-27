@@ -25,12 +25,8 @@ function leagueName(oracleGame) {
 export default function GamesCardItem({
     game,
     index,
-    depositedTokens,
-    gameProviderTime,
-    onSetBetAmountListener,
-    onSetBetTeamListener,
-    onSetTeamTotalListener,
-    onOpenConfirmBetDialogListener
+    bettingProviderTime,
+    betNowButtonWrapper
 }) {
     let cutoffTime = new Date(game.cutOffTime * 1000).toLocaleString()
     return (
@@ -48,7 +44,7 @@ export default function GamesCardItem({
                     <div className="col-12">
                         <BettingStatus
                             game={game}
-                            gameProviderTime={gameProviderTime}
+                            gameProviderTime={bettingProviderTime}
                         />
                         <br />
                         <small>Cut-off time: {cutoffTime}</small>
@@ -60,15 +56,7 @@ export default function GamesCardItem({
                     </div>
                 </div>
             </div>
-            <GameOdds
-                game={game}
-                bettingProviderTime={gameProviderTime}
-                depositedTokens={depositedTokens}
-                onSetBetAmountListener={onSetBetAmountListener}
-                onSetBetTeamListener={onSetBetTeamListener}
-                onSetTeamTotalListener={onSetTeamTotalListener}
-                onOpenConfirmBetDialogListener={onOpenConfirmBetDialogListener}
-            />
+            <GameOdds game={game} betNowButtonWrapper={betNowButtonWrapper} />
             <div className="col-12">
                 <hr />
                 <p className="mt-2">Bet Limits</p>
@@ -77,9 +65,7 @@ export default function GamesCardItem({
             <div className="col-12">
                 <hr />
                 <p className="mt-2">Bet Information</p>
-                <BetInformation
-                    game={game}
-                />
+                <BetInformation game={game} />
             </div>
         </div>
     )

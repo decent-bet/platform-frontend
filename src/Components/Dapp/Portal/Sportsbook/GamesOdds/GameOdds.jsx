@@ -6,15 +6,7 @@ import TotalTeamsOdds from './TotalTeamsOdds'
 
 const constants = require('../../../../Constants')
 
-export default function GameOdds({
-    game,
-    bettingProviderTime,
-    depositedTokens,
-    onSetBetAmountListener,
-    onSetBetTeamListener,
-    onSetTeamTotalListener,
-    onOpenConfirmBetDialogListener
-}) {
+export default function GameOdds({ game, betNowButtonWrapper }) {
     let odds = game.odds
     if (odds) {
         let gameOdds = {
@@ -40,11 +32,7 @@ export default function GameOdds({
         let content = []
         let parameters = {
             game: game,
-            onSetBetAmountListener: onSetBetAmountListener,
-            onSetBetTeamListener: onSetBetTeamListener,
-            onSetTeamTotalListener: onSetTeamTotalListener,
-            onOpenConfirmBetDialogListener: onOpenConfirmBetDialogListener,
-            depositedTokens: depositedTokens
+            betNowButtonWrapper: betNowButtonWrapper
         }
         if (gameOdds.spread.length > 0) {
             content.push(<SpreadOdds {...parameters} />)
