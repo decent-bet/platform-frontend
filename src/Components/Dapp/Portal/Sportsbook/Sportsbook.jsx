@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react'
-import { Card, CircularProgress } from 'material-ui'
 import ConfirmationDialog from '../../../Base/Dialogs/ConfirmationDialog'
 import BetNowButton from './BetNowButton'
 import DepositTokensDialog from './DepositTokensDialog'
@@ -8,14 +7,12 @@ import GamesCard from './GamesCard'
 import Stats from './Stats'
 import PlacedBetsCard from './PlacedBetsCard'
 import ArrayCache from '../../../Base/ArrayCache'
-import BettingReturnsCalculator from '../BettingReturnsCalculator'
 import EventBus from 'eventing-bus'
 import Helper from '../../../Helper'
 
 import './sportsbook.css'
 
 const arrayCache = new ArrayCache()
-const bettingReturnsCalculator = new BettingReturnsCalculator()
 const BigNumber = require('bignumber.js')
 const constants = require('../../../Constants')
 const ethUnits = require('ethereum-units')
@@ -1869,68 +1866,6 @@ export default class Sportsbook extends Component {
     helpers = () => {
         const self = this
         return {
-            getGameStatus: game => {
-                let oracleGame =
-                    self.state.sportsOracle.games[game.oracleGameId]
-                if (oracleGame && oracleGame.hasOwnProperty('startTime')) {
-                    let timestamp = helper.getTimestamp()
-                    let startTime = oracleGame.startTime
-                    if (timestamp < startTime) return 'Not started'
-                    else if (timestamp >= startTime && timestamp < game.endTime)
-                        return 'Running'
-                    else if (timestamp >= game.endTime) return 'Ended'
-                } else
-                    return (
-                        <CircularProgress
-                            size={12}
-                            color={constants.COLOR_ACCENT}
-                        />
-                    )
-            },
-            getGamePeriods: game => {
-                let games = self.state.sportsOracle.games
-                return games.hasOwnProperty(game.oracleGameId) &&
-                    games[game.oracleGameId].hasOwnProperty('periods')
-                    ? games[game.oracleGameId].periods.length
-                    : 0
-            },
-            isTeamNamesAvailable: oracleGameId => {
-                return (
-                    self.state.sportsOracle.games.hasOwnProperty(
-                        oracleGameId
-                    ) &&
-                    self.state.sportsOracle.games[oracleGameId].hasOwnProperty(
-                        'team1'
-                    ) &&
-                    self.state.sportsOracle.games[oracleGameId].hasOwnProperty(
-                        'team2'
-                    )
-                )
-            },
-            getGameStartTime: oracleGameId => {
-                if (
-                    !helper.isUndefined(
-                        self.helpers().getOracleGame(oracleGameId)
-                    )
-                )
-                    return (
-                        'Start time:' +
-                        new Date(
-                            self.helpers().getOracleGame(oracleGameId)
-                                .startTime * 1000
-                        ).toLocaleString()
-                    )
-                else return 'Start time: Loading..'
-            },
-            getLeagueName: oracleGameId => {
-                if (
-                    !helper.isUndefined(
-                        self.helpers().getOracleGame(oracleGameId)
-                    )
-                )
-                    return self.state.sportsOracle.games[oracleGameId].league
-                else return 'Loading..'
-            },
             getTeamName: (isHome, gameId) => {
                 let oracleGameId =
                     self.state.bettingProvider.games[gameId].oracleGameId
@@ -1960,70 +1895,14 @@ export default class Sportsbook extends Component {
                     case DIALOG_WITHDRAW_TOKENS:
                         dialogs.withdrawTokens.open = enabled
                         break
+                    default:
+                        // Should never happen. Do nothing.
+                        break
                 }
                 self.setState({ dialogs: dialogs })
             },
             getOracleGame: id => {
                 return self.state.sportsOracle.games[id]
-            },
-            getMaxWin: (gameId, oddsId) => {
-                let oddsObj = self.state.odds[gameId][oddsId]
-                return bettingReturnsCalculator.getMaxReturns(
-                    oddsObj,
-                    oddsObj.selectedChoice,
-                    oddsObj.betAmount
-                )
-            },
-            doesOddsExist: (gameId, oddsId) => {
-                return (
-                    self.state.odds.hasOwnProperty(gameId) &&
-                    self.state.odds[gameId].hasOwnProperty(oddsId)
-                )
-            },
-            isEmpty: val => {
-                return val == 0 || val == ''
-            },
-            exceedsMaxBetAmount: (gameId, oddsId) => {
-                let totalBetAmount =
-                    parseInt(self.state.odds[gameId][oddsId].betAmount) +
-                    parseInt(self.state.bettingProvider.games[gameId].betAmount)
-                let maxBetLimit = parseInt(
-                    self.state.bettingProvider.games[gameId].maxBetLimit
-                )
-                return totalBetAmount > maxBetLimit
-            },
-            exceedsBetLimits: (gameId, oddsId) => {
-                //*Deprecated */
-                let betAmount = parseInt(
-                    self.state.odds[gameId][oddsId].betAmount
-                )
-                let betType = self.state.odds[gameId][oddsId].betType
-                let period = self.state.odds[gameId][oddsId].period
-                let betLimits =
-                    self.state.bettingProvider.games[gameId].betLimits[period]
-                let limit
-                if (betType == constants.ODDS_TYPE_SPREAD)
-                    limit = betLimits.spread
-                else if (betType == constants.ODDS_TYPE_MONEYLINE)
-                    limit = betLimits.moneyline
-                else if (betType == constants.ODDS_TYPE_TOTALS)
-                    limit = betLimits.totals
-                else if (betType == constants.ODDS_TYPE_TEAM_TOTALS)
-                    limit = betLimits.teamTotals
-                console.log(
-                    'exceedsBetLimits',
-                    betAmount,
-                    limit,
-                    betAmount > limit
-                )
-                return betAmount > limit
-            },
-            isGameBettingPeriodOver: id => {
-                let game = self.state.bettingProvider.games[id]
-                return (
-                    self.state.bettingProvider.time != null &&
-                    game.cutOffTime < self.state.bettingProvider.time
-                )
             }
         }
     }
