@@ -17,7 +17,7 @@ export default function BetLimits({ game }) {
                     <div className="col-12 mb-3">
                         <p className="text-center key">PERIOD</p>
                         <p className="text-center">
-                            {getPeriodDescription(game, period)}
+                            {getPeriodDescription(game, parseInt(period, 10))}
                         </p>
                     </div>
                     <div className="col-3">
