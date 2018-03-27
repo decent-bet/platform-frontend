@@ -1,7 +1,7 @@
 import React from 'react'
 import { formatOddsNumber, getPeriodDescription } from '../functions'
 
-export default function MoneylineOdds({
+export default function GameOddsItem({
     game,
     betNowButtonWrapper,
     oddsArray,

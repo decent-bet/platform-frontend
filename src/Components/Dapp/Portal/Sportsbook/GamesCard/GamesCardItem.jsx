@@ -1,6 +1,6 @@
 import React from 'react'
 import BettingStatus from './BettingStatus'
-import TeamNames from './TeamNames'
+import TeamNames from '../TeamNames'
 import GameOdds from '../GamesOdds'
 import BetLimits from './BetLimits'
 import BetInformation from './BetInformation'

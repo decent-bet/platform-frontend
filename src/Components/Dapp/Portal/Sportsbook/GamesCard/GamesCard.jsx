@@ -7,22 +7,10 @@ const styles = require('../../../../Base/styles').styles()
 export default function GamesCard({
     bettingProvider,
     sportsOracle,
-    oddsMap,
-    betNowButtonWrapper
+    betNowButtonWrapper,
+    gamesMap
 }) {
-    let { games, time } = bettingProvider
-
-    // Merge the arrays into usable data
-    // TODO: set this code in initialization sequence
-    let gamesMap = Object.keys(games).map(gameId => {
-        let game = games[gameId]
-        game.id = gameId
-        game.odds = oddsMap[game.id]
-        game.oracleInfo = sportsOracle.games[game.oracleGameId]
-        game.placedBets = bettingProvider.placedBets[game.id]
-        return game
-    })
-
+    let { time } = bettingProvider
     return (
         <section>
             <Card style={styles.card} className="mt-4 p-4">
