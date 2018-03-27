@@ -1,9 +1,11 @@
 import React from 'react'
+import GameOddsItem from './GameOddsItem'
+/*
 import SpreadOdds from './SpreadOdds'
 import MoneylineOdds from './MoneylineOdds'
 import TotalsOdds from './TotalsOdds'
 import TotalTeamsOdds from './TotalTeamsOdds'
-
+*/
 const constants = require('../../../../Constants')
 
 export default function GameOdds({ game, betNowButtonWrapper }) {
@@ -35,16 +37,40 @@ export default function GameOdds({ game, betNowButtonWrapper }) {
             betNowButtonWrapper: betNowButtonWrapper
         }
         if (gameOdds.spread.length > 0) {
-            content.push(<SpreadOdds {...parameters} />)
+            content.push(
+                <GameOddsItem
+                    title="Spread"
+                    oddsArray={gameOdds.spread}
+                    {...parameters}
+                />
+            )
         }
         if (gameOdds.moneyline.length > 0) {
-            content.push(<MoneylineOdds {...parameters} />)
+            content.push(
+                <GameOddsItem
+                    title="Moneyline"
+                    oddsArray={gameOdds.moneyline}
+                    {...parameters}
+                />
+            )
         }
         if (gameOdds.totals.length > 0) {
-            content.push(<TotalsOdds {...parameters} />)
+            content.push(
+                <GameOddsItem
+                    title="Totals"
+                    oddsArray={gameOdds.totals}
+                    {...parameters}
+                />
+            )
         }
         if (gameOdds.teamTotals.length > 0) {
-            content.push(<TotalTeamsOdds {...parameters} />)
+            content.push(
+                <GameOddsItem
+                    title="Team Totals"
+                    oddsArray={gameOdds.teamTotals}
+                    {...parameters}
+                />
+            )
         }
         if (Object.keys(odds).length < 1) {
             content.push(

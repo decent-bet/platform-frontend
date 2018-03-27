@@ -2558,17 +2558,15 @@ export default class Sportsbook extends Component {
      * Sets up the "Bet Now" button in each "odds" row for each "game".
      *
      * @param oddItem The odds to bet on
-     * @param {Constant} oddType The Type of odds
      * @param gameItem The Game From where the odds were extracted
      */
-    renderBetNowButton = (oddItem, oddType, gameItem) => {
+    renderBetNowButton = (oddItem, gameItem) => {
         let { time, depositedTokens } = this.state.bettingProvider
         if (time != null) {
             if (gameItem.cutOffTime < time) {
                 return (
                     <BetNowButton
                         oddItem={oddItem}
-                        oddsType={oddType}
                         game={gameItem}
                         depositedTokens={depositedTokens}
                         bettingProviderTime={time}
@@ -2588,33 +2586,23 @@ export default class Sportsbook extends Component {
     }
 
     render() {
-        const self = this
         return (
             <div className="sportsbook">
                 <div className="main pb-4">
                     <div className="row">
-                        <div className="col-10">
-                            <div className="row">
-                                <div className="col-8">
-                                    {this.renderGamesCard()}
-                                    {self.views().placedBets()}
-                                </div>
-                                <div className="col-4">
-                                    <Stats
-                                        bettingProvider={
-                                            this.state.bettingProvider
-                                        }
-                                        onDepositTokensDialogOpen={
-                                            this.onDepositTokensDialogOpen
-                                        }
-                                        onOpenWithdrawDialog={
-                                            this.onOpenWithdrawDialog
-                                        }
-                                    />
-                                </div>
-                            </div>
+                        <div className="col-8">
+                            {this.renderGamesCard()}
+                            {this.views().placedBets()}
                         </div>
-                        <div className="col-2" />
+                        <div className="col-4">
+                            <Stats
+                                bettingProvider={this.state.bettingProvider}
+                                onDepositTokensDialogOpen={
+                                    this.onDepositTokensDialogOpen
+                                }
+                                onOpenWithdrawDialog={this.onOpenWithdrawDialog}
+                            />
+                        </div>
                     </div>
                     {this.renderDialogs()}
                 </div>
