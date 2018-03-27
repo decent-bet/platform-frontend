@@ -1,11 +1,6 @@
 import React from 'react'
 import GameOddsItem from './GameOddsItem'
-/*
-import SpreadOdds from './SpreadOdds'
-import MoneylineOdds from './MoneylineOdds'
-import TotalsOdds from './TotalsOdds'
-import TotalTeamsOdds from './TotalTeamsOdds'
-*/
+
 const constants = require('../../../../Constants')
 
 export default function GameOdds({ game, betNowButtonWrapper }) {
