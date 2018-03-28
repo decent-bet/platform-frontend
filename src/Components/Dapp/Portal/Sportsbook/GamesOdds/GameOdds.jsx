@@ -64,7 +64,7 @@ export default function GameOdds({ game, betNowButtonWrapper }) {
         if (gameOdds.teamTotals.length > 0) {
             content.push(
                 <GameOddsItem
-                    key="tematotals"
+                    key="teamtotals"
                     title="Team Totals"
                     oddsArray={gameOdds.teamTotals}
                     {...parameters}
