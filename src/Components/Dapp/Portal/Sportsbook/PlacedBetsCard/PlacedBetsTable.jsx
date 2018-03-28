@@ -13,16 +13,18 @@ export default function PlacedBetsTable({ game, onClaimBetListener }) {
     let innerContent = []
     if (game.placedBets) {
         for (const betId in game.placedBets) {
-            let betItem = game.placedBets[betId]
-            innerContent.push(
-                <PlacedBetsItem
-                    key={betId}
-                    gameItem={game}
-                    betId={betId}
-                    betItem={betItem}
-                    onClaimBetListener={onClaimBetListener}
-                />
-            )
+            if (game.placedBets.hasOwnProperty(betId)) {
+                let betItem = game.placedBets[betId]
+                innerContent.push(
+                    <PlacedBetsItem
+                        key={betId}
+                        gameItem={game}
+                        betId={betId}
+                        betItem={betItem}
+                        onClaimBetListener={onClaimBetListener}
+                    />
+                )
+            }
         }
     }
 
