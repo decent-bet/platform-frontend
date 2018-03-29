@@ -1,6 +1,6 @@
-import Helper from '../../Helper'
+import Helper from '../../../Helper'
 import { createAction } from 'redux-actions'
-import { BettingProviderActions } from './actionTypes'
+import { BettingProviderActions } from '../actionTypes'
 import BigNumber from 'bignumber.js'
 import ethUnits from 'ethereum-units'
 

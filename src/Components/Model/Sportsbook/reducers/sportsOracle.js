@@ -11,6 +11,11 @@ function oracleReducer(sportsOracle = {}, action = { type: null }) {
             sportsOracle.games = action.payload
             break
 
+        case `${Actions.GET_GAME_ITEM}_${FULFILLED}`:
+            let game = action.payload
+            sportsOracle.games[game.id] = game
+            break
+
         case `${Actions.GET_GAME_UPDATE_COST}_${FULFILLED}`:
             sportsOracle.payments.gameUpdateCost = action.payload
             break

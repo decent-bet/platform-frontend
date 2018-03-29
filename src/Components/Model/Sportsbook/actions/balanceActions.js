@@ -1,6 +1,6 @@
-import Helper from '../../Helper'
+import Helper from '../../../Helper'
 import { createAction } from 'redux-actions'
-import { BalanceActions } from './actionTypes'
+import { BalanceActions } from '../actionTypes'
 
 const helper = new Helper()
 
@@ -84,6 +84,6 @@ export const depositTokens = createAction(
 )
 
 export const approveAndDepositTokens = createAction(
-    BalanceActions.APPROVE_AND_WITHDRAW_TOKENS,
+    BalanceActions.APPROVE_AND_DEPOSIT_TOKENS,
     executeApproveAndDepositTokens
 )

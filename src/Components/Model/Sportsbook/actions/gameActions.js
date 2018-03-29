@@ -1,7 +1,7 @@
-import constants from '../../Constants'
-import Helper from '../../Helper'
+import constants from '../../../Constants'
+import Helper from '../../../Helper'
 import { createAction } from 'redux-actions'
-import BettingProviderActions from './actionTypes'
+import { BettingProviderActions } from '../actionTypes'
 
 const ethUnits = require('ethereum-units')
 const helper = new Helper()
@@ -198,12 +198,22 @@ export const getGameOdds = createAction(
 )
 export const getMaxBetLimit = createAction(
     BettingProviderActions.GAME_BET_LIMIT,
-    fetchBetLimits,
+    fetchMaxBetLimit,
     gameId => ({ gameId: gameId })
+)
+export const getBetLimitForPeriod = createAction(
+    BettingProviderActions.GAME_BET_LIMIT_FOR_PERIOD,
+    fetchBetLimits,
+    (gameId, period) => ({ gameId: gameId, period: period })
 )
 export const getGamePeriodOutcome = createAction(
     BettingProviderActions.GAME_ODDS,
     fetchGamePeriodOutcomes,
     (gameId, period) => ({ gameId: gameId, period: period })
+)
+export const getGameItem = createAction(
+    BettingProviderActions.GAME_ITEM,
+    fetchGamesItem,
+    gameId => ({ gameId: gameId })
 )
 export const getGames = createAction(BettingProviderActions.GAMES, fetchGames)

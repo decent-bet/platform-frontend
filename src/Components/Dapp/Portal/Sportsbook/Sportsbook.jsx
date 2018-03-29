@@ -7,7 +7,32 @@ import GamesCard from './GamesCard'
 import Stats from './Stats'
 import PlacedBetsCard from './PlacedBetsCard'
 import EventBus from 'eventing-bus'
+import { Provider } from 'react-redux'
+import store from '../../../Model/store'
 import Helper from '../../../Helper'
+
+// Redux Actions. TODO: cleanup
+import initializationSequence from '../../../Model/store'
+import {
+    getTokenBalance,
+    depositTokens,
+    withdrawTokens,
+    approveAndDepositTokens
+} from '../../../Model/Sportsbook/actions/balanceActions'
+import { getCurrentSessionDepositedTokens } from '../../../Model/Sportsbook/actions/basicActions'
+import {
+    getGameItem,
+    getGameOddsCount,
+    getMaxBetLimit,
+    getBetLimitForPeriod,
+    getGamePeriodOutcome
+} from '../../../Model/Sportsbook/actions/gameActions'
+import {
+    getUserBets,
+    claimBet,
+    setBet
+} from '../../../Model/Sportsbook/actions/betActions'
+import { getGameItem as getOracleGameItem } from '../../../Model/Sportsbook/actions/oracleGameActions'
 
 import './sportsbook.css'
 
@@ -98,49 +123,13 @@ export default class Sportsbook extends Component {
     }
 
     initWeb3Data = () => {
+        store.dispatch(initializationSequence())
         this.initBettingProviderData()
         this.initSportsOracleData()
         this.initTokenData()
     }
 
     initBettingProviderData = () => {
-        /** Details */
-        this.web3Getters()
-            .bettingProvider()
-            .address()
-        this.web3Getters()
-            .bettingProvider()
-            .currentSession() // Renamed to CurrentSessionTokens
-        this.web3Getters()
-            .bettingProvider()
-            .house() //renamed to fetchHouseAddress
-        this.web3Getters()
-            .bettingProvider()
-            .sportsOracle()
-        this.web3Getters()
-            .bettingProvider()
-            .allowance()
-        this.web3Getters()
-            .bettingProvider()
-            .tokenBalance()
-        this.web3Getters()
-            .bettingProvider()
-            .getTime()
-
-        /** Games */
-        this.web3Getters()
-            .bettingProvider()
-            .gamesCount()
-        this.web3Getters()
-            .bettingProvider()
-            .game(0, true) // Renamed to getGames
-        this.web3Getters()
-            .bettingProvider()
-            .sessionStats(1)
-        this.web3Getters()
-            .bettingProvider()
-            .getUserBets(0)
-
         /** Events */
         this.watchers()
             .bettingProvider()
@@ -175,37 +164,7 @@ export default class Sportsbook extends Component {
     }
 
     initSportsOracleData = () => {
-        /** Time */
-        this.web3Getters()
-            .sportsOracle()
-            .getTime()
-
-        /** Games */
-        this.web3Getters()
-            .sportsOracle()
-            .games.count()
-        this.web3Getters()
-            .sportsOracle()
-            // renamed fetchGames
-            .games.game(0, true)
-
-        /** Payments */
-        this.web3Getters()
-            .sportsOracle()
-            .payments.gameUpdateCost()
-
-        /** Providers */
-        this.web3Getters()
-            .sportsOracle()
-            // Renamed getRequestedProviderAddresses
-            .addresses.requestedProviders(0)
-        this.web3Getters()
-            .sportsOracle()
-            // Renamed getAcceptedProviderAddresses
-            .addresses.acceptedProviders(0)
-
         /** Events */
-
         this.watchers()
             .sportsOracle()
             .gameAdded()
@@ -218,11 +177,6 @@ export default class Sportsbook extends Component {
     }
 
     initTokenData = () => {
-        this.web3Getters()
-            .token()
-            // renamed to getTokens
-            .balance()
-
         this.watchers()
             .token()
             .transferFrom()
@@ -243,11 +197,7 @@ export default class Sportsbook extends Component {
                             .token()
                             .logTransfer(self.state.address, true)
                             .watch((err, event) => {
-                                if (!err)
-                                    self
-                                        .web3Getters()
-                                        .token()
-                                        .balance()
+                                if (!err) store.dispatch(getTokenBalance())
                             })
                     },
                     transferTo: () => {
@@ -257,11 +207,7 @@ export default class Sportsbook extends Component {
                             .token()
                             .logTransfer(self.state.address, false)
                             .watch((err, event) => {
-                                if (!err)
-                                    self
-                                        .web3Getters()
-                                        .token()
-                                        .balance()
+                                if (!err) store.dispatch(getTokenBalance())
                             })
                     }
                 }
@@ -285,14 +231,10 @@ export default class Sportsbook extends Component {
                                         ' DBETs'
                                 )
 
-                                self
-                                    .web3Getters()
-                                    .bettingProvider()
-                                    .tokenBalance()
-                                self
-                                    .web3Getters()
-                                    .bettingProvider()
-                                    .depositedTokens(session)
+                                store.dispatch(getTokenBalance())
+                                store.dispatch(
+                                    getCurrentSessionDepositedTokens(session)
+                                )
                             })
                     },
                     withdraw: () => {
@@ -312,14 +254,10 @@ export default class Sportsbook extends Component {
                                         ' DBETs'
                                 )
 
-                                self
-                                    .web3Getters()
-                                    .bettingProvider()
-                                    .tokenBalance()
-                                self
-                                    .web3Getters()
-                                    .bettingProvider()
-                                    .depositedTokens(session)
+                                store.dispatch(getTokenBalance())
+                                store.dispatch(
+                                    getCurrentSessionDepositedTokens(session)
+                                )
                             })
                     },
                     newBet: () => {
@@ -352,26 +290,12 @@ export default class Sportsbook extends Component {
                                         away
                                 )
 
-                                self
-                                    .web3Getters()
-                                    .bettingProvider()
-                                    .game(gameId, false)
-                                self
-                                    .web3Getters()
-                                    .bettingProvider()
-                                    .getUserBets(betId)
-
-                                self
-                                    .web3Getters()
-                                    .bettingProvider()
-                                    .tokenBalance()
-                                self
-                                    .web3Getters()
-                                    .bettingProvider()
-                                    .depositedTokens(
-                                        self.state.bettingProvider
-                                            .currentSession
-                                    )
+                                store.dispatch(getGameItem(gameId))
+                                store.dispatch(getUserBets(betId))
+                                store.dispatch(getTokenBalance)
+                                store.dispatch(
+                                    getCurrentSessionDepositedTokens()
+                                )
                             })
                     },
                     newGame: () => {
@@ -392,9 +316,7 @@ export default class Sportsbook extends Component {
                                 )
 
                                 let id = event.args.id.toNumber()
-                                this.web3Getters()
-                                    .bettingProvider()
-                                    .game(id, false)
+                                store.dispatch(getGameItem(id))
                             })
                     },
                     newGameOdds: () => {
@@ -426,10 +348,7 @@ export default class Sportsbook extends Component {
                                         away
                                 )
 
-                                self
-                                    .web3Getters()
-                                    .bettingProvider()
-                                    .gameOddsCount(gameId)
+                                store.dispatch(getGameOddsCount(gameId))
                             })
                     },
                     updatedGameOdds: () => {
@@ -461,10 +380,7 @@ export default class Sportsbook extends Component {
                                         away
                                 )
 
-                                self
-                                    .web3Getters()
-                                    .bettingProvider()
-                                    .gameOddsCount(gameId)
+                                store.dispatch(getGameOddsCount(gameId))
                             })
                     },
                     updatedMaxBet: () => {
@@ -495,10 +411,7 @@ export default class Sportsbook extends Component {
                                         away
                                 )
 
-                                self
-                                    .web3Getters()
-                                    .bettingProvider()
-                                    .maxBetLimit(gameId)
+                                store.dispatch(getMaxBetLimit(gameId))
                             })
                     },
                     updatedBetLimits: () => {
@@ -535,10 +448,9 @@ export default class Sportsbook extends Component {
                                         gameId
                                     ].betLimits.hasOwnProperty(period)
                                 )
-                                    self
-                                        .web3Getters()
-                                        .bettingProvider()
-                                        .betLimits(gameId, period)
+                                    store.dispatch(
+                                        getBetLimitForPeriod(gameId, period)
+                                    )
                             })
                     },
                     claimedBet: () => {
@@ -570,18 +482,11 @@ export default class Sportsbook extends Component {
                                         away
                                 )
 
-                                self
-                                    .web3Getters()
-                                    .bettingProvider()
-                                    .tokenBalance()
-                                self
-                                    .web3Getters()
-                                    .bettingProvider()
-                                    .depositedTokens(session)
-                                self
-                                    .web3Getters()
-                                    .bettingProvider()
-                                    .getUserBets(0)
+                                store.dispatch(getTokenBalance())
+                                store.dispatch(
+                                    getCurrentSessionDepositedTokens()
+                                )
+                                store.dispatch(getUserBets(0))
                             })
                     },
                     updatedTime: () => {
@@ -624,10 +529,7 @@ export default class Sportsbook extends Component {
                                     JSON.stringify(event)
                                 )
                                 let id = event.args.id.toNumber()
-                                this.web3Getters()
-                                    .sportsOracle()
-                                    // Renamed fetchGames
-                                    .games.game(id, false)
+                                store.dispatch(getOracleGameItem(id))
                             })
                     },
                     updatedProviderOutcome: () => {
@@ -664,11 +566,12 @@ export default class Sportsbook extends Component {
                                         providerGameId
                                     ].outcomes.hasOwnProperty(period)
                                 )
-                                    self
-                                        .web3Getters()
-                                        .bettingProvider()
-                                        // Renamed to getGamePeriodOutcome
-                                        .outcomes(providerGameId, period)
+                                    store.dispatch(
+                                        getGamePeriodOutcome(
+                                            providerGameId,
+                                            period
+                                        )
+                                    )
                             })
                     },
                     updatedTime: () => {
@@ -736,15 +639,13 @@ export default class Sportsbook extends Component {
     }
 
     onClaimBetListener = (gameItem, betId) =>
-        // betActions.claimBet()
-        this.web3Setters().claimBet(gameItem.id, betId)
+        store.dispatch(claimBet(gameItem.id, betId))
 
     onConfirmBetListener = () => {
         let selectedBet = this.state.dialogs.confirmBet.selectedBet
         let gameId = selectedBet.gameId
         let oddsObj = selectedBet.oddsObj
-        //Renamed to betActions.setBet()
-        this.web3Setters().placeBet(gameId, oddsObj)
+        store.dispatch(setBet(gameId, oddsObj))
         this.helpers().toggleDialog(DIALOG_CONFIRM_BET, false)
     }
 
@@ -755,8 +656,8 @@ export default class Sportsbook extends Component {
         )
         let formattedAmount = bigAllowance.toFixed()
         isAllowanceAvailable
-            ? this.web3Setters().depositTokens(formattedAmount)
-            : this.web3Setters().approveAndDepositTokens(formattedAmount)
+            ? store.dispatch(depositTokens(formattedAmount))
+            : store.dispatch(approveAndDepositTokens(formattedAmount))
     }
 
     onDepositTokensDialogOpen = () =>
@@ -821,9 +722,11 @@ export default class Sportsbook extends Component {
         let formattedAmount = new BigNumber(amount)
             .times(ethUnits.units.ether)
             .toFixed()
-        this.web3Setters().withdrawTokens(
-            formattedAmount,
-            this.state.bettingProvider.currentSession
+        store.dispatch(
+            withdrawTokens(
+                formattedAmount,
+                this.state.bettingProvider.currentSession
+            )
         )
     }
 
@@ -918,23 +821,29 @@ export default class Sportsbook extends Component {
 
     render() {
         return (
-            <div className="sportsbook">
-                <div className="main pb-4">
-                    <div className="row">
-                        <div className="col-8">{this.renderMainContent()}</div>
-                        <div className="col-4">
-                            <Stats
-                                bettingProvider={this.state.bettingProvider}
-                                onDepositTokensDialogOpen={
-                                    this.onDepositTokensDialogOpen
-                                }
-                                onOpenWithdrawDialog={this.onOpenWithdrawDialog}
-                            />
+            <Provider store={store}>
+                <div className="sportsbook">
+                    <div className="main pb-4">
+                        <div className="row">
+                            <div className="col-8">
+                                {this.renderMainContent()}
+                            </div>
+                            <div className="col-4">
+                                <Stats
+                                    bettingProvider={this.state.bettingProvider}
+                                    onDepositTokensDialogOpen={
+                                        this.onDepositTokensDialogOpen
+                                    }
+                                    onOpenWithdrawDialog={
+                                        this.onOpenWithdrawDialog
+                                    }
+                                />
+                            </div>
                         </div>
+                        {this.renderDialogs()}
                     </div>
-                    {this.renderDialogs()}
                 </div>
-            </div>
+            </Provider>
         )
     }
 }

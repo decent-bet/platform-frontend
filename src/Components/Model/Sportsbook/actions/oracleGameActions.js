@@ -1,6 +1,6 @@
-import Helper from '../../Helper'
+import Helper from '../../../Helper'
 import { createAction } from 'redux-actions'
-import { OracleActions } from './actionTypes'
+import { OracleActions } from '../actionTypes'
 
 const helper = new Helper()
 
@@ -63,11 +63,13 @@ async function fetchGamesItem(id) {
         }
         if (ipfsHash.length > 0) {
             let metadata = await fetchMetadata(id, ipfsHash)
-            game.team1 = metadata.team1
-            game.team2 = metadata.team2
-            game.starts = metadata.starts
-            game.league = metadata.league
-            game.periodDescriptions = metadata.periods
+            if (metadata) {
+                game.team1 = metadata.team1
+                game.team2 = metadata.team2
+                game.starts = metadata.starts
+                game.league = metadata.league
+                game.periodDescriptions = metadata.periods
+            }
         }
         if (exists) {
             game.periods = await fetchAvailableGamePeriods(id)
@@ -105,4 +107,8 @@ async function fetchGames() {
     return result
 }
 
+export const getGameItem = createAction(
+    OracleActions.GET_GAME_ITEM,
+    fetchGamesItem
+)
 export const getGames = createAction(OracleActions.GET_GAMES, fetchGames)

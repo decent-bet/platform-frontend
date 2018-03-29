@@ -1,5 +1,5 @@
 import { BettingProviderActions as Actions } from '../actionTypes'
-import Helper from '../../Helper'
+import Helper from '../../../Helper'
 import { FULFILLED } from 'redux-promise-middleware'
 
 const helper = new Helper()
@@ -43,7 +43,13 @@ function bettingProviderReducer(bettingProvider = {}, action = { type: null }) {
 
         case `${Actions.GAMES}_${FULFILLED}`:
             let gameArray = action.payload
-            bettingProvider.gameArray = gameArray
+            bettingProvider.games = gameArray
+            break
+
+        case `${Actions.GAME_ITEM}_${FULFILLED}`:
+            let newGame = action.payload
+            let newGameId = action.meta.gameId
+            bettingProvider.games[newGameId] = newGame
             break
 
         case `${Actions.GAME_ODDS}_${FULFILLED}`:
@@ -70,6 +76,12 @@ function bettingProviderReducer(bettingProvider = {}, action = { type: null }) {
             bettingProvider.games[gameId3].maxBetLimit = maxBetLimit
             break
 
+        case `${Actions.GAME_BET_LIMIT_FOR_PERIOD}_${FULFILLED}`:
+            let gameId5 = action.meta.gameId5
+            let periodId = action.meta.period
+            bettingProvider.games[gameId5].betLimits[periodId] = action.payload
+            break
+
         case `${Actions.USER_BETS}_${FULFILLED}`:
             let userBets = action.payload
             bettingProvider.placedBets = userBets
@@ -80,7 +92,7 @@ function bettingProviderReducer(bettingProvider = {}, action = { type: null }) {
             break
 
         case `${Actions.CLAIM_BET}_${FULFILLED}`:
-            let {gameId4, betId} = action.meta 
+            let { gameId4, betId } = action.meta
             let bet = bettingProvider.placedBets[gameId4][betId]
             bet.claimed = true
             break
