@@ -79,6 +79,12 @@ function bettingProviderReducer(bettingProvider = {}, action = { type: null }) {
             bettingProvider.time = action.payload
             break
 
+        case `${Actions.CLAIM_BET}_${FULFILLED}`:
+            let {gameId4, betId} = action.meta 
+            let bet = bettingProvider.placedBets[gameId4][betId]
+            bet.claimed = true
+            break
+
         case Actions.ADDRESS:
             bettingProvider.address = action.payload
             break

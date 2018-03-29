@@ -1,8 +1,9 @@
 import Helper from '../../Helper'
 import { createAction } from 'redux-actions'
 import { BettingProviderActions } from './actionTypes'
+import BigNumber from 'bignumber.js'
+import ethUnits from 'ethereum-units'
 
-const ethUnits = require('ethereum-units')
 const helper = new Helper()
 
 async function fetchGameBettorBet(gameId, betId) {
@@ -105,7 +106,53 @@ async function fetchUserBets(userId) {
     }
 }
 
+async function putBet(gameId, oddsObj) {
+    const betAmount = new BigNumber(oddsObj.betAmount)
+        .times(ethUnits.units.ether)
+        .toFixed()
+    const betType = oddsObj.betType
+    const selectedChoice = oddsObj.selectedChoice
+
+    try {
+        let txHash = await helper
+            .getContractHelper()
+            .getWrappers()
+            .bettingProvider()
+            .placeBet(gameId, oddsObj.id, betType, selectedChoice, betAmount)
+        helper.toggleSnackbar(
+            `Successfully sent place bet transaction: ${txHash}`
+        )
+        return txHash
+    } catch (err) {
+        console.log('Error placing bet', err.message)
+        helper.toggleSnackbar('Error sending place bet transaction')
+    }
+}
+
+async function executeClaimBet(gameId, betId) {
+    try {
+        let txHash = await helper
+            .getContractHelper()
+            .getWrappers()
+            .bettingProvider()
+            .claimBet(gameId, betId, helper.getWeb3().eth.defaultAccount)
+
+        helper.toggleSnackbar('Successfully sent claim bet transaction')
+        return txHash
+    } catch (err) {
+        console.log('Error sending claim bet tx', err.message)
+        helper.toggleSnackbar('Error sending claim bet transaction')
+    }
+}
+
 export const getUserBets = createAction(
     BettingProviderActions.USER_BETS,
     fetchUserBets
+)
+
+export const setBet = createAction(BettingProviderActions.SET_BET, putBet)
+
+export const claimBet = createAction(
+    BettingProviderActions.CLAIM_BET,
+    executeClaimBet
 )

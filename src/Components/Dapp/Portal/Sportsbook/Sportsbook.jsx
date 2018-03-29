@@ -699,162 +699,6 @@ export default class Sportsbook extends Component {
         }
     }
 
-    web3Setters = () => {
-        const self = this
-        return {
-            placeBet: (gameId, oddsId) => {
-                const oddsObj = self.state.odds[gameId][oddsId]
-
-                const betAmount = new BigNumber(oddsObj.betAmount)
-                    .times(ethUnits.units.ether)
-                    .toFixed()
-                const betType = oddsObj.betType
-                const selectedChoice = oddsObj.selectedChoice
-
-                console.log(
-                    'Placing bet for',
-                    oddsObj,
-                    oddsObj.betAmount,
-                    betAmount,
-                    'DBETs'
-                )
-
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .bettingProvider()
-                    .placeBet(
-                        gameId,
-                        oddsId,
-                        betType,
-                        selectedChoice,
-                        betAmount
-                    )
-                    .then(txHash => {
-                        console.log('Successfully placed bet', txHash)
-                        helper.toggleSnackbar(
-                            'Successfully sent place bet transaction'
-                        )
-                        self.helpers().toggleDialog(DIALOG_CONFIRM_BET, false)
-                    })
-                    .catch(err => {
-                        console.log('Error placing bet', err.message)
-                        helper.toggleSnackbar(
-                            'Error sending place bet transaction'
-                        )
-                    })
-            },
-            depositTokens: amount => {
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .bettingProvider()
-                    .deposit(amount)
-                    .then(txHash => {
-                        console.log(
-                            'Successfully deposited',
-                            amount,
-                            'DBETs',
-                            txHash
-                        )
-                        helper.toggleSnackbar(
-                            'Successfully sent deposit transaction'
-                        )
-                    })
-                    .catch(err => {
-                        console.log('Error depositing tokens', err.message)
-                        helper.toggleSnackbar(
-                            'Error sending deposit transaction'
-                        )
-                    })
-            },
-            withdrawTokens: (amount, session) => {
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .bettingProvider()
-                    .withdraw(amount, session)
-                    .then(txHash => {
-                        console.log(
-                            'Successfully withdrew',
-                            amount,
-                            'DBETs',
-                            txHash
-                        )
-                        helper.toggleSnackbar(
-                            'Successfully sent withdraw transaction'
-                        )
-                    })
-                    .catch(err => {
-                        console.log('Error withdrawing tokens', err.message)
-                        helper.toggleSnackbar(
-                            'Error sending withdraw transaction'
-                        )
-                    })
-            },
-            approveAndDepositTokens: amount => {
-                let bettingProvider = helper
-                    .getContractHelper()
-                    .getBettingProviderInstance().address
-                console.log('approveAndDepositTokens', amount, typeof amount)
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .token()
-                    .approve(bettingProvider, amount)
-                    .then(txHash => {
-                        console.log(
-                            'Successfully approved',
-                            amount,
-                            'DBETs for ',
-                            bettingProvider,
-                            txHash
-                        )
-                        helper.toggleSnackbar(
-                            'Successfully sent approve transaction'
-                        )
-                        self.web3Setters().depositTokens(amount)
-                        return null
-                    })
-                    .catch(err => {
-                        console.log('Error approving dbets', err.message)
-                        helper.toggleSnackbar(
-                            'Error sending approve transaction'
-                        )
-                    })
-            },
-            claimBet: (gameId, betId) => {
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .bettingProvider()
-                    .claimBet(
-                        gameId,
-                        betId,
-                        helper.getWeb3().eth.defaultAccount
-                    )
-                    .then(txHash => {
-                        let bettingProvider = self.state.bettingProvider
-                        let bet = bettingProvider.placedBets[gameId][betId]
-                        bet.claimed = true
-                        self.setState({
-                            bettingProvider: bettingProvider
-                        })
-                        console.log('Successfully sent claim bet tx', txHash)
-                        helper.toggleSnackbar(
-                            'Successfully sent claim bet transaction'
-                        )
-                    })
-                    .catch(err => {
-                        console.log('Error sending claim bet tx', err.message)
-                        helper.toggleSnackbar(
-                            'Error sending claim bet transaction'
-                        )
-                    })
-            }
-        }
-    }
-
     helpers = () => {
         const self = this
         return {
@@ -892,13 +736,16 @@ export default class Sportsbook extends Component {
     }
 
     onClaimBetListener = (gameItem, betId) =>
+        // betActions.claimBet()
         this.web3Setters().claimBet(gameItem.id, betId)
 
     onConfirmBetListener = () => {
         let selectedBet = this.state.dialogs.confirmBet.selectedBet
         let gameId = selectedBet.gameId
-        let oddsId = selectedBet.oddsId
-        this.web3Setters().placeBet(gameId, oddsId)
+        let oddsObj = selectedBet.oddsObj
+        //Renamed to betActions.setBet()
+        this.web3Setters().placeBet(gameId, oddsObj)
+        this.helpers().toggleDialog(DIALOG_CONFIRM_BET, false)
     }
 
     onConfirmDepositListener = amount => {
@@ -960,7 +807,8 @@ export default class Sportsbook extends Component {
 
         dialogs.confirmBet.selectedBet = {
             gameId: gameId,
-            oddsId: oddsId
+            oddsId: oddsId,
+            oddsObj: oddsObj
         }
         dialogs.confirmBet.open = true
         this.setState({ dialogs: dialogs })
