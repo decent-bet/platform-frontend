@@ -25,3 +25,7 @@ export const OracleActions = {
     GET_OWNER: 'GET_OWNER',
     GET_TIME: 'GET_TIME'
 }
+
+export const BalanceActions = {
+    GET_TOKENS: 'GET_TOKENS'
+}

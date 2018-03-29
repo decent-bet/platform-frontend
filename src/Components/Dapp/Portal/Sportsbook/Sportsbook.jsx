@@ -220,6 +220,7 @@ export default class Sportsbook extends Component {
     initTokenData = () => {
         this.web3Getters()
             .token()
+            // renamed to getTokens
             .balance()
 
         this.watchers()
@@ -228,38 +229,6 @@ export default class Sportsbook extends Component {
         this.watchers()
             .token()
             .transferTo()
-    }
-
-    web3Getters = () => {
-        const self = this
-        return {
-            token: () => {
-                return {
-                    balance: () => {
-                        helper
-                            .getContractHelper()
-                            .getWrappers()
-                            .token()
-                            .balanceOf(helper.getWeb3().eth.defaultAccount)
-                            .then(balance => {
-                                balance = helper.formatEther(balance.toString())
-                                let token = self.state.token
-                                token.balance = balance
-                                console.log('Retrieved DBET balance', balance)
-                                self.setState({
-                                    token: token
-                                })
-                            })
-                            .catch(err => {
-                                console.log(
-                                    'Error retrieving token balance',
-                                    err.message
-                                )
-                            })
-                    }
-                }
-            }
-        }
     }
 
     watchers = () => {
