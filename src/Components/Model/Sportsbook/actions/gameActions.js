@@ -1,7 +1,7 @@
 import constants from '../../Constants'
 import Helper from '../../Helper'
 import { createAction } from 'redux-actions'
-import ACTIONS from './actionTypes'
+import BettingProviderActions from './actionTypes'
 
 const ethUnits = require('ethereum-units')
 const helper = new Helper()
@@ -187,23 +187,23 @@ async function fetchGames() {
 }
 
 export const getGameOddsCount = createAction(
-    ACTIONS.GAME_ODDS_COUNT,
+    BettingProviderActions.GAME_ODDS_COUNT,
     fetchGameOddsCount,
     gameId => ({ gameId: gameId })
 )
 export const getGameOdds = createAction(
-    ACTIONS.GAME_ODDS,
+    BettingProviderActions.GAME_ODDS,
     fetchGameOdds,
     gameId => ({ gameId: gameId })
 )
 export const getMaxBetLimit = createAction(
-    ACTIONS.GAME_BET_LIMIT,
+    BettingProviderActions.GAME_BET_LIMIT,
     fetchBetLimits,
     gameId => ({ gameId: gameId })
 )
 export const getGamePeriodOutcome = createAction(
-    ACTIONS.GAME_ODDS,
+    BettingProviderActions.GAME_ODDS,
     fetchGamePeriodOutcomes,
     (gameId, period) => ({ gameId: gameId, period: period })
 )
-export const getGames = createAction(ACTIONS.GAMES, fetchGames)
+export const getGames = createAction(BettingProviderActions.GAMES, fetchGames)

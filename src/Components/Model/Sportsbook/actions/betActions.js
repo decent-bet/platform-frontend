@@ -1,6 +1,6 @@
 import Helper from '../../Helper'
 import { createAction } from 'redux-actions'
-import ACTIONS from './actionTypes'
+import { BettingProviderActions } from './actionTypes'
 
 const ethUnits = require('ethereum-units')
 const helper = new Helper()
@@ -105,4 +105,7 @@ async function fetchUserBets(userId) {
     }
 }
 
-export const getUserBets = createAction(ACTIONS.USER_BETS, fetchUserBets)
+export const getUserBets = createAction(
+    BettingProviderActions.USER_BETS,
+    fetchUserBets
+)

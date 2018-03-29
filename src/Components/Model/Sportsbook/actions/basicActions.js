@@ -1,6 +1,6 @@
 import Helper from '../../Helper'
 import { createAction } from 'redux-actions'
-import ACTIONS from './actionTypes'
+import { BettingProviderActions } from './actionTypes'
 
 const helper = new Helper()
 
@@ -119,38 +119,47 @@ async function fetchTime() {
     return time.toNumber()
 }
 
-export const getGamesCount = createAction(ACTIONS.GAMES_COUNT, fetchGamesCount)
+export const getGamesCount = createAction(
+    BettingProviderActions.GAMES_COUNT,
+    fetchGamesCount
+)
 export const getDepositedTokens = createAction(
-    ACTIONS.DEPOSITED_TOKENS,
+    BettingProviderActions.DEPOSITED_TOKENS,
     fetchDepositedTokens
 )
 export const getTokenBalance = createAction(
-    ACTIONS.TOKEN_BALANCE,
+    BettingProviderActions.TOKEN_BALANCE,
     fetchTokenBalance
 )
-export const getAllowance = createAction(ACTIONS.ALLOWANCE, fetchAllowance)
+export const getAllowance = createAction(
+    BettingProviderActions.ALLOWANCE,
+    fetchAllowance
+)
 export const getHouseAddress = createAction(
-    ACTIONS.HOUSE_ADDRESS,
+    BettingProviderActions.HOUSE_ADDRESS,
     fetchHouseAddress
 )
 export const getSportsOracleAddress = createAction(
-    ACTIONS.SPORTSORACLE_ADDRESS,
+    BettingProviderActions.SPORTSORACLE_ADDRESS,
     fetchSportsOracleAddress
 )
 export const getCurrentSession = createAction(
-    ACTIONS.CURRENT_SESSION,
+    BettingProviderActions.CURRENT_SESSION,
     fetchCurrentSession
 )
 export const getCurrentSessionDepositedTokens = createAction(
-    ACTIONS.DEPOSITED_TOKENS,
+    BettingProviderActions.DEPOSITED_TOKENS,
     fetchDepositedTokens
 )
-export const getSessionStats = createAction(ACTIONS.STATS, fetchSessionStats)
-export const getTime = createAction(ACTIONS.TIME, fetchTime)
+export const getSessionStats = createAction(
+    BettingProviderActions.STATS,
+    fetchSessionStats
+)
+export const getTime = createAction(BettingProviderActions.TIME, fetchTime)
 
 export function getAddress() {
     return {
-        type: ACTIONS.ADDRESS,
+        type: BettingProviderActions.ADDRESS,
         payload: helper.getContractHelper().getBettingProviderInstance().address
     }
 }

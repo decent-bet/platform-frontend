@@ -6,20 +6,14 @@ import WithdrawTokensDialog from './WithdrawTokensDialog'
 import GamesCard from './GamesCard'
 import Stats from './Stats'
 import PlacedBetsCard from './PlacedBetsCard'
-import ArrayCache from '../../../Base/ArrayCache'
 import EventBus from 'eventing-bus'
 import Helper from '../../../Helper'
 
 import './sportsbook.css'
 
-const arrayCache = new ArrayCache()
 const BigNumber = require('bignumber.js')
-const constants = require('../../../Constants')
 const ethUnits = require('ethereum-units')
 const helper = new Helper()
-
-const IPFS = require('ipfs-mini')
-const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' })
 
 const DIALOG_CONFIRM_BET = 0,
     DIALOG_DEPOSIT_TOKENS = 1,
@@ -192,6 +186,7 @@ export default class Sportsbook extends Component {
             .games.count()
         this.web3Getters()
             .sportsOracle()
+            // renamed fetchGames
             .games.game(0, true)
 
         /** Payments */
@@ -202,9 +197,11 @@ export default class Sportsbook extends Component {
         /** Providers */
         this.web3Getters()
             .sportsOracle()
+            // Renamed getRequestedProviderAddresses
             .addresses.requestedProviders(0)
         this.web3Getters()
             .sportsOracle()
+            // Renamed getAcceptedProviderAddresses
             .addresses.acceptedProviders(0)
 
         /** Events */
@@ -236,307 +233,6 @@ export default class Sportsbook extends Component {
     web3Getters = () => {
         const self = this
         return {
-            bettingProvider: () => {
-            },
-            sportsOracle: () => {
-                return {
-                    metadata: (gameId, hash) => {
-                        ipfs.catJSON(hash, (err, data) => {
-                            if (!err) {
-                                console.log(
-                                    'Retrieved data for hash',
-                                    hash,
-                                    err,
-                                    data
-                                )
-                                let sportsOracle = self.state.sportsOracle
-                                sportsOracle.games[gameId].team1 = data.team1
-                                sportsOracle.games[gameId].team2 = data.team2
-                                sportsOracle.games[gameId].starts = data.starts
-                                sportsOracle.games[gameId].league = data.league
-                                sportsOracle.games[gameId].periodDescriptions =
-                                    data.periods
-
-                                self.setState({
-                                    sportsOracle: sportsOracle
-                                })
-                            } else {
-                                console.log(
-                                    'Error retrieving hash data',
-                                    hash,
-                                    err
-                                )
-                            }
-                        })
-                    },
-                    owner: () => {
-                        helper
-                            .getContractHelper()
-                            .getWrappers()
-                            .sportsOracle()
-                            .getOwner()
-                            .then(owner => {
-                                let sportsOracle = self.state.sportsOracle
-                                sportsOracle.owner = owner
-                                self.setState({
-                                    sportsOracle: sportsOracle
-                                })
-                            })
-                            .catch(err => {
-                                console.log('Error retrieving owner')
-                            })
-                    },
-                    games: {
-                        count: () => {
-                            helper
-                                .getContractHelper()
-                                .getWrappers()
-                                .sportsOracle()
-                                .getGamesCount()
-                                .then(gamesCount => {
-                                    console.log('Games count:', gamesCount)
-                                    let sportsOracle = self.state.sportsOracle
-                                    sportsOracle.gamesCount = gamesCount.toNumber()
-                                    self.setState({
-                                        sportsOracle: sportsOracle
-                                    })
-                                })
-                                .catch(err => {
-                                    console.log(
-                                        'Error retrieving games count:',
-                                        err
-                                    )
-                                })
-                        },
-                        game: (id, iterate) => {
-                            helper
-                                .getContractHelper()
-                                .getWrappers()
-                                .sportsOracle()
-                                .getGame(id)
-                                .then(data => {
-                                    let ipfsHash = data[6]
-                                    let exists = data[7]
-                                    let game = {
-                                        id: id,
-                                        refId: data[1],
-                                        sportId: data[2].toNumber(),
-                                        leagueId: data[3].toNumber(),
-                                        startTime: data[4].toNumber(),
-                                        endTime: data[5].toNumber(),
-                                        ipfsHash: ipfsHash,
-                                        exists: exists
-                                    }
-                                    if (ipfsHash.length > 0)
-                                        self
-                                            .web3Getters()
-                                            .sportsOracle()
-                                            .metadata(id, ipfsHash)
-                                    if (exists) {
-                                        let sportsOracle =
-                                            self.state.sportsOracle
-                                        sportsOracle.games[id] = game
-                                        self.setState({
-                                            sportsOracle: sportsOracle
-                                        })
-                                        self
-                                            .web3Getters()
-                                            .sportsOracle()
-                                            .games.availableGamePeriods(id, 0)
-                                    }
-                                    if (iterate && exists)
-                                        self
-                                            .web3Getters()
-                                            .sportsOracle()
-                                            .games.game(id + 1, true)
-                                })
-                                .catch(err => {
-                                    console.log(
-                                        'Error retrieving game',
-                                        id,
-                                        err.message
-                                    )
-                                })
-                        },
-                        availableGamePeriods: (id, index) => {
-                            const CACHE_KEY = 'availableGamePeriods_' + id
-                            if (index == 0) arrayCache.clear(CACHE_KEY)
-
-                            let updateState = () => {
-                                let sportsOracle = self.state.sportsOracle
-                                sportsOracle.games[id].periods = arrayCache.get(
-                                    CACHE_KEY
-                                )
-                                self.setState({
-                                    sportsOracle: sportsOracle
-                                })
-                            }
-
-                            helper
-                                .getContractHelper()
-                                .getWrappers()
-                                .sportsOracle()
-                                .getAvailableGamePeriods(id, index)
-                                .then(period => {
-                                    if (
-                                        arrayCache
-                                            .get(CACHE_KEY)
-                                            .indexOf(period.toNumber()) == -1
-                                    ) {
-                                        arrayCache.add(
-                                            CACHE_KEY,
-                                            period.toNumber()
-                                        )
-                                        self
-                                            .web3Getters()
-                                            .sportsOracle()
-                                            .games.availableGamePeriods(
-                                                id,
-                                                index + 1
-                                            )
-                                    } else updateState()
-                                })
-                                .catch(err => {
-                                    console.log(
-                                        'Reached end of available game periods',
-                                        err.message
-                                    )
-                                    updateState()
-                                })
-                        }
-                    },
-                    payments: {
-                        gameUpdateCost: () => {
-                            helper
-                                .getContractHelper()
-                                .getWrappers()
-                                .sportsOracle()
-                                .getGameUpdateCost()
-                                .then(gameUpdateCost => {
-                                    gameUpdateCost = gameUpdateCost
-                                        .div(ethUnits.units.ether)
-                                        .toNumber()
-                                    let sportsOracle = self.state.sportsOracle
-                                    sportsOracle.payments.gameUpdateCost = gameUpdateCost
-                                    self.setState({
-                                        sportsOracle: sportsOracle
-                                    })
-                                })
-                                .catch(err => {
-                                    console.log(
-                                        'Error retrieving game update cost',
-                                        err.message
-                                    )
-                                })
-                        }
-                    },
-                    addresses: {
-                        requestedProviders: index => {
-                            const CACHE_KEY = 'requestedProviderAddresses'
-                            if (index == 0) arrayCache.clear(CACHE_KEY)
-
-                            let getNextRequestedProviders = address => {
-                                arrayCache.add(CACHE_KEY, address)
-                                self
-                                    .web3Getters()
-                                    .addresses.requestedProviders(index + 1)
-                            }
-
-                            let cacheRequestedProviders = () => {
-                                if (arrayCache.get(CACHE_KEY).length > 0) {
-                                    let sportsOracle = self.state.sportsOracle
-                                    sportsOracle.addresses.requestedProviderAddresses = arrayCache.get(
-                                        CACHE_KEY
-                                    )
-                                    self.setState({
-                                        sportsOracle: sportsOracle
-                                    })
-                                }
-                            }
-
-                            helper
-                                .getContractHelper()
-                                .getWrappers()
-                                .sportsOracle()
-                                .getRequestedProviderAddresses(index)
-                                .then(address => {
-                                    if (address != '0x')
-                                        getNextRequestedProviders(address)
-                                    else cacheRequestedProviders()
-                                })
-                                .catch(err => {
-                                    console.log(
-                                        'Error retrieving requested providers',
-                                        err.message
-                                    )
-                                    cacheRequestedProviders()
-                                })
-                        },
-                        acceptedProviders: index => {
-                            const CACHE_KEY = 'acceptedProviderAddresses'
-                            if (index == 0) arrayCache.clear(CACHE_KEY)
-
-                            let getNextAcceptedProviders = address => {
-                                arrayCache.add(CACHE_KEY, address)
-                                self
-                                    .web3Getters()
-                                    .addresses.acceptedProviders(index + 1)
-                            }
-
-                            let cacheAcceptedProviders = () => {
-                                if (arrayCache.get(CACHE_KEY).length > 0) {
-                                    let sportsOracle = self.state.sportsOracle
-                                    sportsOracle.addresses.acceptedProviderAddresses = arrayCache.get(
-                                        CACHE_KEY
-                                    )
-                                    self.setState({
-                                        sportsOracle: sportsOracle
-                                    })
-                                }
-                            }
-
-                            helper
-                                .getContractHelper()
-                                .getWrappers()
-                                .sportsOracle()
-                                .getAcceptedProviderAddresses(index)
-                                .then(address => {
-                                    if (address != '0x')
-                                        getNextAcceptedProviders(address)
-                                    else cacheAcceptedProviders()
-                                })
-                                .catch(err => {
-                                    console.log(
-                                        'Error retrieving accepted providers',
-                                        err.message
-                                    )
-                                    cacheAcceptedProviders()
-                                })
-                        }
-                    },
-                    getTime: () => {
-                        helper
-                            .getContractHelper()
-                            .getWrappers()
-                            .sportsOracle()
-                            .getTime()
-                            .then(time => {
-                                console.log(
-                                    'Retrieved sports oracle time',
-                                    time.toNumber()
-                                )
-                                self.setState({
-                                    sportsOracle: Object.assign(
-                                        self.state.sportsOracle,
-                                        {
-                                            time: time.toNumber()
-                                        }
-                                    )
-                                })
-                            })
-                    }
-                }
-            },
             token: () => {
                 return {
                     balance: () => {
@@ -961,6 +657,7 @@ export default class Sportsbook extends Component {
                                 let id = event.args.id.toNumber()
                                 this.web3Getters()
                                     .sportsOracle()
+                                    // Renamed fetchGames
                                     .games.game(id, false)
                             })
                     },
