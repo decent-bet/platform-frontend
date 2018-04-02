@@ -8,7 +8,7 @@ import {
     getTime,
     getSessionStats,
     getUserBets
-} from './basicActions'
+} from './bettingProviderActions'
 import {
     getTime as getOracleTime,
     getGameUpdateCost,
@@ -16,8 +16,8 @@ import {
     getAcceptedProviderAddresses
 } from './oracleBasicActions'
 import { getGames as getOracleGames } from './oracleGameActions'
-import { getGames } from './gameActions'
-import { getTokenBalance as getTokenBalance2 } from './basicActions'
+import { getGames } from './bettingProviderGameActions'
+import { getTokenBalance as getTokenBalance2 } from './bettingProviderActions'
 import Promise from 'bluebird'
 
 export default async function initializationSequence() {

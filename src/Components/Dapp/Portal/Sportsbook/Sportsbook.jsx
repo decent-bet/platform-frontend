@@ -19,14 +19,14 @@ import {
     withdrawTokens,
     approveAndDepositTokens
 } from '../../../Model/Sportsbook/actions/balanceActions'
-import { getCurrentSessionDepositedTokens } from '../../../Model/Sportsbook/actions/basicActions'
+import { getCurrentSessionDepositedTokens } from '../../../Model/Sportsbook/actions/bettingProviderActions'
 import {
     getGameItem,
     getGameOddsCount,
     getMaxBetLimit,
     getBetLimitForPeriod,
     getGamePeriodOutcome
-} from '../../../Model/Sportsbook/actions/gameActions'
+} from '../../../Model/Sportsbook/actions/bettingProviderGameActions'
 import {
     getUserBets,
     claimBet,
