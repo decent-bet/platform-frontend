@@ -2,6 +2,10 @@ import { default as Contract } from 'truffle-contract';
 
 import DecentBetToken from '../../build/contracts/TestDecentBetToken.json'
 import House from '../../build/contracts/House.json'
+import HouseAuthorizedController from '../../build/contracts/HouseAuthorizedController.json'
+import HouseFundsController from '../../build/contracts/HouseFundsController.json'
+import HouseLotteryController from '../../build/contracts/HouseLotteryController.json'
+import HouseSessionsController from '../../build/contracts/HouseSessionsController.json'
 import BettingProvider from '../../build/contracts/BettingProvider.json'
 import SlotsChannelFinalizer from '../../build/contracts/SlotsChannelFinalizer.json'
 import SlotsChannelManager from '../../build/contracts/SlotsChannelManager.json'
@@ -28,17 +32,23 @@ const ethAccounts = new EthAccounts(helper.getGethProvider())
 let web3
 let provider
 
-let bettingProvider, decentBetToken, house, houseOffering, slotsChannelManager, slotsChannelFinalizer, sportsOracle
+let bettingProvider, decentBetToken, house, houseAuthorizedController, houseFundsController,
+    houseLotteryController, houseSessionsController, slotsChannelManager, slotsChannelFinalizer, sportsOracle
 
-let bettingProviderInstance, decentBetTokenInstance, houseInstance, slotsChannelManagerInstance,
-    slotsChannelFinalizerInstance, sportsOracleInstance
+let bettingProviderInstance, decentBetTokenInstance, houseInstance, houseAuthorizedControllerInstance,
+    houseFundsControllerInstance, houseLotteryControllerInstance, houseSessionsControllerInstance,
+    slotsChannelManagerInstance, slotsChannelFinalizerInstance, sportsOracleInstance
 
 const TYPE_DBET_TOKEN = 0,
     TYPE_HOUSE = 1,
-    TYPE_BETTING_PROVIDER = 2,
-    TYPE_SLOTS_CHANNEL_FINALIZER = 3,
-    TYPE_SLOTS_CHANNEL_MANAGER = 4,
-    TYPE_SPORTS_ORACLE = 5
+    TYPE_HOUSE_AUTHORIZED_CONTROLLER = 2,
+    TYPE_HOUSE_FUNDS_CONTROLLER = 3,
+    TYPE_HOUSE_LOTTERY_CONTROLLER = 4,
+    TYPE_HOUSE_SESSIONS_CONTROLLER = 5,
+    TYPE_BETTING_PROVIDER = 6,
+    TYPE_SLOTS_CHANNEL_FINALIZER = 7,
+    TYPE_SLOTS_CHANNEL_MANAGER = 8,
+    TYPE_SPORTS_ORACLE = 9
 
 class ContractHelper {
 
@@ -47,13 +57,19 @@ class ContractHelper {
         provider = window.web3Object.currentProvider
 
         house = Contract(House)
+        houseAuthorizedController = Contract(HouseAuthorizedController)
+        houseFundsController = Contract(HouseFundsController)
+        houseLotteryController = Contract(HouseLotteryController)
+        houseSessionsController = Contract(HouseSessionsController)
         sportsOracle = Contract(SportsOracle)
         decentBetToken = Contract(DecentBetToken)
         bettingProvider = Contract(BettingProvider)
         slotsChannelManager = Contract(SlotsChannelManager)
         slotsChannelFinalizer = Contract(SlotsChannelFinalizer)
 
-        for (let c of [bettingProvider, decentBetToken, house, slotsChannelFinalizer, slotsChannelManager, sportsOracle]) {
+        for (let c of [bettingProvider, decentBetToken, house, houseAuthorizedController,
+            houseFundsController, houseLotteryController, houseSessionsController, slotsChannelFinalizer,
+            slotsChannelManager, sportsOracle]) {
             c.setProvider(provider)
 
             // Dirty hack for web3@1.0.0 support for localhost testrpc,
@@ -88,12 +104,44 @@ class ContractHelper {
         return houseInstance
     }
 
+    getHouseAuthorizedControllerInstance = () => {
+        return houseAuthorizedControllerInstance
+    }
+
+    getHouseFundsControllerInstance = () => {
+        return houseFundsControllerInstance
+    }
+
+    getHouseLotteryControllerInstance = () => {
+        return houseLotteryControllerInstance
+    }
+
+    getHouseSessionsControllerInstance = () => {
+        return houseSessionsControllerInstance
+    }
+
     getTokenContract = (callback) => {
         this.getContract(TYPE_DBET_TOKEN, callback)
     }
 
     getHouseContract = (callback) => {
         this.getContract(TYPE_HOUSE, callback)
+    }
+
+    getHouseAuthorizedControllerContract = (callback) => {
+        this.getContract(TYPE_HOUSE_AUTHORIZED_CONTROLLER, callback)
+    }
+
+    getHouseFundsControllerContract = (callback) => {
+        this.getContract(TYPE_HOUSE_FUNDS_CONTROLLER, callback)
+    }
+
+    getHouseLotteryControllerContract = (callback) => {
+        this.getContract(TYPE_HOUSE_LOTTERY_CONTROLLER, callback)
+    }
+
+    getHouseSessionsControllerContract = (callback) => {
+        this.getContract(TYPE_HOUSE_SESSIONS_CONTROLLER, callback)
     }
 
     getBettingProviderContract = (callback) => {
@@ -124,6 +172,30 @@ class ContractHelper {
             house: (callback) => {
                 this.getHouseContract((instance) => {
                     self.setInstance(TYPE_HOUSE, instance)
+                    callback(null, instance)
+                })
+            },
+            houseAuthorizedController: (callback) => {
+                this.getHouseAuthorizedControllerContract((instance) => {
+                    self.setInstance(TYPE_HOUSE_AUTHORIZED_CONTROLLER, instance)
+                    callback(null, instance)
+                })
+            },
+            houseFundsController: (callback) => {
+                this.getHouseFundsControllerContract((instance) => {
+                    self.setInstance(TYPE_HOUSE_FUNDS_CONTROLLER, instance)
+                    callback(null, instance)
+                })
+            },
+            houseLotteryController: (callback) => {
+                this.getHouseLotteryControllerContract((instance) => {
+                    self.setInstance(TYPE_HOUSE_LOTTERY_CONTROLLER, instance)
+                    callback(null, instance)
+                })
+            },
+            houseSessionsController: (callback) => {
+                this.getHouseSessionsControllerContract((instance) => {
+                    self.setInstance(TYPE_HOUSE_SESSIONS_CONTROLLER, instance)
                     callback(null, instance)
                 })
             },
@@ -178,6 +250,14 @@ class ContractHelper {
                 return decentBetToken
             case TYPE_HOUSE:
                 return house
+            case TYPE_HOUSE_AUTHORIZED_CONTROLLER:
+                return houseAuthorizedController
+            case TYPE_HOUSE_FUNDS_CONTROLLER:
+                return houseFundsController
+            case TYPE_HOUSE_LOTTERY_CONTROLLER:
+                return houseLotteryController
+            case TYPE_HOUSE_SESSIONS_CONTROLLER:
+                return houseSessionsController
             case TYPE_BETTING_PROVIDER:
                 return bettingProvider
             case TYPE_SLOTS_CHANNEL_FINALIZER:
@@ -196,6 +276,14 @@ class ContractHelper {
                 return decentBetTokenInstance
             case TYPE_HOUSE:
                 return houseInstance
+            case TYPE_HOUSE_AUTHORIZED_CONTROLLER:
+                return houseAuthorizedControllerInstance
+            case TYPE_HOUSE_FUNDS_CONTROLLER:
+                return houseFundsControllerInstance
+            case TYPE_HOUSE_LOTTERY_CONTROLLER:
+                return houseLotteryControllerInstance
+            case TYPE_HOUSE_SESSIONS_CONTROLLER:
+                return houseSessionsControllerInstance
             case TYPE_BETTING_PROVIDER:
                 return bettingProviderInstance
             case TYPE_SLOTS_CHANNEL_FINALIZER:
@@ -215,6 +303,18 @@ class ContractHelper {
                 break
             case TYPE_HOUSE:
                 houseInstance = instance
+                break
+            case TYPE_HOUSE_AUTHORIZED_CONTROLLER:
+                houseAuthorizedController = instance
+                break
+            case TYPE_HOUSE_FUNDS_CONTROLLER:
+                houseFundsControllerInstance = instance
+                break
+            case TYPE_HOUSE_LOTTERY_CONTROLLER:
+                houseLotteryControllerInstance = instance
+                break
+            case TYPE_HOUSE_SESSIONS_CONTROLLER:
+                houseSessionsControllerInstance = instance
                 break
             case TYPE_BETTING_PROVIDER:
                 bettingProviderInstance = instance
@@ -311,38 +411,35 @@ class ContractHelper {
                     getCurrentSession: () => {
                         return houseInstance.currentSession()
                     },
-                    getProfitSharePercent: () => {
-                        return houseInstance.profitSharePercent()
-                    },
                     // Mapping (uint => Session)
                     getSession: (sessionNumber) => {
-                        return houseInstance.sessions(sessionNumber)
+                        return houseSessionsControllerInstance.sessions(sessionNumber)
                     },
                     getHouseFunds: (sessionNumber) => {
-                        return houseInstance.houseFunds(sessionNumber)
+                        return houseFundsControllerInstance.houseFunds(sessionNumber)
                     },
                     getUserCreditsForSession: (sessionNumber, address) => {
-                        return houseInstance.getUserCreditsForSession.call(sessionNumber, address, {
+                        return houseSessionsControllerInstance.getUserCreditsForSession.call(sessionNumber, address, {
                             from: window.web3Object.eth.defaultAccount
                         })
                     },
                     getAuthorizedAddresses: (index) => {
-                        return houseInstance.authorizedAddresses(index)
+                        return houseAuthorizedControllerInstance.authorizedAddresses(index)
                     },
                     addToAuthorizedAddresses: (address) => {
-                        return houseInstance.addToAuthorizedAddresses(address)
+                        return houseAuthorizedControllerInstance.addToAuthorizedAddresses(address)
                     },
                     removeFromAuthorizedAddresses: (address) => {
-                        return houseInstance.removeFromAuthorizedAddresses(address)
+                        return houseAuthorizedControllerInstance.removeFromAuthorizedAddresses(address)
                     },
                     lotteries: (session) => {
-                        return houseInstance.lotteries(session)
+                        return houseLotteryControllerInstance.lotteries(session)
                     },
                     lotteryTicketHolders: (session, ticketNumber) => {
-                        return houseInstance.lotteryTicketHolders(session, ticketNumber)
+                        return houseLotteryControllerInstance.lotteryTicketHolders(session, ticketNumber)
                     },
                     lotteryUserTickets: (session, address, index) => {
-                        return houseInstance.lotteryUserTickets(session, address, index)
+                        return houseLotteryControllerInstance.lotteryUserTickets(session, address, index)
                     },
                     /**
                      * Setters
