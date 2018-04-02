@@ -8,11 +8,15 @@ const DefaultTokenState = {
 export default function tokenActions(tokenState = DefaultTokenState, action = { type: null }) {
     switch (action.type) {
         case `${Actions.GET_TOKENS}_${FULFILLED}`:
-            tokenState.balance = action.payload
-            break
+            return {
+                ...tokenState,
+                balance: action.payload
+            }
 
         default:
             break
     }
+
+    // return old state
     return tokenState
 }

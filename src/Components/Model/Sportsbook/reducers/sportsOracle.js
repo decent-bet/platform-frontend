@@ -25,38 +25,45 @@ function oracleReducer(
 ) {
     switch (action.type) {
         case `${Actions.GET_OWNER}_${FULFILLED}`:
-            sportsOracle.owner = action.payload
-            break
+            return { ...sportsOracle, owner: action.payload }
 
         case `${Actions.GET_GAMES}_${FULFILLED}`:
-            sportsOracle.games = action.payload
-            break
+            return { ...sportsOracle, games: action.payload }
 
         case `${Actions.GET_GAME_ITEM}_${FULFILLED}`:
             let game = action.payload
-            sportsOracle.games[game.id] = game
-            break
+            let newGameArray = { ...sportsOracle.games, [game.id]: game }
+            return { ...sportsOracle, games: newGameArray }
 
         case `${Actions.GET_GAME_UPDATE_COST}_${FULFILLED}`:
-            sportsOracle.payments.gameUpdateCost = action.payload
-            break
+            let newPaymentObject = {
+                ...sportsOracle.payments,
+                gameUpdateCost: action.payload
+            }
+            return { ...sportsOracle, payments: newPaymentObject }
 
         case `${Actions.GET_REQUESTED_PROVIDER_ADDRESSES}_${FULFILLED}`:
-            sportsOracle.addresses.requestedProviderAddresses = action.payload
-            break
+            let newAddressObject1 = {
+                ...sportsOracle.addresses,
+                requestedProviderAddresses: action.payload
+            }
+            return { ...sportsOracle, addresses: newAddressObject1 }
 
         case `${Actions.GET_ACCEPTED_PROVIDER_ADDRESSES}_${FULFILLED}`:
-            sportsOracle.addresses.acceptedProviderAddresses = action.payload
-            break
+            let newAddressObject2 = {
+                ...sportsOracle.addresses,
+                acceptedProviderAddresses: action.payload
+            }
+            return { ...sportsOracle, addresses: newAddressObject2 }
 
         case `${Actions.GET_TIME}_${FULFILLED}`:
-            sportsOracle.time = action.payload
-            break
+            return { ...sportsOracle, time: action.payload }
 
         default:
             break
     }
 
+    //Default: return object
     return sportsOracle
 }
 

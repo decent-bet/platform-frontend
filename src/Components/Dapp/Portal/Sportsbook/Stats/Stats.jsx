@@ -32,7 +32,7 @@ export default function Stats({
                     </div>
                     <div className="col-6">
                         <p className="key">Current Session</p>
-                        <p>{bettingProvider.currentSession}</p>
+                        <p>{bettingProvider.currentSession.toString()}</p>
                     </div>
                     <div className="col-6">
                         <p className="key text-center">Your Session Balance</p>

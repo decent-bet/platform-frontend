@@ -6,11 +6,12 @@ const helper = new Helper()
 
 async function fetchGamesCount() {
     try {
-        return helper
+        let result = await helper
             .getContractHelper()
             .getWrappers()
             .bettingProvider()
             .getGamesCount()
+        return result.toNumber()
     } catch (err) {
         console.log(
             'Error retrieving games count for the provider',
@@ -34,11 +35,12 @@ async function fetchCurrentSession() {
 async function fetchDepositedTokens() {
     try {
         let session = await fetchCurrentSession()
-        return helper
+        let result = await helper
             .getContractHelper()
             .getWrappers()
             .bettingProvider()
             .balanceOf(helper.getWeb3().eth.defaultAccount, session)
+        return helper.formatEther(result)
     } catch (err) {
         console.log('Error retrieving balance', err.message)
     }
@@ -48,11 +50,12 @@ async function fetchTokenBalance() {
     try {
         let address = helper.getContractHelper().getBettingProviderInstance()
             .address
-        return helper
+        let result = await helper
             .getContractHelper()
             .getWrappers()
             .token()
             .balanceOf(address)
+        return helper.formatEther(result)
     } catch (err) {
         console.log('Error retrieving token balance', err.message)
     }
@@ -64,11 +67,12 @@ async function fetchAllowance() {
         const bettingProvider = helper
             .getContractHelper()
             .getBettingProviderInstance().address
-        return helper
+        let result = await helper
             .getContractHelper()
             .getWrappers()
             .token()
             .allowance(address, bettingProvider)
+        return result.toNumber()
     } catch (err) {
         console.log('Error retrieving allowance', err.message)
     }

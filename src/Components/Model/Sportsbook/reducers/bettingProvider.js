@@ -1,8 +1,5 @@
 import { BettingProviderActions as Actions } from '../actionTypes'
-import Helper from '../../../Helper'
 import { FULFILLED } from 'redux-promise-middleware'
-
-const helper = new Helper()
 
 const DefaultBettingProviderState = {
     address: '',
@@ -24,99 +21,123 @@ function bettingProviderReducer(
 ) {
     switch (action.type) {
         case `${Actions.GAMES_COUNT}_${FULFILLED}`:
-            bettingProvider.gamesCount = action.payload
-            break
+            return { ...bettingProvider, gamesCount: action.payload }
 
         case `${Actions.CURRENT_SESSION}_${FULFILLED}`:
-            let currentSession = action.payload.toNumber()
-            bettingProvider.currentSession = currentSession
-            break
+            return { ...bettingProvider, currentSession: action.payload }
 
         case `${Actions.DEPOSITED_TOKENS}_${FULFILLED}`:
-            let depositedTokens = helper.formatEther(action.payload)
-            bettingProvider.depositedTokens = depositedTokens
-            break
+            return { ...bettingProvider, depositedTokens: action.payload }
 
         case `${Actions.TOKEN_BALANCE}_${FULFILLED}`:
-            let balance = action.payload
-            balance = helper.formatEther(balance.toString())
-            bettingProvider.balance = balance
-            break
+            return { ...bettingProvider, balance: action.payload }
 
         case `${Actions.ALLOWANCE}_${FULFILLED}`:
-            let allowance = action.payload.toNumber()
-            bettingProvider.allowance = allowance
-            break
+            return { ...bettingProvider, allowance: action.payload }
 
         case `${Actions.HOUSE_ADDRESS}_${FULFILLED}`:
-            let houseAddress = action.payload
-            bettingProvider.house = houseAddress
-            break
+            return { ...bettingProvider, house: action.payload }
 
         case `${Actions.SPORTSORACLE_ADDRESS}_${FULFILLED}`:
-            let sportsOracleAddress = action.payload
-            bettingProvider.sportsOracle = sportsOracleAddress
-            break
+            return { ...bettingProvider, sportsOracle: action.payload }
 
         case `${Actions.GAMES}_${FULFILLED}`:
-            let gameArray = action.payload
-            bettingProvider.games = gameArray
-            break
+            return { ...bettingProvider, games: action.payload }
 
         case `${Actions.GAME_ITEM}_${FULFILLED}`:
-            let newGame = action.payload
-            let newGameId = action.meta.gameId
-            bettingProvider.games[newGameId] = newGame
-            break
+            return {
+                ...bettingProvider,
+                games: {
+                    ...bettingProvider.games,
+                    [action.meta.gameId]: action.payload
+                }
+            }
 
         case `${Actions.GAME_ODDS}_${FULFILLED}`:
-            let odds = action.payload
-            let gameId = action.meta.gameId
-            let game = bettingProvider.games[gameId]
-            if (game) {
-                game.odds = odds
+            let currentId1 = action.meta.gameId
+            return {
+                ...bettingProvider,
+                games: {
+                    ...bettingProvider.games,
+                    [currentId1]: {
+                        ...bettingProvider.games[currentId1],
+                        odds: action.payload
+                    }
+                }
             }
-            break
 
         case `${Actions.GAME_PERIOD_OUTCOME}_${FULFILLED}`:
-            let outcome = action.payload
-            let { gameId2, period } = action.meta
-            let game2 = bettingProvider.games[gameId2]
-            if (game2) {
-                game2.outcomes[period] = outcome
+            let currentId2 = action.meta.gameId
+            return {
+                ...bettingProvider,
+                games: {
+                    ...bettingProvider.games,
+                    [currentId2]: {
+                        ...bettingProvider[currentId2],
+                        outcomes: {
+                            ...bettingProvider[currentId2].outcomes,
+                            [action.meta.period]: action.payload
+                        }
+                    }
+                }
             }
-            break
 
         case `${Actions.GAME_BET_LIMIT}_${FULFILLED}`:
-            let gameId3 = action.meta.gameId
-            let maxBetLimit = action.payload
-            bettingProvider.games[gameId3].maxBetLimit = maxBetLimit
-            break
+            let currentId3 = action.meta.gameId
+            return {
+                ...bettingProvider,
+                games: {
+                    ...bettingProvider.games,
+                    [currentId3]: {
+                        ...bettingProvider.games[currentId3],
+                        maxBetLimit: action.payload
+                    }
+                }
+            }
 
         case `${Actions.GAME_BET_LIMIT_FOR_PERIOD}_${FULFILLED}`:
-            let gameId5 = action.meta.gameId5
-            let periodId = action.meta.period
-            bettingProvider.games[gameId5].betLimits[periodId] = action.payload
-            break
+            let currentId4 = action.meta.gameId
+            let periodId1 = action.meta.period
+            return {
+                ...bettingProvider,
+                games: {
+                    ...bettingProvider.games,
+                    [currentId4]: {
+                        ...bettingProvider.games[currentId4],
+                        betLimits: {
+                            ...bettingProvider.games[currentId4].betLimits,
+                            [periodId1]: action.payload
+                        }
+                    }
+                }
+            }
 
         case `${Actions.USER_BETS}_${FULFILLED}`:
-            let userBets = action.payload
-            bettingProvider.placedBets = userBets
-            break
+            return { ...bettingProvider, placedBets: action.payload }
 
         case `${Actions.TIME}_${FULFILLED}`:
-            bettingProvider.time = action.payload
-            break
+            return { ...bettingProvider, time: action.payload }
 
         case `${Actions.CLAIM_BET}_${FULFILLED}`:
-            let { gameId4, betId } = action.meta
-            let bet = bettingProvider.placedBets[gameId4][betId]
-            bet.claimed = true
-            break
+            let currentId5 = action.meta.gameId
+            let currentBet1 = action.meta.betId
+            let newBetObject = {
+                ...bettingProvider.placedBets[currentId5][currentBet1],
+                claimed: true
+            }
+            return {
+                ...bettingProvider,
+                placedBets: {
+                    ...bettingProvider.placedBets,
+                    [currentId5]: {
+                        ...bettingProvider.placedBets[currentId5],
+                        [currentBet1]: newBetObject
+                    }
+                }
+            }
 
         case `${Actions.ADDRESS}_${FULFILLED}`:
-            bettingProvider.address = action.payload
-            break
+            return { ...bettingProvider, address: action.payload }
 
         default:
             break
