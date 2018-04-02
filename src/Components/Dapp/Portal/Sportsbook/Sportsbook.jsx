@@ -12,7 +12,7 @@ import store from '../../../Model/store'
 import Helper from '../../../Helper'
 
 // Redux Actions. TODO: cleanup
-import initializationSequence from '../../../Model/store'
+import initializationSequence from '../../../Model/Sportsbook/actions/initialization'
 import {
     getTokenBalance,
     depositTokens,
@@ -123,7 +123,7 @@ export default class Sportsbook extends Component {
     }
 
     initWeb3Data = () => {
-        store.dispatch(initializationSequence())
+        store.dispatch(initializationSequence)
         this.initBettingProviderData()
         this.initSportsOracleData()
         this.initTokenData()
