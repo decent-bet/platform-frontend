@@ -160,6 +160,8 @@ export const getTime = createAction(BettingProviderActions.TIME, fetchTime)
 export function getAddress() {
     return {
         type: BettingProviderActions.ADDRESS,
-        payload: helper.getContractHelper().getBettingProviderInstance().address
+        payload: Promise.resolve(
+            helper.getContractHelper().getBettingProviderInstance().address
+        )
     }
 }

@@ -1,7 +1,11 @@
 import { BalanceActions as Actions } from '../actionTypes'
 import { FULFILLED } from 'redux-promise-middleware'
 
-export default function tokenActions(tokenState = {}, action = { type: null }) {
+const DefaultTokenState = {
+    balance: 0
+}
+
+export default function tokenActions(tokenState = DefaultTokenState, action = { type: null }) {
     switch (action.type) {
         case `${Actions.GET_TOKENS}_${FULFILLED}`:
             tokenState.balance = action.payload

@@ -36,15 +36,17 @@ async function fetchRequestedProviderAddresses() {
     let index = 0
 
     while (iterate) {
-        let address = await helper
-            .getContractHelper()
-            .getWrappers()
-            .sportsOracle()
-            .getRequestedProviderAddresses(index)
-        if (address !== '0x') {
-            result.push(address)
-            index++
-        } else {
+        try {
+            let address = await helper
+                .getContractHelper()
+                .getWrappers()
+                .sportsOracle()
+                .getRequestedProviderAddresses(index)
+            if (address !== '0x') {
+                result.push(address)
+                index++
+            }
+        } catch (error) {
             iterate = false
         }
     }
@@ -58,15 +60,19 @@ async function fetchAcceptedProviderAddresses() {
     let index = 0
 
     while (iterate) {
-        let address = await helper
-            .getContractHelper()
-            .getWrappers()
-            .sportsOracle()
-            .getAcceptedProviderAddresses(index)
-        if (address !== '0x') {
-            result.push(address)
+        try {
+            let address = await helper
+                .getContractHelper()
+                .getWrappers()
+                .sportsOracle()
+                .getAcceptedProviderAddresses(index)
+
+            if (address !== '0x') {
+                result.push(address)
+            }
+
             index++
-        } else {
+        } catch (error) {
             iterate = false
         }
     }

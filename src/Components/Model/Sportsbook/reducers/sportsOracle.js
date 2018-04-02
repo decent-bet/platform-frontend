@@ -1,7 +1,28 @@
 import { OracleActions as Actions } from '../actionTypes'
 import { FULFILLED } from 'redux-promise-middleware'
 
-function oracleReducer(sportsOracle = {}, action = { type: null }) {
+const DefaultOracleState = {
+    owner: '',
+    balance: 0,
+    gamesCount: 0,
+    payments: {
+        gameUpdateCost: 0,
+        providerAcceptanceCost: 0,
+        payForProviderAcceptance: false
+    },
+    addresses: {
+        authorizedAddresses: [],
+        requestedProviderAddresses: [],
+        acceptedProviderAddresses: []
+    },
+    games: {},
+    time: null
+}
+
+function oracleReducer(
+    sportsOracle = DefaultOracleState,
+    action = { type: null }
+) {
     switch (action.type) {
         case `${Actions.GET_OWNER}_${FULFILLED}`:
             sportsOracle.owner = action.payload

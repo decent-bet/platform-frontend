@@ -4,7 +4,24 @@ import { FULFILLED } from 'redux-promise-middleware'
 
 const helper = new Helper()
 
-function bettingProviderReducer(bettingProvider = {}, action = { type: null }) {
+const DefaultBettingProviderState = {
+    address: '',
+    house: '0x0',
+    sportsOracle: '0x0',
+    currentSession: 0,
+    balance: 0,
+    depositedTokens: 0,
+    allowance: 0,
+    gamesCount: 0,
+    games: {},
+    placedBets: {},
+    time: null
+}
+
+function bettingProviderReducer(
+    bettingProvider = DefaultBettingProviderState,
+    action = { type: null }
+) {
     switch (action.type) {
         case `${Actions.GAMES_COUNT}_${FULFILLED}`:
             bettingProvider.gamesCount = action.payload
@@ -97,7 +114,7 @@ function bettingProviderReducer(bettingProvider = {}, action = { type: null }) {
             bet.claimed = true
             break
 
-        case Actions.ADDRESS:
+        case `${Actions.ADDRESS}_${FULFILLED}`:
             bettingProvider.address = action.payload
             break
 

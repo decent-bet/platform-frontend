@@ -7,8 +7,9 @@ import GamesCard from './GamesCard'
 import Stats from './Stats'
 import PlacedBetsCard from './PlacedBetsCard'
 import EventBus from 'eventing-bus'
-import { Provider } from 'react-redux'
-import store from '../../../Model/store'
+import { connect } from 'react-redux'
+import BigNumber from 'bignumber.js'
+import ethUnits from 'ethereum-units'
 import Helper from '../../../Helper'
 
 // Redux Actions. TODO: cleanup
@@ -36,72 +37,36 @@ import { getGameItem as getOracleGameItem } from '../../../Model/Sportsbook/acti
 
 import './sportsbook.css'
 
-const BigNumber = require('bignumber.js')
-const ethUnits = require('ethereum-units')
 const helper = new Helper()
 
 const DIALOG_CONFIRM_BET = 0,
     DIALOG_DEPOSIT_TOKENS = 1,
     DIALOG_WITHDRAW_TOKENS = 2
 
-export default class Sportsbook extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            loading: true,
-            token: {
-                balance: 0
-            },
-            bettingProvider: {
-                address: '',
-                house: '0x0',
-                sportsOracle: '0x0',
-                currentSession: 0,
-                balance: 0,
-                depositedTokens: 0,
-                allowance: 0,
-                gamesCount: 0,
-                games: {},
-                placedBets: {},
-                time: null
-            },
-            sportsOracle: {
-                owner: '',
-                balance: 0,
-                gamesCount: 0,
-                payments: {
-                    gameUpdateCost: 0,
-                    providerAcceptanceCost: 0,
-                    payForProviderAcceptance: false
-                },
-                addresses: {
-                    authorizedAddresses: [],
-                    requestedProviderAddresses: [],
-                    acceptedProviderAddresses: []
-                },
-                games: {},
-                time: null
-            },
-            leagues: {},
-            periodDescriptions: {},
-            odds: {},
-            betAmounts: {},
-            dialogs: {
-                confirmBet: {
-                    open: false,
-                    title: 'Place bet',
-                    message: '',
-                    selectedBet: {
-                        gameId: 0,
-                        oddsId: 0
-                    }
-                },
-                depositTokens: {
-                    open: false
-                },
-                withdrawTokens: {
-                    open: false
+function mapStateToProps(state, ownProps) {
+    return state
+}
+
+class Sportsbook extends Component {
+    state = {
+        leagues: {},
+        periodDescriptions: {},
+        betValues: {},
+        dialogs: {
+            confirmBet: {
+                open: false,
+                title: 'Place bet',
+                message: '',
+                selectedBet: {
+                    gameId: 0,
+                    oddsId: 0
                 }
+            },
+            depositTokens: {
+                open: false
+            },
+            withdrawTokens: {
+                open: false
             }
         }
     }
@@ -123,7 +88,7 @@ export default class Sportsbook extends Component {
     }
 
     initWeb3Data = () => {
-        store.dispatch(initializationSequence)
+        this.props.dispatch(initializationSequence)
         this.initBettingProviderData()
         this.initSportsOracleData()
         this.initTokenData()
@@ -197,7 +162,7 @@ export default class Sportsbook extends Component {
                             .token()
                             .logTransfer(self.state.address, true)
                             .watch((err, event) => {
-                                if (!err) store.dispatch(getTokenBalance())
+                                if (!err) this.props.dispatch(getTokenBalance())
                             })
                     },
                     transferTo: () => {
@@ -207,7 +172,7 @@ export default class Sportsbook extends Component {
                             .token()
                             .logTransfer(self.state.address, false)
                             .watch((err, event) => {
-                                if (!err) store.dispatch(getTokenBalance())
+                                if (!err) this.props.dispatch(getTokenBalance())
                             })
                     }
                 }
@@ -231,8 +196,8 @@ export default class Sportsbook extends Component {
                                         ' DBETs'
                                 )
 
-                                store.dispatch(getTokenBalance())
-                                store.dispatch(
+                                this.props.dispatch(getTokenBalance())
+                                this.props.dispatch(
                                     getCurrentSessionDepositedTokens(session)
                                 )
                             })
@@ -254,8 +219,8 @@ export default class Sportsbook extends Component {
                                         ' DBETs'
                                 )
 
-                                store.dispatch(getTokenBalance())
-                                store.dispatch(
+                                this.props.dispatch(getTokenBalance())
+                                this.props.dispatch(
                                     getCurrentSessionDepositedTokens(session)
                                 )
                             })
@@ -290,10 +255,10 @@ export default class Sportsbook extends Component {
                                         away
                                 )
 
-                                store.dispatch(getGameItem(gameId))
-                                store.dispatch(getUserBets(betId))
-                                store.dispatch(getTokenBalance)
-                                store.dispatch(
+                                this.props.dispatch(getGameItem(gameId))
+                                this.props.dispatch(getUserBets(betId))
+                                this.props.dispatch(getTokenBalance())
+                                this.props.dispatch(
                                     getCurrentSessionDepositedTokens()
                                 )
                             })
@@ -316,7 +281,7 @@ export default class Sportsbook extends Component {
                                 )
 
                                 let id = event.args.id.toNumber()
-                                store.dispatch(getGameItem(id))
+                                this.props.dispatch(getGameItem(id))
                             })
                     },
                     newGameOdds: () => {
@@ -348,7 +313,7 @@ export default class Sportsbook extends Component {
                                         away
                                 )
 
-                                store.dispatch(getGameOddsCount(gameId))
+                                this.props.dispatch(getGameOddsCount(gameId))
                             })
                     },
                     updatedGameOdds: () => {
@@ -380,7 +345,7 @@ export default class Sportsbook extends Component {
                                         away
                                 )
 
-                                store.dispatch(getGameOddsCount(gameId))
+                                this.props.dispatch(getGameOddsCount(gameId))
                             })
                     },
                     updatedMaxBet: () => {
@@ -411,7 +376,7 @@ export default class Sportsbook extends Component {
                                         away
                                 )
 
-                                store.dispatch(getMaxBetLimit(gameId))
+                                this.props.dispatch(getMaxBetLimit(gameId))
                             })
                     },
                     updatedBetLimits: () => {
@@ -443,14 +408,18 @@ export default class Sportsbook extends Component {
                                         away
                                 )
 
-                                if (
-                                    !self.state.bettingProvider.games[
-                                        gameId
-                                    ].betLimits.hasOwnProperty(period)
-                                )
-                                    store.dispatch(
-                                        getBetLimitForPeriod(gameId, period)
-                                    )
+                                let game =
+                                    self.props.bettingProvider.games[gameId]
+
+                                if (game) {
+                                    if (
+                                        !game.betLimits.hasOwnProperty(period)
+                                    ) {
+                                        this.props.dispatch(
+                                            getBetLimitForPeriod(gameId, period)
+                                        )
+                                    }
+                                }
                             })
                     },
                     claimedBet: () => {
@@ -482,11 +451,11 @@ export default class Sportsbook extends Component {
                                         away
                                 )
 
-                                store.dispatch(getTokenBalance())
-                                store.dispatch(
+                                this.props.dispatch(getTokenBalance())
+                                this.props.dispatch(
                                     getCurrentSessionDepositedTokens()
                                 )
-                                store.dispatch(getUserBets(0))
+                                this.props.dispatch(getUserBets(0))
                             })
                     },
                     updatedTime: () => {
@@ -504,7 +473,7 @@ export default class Sportsbook extends Component {
                                 let time = event.args.time.toNumber()
                                 self.setState({
                                     bettingProvider: Object.assign(
-                                        self.state.bettingProvider,
+                                        self.props.bettingProvider,
                                         {
                                             time: time
                                         }
@@ -529,7 +498,7 @@ export default class Sportsbook extends Component {
                                     JSON.stringify(event)
                                 )
                                 let id = event.args.id.toNumber()
-                                store.dispatch(getOracleGameItem(id))
+                                this.props.dispatch(getOracleGameItem(id))
                             })
                     },
                     updatedProviderOutcome: () => {
@@ -562,11 +531,11 @@ export default class Sportsbook extends Component {
                                 )
 
                                 if (
-                                    !self.state.bettingProvider.games[
+                                    !self.props.bettingProvider.games[
                                         providerGameId
                                     ].outcomes.hasOwnProperty(period)
                                 )
-                                    store.dispatch(
+                                    this.props.dispatch(
                                         getGamePeriodOutcome(
                                             providerGameId,
                                             period
@@ -589,7 +558,7 @@ export default class Sportsbook extends Component {
                                 let time = event.args.time.toNumber()
                                 self.setState({
                                     bettingProvider: Object.assign(
-                                        self.state.bettingProvider,
+                                        self.props.bettingProvider,
                                         {
                                             time: time
                                         }
@@ -606,13 +575,18 @@ export default class Sportsbook extends Component {
         const self = this
         return {
             getTeamName: (isHome, gameId) => {
-                let oracleGameId =
-                    self.state.bettingProvider.games[gameId].oracleGameId
-                return self.state.sportsOracle.games[oracleGameId]
-                    ? self.state.sportsOracle.games[oracleGameId][
-                          isHome ? 'team1' : 'team2'
-                      ]
-                    : 'Loading..'
+                let bettingProviderGame =
+                    self.props.bettingProvider.games[gameId]
+                if (bettingProviderGame) {
+                    let oracleGameId = bettingProviderGame.oracleGameId
+                    let oracleGame = self.props.sportsOracle.games[oracleGameId]
+                    if (oracleGame) {
+                        return self.props.sportsOracle.games[oracleGameId][
+                            isHome ? 'team1' : 'team2'
+                        ]
+                    }
+                }
+                return 'Loading..'
             },
             toggleDialog: (type, enabled) => {
                 let dialogs = self.state.dialogs
@@ -633,51 +607,67 @@ export default class Sportsbook extends Component {
                 self.setState({ dialogs: dialogs })
             },
             getOracleGame: id => {
-                return self.state.sportsOracle.games[id]
+                return self.props.sportsOracle.games[id]
             }
         }
     }
 
     onClaimBetListener = (gameItem, betId) =>
-        store.dispatch(claimBet(gameItem.id, betId))
+        this.props.dispatch(claimBet(gameItem.id, betId))
 
     onConfirmBetListener = () => {
         let selectedBet = this.state.dialogs.confirmBet.selectedBet
-        let gameId = selectedBet.gameId
-        let oddsObj = selectedBet.oddsObj
-        store.dispatch(setBet(gameId, oddsObj))
+        let { gameId, oddsObj, value } = selectedBet
+        this.props.dispatch(setBet(gameId, oddsObj, value))
         this.helpers().toggleDialog(DIALOG_CONFIRM_BET, false)
     }
 
     onConfirmDepositListener = amount => {
         let bigAllowance = new BigNumber(amount).times(ethUnits.units.ether)
         let isAllowanceAvailable = bigAllowance.isLessThanOrEqualTo(
-            this.state.bettingProvider.allowance
+            this.props.bettingProvider.allowance
         )
         let formattedAmount = bigAllowance.toFixed()
         isAllowanceAvailable
-            ? store.dispatch(depositTokens(formattedAmount))
-            : store.dispatch(approveAndDepositTokens(formattedAmount))
+            ? this.props.dispatch(depositTokens(formattedAmount))
+            : this.props.dispatch(approveAndDepositTokens(formattedAmount))
     }
 
     onDepositTokensDialogOpen = () =>
         this.helpers().toggleDialog(DIALOG_DEPOSIT_TOKENS, true)
 
     onSetBetAmountListener = (gameId, oddsId, betAmount) => {
-        let odds = this.state.odds
+        let odds = this.state.betValues
+        if (!odds.hasOwnProperty(gameId)) {
+            odds[gameId] = {}
+        }
+        if (!odds[gameId].hasOwnProperty(oddsId)) {
+            odds[gameId][oddsId] = {}
+        }
         odds[gameId][oddsId].betAmount = betAmount
-        console.log('Changed betAmount', odds, gameId, oddsId)
         this.setState({ odds: odds })
     }
 
     onSetBetTeamListener = (gameId, oddsId, value) => {
-        let odds = this.state.odds
+        let odds = this.state.betValues
+        if (!odds.hasOwnProperty(gameId)) {
+            odds[gameId] = {}
+        }
+        if (!odds[gameId].hasOwnProperty(oddsId)) {
+            odds[gameId][oddsId] = {}
+        }
         odds[gameId][oddsId].selectedChoice = value
         this.setState({ odds: odds })
     }
 
     onSetTeamTotalListener = (gameId, oddsId, value) => {
-        let odds = this.state.odds
+        let odds = this.state.betValues
+        if (!odds.hasOwnProperty(gameId)) {
+            odds[gameId] = {}
+        }
+        if (!odds[gameId].hasOwnProperty(oddsId)) {
+            odds[gameId][oddsId] = {}
+        }
         odds[gameId][oddsId].selectedChoice = value
         this.setState({ odds: odds })
     }
@@ -695,11 +685,12 @@ export default class Sportsbook extends Component {
 
     onOpenConfirmBetDialogListener = (gameId, oddsId) => {
         let dialogs = this.state.dialogs
-        let oddsObj = this.state.odds[gameId][oddsId]
+        let oddsObj = this.props.bettingProvider.games[gameId].odds[oddsId]
+        let value = this.state.betValues[gameId][oddsId]
 
         dialogs.confirmBet.message =
             'You are now placing a bet of ' +
-            oddsObj.betAmount +
+            value +
             ' DBETs for ' +
             this.helpers().getTeamName(true, gameId) +
             ' vs. ' +
@@ -709,7 +700,8 @@ export default class Sportsbook extends Component {
         dialogs.confirmBet.selectedBet = {
             gameId: gameId,
             oddsId: oddsId,
-            oddsObj: oddsObj
+            oddsObj: oddsObj,
+            value: value.betAmount
         }
         dialogs.confirmBet.open = true
         this.setState({ dialogs: dialogs })
@@ -722,10 +714,10 @@ export default class Sportsbook extends Component {
         let formattedAmount = new BigNumber(amount)
             .times(ethUnits.units.ether)
             .toFixed()
-        store.dispatch(
+        this.props.dispatch(
             withdrawTokens(
                 formattedAmount,
-                this.state.bettingProvider.currentSession
+                this.props.bettingProvider.currentSession
             )
         )
     }
@@ -741,17 +733,17 @@ export default class Sportsbook extends Component {
             />
             <DepositTokensDialog
                 open={this.state.dialogs.depositTokens.open}
-                sessionNumber={this.state.bettingProvider.currentSession}
+                sessionNumber={this.props.bettingProvider.currentSession}
                 onConfirm={this.onConfirmDepositListener}
-                allowance={this.state.bettingProvider.allowance}
-                balance={this.state.token.balance}
+                allowance={this.props.bettingProvider.allowance}
+                balance={this.props.token.balance}
                 toggleDialog={this.onToggleDepositDialogListener}
             />
             <WithdrawTokensDialog
                 open={this.state.dialogs.withdrawTokens.open}
-                sessionNumber={this.state.bettingProvider.currentSession}
+                sessionNumber={this.props.bettingProvider.currentSession}
                 onConfirm={this.onWithdrawListener}
-                balance={this.state.bettingProvider.depositedTokens}
+                balance={this.props.bettingProvider.depositedTokens}
                 toggleDialog={this.onToggleWithdrawDialog}
             />
         </Fragment>
@@ -760,18 +752,17 @@ export default class Sportsbook extends Component {
     renderMainContent = () => {
         // Merge the arrays into usable data
         // TODO: set this code in initialization sequence
-        let { games } = this.state.bettingProvider
+        let { games } = this.props.bettingProvider
         let gamesMap = Object.keys(games).map(gameId => {
             let game = games[gameId]
             game.id = gameId
-            game.odds = this.state.odds[game.id]
-            game.oracleInfo = this.state.sportsOracle.games[game.oracleGameId]
-            game.placedBets = this.state.bettingProvider.placedBets[game.id]
+            game.oracleInfo = this.props.sportsOracle.games[game.oracleGameId]
+            game.placedBets = this.props.bettingProvider.placedBets[game.id]
             return game
         })
         let parameters = {
-            bettingProvider: this.state.bettingProvider,
-            sportsOracle: this.state.sportsOracle,
+            bettingProvider: this.props.bettingProvider,
+            sportsOracle: this.props.sportsOracle,
             gamesMap: gamesMap
         }
         return (
@@ -795,9 +786,18 @@ export default class Sportsbook extends Component {
      * @param gameItem The Game From where the odds were extracted
      */
     renderBetNowButton = (oddItem, gameItem) => {
-        let { time, depositedTokens } = this.state.bettingProvider
+        let { time, depositedTokens } = this.props.bettingProvider
         if (time != null) {
             if (gameItem.cutOffTime > time) {
+                // Get bet Value from the state
+                let values = this.state.betValues
+                if (values.hasOwnProperty(gameItem.id)) {
+                    let gameValues = values[gameItem.id]
+                    if (gameValues.hasOwnProperty(oddItem.id)) {
+                        oddItem.betAmount = gameValues[oddItem.id].betAmount
+                    }
+                }
+
                 return (
                     <BetNowButton
                         oddItem={oddItem}
@@ -821,29 +821,25 @@ export default class Sportsbook extends Component {
 
     render() {
         return (
-            <Provider store={store}>
-                <div className="sportsbook">
-                    <div className="main pb-4">
-                        <div className="row">
-                            <div className="col-8">
-                                {this.renderMainContent()}
-                            </div>
-                            <div className="col-4">
-                                <Stats
-                                    bettingProvider={this.state.bettingProvider}
-                                    onDepositTokensDialogOpen={
-                                        this.onDepositTokensDialogOpen
-                                    }
-                                    onOpenWithdrawDialog={
-                                        this.onOpenWithdrawDialog
-                                    }
-                                />
-                            </div>
+            <div className="sportsbook">
+                <div className="main pb-4">
+                    <div className="row">
+                        <div className="col-8">{this.renderMainContent()}</div>
+                        <div className="col-4">
+                            <Stats
+                                bettingProvider={this.props.bettingProvider}
+                                onDepositTokensDialogOpen={
+                                    this.onDepositTokensDialogOpen
+                                }
+                                onOpenWithdrawDialog={this.onOpenWithdrawDialog}
+                            />
                         </div>
-                        {this.renderDialogs()}
                     </div>
+                    {this.renderDialogs()}
                 </div>
-            </Provider>
+            </div>
         )
     }
 }
+
+export default connect(mapStateToProps)(Sportsbook)

@@ -68,10 +68,10 @@ async function fetchGameBettorBetOdds(gameId, betId) {
 }
 
 async function fetchUserBets(userId) {
-    try {
-        let iterate = true
-        let placedBets = {}
-        while (iterate) {
+    let iterate = true
+    let placedBets = {}
+    while (iterate) {
+        try {
             let bets = await helper
                 .getContractHelper()
                 .getWrappers()
@@ -82,34 +82,28 @@ async function fetchUserBets(userId) {
             let betId = bets[1].toNumber()
             let exists = bets[2]
 
-            if (!exists) {
-                iterate = false
-            } else {
+            if (exists) {
                 if (!placedBets.hasOwnProperty(gameId)) {
                     placedBets[gameId] = {}
                 }
-
                 let placedBet = await fetchGameBettorBet(gameId, betId)
-                placedBets[gameId][placedBet.id] = placedBet
 
                 // These methods seem to do nothing.
-                /*
-                let odds = await fetchGameBettorBetOdds(gameId, betId)
-                let returns = await fetchBetReturns(gameId, betId)
-                */
-            }
+                placedBet.odds = await fetchGameBettorBetOdds(gameId, betId)
+                placedBet.returns = await fetchBetReturns(gameId, betId)
 
-            return placedBets
+                placedBets[gameId][placedBet.id] = placedBet
+            }
+        } catch (err) {
+            iterate = false
         }
-    } catch (err) {
-        console.log('Error retrieving user bets', err.message)
+
+        return placedBets
     }
 }
 
-async function putBet(gameId, oddsObj) {
-    const betAmount = new BigNumber(oddsObj.betAmount)
-        .times(ethUnits.units.ether)
-        .toFixed()
+async function putBet(gameId, oddsObj, value) {
+    const betAmount = new BigNumber(value).times(ethUnits.units.ether).toFixed()
     const betType = oddsObj.betType
     const selectedChoice = oddsObj.selectedChoice
 

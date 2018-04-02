@@ -1,4 +1,9 @@
-import constants from '../../../Constants'
+import {
+    ODDS_TYPE_SPREAD,
+    ODDS_TYPE_MONEYLINE,
+    BET_CHOICE_TEAM1,
+    BET_CHOICE_OVER
+} from '../../../Constants'
 import Helper from '../../../Helper'
 import { createAction } from 'redux-actions'
 import { BettingProviderActions } from '../actionTypes'
@@ -69,10 +74,10 @@ async function fetchGameOddsItem(gameId, iterator) {
 
     // Default choice
     gameOdds.selectedChoice =
-        gameOdds.betType === constants.ODDS_TYPE_SPREAD ||
-        gameOdds.betType === constants.ODDS_TYPE_MONEYLINE
-            ? constants.BET_CHOICE_TEAM1
-            : constants.BET_CHOICE_OVER
+        gameOdds.betType === ODDS_TYPE_SPREAD ||
+        gameOdds.betType === ODDS_TYPE_MONEYLINE
+            ? BET_CHOICE_TEAM1
+            : BET_CHOICE_OVER
 
     // Normalize
     if (gameOdds.handicap !== 0) gameOdds.handicap /= 100
@@ -167,8 +172,8 @@ async function fetchGamesItem(gameId) {
 
 async function fetchGames() {
     let currentId = 0
+    let gameArray = []
     try {
-        let gameArray = []
         let iterate = true
         while (iterate) {
             let gameItem = await fetchGamesItem(currentId)
@@ -180,10 +185,11 @@ async function fetchGames() {
                 iterate = false
             }
         }
-        return gameArray
     } catch (error) {
         console.log('Reached end of provider games')
     }
+
+    return gameArray
 }
 
 export const getGameOddsCount = createAction(
