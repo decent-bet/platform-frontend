@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux'
-import bettingProviderReducer from './bettingProvider'
-import oracleReducer from './sportsOracle'
-import tokenReducer from './token'
+import bettingProviderReducer from './bettingProviderReducer'
+import oracleReducer from './sportsOracleReducer'
+import tokenReducer from './tokenReducer'
 
 export default combineReducers({
     bettingProvider: bettingProviderReducer,
