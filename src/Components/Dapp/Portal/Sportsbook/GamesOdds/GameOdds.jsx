@@ -73,7 +73,7 @@ export default function GameOdds({ game, betNowButtonWrapper }) {
         }
         if (Object.keys(odds).length < 1) {
             content.push(
-                <p className="text-center mt-1 no-odds">
+                <p className="col-12 text-center mt-1 no-odds" key="noodds">
                     NO ODDS AVAILABLE AT THE MOMENT
                 </p>
             )

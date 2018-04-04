@@ -1,6 +1,7 @@
 import Helper from '../../../Helper'
 import { createAction } from 'redux-actions'
 import { OracleActions } from '../actionTypes'
+import Bluebird from 'bluebird'
 
 const helper = new Helper()
 
@@ -8,11 +9,7 @@ const IPFS = require('ipfs-mini')
 const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' })
 
 async function fetchMetadata(gameId, hash) {
-    try {
-        return new Promise(resolve => ipfs.catJSON(hash, resolve))
-    } catch (err) {
-        console.log('Error retrieving hash data', hash, err)
-    }
+    return Bluebird.fromCallback(resolver => ipfs.catJSON(hash, resolver))
 }
 
 async function fetchAvailableGamePeriods(id) {
@@ -26,10 +23,11 @@ async function fetchAvailableGamePeriods(id) {
                 .getWrappers()
                 .sportsOracle()
                 .getAvailableGamePeriods(id, iterator)
-            let periodNumber = period.toNumber()
-
-            if (result.indexOf(periodNumber === -1)) {
-                result.push(periodNumber)
+            if (period) {
+                let periodNumber = period.toNumber()
+                if (result.indexOf(periodNumber === -1)) {
+                    result.push(periodNumber)
+                }
             }
 
             iterator++
@@ -42,8 +40,7 @@ async function fetchAvailableGamePeriods(id) {
     return result
 }
 
-async function fetchGamesItem(id) {
-    try {
+export async function fetchOracleGamesItem(id) {
         let data = await helper
             .getContractHelper()
             .getWrappers()
@@ -72,16 +69,14 @@ async function fetchGamesItem(id) {
             }
         }
         if (exists) {
-            game.periods = await fetchAvailableGamePeriods(id)
+            let periodArray = await fetchAvailableGamePeriods(id)
+            game.periods = periodArray
         }
 
         return game
-    } catch (err) {
-        console.log('Error retrieving game', id, err.message)
-    }
 }
 
-async function fetchGamesCount() {
+async function fetchOracleGamesCount() {
     try {
         let gamesCount = await helper
             .getContractHelper()
@@ -95,11 +90,11 @@ async function fetchGamesCount() {
     }
 }
 
-async function fetchGames() {
+async function fetchOracleGames() {
     let result = []
-    let count = await fetchGamesCount()
+    let count = await fetchOracleGamesCount()
     for (let index = 0; index < count; index++) {
-        let game = await fetchGamesItem(index)
+        let game = await fetchOracleGamesItem(index)
         if (game.exists) {
             result.push(game)
         }
@@ -109,6 +104,6 @@ async function fetchGames() {
 
 export const getGameItem = createAction(
     OracleActions.GET_GAME_ITEM,
-    fetchGamesItem
+    fetchOracleGamesItem
 )
-export const getGames = createAction(OracleActions.GET_GAMES, fetchGames)
+export const getGames = createAction(OracleActions.GET_GAMES, fetchOracleGames)

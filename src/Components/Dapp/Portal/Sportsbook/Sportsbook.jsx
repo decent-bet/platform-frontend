@@ -756,7 +756,6 @@ class Sportsbook extends Component {
         let gamesMap = Object.keys(games).map(gameId => {
             let game = games[gameId]
             game.id = gameId
-            game.oracleInfo = this.props.sportsOracle.games[game.oracleGameId]
             game.placedBets = this.props.bettingProvider.placedBets[game.id]
             return game
         })

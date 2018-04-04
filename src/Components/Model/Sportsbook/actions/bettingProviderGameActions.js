@@ -5,6 +5,7 @@ import {
     BET_CHOICE_OVER
 } from '../../../Constants'
 import Helper from '../../../Helper'
+import { fetchOracleGamesItem } from './oracleGameActions'
 import { createAction } from 'redux-actions'
 import { BettingProviderActions } from '../actionTypes'
 
@@ -166,6 +167,7 @@ async function fetchGamesItem(gameId) {
         }
         let maxBetLimit = await fetchMaxBetLimit(gameId)
         gameItem.maxBetLimit = maxBetLimit.toString()
+        gameItem.oracleInfo = await fetchOracleGamesItem(gameItem.oracleGameId)
     }
     return gameItem
 }
