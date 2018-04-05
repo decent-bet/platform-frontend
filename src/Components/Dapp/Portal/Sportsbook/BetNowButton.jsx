@@ -8,32 +8,48 @@ const bettingReturnsCalculator = new BettingReturnsCalculator()
 const helper = new Helper()
 
 export default class BetNowButton extends Component {
+    constructor(props) {
+        super(props)
+
+        // Totals and Team Totals have a different default than other options
+        let { oddItem } = props
+        let defaultChoice =
+            oddItem.betType === constants.ODDS_TYPE_TOTALS ||
+            oddItem.betType === constants.ODDS_TYPE_TEAM_TOTALS
+                ? constants.BET_CHOICE_OVER
+                : constants.BET_CHOICE_TEAM1
+
+        this.state = {
+            currentAmount: '',
+            currentChoice: defaultChoice
+        }
+    }
+
     getMaxWin = () => {
-        let { oddItem } = this.props
         return bettingReturnsCalculator.getMaxReturns(
-            oddItem,
-            oddItem.selectedChoice,
-            oddItem.betAmount
+            this.props.oddItem,
+            this.state.currentChoice,
+            this.state.currentAmount
         )
     }
-    onChangeListener = (event, value) => {
-        let { game, oddItem, onSetBetAmountListener } = this.props
-        onSetBetAmountListener(game.id, oddItem.id, value)
-    }
+    onChangeAmountListener = (event, value) =>
+        this.setState({ currentAmount: value })
 
-    onChangeTeamListener = (event, _index, value) => {
-        let { game, oddItem, onSetBetTeamListener } = this.props
-        onSetBetTeamListener(game.id, oddItem.id, value)
-    }
+    onChangeTeamListener = (event, _index, value) =>
+        this.setState({ currentChoice: value })
 
-    onChangeTeamTotalListener = (event, index, value) => {
-        let { game, oddItem, onSetTeamTotalListener } = this.props
-        onSetTeamTotalListener(game.id, oddItem.id, value)
-    }
+    onChangeTeamTotalListener = (event, index, value) =>
+        this.setState({ currentChoice: value })
 
     onSubmitListener = () => {
         let { game, oddItem, onOpenConfirmBetDialogListener } = this.props
-        onOpenConfirmBetDialogListener(game.id, oddItem.id)
+        let { currentAmount, currentChoice } = this.state
+        onOpenConfirmBetDialogListener(
+            game,
+            oddItem,
+            currentAmount,
+            currentChoice
+        )
     }
 
     isDisabled = () => {
@@ -44,10 +60,14 @@ export default class BetNowButton extends Component {
 
     isSubmitDisabled = () => {
         let { game, oddItem, depositedTokens } = this.props
-        let isBetEmpty = !oddItem.betAmount
+        let isBetEmpty = !this.state.currentAmount
 
+        // Add the total amount in the game,
+        // the total amount already betted, and the amount the user wants to bet
         let totalBetAmount =
-            parseInt(oddItem.betAmount, 10) + parseInt(game.betAmount, 10)
+            parseInt(oddItem.betAmount, 10) +
+            parseInt(this.state.currentAmount, 10) +
+            parseInt(game.betAmount, 10)
         let maxBetLimit = parseInt(game.maxBetLimit, 10)
 
         let betType = oddItem.betType
@@ -63,12 +83,6 @@ export default class BetNowButton extends Component {
             } else if (betType === constants.ODDS_TYPE_TEAM_TOTALS) {
                 limit = betLimits.teamTotals
             }
-            console.log(
-                'exceedsBetLimits',
-                totalBetAmount,
-                limit,
-                totalBetAmount > limit
-            )
         }
 
         return (
@@ -81,84 +95,68 @@ export default class BetNowButton extends Component {
         )
     }
 
-    renderDropDownTeam = () => {
-        let { oddItem, game, type } = this.props
-        if (!oddItem) {
-            return null
-        }
+    renderDropDown = () => {
+        let { oddItem, game } = this.props
+        let options = []
+
         if (
             oddItem.betType === constants.ODDS_TYPE_SPREAD ||
             oddItem.betType === constants.ODDS_TYPE_MONEYLINE
         ) {
-            let value = oddItem.selectedChoice
-                ? oddItem.selectedChoice
-                : constants.BET_CHOICE_TEAM1
-
-            let homeTeamName = game.oracleInfo.team1
-            let awayTeamName = game.oracleInfo.team2
-            return (
-                <DropDownMenu
-                    className="mx-auto mt-3"
-                    autoWidth={false}
-                    style={{ width: '100%' }}
-                    value={value}
-                    onChange={this.onChangeTeamListener}
-                >
+            options.push(
+                <MenuItem
+                    key={constants.BET_CHOICE_TEAM1}
+                    value={constants.BET_CHOICE_TEAM1}
+                    primaryText={game.oracleInfo.team1}
+                />
+            )
+            options.push(
+                <MenuItem
+                    key={constants.BET_CHOICE_TEAM2}
+                    value={constants.BET_CHOICE_TEAM2}
+                    primaryText={game.oracleInfo.team2}
+                />
+            )
+            if (oddItem.betType === constants.ODDS_TYPE_MONEYLINE) {
+                options.push(
                     <MenuItem
-                        value={constants.BET_CHOICE_TEAM1}
-                        primaryText={homeTeamName}
+                        key={constants.BET_CHOICE_DRAW}
+                        value={constants.BET_CHOICE_DRAW}
+                        primaryText="Draw"
                     />
-                    <MenuItem
-                        value={constants.BET_CHOICE_TEAM2}
-                        primaryText={awayTeamName}
-                    />
-                    {type === constants.ODDS_TYPE_MONEYLINE && (
-                        <MenuItem
-                            value={constants.BET_CHOICE_DRAW}
-                            primaryText="Draw"
-                        />
-                    )}
-                </DropDownMenu>
+                )
+            }
+        } else {
+            options.push(
+                <MenuItem
+                    key={constants.BET_CHOICE_OVER}
+                    value={constants.BET_CHOICE_OVER}
+                    primaryText="Over"
+                />
+            )
+            options.push(
+                <MenuItem
+                    key={constants.BET_CHOICE_UNDER}
+                    value={constants.BET_CHOICE_UNDER}
+                    primaryText="Under"
+                />
             )
         }
-    }
 
-    renderDropDownTotals = () => {
-        let { oddItem } = this.props
-        if (!oddItem) {
-            return null
-        }
-        if (
-            oddItem.betType === constants.ODDS_TYPE_TOTALS ||
-            oddItem.betType === constants.ODDS_TYPE_TEAM_TOTALS
-        ) {
-            let value = oddItem.selectedChoice
-                ? oddItem.selectedChoice
-                : constants.BET_CHOICE_OVER
-            return (
-                <DropDownMenu
-                    className="mx-auto mt-3"
-                    autoWidth={false}
-                    style={{ width: '100%' }}
-                    value={value}
-                    onChange={this.onChangeTeamTotalListener}
-                >
-                    <MenuItem
-                        value={constants.BET_CHOICE_OVER}
-                        primaryText="Over"
-                    />
-                    <MenuItem
-                        value={constants.BET_CHOICE_UNDER}
-                        primaryText="Under"
-                    />
-                </DropDownMenu>
-            )
-        }
+        return (
+            <DropDownMenu
+                className="mx-auto mt-3"
+                autoWidth={false}
+                style={{ width: '100%' }}
+                value={this.state.currentChoice}
+                onChange={this.onChangeTeamListener}
+            >
+                {options}
+            </DropDownMenu>
+        )
     }
 
     render() {
-        let { oddItem } = this.props
-        let value = oddItem && oddItem.betAmount ? oddItem.betAmount : ''
         return (
             <div className="row mt-2">
                 <div className="col-4">
@@ -167,16 +165,13 @@ export default class BetNowButton extends Component {
                         fullWidth={true}
                         type="number"
                         disabled={this.isDisabled()}
-                        value={value}
-                        onChange={this.onChangeListener}
+                        value={this.currentAmount}
+                        onChange={this.onChangeAmountListener}
                     />
                 </div>
-                <div className="col-4">
-                    {this.renderDropDownTeam()}
-                    {this.renderDropDownTotals()}
-                </div>
+                <div className="col-4">{this.renderDropDown()}</div>
                 <div className="col-4 pt-1">
-                    <p className="text-center key">MAX WIN</p>
+                    <p className="text-center key">Max Win</p>
                     <p className="text-center">{this.getMaxWin()} DBETs</p>
                 </div>
                 <div className="col-12">

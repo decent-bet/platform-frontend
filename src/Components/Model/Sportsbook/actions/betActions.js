@@ -102,17 +102,17 @@ async function fetchUserBets(userId) {
     }
 }
 
-async function putBet(gameId, oddsObj, value) {
-    const betAmount = new BigNumber(value).times(ethUnits.units.ether).toFixed()
-    const betType = oddsObj.betType
-    const selectedChoice = oddsObj.selectedChoice
+async function putBet(gameId, oddsId, betType, betAmount, betChoice) {
+    const parsedAmount = new BigNumber(betAmount)
+        .times(ethUnits.units.ether)
+        .toFixed()
 
     try {
         let txHash = await helper
             .getContractHelper()
             .getWrappers()
             .bettingProvider()
-            .placeBet(gameId, oddsObj.id, betType, selectedChoice, betAmount)
+            .placeBet(gameId, oddsId, betType, betChoice, parsedAmount)
         helper.toggleSnackbar(
             `Successfully sent place bet transaction: ${txHash}`
         )

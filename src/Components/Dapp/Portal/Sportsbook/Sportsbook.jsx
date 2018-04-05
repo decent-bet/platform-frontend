@@ -51,7 +51,6 @@ class Sportsbook extends Component {
     state = {
         leagues: {},
         periodDescriptions: {},
-        betValues: {},
         dialogs: {
             confirmBet: {
                 open: false,
@@ -617,8 +616,16 @@ class Sportsbook extends Component {
 
     onConfirmBetListener = () => {
         let selectedBet = this.state.dialogs.confirmBet.selectedBet
-        let { gameId, oddsObj, value } = selectedBet
-        this.props.dispatch(setBet(gameId, oddsObj, value))
+        let { gameItem, oddItem, betAmount, betChoice } = selectedBet
+        this.props.dispatch(
+            setBet(
+                gameItem.id,
+                oddItem.id,
+                oddItem.betType,
+                betAmount,
+                betChoice
+            )
+        )
         this.helpers().toggleDialog(DIALOG_CONFIRM_BET, false)
     }
 
@@ -636,42 +643,6 @@ class Sportsbook extends Component {
     onDepositTokensDialogOpen = () =>
         this.helpers().toggleDialog(DIALOG_DEPOSIT_TOKENS, true)
 
-    onSetBetAmountListener = (gameId, oddsId, betAmount) => {
-        let odds = this.state.betValues
-        if (!odds.hasOwnProperty(gameId)) {
-            odds[gameId] = {}
-        }
-        if (!odds[gameId].hasOwnProperty(oddsId)) {
-            odds[gameId][oddsId] = {}
-        }
-        odds[gameId][oddsId].betAmount = betAmount
-        this.setState({ odds: odds })
-    }
-
-    onSetBetTeamListener = (gameId, oddsId, value) => {
-        let odds = this.state.betValues
-        if (!odds.hasOwnProperty(gameId)) {
-            odds[gameId] = {}
-        }
-        if (!odds[gameId].hasOwnProperty(oddsId)) {
-            odds[gameId][oddsId] = {}
-        }
-        odds[gameId][oddsId].selectedChoice = value
-        this.setState({ odds: odds })
-    }
-
-    onSetTeamTotalListener = (gameId, oddsId, value) => {
-        let odds = this.state.betValues
-        if (!odds.hasOwnProperty(gameId)) {
-            odds[gameId] = {}
-        }
-        if (!odds[gameId].hasOwnProperty(oddsId)) {
-            odds[gameId][oddsId] = {}
-        }
-        odds[gameId][oddsId].selectedChoice = value
-        this.setState({ odds: odds })
-    }
-
     onToggleWithdrawDialog = enabled => {
         this.helpers().toggleDialog(DIALOG_WITHDRAW_TOKENS, enabled)
     }
@@ -683,25 +654,22 @@ class Sportsbook extends Component {
     onCloseConfirmBetDialogListener = () =>
         this.helpers().toggleDialog(DIALOG_CONFIRM_BET, false)
 
-    onOpenConfirmBetDialogListener = (gameId, oddsId) => {
+    onOpenConfirmBetDialogListener = (game, oddItem, betAmount, betChoice) => {
         let dialogs = this.state.dialogs
-        let oddsObj = this.props.bettingProvider.games[gameId].odds[oddsId]
-        let value = this.state.betValues[gameId][oddsId]
 
+        let parsedBetAmount = new BigNumber(betAmount).toNumber()
+        let homeTeam = this.helpers().getTeamName(true, game.id)
+        let awayTeam = this.helpers().getTeamName(false, game.id)
         dialogs.confirmBet.message =
-            'You are now placing a bet of ' +
-            value +
-            ' DBETs for ' +
-            this.helpers().getTeamName(true, gameId) +
-            ' vs. ' +
-            this.helpers().getTeamName(false, gameId) +
-            '. Please click OK to confirm your bet'
+            `You are now placing a bet of` +
+            `${parsedBetAmount} DBETs for ${homeTeam} vs ${awayTeam}. ` +
+            `Please click OK to confirm your bet`
 
         dialogs.confirmBet.selectedBet = {
-            gameId: gameId,
-            oddsId: oddsId,
-            oddsObj: oddsObj,
-            value: value.betAmount
+            gameItem: game,
+            oddItem: oddItem,
+            betAmount: betAmount,
+            betChoice: betChoice
         }
         dialogs.confirmBet.open = true
         this.setState({ dialogs: dialogs })
@@ -788,24 +756,12 @@ class Sportsbook extends Component {
         let { time, depositedTokens } = this.props.bettingProvider
         if (time != null) {
             if (gameItem.cutOffTime > time) {
-                // Get bet Value from the state
-                let values = this.state.betValues
-                if (values.hasOwnProperty(gameItem.id)) {
-                    let gameValues = values[gameItem.id]
-                    if (gameValues.hasOwnProperty(oddItem.id)) {
-                        oddItem.betAmount = gameValues[oddItem.id].betAmount
-                    }
-                }
-
                 return (
                     <BetNowButton
                         oddItem={oddItem}
                         game={gameItem}
                         depositedTokens={depositedTokens}
                         bettingProviderTime={time}
-                        onSetBetAmountListener={this.onSetBetAmountListener}
-                        onSetBetTeamListener={this.onSetBetTeamListener}
-                        onSetTeamTotalListener={this.onSetTeamTotalListener}
                         onOpenConfirmBetDialogListener={
                             this.onOpenConfirmBetDialogListener
                         }
