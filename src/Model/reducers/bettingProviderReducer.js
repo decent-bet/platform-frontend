@@ -116,6 +116,7 @@ function bettingProviderReducer(
             return { ...bettingProvider, placedBets: action.payload }
 
         case `${Actions.TIME}_${FULFILLED}`:
+        case Actions.SET_TIME:
             return { ...bettingProvider, time: action.payload }
 
         case `${Actions.CLAIM_BET}_${FULFILLED}`:

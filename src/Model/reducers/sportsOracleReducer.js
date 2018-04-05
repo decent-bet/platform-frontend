@@ -57,6 +57,7 @@ function oracleReducer(
             return { ...sportsOracle, addresses: newAddressObject2 }
 
         case `${Actions.GET_TIME}_${FULFILLED}`:
+        case Actions.SET_TIME:
             return { ...sportsOracle, time: action.payload }
 
         default:

@@ -96,5 +96,6 @@ export default createActions({
     [OracleActions.GET_OWNER]: fetchOwner,
     [OracleActions.GET_GAME_UPDATE_COST]: fetchGameUpdateCost,
     [OracleActions.GET_REQUESTED_PROVIDER_ADDRESSES]: fetchRequestedProviderAddresses,
-    [OracleActions.GET_ACCEPTED_PROVIDER_ADDRESSES]: fetchAcceptedProviderAddresses
+    [OracleActions.GET_ACCEPTED_PROVIDER_ADDRESSES]: fetchAcceptedProviderAddresses,
+    [OracleActions.SET_TIME]: time => time
 })

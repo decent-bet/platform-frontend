@@ -9,16 +9,15 @@ import PrivateRoute from './PrivateRoute'
 import LogoutRoute from './LogoutRoute'
 import EventBus from 'eventing-bus'
 import { MainTheme, SnackbarTheme } from '../../Base/Themes'
+import initializationSequence from '../../../Model/actions/initialization'
+import initWatchers from '../../../Model/watchers'
 
 const constants = require('../../Constants')
 
 export default class App extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            snackbarMessage: null,
-            isSnackBarOpen: false
-        }
+    state = {
+        snackbarMessage: null,
+        isSnackBarOpen: false
     }
 
     componentWillMount = () => {
@@ -28,6 +27,20 @@ export default class App extends Component {
                 snackbarMessage: message
             })
         })
+
+        if (window.web3Loaded) {
+            this.initWeb3Data()
+        } else {
+            let web3Loaded = EventBus.on('web3Loaded', () => {
+
+                // Initialize the datastore
+                store.dispatch(initializationSequence)
+                store.dispatch(initWatchers)
+
+                // Unregister callback
+                web3Loaded()
+            })
+        }
     }
 
     renderSnackBar = () => {
