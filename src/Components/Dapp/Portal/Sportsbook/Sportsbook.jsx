@@ -255,7 +255,7 @@ class Sportsbook extends Component {
                                 )
 
                                 this.props.dispatch(getGameItem(gameId))
-                                this.props.dispatch(getUserBets(betId))
+                                this.props.dispatch(getUserBets())
                                 this.props.dispatch(getTokenBalance())
                                 this.props.dispatch(
                                     getCurrentSessionDepositedTokens()

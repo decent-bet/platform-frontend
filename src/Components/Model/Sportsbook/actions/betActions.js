@@ -19,6 +19,8 @@ async function fetchGameBettorBet(gameId, betId) {
             )
 
         return {
+            id: betId,
+            gameId: gameId,
             oddsId: _bet[0].toNumber(),
             choice: _bet[1].toNumber(),
             amount: _bet[2].div(ethUnits.units.ether).toNumber(),
@@ -67,7 +69,8 @@ async function fetchGameBettorBetOdds(gameId, betId) {
     return odds
 }
 
-async function fetchUserBets(userId) {
+async function fetchUserBets() {
+    let iterator = 0
     let iterate = true
     let placedBets = {}
     while (iterate) {
@@ -76,7 +79,7 @@ async function fetchUserBets(userId) {
                 .getContractHelper()
                 .getWrappers()
                 .bettingProvider()
-                .getUserBets(helper.getWeb3().eth.defaultAccount, userId)
+                .getUserBets(helper.getWeb3().eth.defaultAccount, iterator)
 
             let gameId = bets[0].toNumber()
             let betId = bets[1].toNumber()
@@ -92,14 +95,15 @@ async function fetchUserBets(userId) {
                 placedBet.odds = await fetchGameBettorBetOdds(gameId, betId)
                 placedBet.returns = await fetchBetReturns(gameId, betId)
 
-                placedBets[gameId][placedBet.id] = placedBet
+                placedBets[gameId][betId] = placedBet
             }
         } catch (err) {
             iterate = false
         }
-
-        return placedBets
+        iterator++
     }
+
+    return placedBets
 }
 
 async function putBet(gameId, oddsId, betType, betAmount, betChoice) {

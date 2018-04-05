@@ -32,7 +32,7 @@ export default async function initializationSequence(dispatch) {
         dispatch(getTime()),
         dispatch(getGames()),
         dispatch(getSessionStats(1)),
-        dispatch(getUserBets(0)),
+        dispatch(getUserBets()),
         dispatch(getOracleTime()),
         dispatch(getOracleGames()),
         dispatch(getGameUpdateCost()),
