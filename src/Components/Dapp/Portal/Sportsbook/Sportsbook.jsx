@@ -238,20 +238,8 @@ class Sportsbook extends Component {
                                     JSON.stringify(event)
                                 )
                                 let gameId = event.args.gameId.toNumber()
-                                let betId = event.args.betId.toNumber()
-
-                                let home = self
-                                    .helpers()
-                                    .getTeamName(true, gameId)
-                                let away = self
-                                    .helpers()
-                                    .getTeamName(false, gameId)
-
                                 helper.toggleSnackbar(
-                                    'New bet placed for game - ' +
-                                        home +
-                                        ' vs. ' +
-                                        away
+                                    'New bet placed for game ID - ' + gameId
                                 )
 
                                 this.props.dispatch(getGameItem(gameId))
@@ -296,20 +284,9 @@ class Sportsbook extends Component {
                                     JSON.stringify(event)
                                 )
                                 let gameId = event.args.id.toNumber()
-                                let oddsId = event.args.oddsId.toNumber()
-
-                                let home = self
-                                    .helpers()
-                                    .getTeamName(true, gameId)
-                                let away = self
-                                    .helpers()
-                                    .getTeamName(false, gameId)
 
                                 helper.toggleSnackbar(
-                                    'New odds available for betting - ' +
-                                        home +
-                                        ' vs. ' +
-                                        away
+                                    `New odds available for Game ID ${gameId} `
                                 )
 
                                 this.props.dispatch(getGameOddsCount(gameId))
@@ -328,20 +305,8 @@ class Sportsbook extends Component {
                                     JSON.stringify(event)
                                 )
                                 let gameId = event.args.id.toNumber()
-                                let oddsId = event.args.oddsId.toNumber()
-
-                                let home = self
-                                    .helpers()
-                                    .getTeamName(true, gameId)
-                                let away = self
-                                    .helpers()
-                                    .getTeamName(false, gameId)
-
                                 helper.toggleSnackbar(
-                                    'Odds updated for game - ' +
-                                        home +
-                                        ' vs. ' +
-                                        away
+                                    `Odds updated for game ID ${gameId}`
                                 )
 
                                 this.props.dispatch(getGameOddsCount(gameId))
@@ -360,19 +325,8 @@ class Sportsbook extends Component {
                                     JSON.stringify(event)
                                 )
                                 let gameId = event.args.id.toNumber()
-
-                                let home = self
-                                    .helpers()
-                                    .getTeamName(true, gameId)
-                                let away = self
-                                    .helpers()
-                                    .getTeamName(false, gameId)
-
                                 helper.toggleSnackbar(
-                                    'Updated max bet for game - ' +
-                                        home +
-                                        ' vs. ' +
-                                        away
+                                    `Updated max bet for game - game ID ${gameId}`
                                 )
 
                                 this.props.dispatch(getMaxBetLimit(gameId))
@@ -393,18 +347,8 @@ class Sportsbook extends Component {
                                 let gameId = event.args.id.toNumber()
                                 let period = event.args.period.toNumber()
 
-                                let home = self
-                                    .helpers()
-                                    .getTeamName(true, gameId)
-                                let away = self
-                                    .helpers()
-                                    .getTeamName(false, gameId)
-
                                 helper.toggleSnackbar(
-                                    'Updated bet limits for game - ' +
-                                        home +
-                                        ' vs. ' +
-                                        away
+                                    `Updated bet limits for game - ID ${gameId}`
                                 )
 
                                 let game =
@@ -428,26 +372,10 @@ class Sportsbook extends Component {
                             .bettingProvider()
                             .logClaimedBet()
                             .watch((err, event) => {
-                                console.log(
-                                    'Claimed bet event',
-                                    err,
-                                    JSON.stringify(event)
-                                )
                                 let gameId = event.args.gameId.toNumber()
-                                let session = event.args.session.toNumber()
-
-                                let home = self
-                                    .helpers()
-                                    .getTeamName(true, gameId)
-                                let away = self
-                                    .helpers()
-                                    .getTeamName(false, gameId)
 
                                 helper.toggleSnackbar(
-                                    'Claimed bet for game - ' +
-                                        home +
-                                        ' vs. ' +
-                                        away
+                                    `Claimed bet for game ID ${gameId}`
                                 )
 
                                 this.props.dispatch(getTokenBalance())
@@ -515,18 +443,8 @@ class Sportsbook extends Component {
                                 let providerGameId = event.args.providerGameId.toNumber()
                                 let period = event.args.period.toNumber()
 
-                                let home = self
-                                    .helpers()
-                                    .getTeamName(true, providerGameId)
-                                let away = self
-                                    .helpers()
-                                    .getTeamName(false, providerGameId)
-
                                 helper.toggleSnackbar(
-                                    'Results pushed for game - ' +
-                                        home +
-                                        ' vs. ' +
-                                        away
+                                    `Results pushed for game - ID ${providerGameId}`
                                 )
 
                                 if (
@@ -573,20 +491,6 @@ class Sportsbook extends Component {
     helpers = () => {
         const self = this
         return {
-            getTeamName: (isHome, gameId) => {
-                let bettingProviderGame =
-                    self.props.bettingProvider.games[gameId]
-                if (bettingProviderGame) {
-                    let oracleGameId = bettingProviderGame.oracleGameId
-                    let oracleGame = self.props.sportsOracle.games[oracleGameId]
-                    if (oracleGame) {
-                        return self.props.sportsOracle.games[oracleGameId][
-                            isHome ? 'team1' : 'team2'
-                        ]
-                    }
-                }
-                return 'Loading..'
-            },
             toggleDialog: (type, enabled) => {
                 let dialogs = self.state.dialogs
                 switch (type) {
@@ -604,9 +508,6 @@ class Sportsbook extends Component {
                         break
                 }
                 self.setState({ dialogs: dialogs })
-            },
-            getOracleGame: id => {
-                return self.props.sportsOracle.games[id]
             }
         }
     }
@@ -658,8 +559,8 @@ class Sportsbook extends Component {
         let dialogs = this.state.dialogs
 
         let parsedBetAmount = new BigNumber(betAmount).toNumber()
-        let homeTeam = this.helpers().getTeamName(true, game.id)
-        let awayTeam = this.helpers().getTeamName(false, game.id)
+        let homeTeam = game.oracleInfo.team1
+        let awayTeam = game.oracleInfo.team2
         dialogs.confirmBet.message =
             `You are now placing a bet of` +
             `${parsedBetAmount} DBETs for ${homeTeam} vs ${awayTeam}. ` +
@@ -729,7 +630,6 @@ class Sportsbook extends Component {
         })
         let parameters = {
             bettingProvider: this.props.bettingProvider,
-            sportsOracle: this.props.sportsOracle,
             gamesMap: gamesMap
         }
         return (

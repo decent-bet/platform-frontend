@@ -6,7 +6,6 @@ const styles = require('../../../../Base/styles').styles()
 
 export default function PlacedBetsCard({
     bettingProvider,
-    sportsOracle,
     gamesMap,
     onClaimBetListener
 }) {

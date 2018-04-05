@@ -3,7 +3,6 @@ import GamesCardItem from './GamesCardItem'
 
 export default function GamesCardInner({
     gamesMap,
-    sportsOracle,
     bettingProviderTime,
     betNowButtonWrapper
 }) {

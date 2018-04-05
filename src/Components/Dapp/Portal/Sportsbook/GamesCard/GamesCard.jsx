@@ -6,7 +6,6 @@ const styles = require('../../../../Base/styles').styles()
 
 export default function GamesCard({
     bettingProvider,
-    sportsOracle,
     betNowButtonWrapper,
     gamesMap
 }) {
@@ -24,7 +23,6 @@ export default function GamesCard({
                 <GamesCardInner
                     gamesMap={gamesMap}
                     bettingProviderTime={time}
-                    sportsOracle={sportsOracle}
                     betNowButtonWrapper={betNowButtonWrapper}
                 />
             </Card>
