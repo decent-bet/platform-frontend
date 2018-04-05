@@ -6,7 +6,7 @@ import {
 } from '../../Components/Constants'
 import Helper from '../../Components/Helper'
 import { fetchOracleGamesItem } from './oracleGameActions'
-import { createAction } from 'redux-actions'
+import { createActions } from 'redux-actions'
 import { BettingProviderActions } from '../actionTypes'
 
 const ethUnits = require('ethereum-units')
@@ -194,34 +194,38 @@ async function fetchGames() {
     return gameArray
 }
 
-export const getGameOddsCount = createAction(
-    BettingProviderActions.GAME_ODDS_COUNT,
-    fetchGameOddsCount,
-    gameId => ({ gameId: gameId })
-)
-export const getGameOdds = createAction(
-    BettingProviderActions.GAME_ODDS,
-    fetchGameOdds,
-    gameId => ({ gameId: gameId })
-)
-export const getMaxBetLimit = createAction(
-    BettingProviderActions.GAME_BET_LIMIT,
-    fetchMaxBetLimit,
-    gameId => ({ gameId: gameId })
-)
-export const getBetLimitForPeriod = createAction(
-    BettingProviderActions.GAME_BET_LIMIT_FOR_PERIOD,
-    fetchBetLimits,
-    (gameId, period) => ({ gameId: gameId, period: period })
-)
-export const getGamePeriodOutcome = createAction(
-    BettingProviderActions.GAME_ODDS,
-    fetchGamePeriodOutcomes,
-    (gameId, period) => ({ gameId: gameId, period: period })
-)
-export const getGameItem = createAction(
-    BettingProviderActions.GAME_ITEM,
-    fetchGamesItem,
-    gameId => ({ gameId: gameId })
-)
-export const getGames = createAction(BettingProviderActions.GAMES, fetchGames)
+// Functions of this object are the Action Keys "inCamelCase"
+// See 'redux-actions' for details
+export default createActions({
+    [BettingProviderActions.GAME_ODDS_COUNT]: [
+        fetchGameOddsCount,
+        gameId => ({ gameId: gameId })
+    ],
+
+    [BettingProviderActions.GAME_ODDS]: [
+        fetchGameOdds,
+        gameId => ({ gameId: gameId })
+    ],
+
+    [BettingProviderActions.GAME_BET_LIMIT]: [
+        fetchMaxBetLimit,
+        gameId => ({ gameId: gameId })
+    ],
+
+    [BettingProviderActions.GAME_BET_LIMIT_FOR_PERIOD]: [
+        fetchBetLimits,
+        (gameId, period) => ({ gameId: gameId, period: period })
+    ],
+
+    [BettingProviderActions.GAME_PERIOD_OUTCOME]: [
+        fetchGamePeriodOutcomes,
+        (gameId, period) => ({ gameId: gameId, period: period })
+    ],
+
+    [BettingProviderActions.GAME_ITEM]: [
+        fetchGamesItem,
+        gameId => ({ gameId: gameId })
+    ],
+
+    [BettingProviderActions.GAMES]: fetchGames
+})

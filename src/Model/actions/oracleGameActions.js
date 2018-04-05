@@ -1,5 +1,5 @@
 import Helper from '../../Components/Helper'
-import { createAction } from 'redux-actions'
+import { createActions } from 'redux-actions'
 import { OracleActions } from '../actionTypes'
 import Bluebird from 'bluebird'
 
@@ -41,39 +41,39 @@ async function fetchAvailableGamePeriods(id) {
 }
 
 export async function fetchOracleGamesItem(id) {
-        let data = await helper
-            .getContractHelper()
-            .getWrappers()
-            .sportsOracle()
-            .getGame(id)
-        let ipfsHash = data[6]
-        let exists = data[7]
-        let game = {
-            id: id,
-            refId: data[1],
-            sportId: data[2].toNumber(),
-            leagueId: data[3].toNumber(),
-            startTime: data[4].toNumber(),
-            endTime: data[5].toNumber(),
-            ipfsHash: ipfsHash,
-            exists: exists
+    let data = await helper
+        .getContractHelper()
+        .getWrappers()
+        .sportsOracle()
+        .getGame(id)
+    let ipfsHash = data[6]
+    let exists = data[7]
+    let game = {
+        id: id,
+        refId: data[1],
+        sportId: data[2].toNumber(),
+        leagueId: data[3].toNumber(),
+        startTime: data[4].toNumber(),
+        endTime: data[5].toNumber(),
+        ipfsHash: ipfsHash,
+        exists: exists
+    }
+    if (ipfsHash.length > 0) {
+        let metadata = await fetchMetadata(id, ipfsHash)
+        if (metadata) {
+            game.team1 = metadata.team1
+            game.team2 = metadata.team2
+            game.starts = metadata.starts
+            game.league = metadata.league
+            game.periodDescriptions = metadata.periods
         }
-        if (ipfsHash.length > 0) {
-            let metadata = await fetchMetadata(id, ipfsHash)
-            if (metadata) {
-                game.team1 = metadata.team1
-                game.team2 = metadata.team2
-                game.starts = metadata.starts
-                game.league = metadata.league
-                game.periodDescriptions = metadata.periods
-            }
-        }
-        if (exists) {
-            let periodArray = await fetchAvailableGamePeriods(id)
-            game.periods = periodArray
-        }
+    }
+    if (exists) {
+        let periodArray = await fetchAvailableGamePeriods(id)
+        game.periods = periodArray
+    }
 
-        return game
+    return game
 }
 
 async function fetchOracleGamesCount() {
@@ -102,8 +102,9 @@ async function fetchOracleGames() {
     return result
 }
 
-export const getGameItem = createAction(
-    OracleActions.GET_GAME_ITEM,
-    fetchOracleGamesItem
-)
-export const getGames = createAction(OracleActions.GET_GAMES, fetchOracleGames)
+// Functions of this object are the Action Keys "inCamelCase"
+// See 'redux-actions' for details
+export default createActions({
+    [OracleActions.GET_GAME_ITEM]: fetchOracleGamesItem,
+    [OracleActions.GET_GAMES]: fetchOracleGames
+})

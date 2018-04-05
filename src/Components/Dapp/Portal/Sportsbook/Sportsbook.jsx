@@ -14,26 +14,11 @@ import Helper from '../../../Helper'
 
 // Redux Actions. TODO: cleanup
 import initializationSequence from '../../../../Model/actions/initialization'
-import {
-    getTokenBalance,
-    depositTokens,
-    withdrawTokens,
-    approveAndDepositTokens
-} from '../../../../Model/actions/balanceActions'
-import { getCurrentSessionDepositedTokens } from '../../../../Model/actions/bettingProviderActions'
-import {
-    getGameItem,
-    getGameOddsCount,
-    getMaxBetLimit,
-    getBetLimitForPeriod,
-    getGamePeriodOutcome
-} from '../../../../Model/actions/bettingProviderGameActions'
-import {
-    getUserBets,
-    claimBet,
-    setBet
-} from '../../../../Model/actions/betActions'
-import { getGameItem as getOracleGameItem } from '../../../../Model/actions/oracleGameActions'
+import BalanceActions from '../../../../Model/actions/balanceActions'
+import BettingProviderActions from '../../../../Model/actions/bettingProviderActions'
+import BettingProviderGameActions from '../../../../Model/actions/bettingProviderGameActions'
+import BetActions from '../../../../Model/actions/betActions'
+import OracleGameActions from '../../../../Model/actions/oracleGameActions'
 
 import './sportsbook.css'
 
@@ -161,7 +146,10 @@ class Sportsbook extends Component {
                             .token()
                             .logTransfer(self.state.address, true)
                             .watch((err, event) => {
-                                if (!err) this.props.dispatch(getTokenBalance())
+                                if (!err)
+                                    this.props.dispatch(
+                                        BalanceActions.getTokens()
+                                    )
                             })
                     },
                     transferTo: () => {
@@ -171,7 +159,10 @@ class Sportsbook extends Component {
                             .token()
                             .logTransfer(self.state.address, false)
                             .watch((err, event) => {
-                                if (!err) this.props.dispatch(getTokenBalance())
+                                if (!err)
+                                    this.props.dispatch(
+                                        BalanceActions.getTokens()
+                                    )
                             })
                     }
                 }
@@ -195,9 +186,11 @@ class Sportsbook extends Component {
                                         ' DBETs'
                                 )
 
-                                this.props.dispatch(getTokenBalance())
+                                this.props.dispatch(BalanceActions.getTokens())
                                 this.props.dispatch(
-                                    getCurrentSessionDepositedTokens(session)
+                                    BettingProviderActions.getCurrentSessionDepositedTokens(
+                                        session
+                                    )
                                 )
                             })
                     },
@@ -218,9 +211,11 @@ class Sportsbook extends Component {
                                         ' DBETs'
                                 )
 
-                                this.props.dispatch(getTokenBalance())
+                                this.props.dispatch(BalanceActions.getTokens())
                                 this.props.dispatch(
-                                    getCurrentSessionDepositedTokens(session)
+                                    BettingProviderActions.getCurrentSessionDepositedTokens(
+                                        session
+                                    )
                                 )
                             })
                     },
@@ -242,11 +237,15 @@ class Sportsbook extends Component {
                                     'New bet placed for game ID - ' + gameId
                                 )
 
-                                this.props.dispatch(getGameItem(gameId))
-                                this.props.dispatch(getUserBets())
-                                this.props.dispatch(getTokenBalance())
                                 this.props.dispatch(
-                                    getCurrentSessionDepositedTokens()
+                                    BettingProviderGameActions.getGameItem(
+                                        gameId
+                                    )
+                                )
+                                this.props.dispatch(BetActions.getUserBets())
+                                this.props.dispatch(BalanceActions.getTokens())
+                                this.props.dispatch(
+                                    BettingProviderActions.getDepositedTokens()
                                 )
                             })
                     },
@@ -268,7 +267,9 @@ class Sportsbook extends Component {
                                 )
 
                                 let id = event.args.id.toNumber()
-                                this.props.dispatch(getGameItem(id))
+                                this.props.dispatch(
+                                    BettingProviderGameActions.getGameItem(id)
+                                )
                             })
                     },
                     newGameOdds: () => {
@@ -289,7 +290,11 @@ class Sportsbook extends Component {
                                     `New odds available for Game ID ${gameId} `
                                 )
 
-                                this.props.dispatch(getGameOddsCount(gameId))
+                                this.props.dispatch(
+                                    BettingProviderGameActions.getGameOddsCount(
+                                        gameId
+                                    )
+                                )
                             })
                     },
                     updatedGameOdds: () => {
@@ -309,7 +314,11 @@ class Sportsbook extends Component {
                                     `Odds updated for game ID ${gameId}`
                                 )
 
-                                this.props.dispatch(getGameOddsCount(gameId))
+                                this.props.dispatch(
+                                    BettingProviderGameActions.getGameOddsCount(
+                                        gameId
+                                    )
+                                )
                             })
                     },
                     updatedMaxBet: () => {
@@ -329,7 +338,11 @@ class Sportsbook extends Component {
                                     `Updated max bet for game - game ID ${gameId}`
                                 )
 
-                                this.props.dispatch(getMaxBetLimit(gameId))
+                                this.props.dispatch(
+                                    BettingProviderGameActions.getMaxBetLimit(
+                                        gameId
+                                    )
+                                )
                             })
                     },
                     updatedBetLimits: () => {
@@ -359,7 +372,10 @@ class Sportsbook extends Component {
                                         !game.betLimits.hasOwnProperty(period)
                                     ) {
                                         this.props.dispatch(
-                                            getBetLimitForPeriod(gameId, period)
+                                            BettingProviderGameActions.getBetLimitForPeriod(
+                                                gameId,
+                                                period
+                                            )
                                         )
                                     }
                                 }
@@ -378,11 +394,11 @@ class Sportsbook extends Component {
                                     `Claimed bet for game ID ${gameId}`
                                 )
 
-                                this.props.dispatch(getTokenBalance())
+                                this.props.dispatch(BalanceActions.getTokens())
                                 this.props.dispatch(
-                                    getCurrentSessionDepositedTokens()
+                                    BettingProviderActions.getCurrentSessionDepositedTokens()
                                 )
-                                this.props.dispatch(getUserBets(0))
+                                this.props.dispatch(BetActions.getUserBets())
                             })
                     },
                     updatedTime: () => {
@@ -425,7 +441,7 @@ class Sportsbook extends Component {
                                     JSON.stringify(event)
                                 )
                                 let id = event.args.id.toNumber()
-                                this.props.dispatch(getOracleGameItem(id))
+                                this.props.dispatch(OracleGameActions.getGameItem(id))
                             })
                     },
                     updatedProviderOutcome: () => {
@@ -453,7 +469,7 @@ class Sportsbook extends Component {
                                     ].outcomes.hasOwnProperty(period)
                                 )
                                     this.props.dispatch(
-                                        getGamePeriodOutcome(
+                                        BettingProviderGameActions.getGamePeriodOutcome(
                                             providerGameId,
                                             period
                                         )
@@ -513,13 +529,13 @@ class Sportsbook extends Component {
     }
 
     onClaimBetListener = (gameItem, betId) =>
-        this.props.dispatch(claimBet(gameItem.id, betId))
+        this.props.dispatch(BetActions.claimBet(gameItem.id, betId))
 
     onConfirmBetListener = () => {
         let selectedBet = this.state.dialogs.confirmBet.selectedBet
         let { gameItem, oddItem, betAmount, betChoice } = selectedBet
         this.props.dispatch(
-            setBet(
+            BetActions.setBet(
                 gameItem.id,
                 oddItem.id,
                 oddItem.betType,
@@ -536,9 +552,10 @@ class Sportsbook extends Component {
             this.props.bettingProvider.allowance
         )
         let formattedAmount = bigAllowance.toFixed()
+        let dispatch = this.props.dispatch
         isAllowanceAvailable
-            ? this.props.dispatch(depositTokens(formattedAmount))
-            : this.props.dispatch(approveAndDepositTokens(formattedAmount))
+            ? dispatch(BalanceActions.depositTokens(formattedAmount))
+            : dispatch(BalanceActions.approveAndDepositTokens(formattedAmount))
     }
 
     onDepositTokensDialogOpen = () =>
@@ -584,7 +601,7 @@ class Sportsbook extends Component {
             .times(ethUnits.units.ether)
             .toFixed()
         this.props.dispatch(
-            withdrawTokens(
+            BalanceActions.withdrawTokens(
                 formattedAmount,
                 this.props.bettingProvider.currentSession
             )

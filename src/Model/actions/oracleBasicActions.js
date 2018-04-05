@@ -1,5 +1,5 @@
 import Helper from '../../Components/Helper'
-import { createAction } from 'redux-actions'
+import { createActions } from 'redux-actions'
 import { OracleActions } from '../actionTypes'
 
 const ethUnits = require('ethereum-units')
@@ -89,17 +89,12 @@ async function fetchTime() {
     return time.toNumber()
 }
 
-export const getTime = createAction(OracleActions.GET_TIME, fetchTime)
-export const getOwner = createAction(OracleActions.GET_OWNER, fetchOwner)
-export const getGameUpdateCost = createAction(
-    OracleActions.GET_GAME_UPDATE_COST,
-    fetchGameUpdateCost
-)
-export const getRequestedProviderAddresses = createAction(
-    OracleActions.GET_REQUESTED_PROVIDER_ADDRESSES,
-    fetchRequestedProviderAddresses
-)
-export const getAcceptedProviderAddresses = createAction(
-    OracleActions.GET_ACCEPTED_PROVIDER_ADDRESSES,
-    fetchAcceptedProviderAddresses
-)
+// Functions of this object are the Action Keys "inCamelCase"
+// See 'redux-actions' for details
+export default createActions({
+    [OracleActions.GET_TIME]: fetchTime,
+    [OracleActions.GET_OWNER]: fetchOwner,
+    [OracleActions.GET_GAME_UPDATE_COST]: fetchGameUpdateCost,
+    [OracleActions.GET_REQUESTED_PROVIDER_ADDRESSES]: fetchRequestedProviderAddresses,
+    [OracleActions.GET_ACCEPTED_PROVIDER_ADDRESSES]: fetchAcceptedProviderAddresses
+})

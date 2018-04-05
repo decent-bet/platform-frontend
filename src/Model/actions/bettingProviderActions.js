@@ -1,5 +1,5 @@
 import Helper from '../../Components/Helper'
-import { createAction } from 'redux-actions'
+import { createActions } from 'redux-actions'
 import { BettingProviderActions } from '../actionTypes'
 
 const helper = new Helper()
@@ -123,49 +123,24 @@ async function fetchTime() {
     return time.toNumber()
 }
 
-export const getGamesCount = createAction(
-    BettingProviderActions.GAMES_COUNT,
-    fetchGamesCount
-)
-export const getDepositedTokens = createAction(
-    BettingProviderActions.DEPOSITED_TOKENS,
-    fetchDepositedTokens
-)
-export const getTokenBalance = createAction(
-    BettingProviderActions.TOKEN_BALANCE,
-    fetchTokenBalance
-)
-export const getAllowance = createAction(
-    BettingProviderActions.ALLOWANCE,
-    fetchAllowance
-)
-export const getHouseAddress = createAction(
-    BettingProviderActions.HOUSE_ADDRESS,
-    fetchHouseAddress
-)
-export const getSportsOracleAddress = createAction(
-    BettingProviderActions.SPORTSORACLE_ADDRESS,
-    fetchSportsOracleAddress
-)
-export const getCurrentSession = createAction(
-    BettingProviderActions.CURRENT_SESSION,
-    fetchCurrentSession
-)
-export const getCurrentSessionDepositedTokens = createAction(
-    BettingProviderActions.DEPOSITED_TOKENS,
-    fetchDepositedTokens
-)
-export const getSessionStats = createAction(
-    BettingProviderActions.STATS,
-    fetchSessionStats
-)
-export const getTime = createAction(BettingProviderActions.TIME, fetchTime)
-
-export function getAddress() {
-    return {
-        type: BettingProviderActions.ADDRESS,
-        payload: Promise.resolve(
-            helper.getContractHelper().getBettingProviderInstance().address
-        )
-    }
+async function fetchAddress() {
+    return Promise.resolve(
+        helper.getContractHelper().getBettingProviderInstance().address
+    )
 }
+
+// Functions of this object are the Action Keys "inCamelCase"
+// See 'redux-actions' for details
+export default createActions({
+    [BettingProviderActions.GAMES_COUNT]: fetchGamesCount,
+    [BettingProviderActions.DEPOSITED_TOKENS]: fetchDepositedTokens,
+    [BettingProviderActions.TOKEN_BALANCE]: fetchTokenBalance,
+    [BettingProviderActions.ALLOWANCE]: fetchAllowance,
+    [BettingProviderActions.HOUSE_ADDRESS]: fetchHouseAddress,
+    [BettingProviderActions.SPORTSORACLE_ADDRESS]: fetchSportsOracleAddress,
+    [BettingProviderActions.CURRENT_SESSION]: fetchCurrentSession,
+    [BettingProviderActions.DEPOSITED_TOKENS]: fetchDepositedTokens,
+    [BettingProviderActions.STATS]: fetchSessionStats,
+    [BettingProviderActions.TIME]: fetchTime,
+    [BettingProviderActions.ADDRESS]: fetchAddress
+})

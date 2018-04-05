@@ -1,5 +1,5 @@
 import Helper from '../../Components/Helper'
-import { createAction } from 'redux-actions'
+import { createActions } from 'redux-actions'
 import { BalanceActions } from '../actionTypes'
 
 const helper = new Helper()
@@ -68,22 +68,11 @@ async function executeApproveAndDepositTokens(amount) {
     }
 }
 
-export const getTokenBalance = createAction(
-    BalanceActions.GET_TOKENS,
-    fetchTokens
-)
-
-export const withdrawTokens = createAction(
-    BalanceActions.WITHDRAW_TOKENS,
-    executeWithdrawTokens
-)
-
-export const depositTokens = createAction(
-    BalanceActions.DEPOSIT_TOKENS,
-    executeDepositTokens
-)
-
-export const approveAndDepositTokens = createAction(
-    BalanceActions.APPROVE_AND_DEPOSIT_TOKENS,
-    executeApproveAndDepositTokens
-)
+// Functions of this object are the Action Keys "inCamelCase"
+// See 'redux-actions' for details
+export default createActions({
+    [BalanceActions.GET_TOKENS]: fetchTokens,
+    [BalanceActions.WITHDRAW_TOKENS]: executeWithdrawTokens,
+    [BalanceActions.DEPOSIT_TOKENS]: executeDepositTokens,
+    [BalanceActions.APPROVE_AND_DEPOSIT_TOKENS]: executeApproveAndDepositTokens
+})
