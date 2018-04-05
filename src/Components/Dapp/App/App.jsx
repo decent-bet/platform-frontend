@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from 'react'
 import { BrowserRouter, Switch } from 'react-router-dom'
 import { MuiThemeProvider, Snackbar } from 'material-ui'
+import { Provider } from 'react-redux'
+import store from '../../../Model/store'
 import Dashboard from '../Dashboard'
 import Login from '../Login'
 import PrivateRoute from './PrivateRoute'
@@ -46,21 +48,23 @@ export default class App extends Component {
 
     render() {
         return (
-            <MuiThemeProvider muiTheme={MainTheme}>
-                <Fragment>
-                    <BrowserRouter>
-                        <Switch>
-                            <LogoutRoute
-                                path={constants.VIEW_LOGIN}
-                                component={Login}
-                            />
-                            <PrivateRoute component={Dashboard} />
-                        </Switch>
-                    </BrowserRouter>
+            <Provider store={store}>
+                <MuiThemeProvider muiTheme={MainTheme}>
+                    <Fragment>
+                        <BrowserRouter>
+                            <Switch>
+                                <LogoutRoute
+                                    path={constants.VIEW_LOGIN}
+                                    component={Login}
+                                />
+                                <PrivateRoute component={Dashboard} />
+                            </Switch>
+                        </BrowserRouter>
 
-                    {this.renderSnackBar()}
-                </Fragment>
-            </MuiThemeProvider>
+                        {this.renderSnackBar()}
+                    </Fragment>
+                </MuiThemeProvider>
+            </Provider>
         )
     }
 }

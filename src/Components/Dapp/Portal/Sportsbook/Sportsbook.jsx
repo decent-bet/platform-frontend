@@ -13,27 +13,27 @@ import ethUnits from 'ethereum-units'
 import Helper from '../../../Helper'
 
 // Redux Actions. TODO: cleanup
-import initializationSequence from '../../../Model/Sportsbook/actions/initialization'
+import initializationSequence from '../../../../Model/actions/initialization'
 import {
     getTokenBalance,
     depositTokens,
     withdrawTokens,
     approveAndDepositTokens
-} from '../../../Model/Sportsbook/actions/balanceActions'
-import { getCurrentSessionDepositedTokens } from '../../../Model/Sportsbook/actions/bettingProviderActions'
+} from '../../../../Model/actions/balanceActions'
+import { getCurrentSessionDepositedTokens } from '../../../../Model/actions/bettingProviderActions'
 import {
     getGameItem,
     getGameOddsCount,
     getMaxBetLimit,
     getBetLimitForPeriod,
     getGamePeriodOutcome
-} from '../../../Model/Sportsbook/actions/bettingProviderGameActions'
+} from '../../../../Model/actions/bettingProviderGameActions'
 import {
     getUserBets,
     claimBet,
     setBet
-} from '../../../Model/Sportsbook/actions/betActions'
-import { getGameItem as getOracleGameItem } from '../../../Model/Sportsbook/actions/oracleGameActions'
+} from '../../../../Model/actions/betActions'
+import { getGameItem as getOracleGameItem } from '../../../../Model/actions/oracleGameActions'
 
 import './sportsbook.css'
 

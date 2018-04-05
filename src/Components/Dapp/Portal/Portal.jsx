@@ -3,8 +3,6 @@ import Discover from './Discover'
 import SportsBook from './Sportsbook'
 import PortalNavbar from './PortalNavbar'
 import { Route, Redirect, Switch } from 'react-router'
-import { Provider } from 'react-redux'
-import store from '../../Model/store'
 
 import './portal.css'
 
@@ -15,16 +13,14 @@ export default function Portal(props) {
     let discoverPageUrl = `${match.url}/${constants.PORTAL_PAGE_DISCOVER}`
     let sportsbookPageUrl = `${match.url}/${constants.PORTAL_PAGE_SPORTSBOOK}`
     return (
-        <Provider store={store}>
-            <main className="portal">
-                <PortalNavbar matchUrl={match.url} />
-                <Switch>
-                    <Route path={discoverPageUrl} component={Discover} />
-                    <Route path={sportsbookPageUrl} component={SportsBook} />
-                    {/*FALLBACK ROUTE */}
-                    <Redirect to={discoverPageUrl} />
-                </Switch>
-            </main>
-        </Provider>
+        <main className="portal">
+            <PortalNavbar matchUrl={match.url} />
+            <Switch>
+                <Route path={discoverPageUrl} component={Discover} />
+                <Route path={sportsbookPageUrl} component={SportsBook} />
+                {/*FALLBACK ROUTE */}
+                <Redirect to={discoverPageUrl} />
+            </Switch>
+        </main>
     )
 }

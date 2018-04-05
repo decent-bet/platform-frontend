@@ -3,8 +3,8 @@ import {
     ODDS_TYPE_MONEYLINE,
     BET_CHOICE_TEAM1,
     BET_CHOICE_OVER
-} from '../../../Constants'
-import Helper from '../../../Helper'
+} from '../../Components/Constants'
+import Helper from '../../Components/Helper'
 import { fetchOracleGamesItem } from './oracleGameActions'
 import { createAction } from 'redux-actions'
 import { BettingProviderActions } from '../actionTypes'

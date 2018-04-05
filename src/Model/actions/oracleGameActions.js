@@ -1,4 +1,4 @@
-import Helper from '../../../Helper'
+import Helper from '../../Components/Helper'
 import { createAction } from 'redux-actions'
 import { OracleActions } from '../actionTypes'
 import Bluebird from 'bluebird'
