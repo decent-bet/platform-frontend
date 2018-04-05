@@ -6,7 +6,8 @@ import {
     getAllowance,
     getTokenBalance,
     getTime,
-    getSessionStats
+    getSessionStats,
+    getDepositedTokens
 } from './bettingProviderActions'
 import { getUserBets } from './betActions'
 import {
@@ -37,6 +38,7 @@ export default async function initializationSequence(dispatch) {
         dispatch(getGameUpdateCost()),
         dispatch(getRequestedProviderAddresses()),
         dispatch(getAcceptedProviderAddresses()),
+        dispatch(getDepositedTokens()),
         dispatch(getTokenBalance2())
     )
 }
