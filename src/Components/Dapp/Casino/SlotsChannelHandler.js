@@ -292,7 +292,7 @@ export default class SlotsChannelHandler {
                 }
                 return hashes
             },
-            getSpin: (betSize, state, callback) => {
+            getSpin: async (betSize, state, callback) => {
 
                 const lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]
                 const nonce = state.nonce
@@ -324,13 +324,14 @@ export default class SlotsChannelHandler {
                     betSize: betSize
                 }
 
-                decentApi.signString(self.helpers().getTightlyPackedSpin(spin), (err, sign) => {
-                    if (!err) {
-                        spin.sign = sign.sig
-                        callback(false, spin)
-                    } else
-                        callback(true)
-                })
+                try {
+                    let sign = await decentApi.signString(self.helpers().getTightlyPackedSpin(spin))
+                    spin.sign = sign.sig
+
+                    callback(false, spin)
+                } catch (e) {
+                    callback(true)
+                }
             },
             verifyHouseSpin: (state, houseSpin, userSpin, callback) => {
                 async.waterfall([

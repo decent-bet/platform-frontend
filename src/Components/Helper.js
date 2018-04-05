@@ -30,7 +30,11 @@ class Helper {
     }
 
     getTimestamp = () => {
-        return Math.round(new Date().getTime() / 1000)
+        return this.getTimestampInMillis()/1000
+    }
+
+    getTimestampInMillis = () => {
+        return Math.round(new Date().getTime())
     }
 
     Htmlify(html) {
