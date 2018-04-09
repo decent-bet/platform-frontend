@@ -383,10 +383,10 @@ export default class SlotsChannelHandler {
 
                         // Balances below 0 should be corrected to 0 to ensure no party receives more tokens than
                         // what is available in the created channel.
-                        if (userBalance.lessThanOrEqualTo(0)) {
+                        if (userBalance.isLessThanOrEqualTo(0)) {
                             houseBalance = houseBalance.add(userBalance)
                             userBalance = new BigNumber(0)
-                        } else if (houseBalance.lessThanOrEqualTo(0)) {
+                        } else if (houseBalance.isLessThanOrEqualTo(0)) {
                             userBalance = userBalance.add(houseBalance)
                             houseBalance = new BigNumber(0)
                         }
@@ -394,8 +394,8 @@ export default class SlotsChannelHandler {
                         userBalance = userBalance.toFixed()
                         houseBalance = houseBalance.toFixed()
 
-                        if (new BigNumber(houseSpin.betSize).lessThan(helper.convertToEther(1)) ||
-                            new BigNumber(houseSpin.betSize).greaterThan(helper.convertToEther(5)))
+                        if (new BigNumber(houseSpin.betSize).isLessThan(helper.convertToEther(1)) ||
+                            new BigNumber(houseSpin.betSize).isGreaterThan(helper.convertToEther(5)))
                             callback(true, 'Invalid betSize')
                         else if (houseSpin.userBalance !== userBalance ||
                             houseSpin.houseBalance !== houseBalance) {
