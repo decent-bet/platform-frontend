@@ -39,6 +39,7 @@ export default class App extends Component {
                 // Initialize the datastore
                 store.dispatch(BalanceActions.getPublicAddress())
                 store.dispatch(BalanceActions.getTokens())
+                store.dispatch(BalanceActions.getEtherBalance())
                 store.dispatch(tokenWatchers)
 
                 // Unregister callback

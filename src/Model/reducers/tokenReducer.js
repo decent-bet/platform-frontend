@@ -3,6 +3,7 @@ import { FULFILLED } from 'redux-promise-middleware'
 
 const DefaultTokenState = {
     balance: 0,
+    etherBalance: 0,
     address: '0x'
 }
 
@@ -20,6 +21,11 @@ export default function tokenActions(
             return {
                 ...tokenState,
                 balance: action.payload
+            }
+        case `${Actions.GET_ETHER_BALANCE}_${FULFILLED}`:
+            return {
+                ...tokenState,
+                etherBalance: action.payload
             }
 
         default:

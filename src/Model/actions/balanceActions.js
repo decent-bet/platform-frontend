@@ -89,11 +89,23 @@ async function faucet() {
     }
 }
 
+// Get Total Ether.
+async function fetchEtherBalance() {
+    try {
+        let address = await fetchPublicAddress()
+        let rawAmount = await helper.getWeb3().eth.getBalance(address)
+        return helper.formatEther(rawAmount)
+    } catch (err) {
+        console.log('error retrieving ether balance')
+    }
+}
+
 // Functions of this object are the Action Keys "inCamelCase"
 // See 'redux-actions' for details
 export default createActions({
     [BalanceActions.GET_PUBLIC_ADDRESS]: fetchPublicAddress,
     [BalanceActions.GET_TOKENS]: fetchTokens,
+    [BalanceActions.GET_ETHER_BALANCE]: fetchEtherBalance,
     [BalanceActions.WITHDRAW_TOKENS]: executeWithdrawTokens,
     [BalanceActions.DEPOSIT_TOKENS]: executeDepositTokens,
     [BalanceActions.APPROVE_AND_DEPOSIT_TOKENS]: executeApproveAndDepositTokens,

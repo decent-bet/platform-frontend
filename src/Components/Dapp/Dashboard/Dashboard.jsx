@@ -57,7 +57,8 @@ class Dashboard extends Component {
             <DashboardAppBarToolbar
                 address={this.props.address}
                 onFaucetClickedListener={this.onFaucetClickedListener}
-                etherBalance={this.props.balance}
+                tokenBalance={this.props.balance}
+                etherBalance={this.props.etherBalance}
             />
         </DashboardAppBar>
     )

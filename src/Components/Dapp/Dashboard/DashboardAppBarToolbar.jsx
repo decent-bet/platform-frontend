@@ -13,9 +13,11 @@ function copyConfirmation() {
 export default function DashboardAppBarToolbar({
     address,
     onFaucetClickedListener,
+    tokenBalance,
     etherBalance
 }) {
-    let balanceText = `Balance: ${etherBalance} DBETs`
+    let tokenText = `Tokens: ${tokenBalance} DBETs`
+    let etherText = `Balance: ${etherBalance} Ether`
     return (
         <div className="appbar-toolbar">
             <FlatButton
@@ -27,10 +29,8 @@ export default function DashboardAppBarToolbar({
                 }
                 labelStyle={styles.addressLabel}
             />
-            <FlatButton
-                labelStyle={styles.addressLabel}
-                label={balanceText}
-            />
+            <FlatButton labelStyle={styles.addressLabel} label={tokenText} />
+            <FlatButton labelStyle={styles.addressLabel} label={etherText} />
             <RaisedButton
                 secondary={true}
                 label="Claim faucet"
