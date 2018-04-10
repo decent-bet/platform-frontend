@@ -17,33 +17,16 @@ import BetActions from '../../../../Model/actions/betActions'
 
 import './sportsbook.css'
 
-const DIALOG_CONFIRM_BET = 0,
-    DIALOG_DEPOSIT_TOKENS = 1,
-    DIALOG_WITHDRAW_TOKENS = 2
-
 function mapStateToProps(state, ownProps) {
     return state
 }
 
 class Sportsbook extends Component {
     state = {
-        dialogs: {
-            confirmBet: {
-                open: false,
-                title: 'Place bet',
-                message: '',
-                selectedBet: {
-                    gameId: 0,
-                    oddsId: 0
-                }
-            },
-            depositTokens: {
-                open: false
-            },
-            withdrawTokens: {
-                open: false
-            }
-        }
+        dialogDepositTokenOpen: false,
+        dialogWithdrawTokenOpen: false,
+        dialogConfirmBetOpen: false,
+        dialogConfirmBetCache: {}
     }
 
     componentDidMount = () => {
@@ -60,36 +43,12 @@ class Sportsbook extends Component {
         this.props.dispatch(SportsOracleWatchers.stop)
     }
 
-    helpers = () => {
-        const self = this
-        return {
-            toggleDialog: (type, enabled) => {
-                let dialogs = self.state.dialogs
-                switch (type) {
-                    case DIALOG_CONFIRM_BET:
-                        dialogs.confirmBet.open = enabled
-                        break
-                    case DIALOG_DEPOSIT_TOKENS:
-                        dialogs.depositTokens.open = enabled
-                        break
-                    case DIALOG_WITHDRAW_TOKENS:
-                        dialogs.withdrawTokens.open = enabled
-                        break
-                    default:
-                        // Should never happen. Do nothing.
-                        break
-                }
-                self.setState({ dialogs: dialogs })
-            }
-        }
-    }
-
     onClaimBetListener = (gameItem, betId) =>
         this.props.dispatch(BetActions.claimBet(gameItem.id, betId))
 
     onConfirmBetListener = () => {
-        let selectedBet = this.state.dialogs.confirmBet.selectedBet
-        let { gameItem, oddItem, betAmount, betChoice } = selectedBet
+        let cache = this.state.dialogConfirmBetCache
+        let { gameItem, oddItem, betAmount, betChoice } = cache
         this.props.dispatch(
             BetActions.setBet(
                 gameItem.id,
@@ -99,7 +58,7 @@ class Sportsbook extends Component {
                 betChoice
             )
         )
-        this.helpers().toggleDialog(DIALOG_CONFIRM_BET, false)
+        this.setState({ dialogConfirmBetOpen: false })
     }
 
     onConfirmDepositListener = amount => {
@@ -115,42 +74,38 @@ class Sportsbook extends Component {
     }
 
     onDepositTokensDialogOpen = () =>
-        this.helpers().toggleDialog(DIALOG_DEPOSIT_TOKENS, true)
+        this.setState({ dialogDepositTokenOpen: true })
 
-    onToggleWithdrawDialog = enabled => {
-        this.helpers().toggleDialog(DIALOG_WITHDRAW_TOKENS, enabled)
-    }
+    onToggleWithdrawDialog = enabled =>
+        this.setState({ dialogWithdrawTokenOpen: enabled })
 
-    onToggleDepositDialogListener = enabled => {
-        this.helpers().toggleDialog(DIALOG_DEPOSIT_TOKENS, enabled)
-    }
+    onToggleDepositDialogListener = enabled =>
+        this.setState({ dialogDepositTokenOpen: enabled })
 
     onCloseConfirmBetDialogListener = () =>
-        this.helpers().toggleDialog(DIALOG_CONFIRM_BET, false)
+        this.setState({ dialogConfirmBetOpen: false })
 
     onOpenConfirmBetDialogListener = (game, oddItem, betAmount, betChoice) => {
-        let dialogs = this.state.dialogs
-
         let parsedBetAmount = new BigNumber(betAmount).toNumber()
         let homeTeam = game.oracleInfo.team1
         let awayTeam = game.oracleInfo.team2
-        dialogs.confirmBet.message =
+        let message =
             `You are now placing a bet of` +
             `${parsedBetAmount} DBETs for ${homeTeam} vs ${awayTeam}. ` +
             `Please click OK to confirm your bet`
 
-        dialogs.confirmBet.selectedBet = {
+        let dialogConfirmBetCache = {
+            message,
             gameItem: game,
             oddItem: oddItem,
             betAmount: betAmount,
             betChoice: betChoice
         }
-        dialogs.confirmBet.open = true
-        this.setState({ dialogs: dialogs })
+        this.setState({ dialogConfirmBetOpen: true, dialogConfirmBetCache })
     }
 
     onOpenWithdrawDialog = () =>
-        this.helpers().toggleDialog(DIALOG_WITHDRAW_TOKENS, true)
+        this.setState({ dialogWithdrawTokenOpen: true })
 
     onWithdrawListener = amount => {
         let formattedAmount = new BigNumber(amount)
@@ -167,14 +122,14 @@ class Sportsbook extends Component {
     renderDialogs = () => (
         <Fragment>
             <ConfirmationDialog
-                open={this.state.dialogs.confirmBet.open}
-                title={this.state.dialogs.confirmBet.title}
-                message={this.state.dialogs.confirmBet.message}
+                open={this.state.dialogConfirmBetOpen}
+                title="Bet Confirmation"
+                message={this.state.dialogConfirmBetCache.message}
                 onClick={this.onConfirmBetListener}
                 onClose={this.onCloseConfirmBetDialogListener}
             />
             <DepositTokensDialog
-                open={this.state.dialogs.depositTokens.open}
+                open={this.state.dialogDepositTokenOpen}
                 sessionNumber={this.props.bettingProvider.currentSession}
                 onConfirm={this.onConfirmDepositListener}
                 allowance={this.props.bettingProvider.allowance}
@@ -182,7 +137,7 @@ class Sportsbook extends Component {
                 toggleDialog={this.onToggleDepositDialogListener}
             />
             <WithdrawTokensDialog
-                open={this.state.dialogs.withdrawTokens.open}
+                open={this.state.dialogWithdrawTokenOpen}
                 sessionNumber={this.props.bettingProvider.currentSession}
                 onConfirm={this.onWithdrawListener}
                 balance={this.props.bettingProvider.depositedTokens}

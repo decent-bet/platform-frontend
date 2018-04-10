@@ -4,6 +4,40 @@ import { getPeriodDescription } from '../functions'
 export default function BetLimits({ game }) {
     const betLimits = game.betLimits
     const maxBetLimit = game.maxBetLimit
+    const betLimitArray = []
+    for (const key in betLimits) {
+        if (betLimits.hasOwnProperty(key)) {
+            const element = betLimits[key]
+            betLimitArray.push(
+                <div className="row" key={key}>
+                    <div className="col-12 mb-3">
+                        <p className="text-center key">PERIOD</p>
+                        <p className="text-center">
+                            {getPeriodDescription(game, parseInt(key, 10))}
+                        </p>
+                    </div>
+                    <div className="col-3">
+                        <p className="text-center key">SPREAD</p>
+                        <p className="text-center">{element.spread} DBETs</p>
+                    </div>
+                    <div className="col-3">
+                        <p className="text-center key">MONEYLINE</p>
+                        <p className="text-center">{element.moneyline} DBETs</p>
+                    </div>
+                    <div className="col-3">
+                        <p className="text-center key">TOTALS</p>
+                        <p className="text-center">{element.totals} DBETs</p>
+                    </div>
+                    <div className="col-3">
+                        <p className="text-center key">TEAM TOTALS</p>
+                        <p className="text-center">
+                            {element.teamTotals} DBETs
+                        </p>
+                    </div>
+                </div>
+            )
+        }
+    }
     return (
         <div className="col-12 bet-limits">
             <div className="row">
@@ -12,40 +46,7 @@ export default function BetLimits({ game }) {
                     <p className="text-center">{maxBetLimit} DBETs</p>
                 </div>
             </div>
-            {Object.keys(betLimits).map((period, index) => (
-                <div className="row" key={index}>
-                    <div className="col-12 mb-3">
-                        <p className="text-center key">PERIOD</p>
-                        <p className="text-center">
-                            {getPeriodDescription(game, parseInt(period, 10))}
-                        </p>
-                    </div>
-                    <div className="col-3">
-                        <p className="text-center key">SPREAD</p>
-                        <p className="text-center">
-                            {betLimits[period].spread} DBETs
-                        </p>
-                    </div>
-                    <div className="col-3">
-                        <p className="text-center key">MONEYLINE</p>
-                        <p className="text-center">
-                            {betLimits[period].moneyline} DBETs
-                        </p>
-                    </div>
-                    <div className="col-3">
-                        <p className="text-center key">TOTALS</p>
-                        <p className="text-center">
-                            {betLimits[period].totals} DBETs
-                        </p>
-                    </div>
-                    <div className="col-3">
-                        <p className="text-center key">TEAM TOTALS</p>
-                        <p className="text-center">
-                            {betLimits[period].teamTotals} DBETs
-                        </p>
-                    </div>
-                </div>
-            ))}
+            {betLimitArray}
         </div>
     )
 }
