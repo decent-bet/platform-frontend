@@ -68,11 +68,34 @@ async function executeApproveAndDepositTokens(amount) {
     }
 }
 
+async function fetchPublicAddress() {
+    return Promise.resolve(helper.getWeb3().eth.defaultAccount)
+}
+
+async function faucet() {
+    try {
+        let tx = await helper
+            .getContractHelper()
+            .getWrappers()
+            .token()
+            .faucet()
+
+        console.log('Sent faucet tx', tx)
+        helper.toggleSnackbar('Successfully sent faucet transaction')
+        return tx
+    } catch (err) {
+        helper.toggleSnackbar('Error sending faucet transaction')
+        console.log('Error sending faucet tx', err.message)
+    }
+}
+
 // Functions of this object are the Action Keys "inCamelCase"
 // See 'redux-actions' for details
 export default createActions({
+    [BalanceActions.GET_PUBLIC_ADDRESS]: fetchPublicAddress,
     [BalanceActions.GET_TOKENS]: fetchTokens,
     [BalanceActions.WITHDRAW_TOKENS]: executeWithdrawTokens,
     [BalanceActions.DEPOSIT_TOKENS]: executeDepositTokens,
-    [BalanceActions.APPROVE_AND_DEPOSIT_TOKENS]: executeApproveAndDepositTokens
+    [BalanceActions.APPROVE_AND_DEPOSIT_TOKENS]: executeApproveAndDepositTokens,
+    [BalanceActions.FAUCET]: faucet
 })

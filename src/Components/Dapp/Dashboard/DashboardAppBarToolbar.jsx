@@ -6,11 +6,6 @@ import Helper from '../../Helper'
 const styles = require('../../Base/styles').styles()
 const helper = new Helper()
 
-function getFormattedBalance(balance) {
-    if (balance) return helper.roundDecimals(helper.formatEther(balance), 4)
-    else return 0
-}
-
 function copyConfirmation() {
     helper.toggleSnackbar('Copied address to clipboard')
 }
@@ -20,7 +15,7 @@ export default function DashboardAppBarToolbar({
     onFaucetClickedListener,
     etherBalance
 }) {
-    let balanceText = `Balance: ${getFormattedBalance(etherBalance)} DBETs`
+    let balanceText = `Balance: ${etherBalance} DBETs`
     return (
         <div className="appbar-toolbar">
             <FlatButton

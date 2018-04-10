@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react'
 import { BrowserRouter, Switch } from 'react-router-dom'
-import { MuiThemeProvider, Snackbar } from 'material-ui'
+import { MuiThemeProvider, Snackbar, CircularProgress } from 'material-ui'
 import { Provider } from 'react-redux'
 import store from '../../../Model/store'
 import Dashboard from '../Dashboard'
@@ -8,16 +8,18 @@ import Login from '../Login'
 import PrivateRoute from './PrivateRoute'
 import LogoutRoute from './LogoutRoute'
 import EventBus from 'eventing-bus'
+import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import { MainTheme, SnackbarTheme } from '../../Base/Themes'
-import initializationSequence from '../../../Model/actions/initialization'
-import initWatchers from '../../../Model/watchers'
+import BalanceActions from '../../../Model/actions/balanceActions'
+import tokenWatchers from '../../../Model/watchers/tokenWatchers'
 
 const constants = require('../../Constants')
 
 export default class App extends Component {
     state = {
         snackbarMessage: null,
-        isSnackBarOpen: false
+        isSnackBarOpen: false,
+        stateMachine: 'loading'
     }
 
     componentWillMount = () => {
@@ -32,13 +34,21 @@ export default class App extends Component {
             this.initWeb3Data()
         } else {
             let web3Loaded = EventBus.on('web3Loaded', () => {
+                this.setState({ stateMachine: 'loaded' })
 
                 // Initialize the datastore
-                store.dispatch(initializationSequence)
-                store.dispatch(initWatchers)
+                store.dispatch(BalanceActions.getPublicAddress())
+                store.dispatch(BalanceActions.getTokens())
+                store.dispatch(tokenWatchers)
 
                 // Unregister callback
                 web3Loaded()
+            })
+
+            // Listen for error state
+            let web3NotLoaded = EventBus.on('web3NotLoaded', () => {
+                this.setState({ stateMachine: 'error' })
+                web3NotLoaded()
             })
         }
     }
@@ -55,7 +65,52 @@ export default class App extends Component {
                 </MuiThemeProvider>
             )
         } else {
-            return <span />
+            return null
+        }
+    }
+
+    renderStateLoaded = () => (
+        <Fragment>
+            <BrowserRouter>
+                <Switch>
+                    <LogoutRoute
+                        path={constants.VIEW_LOGIN}
+                        component={Login}
+                    />
+                    <PrivateRoute component={Dashboard} />
+                </Switch>
+            </BrowserRouter>
+
+            {this.renderSnackBar()}
+        </Fragment>
+    )
+
+    renderStateError = () => (
+        <ConfirmationDialog
+            open={true}
+            title="Not connected to Web3 Provider"
+            message={
+                "Looks like you aren't connected to a local node. " +
+                'Please setup a local node with an open RPC port @ 8545 and try again.'
+            }
+        />
+    )
+
+    renderStateLoading = () => <CircularProgress />
+
+    renderInner = () => {
+        switch (this.state.stateMachine) {
+            case 'loaded':
+                return this.renderStateLoaded()
+
+            case 'loading':
+                return this.renderStateLoading()
+
+            case 'error':
+                return this.renderStateError()
+
+            default:
+                return null
         }
     }
 
@@ -63,19 +118,7 @@ export default class App extends Component {
         return (
             <Provider store={store}>
                 <MuiThemeProvider muiTheme={MainTheme}>
-                    <Fragment>
-                        <BrowserRouter>
-                            <Switch>
-                                <LogoutRoute
-                                    path={constants.VIEW_LOGIN}
-                                    component={Login}
-                                />
-                                <PrivateRoute component={Dashboard} />
-                            </Switch>
-                        </BrowserRouter>
-
-                        {this.renderSnackBar()}
-                    </Fragment>
+                    {this.renderInner()}
                 </MuiThemeProvider>
             </Provider>
         )

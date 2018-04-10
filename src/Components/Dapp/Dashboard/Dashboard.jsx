@@ -1,126 +1,33 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
 
 import DashboardAppBar from './DashboardAppBar'
 import DashboardAppBarToolbar from './DashboardAppBarToolbar'
 import DashboardRouter from './DashboardRouter'
 import DashboardDrawer from './DashboardDrawer'
 import ProviderSelector from './ProviderSelector'
-
-import EventBus from 'eventing-bus'
+import Helper from '../../Helper'
+import BalanceActions from '../../../Model/actions/balanceActions'
 
 import './dashboard.css'
 
-import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
-import Helper from '../../Helper'
-
 const helper = new Helper()
 
-export default class Dashboard extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            provider: helper.getGethProvider(),
-            address: helper.getWeb3().eth.defaultAccount,
-            balance: 0,
-            drawerOpen: false,
-            web3Loaded: true,
-            dialogs: {
-                web3NotLoaded: {
-                    open: true
-                }
-            }
-        }
-    }
+// Filter the Redux state. Only allows the tokenReducer section.
+function mapStatetoProps(state) {
+    return state.token
+}
 
-    componentWillMount = () => {
-        this.initData()
-    }
-
-    initData = () => {
-        const self = this
-        if (window.web3Loaded) {
-            self.onWeb3Loaded()
-        } else {
-            let web3Loaded = EventBus.on('web3Loaded', () => {
-                self.onWeb3Loaded()
-                // Unregister callback
-                web3Loaded()
-            })
-        }
-
-        let web3NotLoaded = EventBus.on('web3NotLoaded', () => {
-            self.setState({
-                web3Loaded: false
-            })
-            web3NotLoaded()
-        })
-    }
-
-    onWeb3Loaded = () => {
-        this.setState({
-            web3Loaded: true,
-            address: helper.getWeb3().eth.defaultAccount
-        })
-        this.initWeb3Data()
-        this.initWatchers()
-    }
-
-    initWeb3Data = () => {
-        this.initBalance()
-    }
-
-    initBalance = async () => {
-        // Get balance from Web3
-        let balance = await helper
-            .getContractHelper()
-            .getWrappers()
-            .token()
-            .balanceOf(helper.getWeb3().eth.defaultAccount)
-
-        this.setState({ balance: balance })
-    }
-
-    initWatchers = () => {
-        // Watcher - Transfer For
-        helper
-            .getContractHelper()
-            .getWrappers()
-            .token()
-            .logTransfer(this.state.address, true)
-            .watch((err, event) => {
-                if (!err) {
-                    this.initBalance()
-                }
-            })
-
-        // Watcher - Transfer to
-        helper
-            .getContractHelper()
-            .getWrappers()
-            .token()
-            .logTransfer(this.state.address, false)
-            .watch((err, event) => {
-                if (!err) {
-                    this.initBalance()
-                }
-            })
+class Dashboard extends Component {
+    state = {
+        provider: helper.getGethProvider(),
+        drawerOpen: false,
+        web3Loaded: false
     }
 
     // Faucet Button Clicked. Execute Faucet
-    onFaucetClickedListener = async () => {
-        try {
-            let tx = await helper
-                .getContractHelper()
-                .getWrappers()
-                .token()
-                .faucet()
-
-            console.log('Sent faucet tx', tx)
-            helper.toggleSnackbar('Successfully sent faucet transaction')
-        } catch (err) {
-            helper.toggleSnackbar('Error sending faucet transaction')
-            console.log('Error sending faucet tx', err.message)
-        }
+    onFaucetClickedListener = () => {
+        this.props.dispatch(BalanceActions.faucet())
     }
 
     onDrawerButtonPressedListener = open => this.setState({ drawerOpen: open })
@@ -148,9 +55,9 @@ export default class Dashboard extends Component {
     renderAppbar = () => (
         <DashboardAppBar onToggleDrawerListener={this.onToggleDrawerListener}>
             <DashboardAppBarToolbar
-                address={this.state.address}
+                address={this.props.address}
                 onFaucetClickedListener={this.onFaucetClickedListener}
-                etherBalance={this.state.balance}
+                etherBalance={this.props.balance}
             />
         </DashboardAppBar>
     )
@@ -169,32 +76,18 @@ export default class Dashboard extends Component {
         </DashboardDrawer>
     )
 
-    renderDashboard = () => {
-        if (this.state.web3Loaded) {
-            return (
-                <Fragment>
-                    {this.renderAppbar()}
-                    <div className="main">
-                        <DashboardRouter />
-                    </div>
-                    {this.renderDrawer()}
-                </Fragment>
-            )
-        } else {
-            return (
-                <ConfirmationDialog
-                    open={this.state.dialogs.web3NotLoaded.open}
-                    title="Not connected to Web3 Provider"
-                    message={
-                        "Looks like you aren't connected to a local node. " +
-                        'Please setup a local node with an open RPC port @ 8545 and try again.'
-                    }
-                />
-            )
-        }
-    }
-
     render() {
-        return <div className="dashboard">{this.renderDashboard()}</div>
+        return (
+            <div className="dashboard">
+                {this.renderAppbar()}
+                <div className="main">
+                    <DashboardRouter />
+                </div>
+                {this.renderDrawer()}
+            </div>
+        )
     }
 }
+
+// Connect this component to Redux
+export default connect(mapStatetoProps)(Dashboard)

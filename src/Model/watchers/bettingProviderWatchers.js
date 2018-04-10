@@ -6,7 +6,30 @@ import BettingProviderGameActions from '../actions/bettingProviderGameActions'
 
 const helper = new Helper()
 
-export default function bettingProviderWachers(dispatch) {
+function stop(_dispatch) {
+    let contract = helper
+        .getContractHelper()
+        .getWrappers()
+        .bettingProvider()
+
+    // TODO: As of Web3 1.beta33 this is broken.
+    try {
+        contract.logDeposit().stopWatching()
+        contract.logWithdraw().stopWatching()
+        contract.logNewBet().stopWatching()
+        contract.logNewGame().stopWatching()
+        contract.logNewGameOdds().stopWatching()
+        contract.logUpdatedGameOdds().stopWatching()
+        contract.logUpdatedMaxBet().stopWatching()
+        contract.logUpdatedBetLimits().stopWatching()
+        contract.logClaimedBet().stopWatching()
+        contract.logUpdatedTime().stopWatching()
+    } catch (error) {
+        console.log('Web 3 Event deregistration broken')
+    }
+}
+
+export function init(dispatch) {
     let contract = helper
         .getContractHelper()
         .getWrappers()
@@ -126,4 +149,9 @@ export default function bettingProviderWachers(dispatch) {
         let time = event.args.time.toNumber()
         dispatch(BettingProviderActions.setTime(time))
     })
+}
+
+export default {
+    stop,
+    init
 }

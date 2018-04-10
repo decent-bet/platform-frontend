@@ -9,6 +9,9 @@ import PlacedBetsCard from './PlacedBetsCard'
 import { connect } from 'react-redux'
 import BigNumber from 'bignumber.js'
 import ethUnits from 'ethereum-units'
+import reduxInitializationSequence from './reduxInitializationSequence'
+import BettingProviderWatchers from '../../../../Model/watchers/bettingProviderWatchers'
+import SportsOracleWatchers from '../../../../Model/watchers/sportsOracleWatchers'
 import BalanceActions from '../../../../Model/actions/balanceActions'
 import BetActions from '../../../../Model/actions/betActions'
 
@@ -41,6 +44,20 @@ class Sportsbook extends Component {
                 open: false
             }
         }
+    }
+
+    componentDidMount = () => {
+        this.props.dispatch(reduxInitializationSequence)
+
+        // Watchers
+        this.props.dispatch(BettingProviderWatchers.init)
+        this.props.dispatch(SportsOracleWatchers.init)
+    }
+
+    componentWillUnmount = () => {
+        // watchers
+        this.props.dispatch(BettingProviderWatchers.stop)
+        this.props.dispatch(SportsOracleWatchers.stop)
     }
 
     helpers = () => {

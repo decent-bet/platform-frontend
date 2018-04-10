@@ -5,7 +5,7 @@ import OracleBasicActions from '../actions/oracleBasicActions'
 
 const helper = new Helper()
 
-export default function sportsOracleWatchers(dispatch) {
+export function init(dispatch) {
     let contract = helper
         .getContractHelper()
         .getWrappers()
@@ -43,4 +43,25 @@ export default function sportsOracleWatchers(dispatch) {
         let time = event.args.time.toNumber()
         dispatch(OracleBasicActions.setTime(time))
     })
+}
+
+export function stop(_dispatch) {
+    let contract = helper
+        .getContractHelper()
+        .getWrappers()
+        .sportsOracle()
+
+    // TODO: As of Web3 1.beta33 this is broken.
+    try {
+        contract.logGameAdded().stopWatching()
+        contract.logUpdatedProviderOutcome().stopWatching()
+        contract.logUpdatedTime().stopWatching()
+    } catch (error) {
+        console.log('Web 3 Event deregistration broken')
+    }
+}
+
+export default {
+    init,
+    stop
 }
