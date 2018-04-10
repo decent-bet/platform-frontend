@@ -8,8 +8,8 @@ import Helper from '../../Components/Helper'
 import { fetchOracleGamesItem } from './oracleGameActions'
 import { createActions } from 'redux-actions'
 import { BettingProviderActions } from '../actionTypes'
+import ethUnits from 'ethereum-units'
 
-const ethUnits = require('ethereum-units')
 const helper = new Helper()
 
 async function fetchGamePeriodOutcomes(gameId, period) {
