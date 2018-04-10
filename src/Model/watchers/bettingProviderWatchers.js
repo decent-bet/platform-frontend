@@ -48,6 +48,7 @@ export function init(dispatch) {
         )
 
         dispatch(BalanceActions.getTokens())
+        dispatch(BettingProviderActions.getTokenBalance())
         dispatch(BettingProviderActions.getDepositedTokens(session))
     })
 
@@ -64,6 +65,7 @@ export function init(dispatch) {
         )
 
         dispatch(BalanceActions.getTokens())
+        dispatch(BettingProviderActions.getTokenBalance())
         dispatch(BettingProviderActions.getDepositedTokens(session))
     })
 

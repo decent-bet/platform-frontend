@@ -5,15 +5,15 @@ export default function BetLimits({ game }) {
     const betLimits = game.betLimits
     const maxBetLimit = game.maxBetLimit
     const betLimitArray = []
-    for (const key in betLimits) {
-        if (betLimits.hasOwnProperty(key)) {
-            const element = betLimits[key]
+    for (const period in betLimits) {
+        if (betLimits.hasOwnProperty(period)) {
+            const element = betLimits[period]
             betLimitArray.push(
-                <div className="row" key={key}>
+                <div className="row" key={period}>
                     <div className="col-12 mb-3">
                         <p className="text-center key">PERIOD</p>
                         <p className="text-center">
-                            {getPeriodDescription(game, parseInt(key, 10))}
+                            {getPeriodDescription(game, parseInt(period, 10))}
                         </p>
                     </div>
                     <div className="col-3">
