@@ -9,7 +9,7 @@ import {
 const SlotsManagerDefaultState = {
     channels: {},
     allowance: 0,
-    balances: {},
+    balance: 0,
     currentSession: -1
 }
 
@@ -61,14 +61,7 @@ export default function slotsManagerReducer(
 ) {
     switch (action.type) {
         case `${PREFIX}/${Actions.GET_BALANCE}/${FULFILLED}`:
-            let newBalance = action.payload
-            return {
-                ...slotsManagerState,
-                balances: {
-                    ...slotsManagerState.balances,
-                    [newBalance.sessionId]: newBalance.balance
-                }
-            }
+            return { ...slotsManagerState, balance: action.payload }
 
         case `${PREFIX}/${Actions.GET_SESSION_ID}/${FULFILLED}`:
             return { ...slotsManagerState, currentSession: action.payload }

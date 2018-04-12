@@ -45,7 +45,7 @@ class Slots extends Component {
     // How many Chips are in the session? if session isn't open, print `placeholder`
     getChipBalance = (placeholder = null) => {
         if (this.props.currentSession >= 0) {
-            let balance = this.props.balances[this.props.currentSession]
+            let balance = this.props.balance
             if (balance >= 0) {
                 // Session is open. Print token total
                 let sessionString = balance.toString()
@@ -87,7 +87,7 @@ class Slots extends Component {
 
     // Withdraw Chips from the State Channel
     onWithdrawChipsListener = amount => {
-        let rawBalance = this.props.balances[this.props.currentSession]
+        let rawBalance = this.props.balance
         console.log('onWithdrawChips', amount, rawBalance)
         let balance = new BigNumber(rawBalance)
         if (balance.isGreaterThanOrEqualTo(amount)) {

@@ -11,7 +11,8 @@ export default function Stats({
     onOpenWithdrawDialog
 }) {
     let warning = null
-    if (bettingProvider.depositedTokens === 0) {
+    let formattedTokens = helper.formatEther(bettingProvider.depositedTokens)
+    if (formattedTokens === '0.00') {
         warning = (
             <div className="col-12 mt-4">
                 <p className="text-danger text-center text-uppercase small">
@@ -36,7 +37,7 @@ export default function Stats({
                     </div>
                     <div className="col-6">
                         <p className="key text-center">Your Session Balance</p>
-                        <p>{bettingProvider.depositedTokens} DBETs</p>
+                        <p>{formattedTokens} DBETs</p>
                         <RaisedButton
                             primary={true}
                             fullWidth={true}

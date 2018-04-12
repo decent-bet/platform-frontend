@@ -40,7 +40,7 @@ async function fetchDepositedTokens() {
             .getWrappers()
             .bettingProvider()
             .balanceOf(helper.getWeb3().eth.defaultAccount, session)
-        return helper.formatEther(result)
+        return result
     } catch (err) {
         console.log('Error retrieving balance', err.message)
     }

@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
 import { Dialog, FlatButton, TextField } from 'material-ui'
+import Helper from '../../../Helper'
+
+const helper = new Helper()
 
 export default class WithdrawTokensDialog extends Component {
     constructor(props) {
@@ -65,7 +68,8 @@ export default class WithdrawTokensDialog extends Component {
                     errorText={errorMessage}
                 />
                 <p className="color-gold">
-                    Available balance: {this.props.balance} DBETs
+                    Available balance: {helper.formatEther(this.props.balance)}{' '}
+                    DBETs
                 </p>
             </Dialog>
         )

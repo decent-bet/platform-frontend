@@ -48,7 +48,7 @@ async function fetchSessionBalance() {
             .getWrappers()
             .slotsChannelManager()
             .balanceOf(helper.getWeb3().eth.defaultAccount, sessionId)
-        return { sessionId: sessionId, balance: balance.toFixed() }
+        return balance.toFixed()
     } catch (err) {
         console.log('Error retrieving balance', err.message)
     }
