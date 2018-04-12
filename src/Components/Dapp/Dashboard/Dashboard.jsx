@@ -7,16 +7,11 @@ import DashboardRouter from './DashboardRouter'
 import DashboardDrawer from './DashboardDrawer'
 import ProviderSelector from './ProviderSelector'
 import Helper from '../../Helper'
-import BalanceActions from '../../../Model/actions/balanceActions'
+import { Actions } from '../../../Model/balance'
 
 import './dashboard.css'
 
 const helper = new Helper()
-
-// Filter the Redux state. Only allows the tokenReducer section.
-function mapStatetoProps(state) {
-    return state.token
-}
 
 class Dashboard extends Component {
     state = {
@@ -27,7 +22,7 @@ class Dashboard extends Component {
 
     // Faucet Button Clicked. Execute Faucet
     onFaucetClickedListener = () => {
-        this.props.dispatch(BalanceActions.faucet())
+        this.props.dispatch(Actions.faucet())
     }
 
     onDrawerButtonPressedListener = open => this.setState({ drawerOpen: open })
@@ -91,4 +86,4 @@ class Dashboard extends Component {
 }
 
 // Connect this component to Redux
-export default connect(mapStatetoProps)(Dashboard)
+export default connect(state => state.balance)(Dashboard)

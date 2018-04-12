@@ -1,11 +1,16 @@
+import basicActions from './basicActions'
+import gameActions from './gameActions'
+import { Actions as BettingProviderActions } from '../bettingProvider'
+import reducer from './reducer'
 import Helper from '../../Components/Helper'
-import BettingProviderGameActions from '../actions/bettingProviderGameActions'
-import OracleGameActions from '../actions/oracleGameActions'
-import OracleBasicActions from '../actions/oracleBasicActions'
 
 const helper = new Helper()
 
-export function init(dispatch) {
+// Combine all actions into a single object
+export const Actions = { ...basicActions.oracle, ...gameActions.oracle }
+export const Reducer = reducer
+
+export function initWatchers(dispatch) {
     let contract = helper
         .getContractHelper()
         .getWrappers()
@@ -15,7 +20,7 @@ export function init(dispatch) {
     contract.logGameAdded().watch((err, event) => {
         console.log('Game added event', err, JSON.stringify(event))
         let id = event.args.id.toNumber()
-        dispatch(OracleGameActions.getGameItem(id))
+        dispatch(Actions.getGameItem(id))
     })
 
     // Updated provider outcome
@@ -30,7 +35,7 @@ export function init(dispatch) {
 
         helper.toggleSnackbar(`Results pushed for game - ID ${providerGameId}`)
 
-        let action = BettingProviderGameActions.getGamePeriodOutcome(
+        let action = BettingProviderActions.getGamePeriodOutcome(
             providerGameId,
             period
         )
@@ -41,11 +46,11 @@ export function init(dispatch) {
     contract.logUpdatedTime().watch((err, event) => {
         console.log('Updated oracle time event', err, event)
         let time = event.args.time.toNumber()
-        dispatch(OracleBasicActions.setTime(time))
+        dispatch(Actions.setTime(time))
     })
 }
 
-export function stop(_dispatch) {
+export function stopWatchers(_dispatch) {
     let contract = helper
         .getContractHelper()
         .getWrappers()
@@ -57,11 +62,6 @@ export function stop(_dispatch) {
         contract.logUpdatedProviderOutcome().stopWatching()
         contract.logUpdatedTime().stopWatching()
     } catch (error) {
-        console.log('Web 3 Event deregistration broken')
+        console.warn('Web 3 Event deregistration broken')
     }
-}
-
-export default {
-    init,
-    stop
 }

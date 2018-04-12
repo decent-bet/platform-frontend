@@ -1,7 +1,4 @@
-import {
-    SlotChannelActions as Actions,
-    SlotChannelPrefix
-} from '../actionTypes'
+import Actions, { PREFIX } from './actionTypes'
 import { createActions } from 'redux-actions'
 import Helper from '../../Components/Helper'
 import SlotsChannelHandler from '../../Components/Dapp/Casino/SlotsChannelHandler'
@@ -141,8 +138,11 @@ async function withdrawChips(amount) {
     }
 }
 
+// Functions of this object are the "ACTION_KEYS" "inCamelCase"
+// They are namespaced by the "Prefix" "inCamelCase".
+// Documentation https://redux-actions.js.org/docs/api/createAction.html#createactionsactionmap
 export default createActions({
-    [SlotChannelPrefix]: {
+    [PREFIX]: {
         [Actions.APPROVE_AND_DEPOSIT_CHIPS]: approveAndDepositChips,
         [Actions.CREATE_CHANNEL]: createChannel,
         [Actions.DEPOSIT_TO_CHANNEL]: depositToChannel,

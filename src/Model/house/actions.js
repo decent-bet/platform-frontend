@@ -1,5 +1,5 @@
 import Helper from '../../Components/Helper'
-import { HouseActions as Actions } from '../actionTypes'
+import Actions, { Prefix } from './actionTypes'
 import { createActions } from 'redux-actions'
 
 const helper = new Helper()
@@ -227,16 +227,21 @@ async function executeApproveAndPurchaseCredits(amount) {
     }
 }
 
+// Functions of this object are the "ACTION_KEYS" "inCamelCase"
+// They are namespaced by the "Prefix" "inCamelCase".
+// Documentation https://redux-actions.js.org/docs/api/createAction.html#createactionsactionmap
 export default createActions({
-    [Actions.GET_HOUSE_SESSION_ID]: fetchCurrentSessionId,
-    [Actions.GET_HOUSE_SESSION_DATA]: fetchSessionData,
-    [Actions.GET_HOUSE_AUTHORIZED_ADDRESSES]: fetchAuthorizedAddresses,
-    [Actions.GET_HOUSE_ALLOWANCE]: fetchHouseAllowance,
-    [Actions.SET_HOUSE_PURCHASED_CREDITS]: (sessionNumber, credits) => ({
-        sessionNumber,
-        credits
-    }),
+    [Prefix]: {
+        [Actions.GET_HOUSE_SESSION_ID]: fetchCurrentSessionId,
+        [Actions.GET_HOUSE_SESSION_DATA]: fetchSessionData,
+        [Actions.GET_HOUSE_AUTHORIZED_ADDRESSES]: fetchAuthorizedAddresses,
+        [Actions.GET_HOUSE_ALLOWANCE]: fetchHouseAllowance,
+        [Actions.SET_HOUSE_PURCHASED_CREDITS]: (sessionNumber, credits) => ({
+            sessionNumber,
+            credits
+        }),
 
-    [Actions.PURCHASE_HOUSE_CREDITS]: executePurchaseCredits,
-    [Actions.APPROVE_AND_PURCHASE_HOUSE_CREDITS]: executeApproveAndPurchaseCredits
+        [Actions.PURCHASE_HOUSE_CREDITS]: executePurchaseCredits,
+        [Actions.APPROVE_AND_PURCHASE_HOUSE_CREDITS]: executeApproveAndPurchaseCredits
+    }
 })

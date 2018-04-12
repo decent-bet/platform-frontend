@@ -1,6 +1,6 @@
 import Helper from '../../Components/Helper'
 import { createActions } from 'redux-actions'
-import { BalanceActions } from '../actionTypes'
+import Actions, { Prefix } from './actionTypes'
 
 const helper = new Helper()
 
@@ -100,14 +100,17 @@ async function fetchEtherBalance() {
     }
 }
 
-// Functions of this object are the Action Keys "inCamelCase"
-// See 'redux-actions' for details
+// Functions of this object are the "ACTION_KEYS" "inCamelCase"
+// They are namespaced by the "Prefix" "inCamelCase".
+// Documentation https://redux-actions.js.org/docs/api/createAction.html#createactionsactionmap
 export default createActions({
-    [BalanceActions.GET_PUBLIC_ADDRESS]: fetchPublicAddress,
-    [BalanceActions.GET_TOKENS]: fetchTokens,
-    [BalanceActions.GET_ETHER_BALANCE]: fetchEtherBalance,
-    [BalanceActions.WITHDRAW_TOKENS]: executeWithdrawTokens,
-    [BalanceActions.DEPOSIT_TOKENS]: executeDepositTokens,
-    [BalanceActions.APPROVE_AND_DEPOSIT_TOKENS]: executeApproveAndDepositTokens,
-    [BalanceActions.FAUCET]: faucet
+    [Prefix]: {
+        [Actions.GET_PUBLIC_ADDRESS]: fetchPublicAddress,
+        [Actions.GET_TOKENS]: fetchTokens,
+        [Actions.GET_ETHER_BALANCE]: fetchEtherBalance,
+        [Actions.WITHDRAW_TOKENS]: executeWithdrawTokens,
+        [Actions.DEPOSIT_TOKENS]: executeDepositTokens,
+        [Actions.APPROVE_AND_DEPOSIT_TOKENS]: executeApproveAndDepositTokens,
+        [Actions.FAUCET]: faucet
+    }
 })

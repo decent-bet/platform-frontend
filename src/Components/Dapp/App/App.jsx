@@ -10,10 +10,8 @@ import LogoutRoute from './LogoutRoute'
 import EventBus from 'eventing-bus'
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import { MainTheme, SnackbarTheme } from '../../Base/Themes'
-import BalanceActions from '../../../Model/actions/balanceActions'
-import tokenWatchers from '../../../Model/watchers/tokenWatchers'
-
-const constants = require('../../Constants')
+import { Actions, initWatchers } from '../../../Model/balance'
+import { VIEW_LOGIN } from '../../Constants'
 
 export default class App extends Component {
     state = {
@@ -37,10 +35,10 @@ export default class App extends Component {
                 this.setState({ stateMachine: 'loaded' })
 
                 // Initialize the datastore
-                store.dispatch(BalanceActions.getPublicAddress())
-                store.dispatch(BalanceActions.getTokens())
-                store.dispatch(BalanceActions.getEtherBalance())
-                store.dispatch(tokenWatchers)
+                store.dispatch(Actions.getPublicAddress())
+                store.dispatch(Actions.getTokens())
+                store.dispatch(Actions.getEtherBalance())
+                store.dispatch(initWatchers)
 
                 // Unregister callback
                 web3Loaded()
@@ -74,10 +72,7 @@ export default class App extends Component {
         <Fragment>
             <BrowserRouter>
                 <Switch>
-                    <LogoutRoute
-                        path={constants.VIEW_LOGIN}
-                        component={Login}
-                    />
+                    <LogoutRoute path={VIEW_LOGIN} component={Login} />
                     <PrivateRoute component={Dashboard} />
                 </Switch>
             </BrowserRouter>

@@ -14,8 +14,7 @@ import SessionStats from './SessionStats'
 import { BigNumber } from 'bignumber.js'
 import ethUnits from 'ethereum-units'
 import { connect } from 'react-redux'
-import HouseActions from '../../../Model/actions/houseActions'
-import HouseWatchers from '../../../Model/watchers/houseWatchers'
+import { Actions, initWatchers, stopWatchers } from '../../../Model/house'
 
 import './house.css'
 
@@ -27,16 +26,16 @@ class House extends Component {
     }
 
     componentDidMount = () => {
-        this.props.dispatch(HouseActions.getHouseSessionId())
-        this.props.dispatch(HouseActions.getHouseSessionData())
-        this.props.dispatch(HouseActions.getHouseAuthorizedAddresses())
-        this.props.dispatch(HouseActions.getHouseAllowance())
+        this.props.dispatch(Actions.getHouseSessionId())
+        this.props.dispatch(Actions.getHouseSessionData())
+        this.props.dispatch(Actions.getHouseAuthorizedAddresses())
+        this.props.dispatch(Actions.getHouseAllowance())
 
-        this.props.dispatch(HouseWatchers.init)
+        this.props.dispatch(initWatchers)
     }
 
     componentWillUnmount = () => {
-        this.props.dispatch(HouseWatchers.stop)
+        this.props.dispatch(stopWatchers)
     }
 
     /**
@@ -47,11 +46,11 @@ class House extends Component {
         let bigAmount = new BigNumber(amount)
         let ether = bigAmount.times(ethUnits.units.ether)
         let formattedAmount = ether.toFixed()
-        
+
         // Setup action
         let action = ether.isLessThanOrEqualTo(this.props.house.allowance)
-            ? HouseActions.purchaseHouseCredits(formattedAmount)
-            : HouseActions.approveAndPurchaseHouseCredits(formattedAmount)
+            ? Actions.purchaseHouseCredits(formattedAmount)
+            : Actions.approveAndPurchaseHouseCredits(formattedAmount)
         this.props.dispatch(action)
     }
 
@@ -73,7 +72,7 @@ class House extends Component {
             sessionNumber={this.props.house.sessionId}
             onConfirmListener={this.onCreditPurchaseListener}
             allowance={this.props.house.allowance}
-            balance={this.props.token.balance}
+            balance={this.props.balance.balance}
             onCloseListener={this.onClosePurchaseDialogListener}
         />
     )
@@ -169,8 +168,4 @@ class House extends Component {
     }
 }
 
-function mapStateToProps(state) {
-    return state
-}
-
-export default connect(mapStateToProps)(House)
+export default connect(state => state)(House)

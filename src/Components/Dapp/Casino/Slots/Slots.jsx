@@ -9,8 +9,11 @@ import WithdrawSlotsChipsDialog from './Dialogs/WithdrawSlotsChipsDialog'
 import Helper from '../../../Helper'
 import { BigNumber } from 'bignumber.js'
 import { connect } from 'react-redux'
-import SlotsManagerActions from '../../../../Model/actions/slotsManagerActions'
-import SlotsManagerWatchers from '../../../../Model/watchers/slotsManagerWatcher'
+import {
+    Actions,
+    initWatchers,
+    stopWatchers
+} from '../../../../Model/slotsManager'
 import { COLOR_GOLD } from '../../../Constants'
 
 import './slots.css'
@@ -26,17 +29,17 @@ class Slots extends Component {
     }
 
     componentDidMount = () => {
-        this.props.dispatch(SlotsManagerActions.slotChannel.getSessionId())
-        this.props.dispatch(SlotsManagerActions.slotChannel.getBalance())
-        this.props.dispatch(SlotsManagerActions.slotChannel.getAllowance())
+        this.props.dispatch(Actions.getSessionId())
+        this.props.dispatch(Actions.getBalance())
+        this.props.dispatch(Actions.getAllowance())
 
         // Init Watchers
-        this.props.dispatch(SlotsManagerWatchers.init)
+        this.props.dispatch(initWatchers)
     }
 
     componentWillUnmount = () => {
         // Stop watchers
-        this.props.dispatch(SlotsManagerWatchers.stop)
+        this.props.dispatch(stopWatchers)
     }
 
     // How many Chips are in the session? if session isn't open, print `placeholder`
@@ -56,16 +59,14 @@ class Slots extends Component {
 
     // Create a new Channel
     onCreateChannelListener = deposit => {
-        let action = SlotsManagerActions.slotChannel.createChannel(
-            deposit.toString()
-        )
+        let action = Actions.createChannel(deposit.toString())
         this.props.dispatch(action)
         this.onNewChannelDialogToggleListener(false)
     }
 
     // Deposit to a Channel
     onDepositToChannelListener = id => {
-        let action = SlotsManagerActions.slotChannel.depositToChannel(id)
+        let action = Actions.depositToChannel(id)
         this.props.dispatch(action)
     }
 
@@ -90,9 +91,7 @@ class Slots extends Component {
         console.log('onWithdrawChips', amount, rawBalance)
         let balance = new BigNumber(rawBalance)
         if (balance.isGreaterThanOrEqualTo(amount)) {
-            let action = SlotsManagerActions.slotChannel.withdrawChips(
-                amount.toString()
-            )
+            let action = Actions.withdrawChips(amount.toString())
             this.props.dispatch(action)
         }
         this.onWithdrawChipsDialogToggleListener(false)
@@ -109,8 +108,8 @@ class Slots extends Component {
         let allowance = new BigNumber(this.props.allowance)
         let string = amount.toString()
         let action = allowance.isLessThan(amount)
-            ? SlotsManagerActions.slotChannel.approveAndDepositChips(string)
-            : SlotsManagerActions.slotChannel.depositChips(string)
+            ? Actions.approveAndDepositChips(string)
+            : Actions.depositChips(string)
         this.props.dispatch(action)
         this.onGetChipsDialogToggleListener(false)
     }

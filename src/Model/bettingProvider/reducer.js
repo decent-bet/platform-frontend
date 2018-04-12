@@ -1,4 +1,4 @@
-import { BettingProviderActions as Actions } from '../actionTypes'
+import Actions, { Prefix } from './actionTypes'
 import { FULFILLED } from 'redux-promise-middleware'
 
 const DefaultBettingProviderState = {
@@ -15,36 +15,36 @@ const DefaultBettingProviderState = {
     time: null
 }
 
-function bettingProviderReducer(
+export default function bettingProviderReducer(
     bettingProvider = DefaultBettingProviderState,
     action = { type: null }
 ) {
     switch (action.type) {
-        case `${Actions.GAMES_COUNT}_${FULFILLED}`:
+        case `${Prefix}/${Actions.GET_GAMES_COUNT}/${FULFILLED}`:
             return { ...bettingProvider, gamesCount: action.payload }
 
-        case `${Actions.CURRENT_SESSION}_${FULFILLED}`:
+        case `${Prefix}/${Actions.GET_CURRENT_SESSION}/${FULFILLED}`:
             return { ...bettingProvider, currentSession: action.payload }
 
-        case `${Actions.DEPOSITED_TOKENS}_${FULFILLED}`:
+        case `${Prefix}/${Actions.GET_DEPOSITED_TOKENS}/${FULFILLED}`:
             return { ...bettingProvider, depositedTokens: action.payload }
 
-        case `${Actions.TOKEN_BALANCE}_${FULFILLED}`:
+        case `${Prefix}/${Actions.GET_TOKEN_BALANCE}/${FULFILLED}`:
             return { ...bettingProvider, balance: action.payload }
 
-        case `${Actions.ALLOWANCE}_${FULFILLED}`:
+        case `${Prefix}/${Actions.GET_ALLOWANCE}/${FULFILLED}`:
             return { ...bettingProvider, allowance: action.payload }
 
-        case `${Actions.HOUSE_ADDRESS}_${FULFILLED}`:
+        case `${Prefix}/${Actions.GET_HOUSE_ADDRESS}/${FULFILLED}`:
             return { ...bettingProvider, house: action.payload }
 
-        case `${Actions.SPORTSORACLE_ADDRESS}_${FULFILLED}`:
+        case `${Prefix}/${Actions.GET_SPORTSORACLE_ADDRESS}/${FULFILLED}`:
             return { ...bettingProvider, sportsOracle: action.payload }
 
-        case `${Actions.GAMES}_${FULFILLED}`:
+        case `${Prefix}/${Actions.GET_GAMES}/${FULFILLED}`:
             return { ...bettingProvider, games: action.payload }
 
-        case `${Actions.GAME_ITEM}_${FULFILLED}`:
+        case `${Prefix}/${Actions.GET_GAME_ITEM}/${FULFILLED}`:
             return {
                 ...bettingProvider,
                 games: {
@@ -53,7 +53,7 @@ function bettingProviderReducer(
                 }
             }
 
-        case `${Actions.GAME_ODDS}_${FULFILLED}`:
+        case `${Prefix}/${Actions.GET_GAME_ODDS}/${FULFILLED}`:
             let currentId1 = action.meta.gameId
             return {
                 ...bettingProvider,
@@ -66,7 +66,7 @@ function bettingProviderReducer(
                 }
             }
 
-        case `${Actions.GAME_PERIOD_OUTCOME}_${FULFILLED}`:
+        case `${Prefix}/${Actions.GET_GAME_PERIOD_OUTCOME}/${FULFILLED}`:
             let currentId2 = action.meta.gameId
             return {
                 ...bettingProvider,
@@ -82,7 +82,7 @@ function bettingProviderReducer(
                 }
             }
 
-        case `${Actions.GAME_BET_LIMIT}_${FULFILLED}`:
+        case `${Prefix}/${Actions.GET_GAME_BET_LIMIT}/${FULFILLED}`:
             let currentId3 = action.meta.gameId
             return {
                 ...bettingProvider,
@@ -95,7 +95,7 @@ function bettingProviderReducer(
                 }
             }
 
-        case `${Actions.GAME_BET_LIMIT_FOR_PERIOD}_${FULFILLED}`:
+        case `${Prefix}/${Actions.GET_GAME_BET_LIMIT_FOR_PERIOD}/${FULFILLED}`:
             let currentId4 = action.meta.gameId
             let periodId1 = action.meta.period
             return {
@@ -112,14 +112,14 @@ function bettingProviderReducer(
                 }
             }
 
-        case `${Actions.USER_BETS}_${FULFILLED}`:
+        case `${Prefix}/${Actions.GET_USER_BETS}/${FULFILLED}`:
             return { ...bettingProvider, placedBets: action.payload }
 
-        case `${Actions.TIME}_${FULFILLED}`:
-        case Actions.SET_TIME:
+        case `${Prefix}/${Actions.GET_TIME}/${FULFILLED}`:
+        case `${Prefix}/${Actions.SET_TIME}`:
             return { ...bettingProvider, time: action.payload }
 
-        case `${Actions.CLAIM_BET}_${FULFILLED}`:
+        case `${Prefix}/${Actions.CLAIM_BET}/${FULFILLED}`:
             let currentId5 = action.meta.gameId
             let currentBet1 = action.meta.betId
             let newBetObject = {
@@ -137,14 +137,10 @@ function bettingProviderReducer(
                 }
             }
 
-        case `${Actions.ADDRESS}_${FULFILLED}`:
+        case `${Prefix}/${Actions.GET_ADDRESS}/${FULFILLED}`:
             return { ...bettingProvider, address: action.payload }
 
         default:
-            break
+            return { ...bettingProvider }
     }
-
-    return bettingProvider
 }
-
-export default bettingProviderReducer

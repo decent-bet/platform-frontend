@@ -1,4 +1,4 @@
-import { HouseActions as Actions } from '../actionTypes'
+import Actions, { Prefix } from './actionTypes'
 import { FULFILLED } from 'redux-promise-middleware'
 
 const defaultHouseState = {
@@ -14,19 +14,19 @@ export default function houseReducer(
     action = { type: null }
 ) {
     switch (action.type) {
-        case `${Actions.GET_HOUSE_SESSION_ID}_${FULFILLED}`:
+        case `${Prefix}/${Actions.GET_HOUSE_SESSION_ID}/${FULFILLED}`:
             return { ...houseState, sessionId: action.payload }
 
-        case `${Actions.GET_HOUSE_SESSION_DATA}_${FULFILLED}`:
+        case `${Prefix}/${Actions.GET_HOUSE_SESSION_DATA}/${FULFILLED}`:
             return { ...houseState, sessionState: action.payload }
 
-        case `${Actions.GET_HOUSE_AUTHORIZED_ADDRESSES}_${FULFILLED}`:
+        case `${Prefix}/${Actions.GET_HOUSE_AUTHORIZED_ADDRESSES}/${FULFILLED}`:
             return { ...houseState, authorizedAddresses: action.payload }
 
-        case `${Actions.GET_HOUSE_ALLOWANCE}_${FULFILLED}`:
+        case `${Prefix}/${Actions.GET_HOUSE_ALLOWANCE}/${FULFILLED}`:
             return { ...houseState, allowance: action.payload }
 
-        case `${Actions.SET_HOUSE_PURCHASED_CREDITS}_${FULFILLED}`:
+        case `${Prefix}/${Actions.SET_HOUSE_PURCHASED_CREDITS}/${FULFILLED}`:
             let { sessionNumber, credits } = this.payload
             return {
                 ...houseState,
@@ -34,7 +34,6 @@ export default function houseReducer(
             }
 
         default:
-            break
+            return {...houseState}
     }
-    return houseState
 }

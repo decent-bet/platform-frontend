@@ -1,7 +1,4 @@
-import {
-    SlotChannelActions as Actions,
-    SlotChannelPrefix as PREFIX
-} from '../actionTypes'
+import Actions, { PREFIX } from './actionTypes'
 import { FULFILLED } from 'redux-promise-middleware'
 import {
     CHANNEL_STATUS_ACTIVATED,
@@ -63,7 +60,7 @@ export default function slotsManagerReducer(
     action = { type: null }
 ) {
     switch (action.type) {
-        case `${PREFIX}/${Actions.GET_BALANCE}_${FULFILLED}`:
+        case `${PREFIX}/${Actions.GET_BALANCE}/${FULFILLED}`:
             let newBalance = action.payload
             return {
                 ...slotsManagerState,
@@ -73,7 +70,7 @@ export default function slotsManagerReducer(
                 }
             }
 
-        case `${PREFIX}/${Actions.GET_SESSION_ID}_${FULFILLED}`:
+        case `${PREFIX}/${Actions.GET_SESSION_ID}/${FULFILLED}`:
             return { ...slotsManagerState, currentSession: action.payload }
 
         case `${PREFIX}/${Actions.SET_CHANNEL_DEPOSITED}`:
@@ -99,7 +96,6 @@ export default function slotsManagerReducer(
             }
 
         default:
-            break
+            return { ...slotsManagerState }
     }
-    return slotsManagerState
 }

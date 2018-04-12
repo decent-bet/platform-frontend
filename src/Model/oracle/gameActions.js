@@ -1,11 +1,10 @@
 import Helper from '../../Components/Helper'
 import { createActions } from 'redux-actions'
-import { OracleActions } from '../actionTypes'
+import Actions, { Prefix } from './actionTypes'
 import Bluebird from 'bluebird'
+import IPFS from 'ipfs-mini'
 
 const helper = new Helper()
-
-const IPFS = require('ipfs-mini')
 const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' })
 
 async function fetchMetadata(gameId, hash) {
@@ -102,9 +101,12 @@ async function fetchOracleGames() {
     return result
 }
 
-// Functions of this object are the Action Keys "inCamelCase"
-// See 'redux-actions' for details
+// Functions of this object are the "ACTION_KEYS" "inCamelCase"
+// They are namespaced by the "Prefix" "inCamelCase".
+// Documentation https://redux-actions.js.org/docs/api/createAction.html#createactionsactionmap
 export default createActions({
-    [OracleActions.GET_GAME_ITEM]: fetchOracleGamesItem,
-    [OracleActions.GET_GAMES]: fetchOracleGames
+    [Prefix]: {
+        [Actions.GET_GAME_ITEM]: fetchOracleGamesItem,
+        [Actions.GET_GAMES]: fetchOracleGames
+    }
 })

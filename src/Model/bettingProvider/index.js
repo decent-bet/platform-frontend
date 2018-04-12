@@ -1,12 +1,21 @@
+import betActions from './betActions'
+import baseActions from './baseActions'
+import gameActions from './gameActions'
+import reducer from './reducer'
+import { Actions as BalanceActions } from '../balance'
 import Helper from '../../Components/Helper'
-import BalanceActions from '../actions/balanceActions'
-import BetActions from '../actions/betActions'
-import BettingProviderActions from '../actions/bettingProviderActions'
-import BettingProviderGameActions from '../actions/bettingProviderGameActions'
 
 const helper = new Helper()
 
-function stop(_dispatch) {
+// Merge all the actions into a single object
+export const Actions = {
+    ...betActions.bettingProvider,
+    ...baseActions.bettingProvider,
+    ...gameActions.bettingProvider
+}
+export const Reducer = reducer
+
+export function stopWatchers(_dispatch) {
     let contract = helper
         .getContractHelper()
         .getWrappers()
@@ -25,11 +34,11 @@ function stop(_dispatch) {
         contract.logClaimedBet().stopWatching()
         contract.logUpdatedTime().stopWatching()
     } catch (error) {
-        console.log('Web 3 Event deregistration broken')
+        console.warn('Web 3 Event deregistration broken')
     }
 }
 
-export function init(dispatch) {
+export function initWatchers(dispatch) {
     let contract = helper
         .getContractHelper()
         .getWrappers()
@@ -48,8 +57,8 @@ export function init(dispatch) {
         )
 
         dispatch(BalanceActions.getTokens())
-        dispatch(BettingProviderActions.getTokenBalance())
-        dispatch(BettingProviderActions.getDepositedTokens(session))
+        dispatch(Actions.getTokenBalance())
+        dispatch(Actions.getDepositedTokens(session))
     })
 
     // Withdraw
@@ -65,8 +74,8 @@ export function init(dispatch) {
         )
 
         dispatch(BalanceActions.getTokens())
-        dispatch(BettingProviderActions.getTokenBalance())
-        dispatch(BettingProviderActions.getDepositedTokens(session))
+        dispatch(Actions.getTokenBalance())
+        dispatch(Actions.getDepositedTokens(session))
     })
 
     // New Bet
@@ -75,10 +84,10 @@ export function init(dispatch) {
         let gameId = event.args.gameId.toNumber()
         helper.toggleSnackbar('New bet placed for game ID - ' + gameId)
 
-        dispatch(BettingProviderGameActions.getGameItem(gameId))
-        dispatch(BetActions.getUserBets())
+        dispatch(Actions.getGameItem(gameId))
+        dispatch(Actions.getUserBets())
         dispatch(BalanceActions.getTokens())
-        dispatch(BettingProviderActions.getDepositedTokens())
+        dispatch(Actions.getDepositedTokens())
     })
 
     // New Game
@@ -88,7 +97,7 @@ export function init(dispatch) {
         helper.toggleSnackbar('New game available for betting')
 
         let id = event.args.id.toNumber()
-        dispatch(BettingProviderGameActions.getGameItem(id))
+        dispatch(Actions.getGameItem(id))
     })
 
     // New Game Odds
@@ -98,7 +107,7 @@ export function init(dispatch) {
 
         helper.toggleSnackbar(`New odds available for Game ID ${gameId} `)
 
-        dispatch(BettingProviderGameActions.getGameOddsCount(gameId))
+        dispatch(Actions.getGameOddsCount(gameId))
     })
 
     // Updated Game Odds
@@ -107,7 +116,7 @@ export function init(dispatch) {
         let gameId = event.args.id.toNumber()
         helper.toggleSnackbar(`Odds updated for game ID ${gameId}`)
 
-        dispatch(BettingProviderGameActions.getGameOddsCount(gameId))
+        dispatch(Actions.getGameOddsCount(gameId))
     })
 
     // Updated Max Bet
@@ -116,7 +125,7 @@ export function init(dispatch) {
         let gameId = event.args.id.toNumber()
         helper.toggleSnackbar(`Updated max bet for game - game ID ${gameId}`)
 
-        dispatch(BettingProviderGameActions.getMaxBetLimit(gameId))
+        dispatch(Actions.getGameBetLimit(gameId))
     })
 
     // Updated Bet Limits
@@ -127,10 +136,7 @@ export function init(dispatch) {
 
         helper.toggleSnackbar(`Updated bet limits for game - ID ${gameId}`)
 
-        let action = BettingProviderGameActions.getBetLimitForPeriod(
-            gameId,
-            period
-        )
+        let action = Actions.getGameBetLimitForPeriod(gameId, period)
         dispatch(action)
     })
 
@@ -141,19 +147,14 @@ export function init(dispatch) {
         helper.toggleSnackbar(`Claimed bet for game ID ${gameId}`)
 
         dispatch(BalanceActions.getTokens())
-        dispatch(BettingProviderActions.getDepositedTokens())
-        dispatch(BetActions.getUserBets())
+        dispatch(Actions.getDepositedTokens())
+        dispatch(Actions.getUserBets())
     })
 
     // Updated Time
     contract.logUpdatedTime().watch((err, event) => {
         console.log('Updated provider time event', err, event)
         let time = event.args.time.toNumber()
-        dispatch(BettingProviderActions.setTime(time))
+        dispatch(Actions.setTime(time))
     })
-}
-
-export default {
-    stop,
-    init
 }

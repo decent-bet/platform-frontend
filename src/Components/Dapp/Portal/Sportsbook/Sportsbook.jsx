@@ -10,10 +10,10 @@ import { connect } from 'react-redux'
 import BigNumber from 'bignumber.js'
 import ethUnits from 'ethereum-units'
 import reduxInitializationSequence from './reduxInitializationSequence'
-import BettingProviderWatchers from '../../../../Model/watchers/bettingProviderWatchers'
-import SportsOracleWatchers from '../../../../Model/watchers/sportsOracleWatchers'
-import BalanceActions from '../../../../Model/actions/balanceActions'
-import BetActions from '../../../../Model/actions/betActions'
+import { Actions as BalanceActions } from '../../../../Model/balance'
+import { Actions as BettingActions } from '../../../../Model/bettingProvider'
+import * as BettingProvider from '../../../../Model/bettingProvider'
+import * as OracleProvider from '../../../../Model/oracle'
 
 import './sportsbook.css'
 
@@ -33,31 +33,30 @@ class Sportsbook extends Component {
         this.props.dispatch(reduxInitializationSequence)
 
         // Watchers
-        this.props.dispatch(BettingProviderWatchers.init)
-        this.props.dispatch(SportsOracleWatchers.init)
+        this.props.dispatch(BettingProvider.initWatchers)
+        this.props.dispatch(OracleProvider.initWatchers)
     }
 
     componentWillUnmount = () => {
         // watchers
-        this.props.dispatch(BettingProviderWatchers.stop)
-        this.props.dispatch(SportsOracleWatchers.stop)
+        this.props.dispatch(BettingProvider.stopWatchers)
+        this.props.dispatch(OracleProvider.stopWatchers)
     }
 
     onClaimBetListener = (gameItem, betId) =>
-        this.props.dispatch(BetActions.claimBet(gameItem.id, betId))
+        this.props.dispatch(BettingActions.claimBet(gameItem.id, betId))
 
     onConfirmBetListener = () => {
         let cache = this.state.dialogConfirmBetCache
         let { gameItem, oddItem, betAmount, betChoice } = cache
-        this.props.dispatch(
-            BetActions.setBet(
-                gameItem.id,
-                oddItem.id,
-                oddItem.betType,
-                betAmount,
-                betChoice
-            )
+        let action = BettingActions.setBet(
+            gameItem.id,
+            oddItem.id,
+            oddItem.betType,
+            betAmount,
+            betChoice
         )
+        this.props.dispatch(action)
         this.setState({ dialogConfirmBetOpen: false })
     }
 
@@ -133,7 +132,7 @@ class Sportsbook extends Component {
                 sessionNumber={this.props.bettingProvider.currentSession}
                 onConfirm={this.onConfirmDepositListener}
                 allowance={this.props.bettingProvider.allowance}
-                balance={this.props.token.balance}
+                balance={this.props.balance.balance}
                 toggleDialog={this.onToggleDepositDialogListener}
             />
             <WithdrawTokensDialog

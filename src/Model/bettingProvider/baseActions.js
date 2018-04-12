@@ -1,6 +1,6 @@
 import Helper from '../../Components/Helper'
 import { createActions } from 'redux-actions'
-import { BettingProviderActions } from '../actionTypes'
+import Actions, { Prefix } from './actionTypes'
 
 const helper = new Helper()
 
@@ -129,18 +129,20 @@ async function fetchAddress() {
     )
 }
 
-// Functions of this object are the Action Keys "inCamelCase"
-// See 'redux-actions' for details
+// Functions of this object are the "ACTION_KEYS" "inCamelCase"
+// They are namespaced by the "Prefix" "inCamelCase".
+// Documentation https://redux-actions.js.org/docs/api/createAction.html#createactionsactionmap
 export default createActions({
-    [BettingProviderActions.GAMES_COUNT]: fetchGamesCount,
-    [BettingProviderActions.DEPOSITED_TOKENS]: fetchDepositedTokens,
-    [BettingProviderActions.TOKEN_BALANCE]: fetchTokenBalance,
-    [BettingProviderActions.ALLOWANCE]: fetchAllowance,
-    [BettingProviderActions.HOUSE_ADDRESS]: fetchHouseAddress,
-    [BettingProviderActions.SPORTSORACLE_ADDRESS]: fetchSportsOracleAddress,
-    [BettingProviderActions.CURRENT_SESSION]: fetchCurrentSession,
-    [BettingProviderActions.DEPOSITED_TOKENS]: fetchDepositedTokens,
-    [BettingProviderActions.STATS]: fetchSessionStats,
-    [BettingProviderActions.TIME]: fetchTime,
-    [BettingProviderActions.ADDRESS]: fetchAddress
+    [Prefix]: {
+        [Actions.GET_GAMES_COUNT]: fetchGamesCount,
+        [Actions.GET_DEPOSITED_TOKENS]: fetchDepositedTokens,
+        [Actions.GET_TOKEN_BALANCE]: fetchTokenBalance,
+        [Actions.GET_ALLOWANCE]: fetchAllowance,
+        [Actions.GET_HOUSE_ADDRESS]: fetchHouseAddress,
+        [Actions.GET_SPORTSORACLE_ADDRESS]: fetchSportsOracleAddress,
+        [Actions.GET_CURRENT_SESSION]: fetchCurrentSession,
+        [Actions.GET_STATS]: fetchSessionStats,
+        [Actions.GET_TIME]: fetchTime,
+        [Actions.GET_ADDRESS]: fetchAddress
+    }
 })

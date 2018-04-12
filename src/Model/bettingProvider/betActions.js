@@ -1,6 +1,6 @@
 import Helper from '../../Components/Helper'
 import { createActions } from 'redux-actions'
-import { BettingProviderActions } from '../actionTypes'
+import Actions, { Prefix } from './actionTypes'
 import BigNumber from 'bignumber.js'
 import ethUnits from 'ethereum-units'
 
@@ -143,10 +143,13 @@ async function executeClaimBet(gameId, betId) {
     }
 }
 
-// Functions of this object are the Action Keys "inCamelCase"
-// See 'redux-actions' for details
+// Functions of this object are the "ACTION_KEYS" "inCamelCase"
+// They are namespaced by the "Prefix" "inCamelCase".
+// Documentation https://redux-actions.js.org/docs/api/createAction.html#createactionsactionmap
 export default createActions({
-    [BettingProviderActions.SET_BET]: putBet,
-    [BettingProviderActions.USER_BETS]: fetchUserBets,
-    [BettingProviderActions.CLAIM_BET]: executeClaimBet
+    [Prefix]: {
+        [Actions.SET_BET]: putBet,
+        [Actions.GET_USER_BETS]: fetchUserBets,
+        [Actions.CLAIM_BET]: executeClaimBet
+    }
 })

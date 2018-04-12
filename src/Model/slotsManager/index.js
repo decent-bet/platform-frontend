@@ -1,8 +1,13 @@
+import actions from './actions'
+import reducer from './reducer'
 import Helper from '../../Components/Helper'
 import { CHANNEL_STATUS_WAITING } from '../../Components/Constants'
-import SlotsManagerActions from '../actions/slotsManagerActions'
 
 const helper = new Helper()
+
+export const Actions = actions.slotManager
+export const Reducer = reducer
+
 let currentSessionsBeingWatched = []
 
 // Watcher for deposits to a channel
@@ -18,7 +23,7 @@ function watcherChannelDeposit(id, dispatch) {
                 return
             }
             let _id = event.args.id.toString()
-            dispatch(SlotsManagerActions.slotChannel.setChannelDeposited(_id))
+            dispatch(Actions.setChannelDeposited(_id))
         })
 }
 
@@ -35,7 +40,7 @@ function watcherChannelActivate(id, dispatch) {
                 return
             }
             let _id = event.args.id.toString()
-            dispatch(SlotsManagerActions.slotChannel.setChannelActivated(_id))
+            dispatch(Actions.setChannelActivated(_id))
         })
 }
 
@@ -52,7 +57,7 @@ function watcherChannelFinalized(id, dispatch) {
                 return
             }
             let _id = event.args.id.toString()
-            dispatch(SlotsManagerActions.slotChannel.setChannelFinalized(_id))
+            dispatch(Actions.setChannelFinalized(_id))
         })
 }
 
@@ -71,13 +76,11 @@ function watcherChannelClaimed(id, dispatch) {
 
             let _id = event.args.id.toString()
             let isHouse = event.args.isHouse
-            dispatch(
-                SlotsManagerActions.slotChannel.setChannelClaimed(_id, isHouse)
-            )
+            dispatch(Actions.setChannelClaimed(_id, isHouse))
         })
 }
 
-function init(dispatch) {
+export function initWatchers(dispatch) {
     let channelManager = helper
         .getContractHelper()
         .getWrappers()
@@ -97,7 +100,7 @@ function init(dispatch) {
             initialDeposit: event.args.initialDeposit.toFixed()
         }
 
-        dispatch(SlotsManagerActions.slotChannel.setChannel(newChannel))
+        dispatch(Actions.setChannel(newChannel))
 
         currentSessionsBeingWatched.push(id)
 
@@ -113,7 +116,7 @@ function init(dispatch) {
             console.log('Deposit event error', err)
             return
         }
-        dispatch(SlotsManagerActions.slotChannel.getBalance())
+        dispatch(Actions.getBalance())
     })
 
     // Listen for Chip withdrawal into Tokens
@@ -122,11 +125,11 @@ function init(dispatch) {
             console.log('Withdraw event error', err)
             return
         }
-        dispatch(SlotsManagerActions.slotChannel.getBalance())
+        dispatch(Actions.getBalance())
     })
 }
 
-function stop(dispatch) {
+export function stopWatchers(dispatch) {
     // TODO: Web3 as of 1.beta33 has these functions broken
     try {
         let channelManager = helper
@@ -137,7 +140,7 @@ function stop(dispatch) {
         channelManager.logNewChannel().stopWatching()
         channelManager.logDeposit().stopWatching()
         channelManager.logWithdraw().stopWatching()
-        
+
         for (const id of currentSessionsBeingWatched) {
             channelManager.logChannelDeposit(id).stopWatching()
             channelManager.logChannelActivate(id).stopWatching()
@@ -149,5 +152,3 @@ function stop(dispatch) {
         console.warn('Web3 1.0.0 cannot unsubscribe')
     }
 }
-
-export default { init, stop }

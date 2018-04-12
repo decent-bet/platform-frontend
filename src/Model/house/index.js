@@ -1,13 +1,16 @@
-import { HouseActions, fetchCurrentSessionId } from '../actions/houseActions'
+import actions, { fetchCurrentSessionId } from './actions'
+import reducer from './reducer'
 import Helper from '../../Components/Helper'
 
 const helper = new Helper()
 
+export const Actions = actions.house
+export const Reducer = reducer
+
 /**
  * Watches for purchased credits and updates when called.
- * @param sessionNumber Session Number
  */
-async function init(dispatch) {
+export async function initWatchers(dispatch) {
     let contract = helper
         .getContractHelper()
         .getWrappers()
@@ -22,17 +25,17 @@ async function init(dispatch) {
             } else {
                 let balance = event.args.balance
                 dispatch(
-                    HouseActions.setHousePurchasedCredits(
+                    Actions.setHousePurchasedCredits(
                         sessionNumber,
                         balance.toFixed(0)
                     )
                 )
-                dispatch(HouseActions.getHouseSessionData())
+                dispatch(Actions.getHouseSessionData())
             }
         })
 }
 
-function stop(dispatch) {
+export function stopWatchers(dispatch) {
     // TODO: As of Web3 1.0.0.beta33, this function is broken
     try {
         helper
@@ -42,8 +45,6 @@ function stop(dispatch) {
             .logPurchasedCredits()
             .stopWatching()
     } catch (error) {
-        console.log('Web3 error')
+        console.warn('Web3 deregistration broken')
     }
 }
-
-export default { init, stop }

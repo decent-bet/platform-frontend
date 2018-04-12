@@ -1,8 +1,5 @@
-import BettingProviderActions from '../../../../Model/actions/bettingProviderActions'
-import BetActions from '../../../../Model/actions/betActions'
-import OracleBasicActions from '../../../../Model/actions/oracleBasicActions'
-import OracleGameActions from '../../../../Model/actions/oracleGameActions'
-import BettingProviderGameActions from '../../../../Model/actions/bettingProviderGameActions'
+import {Actions as BettingProviderActions} from '../../../../Model/bettingProvider'
+import {Actions as OracleActions} from '../../../../Model/oracle'
 
 export default function initializationSequence(dispatch) {
     return Promise.all([
@@ -15,16 +12,14 @@ export default function initializationSequence(dispatch) {
         dispatch(BettingProviderActions.getTime()),
         dispatch(BettingProviderActions.getDepositedTokens()),
         dispatch(BettingProviderActions.getSessionStats(1)),
+        dispatch(BettingProviderActions.getUserBets()),
 
-        dispatch(BetActions.getUserBets()),
+        dispatch(OracleActions.getTime()),
+        dispatch(OracleActions.getGameUpdateCost()),
+        dispatch(OracleActions.getRequestedProviderAddresses()),
+        dispatch(OracleActions.getAcceptedProviderAddresses()),
 
-        dispatch(OracleBasicActions.getTime()),
-        dispatch(OracleBasicActions.getGameUpdateCost()),
-        dispatch(OracleBasicActions.getRequestedProviderAddresses()),
-        dispatch(OracleBasicActions.getAcceptedProviderAddresses()),
-
-        dispatch(BettingProviderGameActions.getGames()),
-
-        dispatch(OracleGameActions.getGames())
+        dispatch(BettingProviderActions.getGames()),
+        dispatch(OracleActions.getGames())
     ])
 }
