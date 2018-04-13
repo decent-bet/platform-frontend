@@ -1,12 +1,13 @@
 import React, { Component } from 'react'
-
-import { Card, FlatButton, MuiThemeProvider } from 'material-ui'
-
+import { Card } from 'material-ui'
 import EventBus from 'eventing-bus'
+import Bluebird from 'bluebird'
 import Helper from '../../../Helper'
 import Iframe from '../../../Base/Iframe'
 import SlotsChannelHandler from '../SlotsChannelHandler'
-import { ButtonsTheme } from '../../../Base/Themes'
+import ChannelOptions from './ChannelOptions'
+import ChannelDetail from './ChannelDetail'
+import SpinHistory from './SpinHistory'
 
 import './game.css'
 
@@ -246,250 +247,95 @@ export default class Game extends Component {
         }
     }
 
-    views = () => {
-        const self = this
-        return {
-            game: () => {
-                return (
-                    <div className="col-12 mx-auto">
-                        {!self.state.finalized && (
-                            <Iframe
-                                id="slots-iframe"
-                                url={process.env.PUBLIC_URL + '/slots-game'}
-                                width="100%"
-                                height="600px"
-                                display="initial"
-                                position="relative"
-                                allowFullScreen
-                            />
-                        )}
-                        {self.state.finalized && (
-                            <Card style={styles.card} className="p-4">
-                                <h3 className="text-center">
-                                    The channel has been finalized. Please wait
-                                    a minute before the channel closes and
-                                    claiming your DBETs.
-                                </h3>
-                                <p className="lead text-center mt-2">
-                                    Final Balance:{' '}
-                                    {window.slotsController().balances().user}
-                                </p>
-                            </Card>
-                        )}
-                    </div>
-                )
-            },
-            channelOptions: () => {
-                return (
-                    <div className="col-12 mt-4">
-                        <Card style={styles.card} className="p-4">
-                            <div className="row channel-options">
-                                <div className="col-12">
-                                    <h3 className="text-center text-uppercase mb-3">
-                                        Channel Options
-                                    </h3>
-                                </div>
-                                <div className="col-12 mt-3">
-                                    <p className="text-center">
-                                        To finalize a channel allowing you to
-                                        withdraw your DBETs, click on the 'Close
-                                        Channel' button below
-                                    </p>
-                                </div>
-                                <div className="col-12">
-                                    <MuiThemeProvider muiTheme={ButtonsTheme}>
-                                        <FlatButton
-                                            label="Close Channel"
-                                            disabled={self.state.finalized}
-                                            className="mx-auto d-block"
-                                            onClick={() => {
-                                                slotsChannelHandler.finalizeChannel(
-                                                    self.state,
-                                                    (err, data) => {
-                                                        helper.toggleSnackbar(
-                                                            err
-                                                                ? 'Error sending finalize channel transaction'
-                                                                : 'Successfully sent finalize channel transaction'
-                                                        )
-                                                        console.log(
-                                                            'Finalize channel callback',
-                                                            err,
-                                                            data
-                                                        )
-                                                    }
-                                                )
-                                            }}
-                                        />
-                                    </MuiThemeProvider>
-                                </div>
-                                <div className="col-12 mt-3">
-                                    <p className="text-center">
-                                        After finalizing your channel and a time
-                                        period of 1 minute, please click on the
-                                        Claim DBETs button below to claim your
-                                        DBETs from the channel
-                                    </p>
-                                </div>
-                                <div className="col-12">
-                                    <MuiThemeProvider muiTheme={ButtonsTheme}>
-                                        <FlatButton
-                                            label="Claim DBETs"
-                                            disabled={
-                                                !self.state.closed ||
-                                                self.state.claimed[false]
-                                            }
-                                            className="mx-auto d-block"
-                                            onClick={() => {
-                                                slotsChannelHandler.claimDbets(
-                                                    self.state,
-                                                    (err, data) => {
-                                                        console.log(
-                                                            'Claim DBETs callback',
-                                                            err,
-                                                            data
-                                                        )
-                                                        helper.toggleSnackbar(
-                                                            err
-                                                                ? 'Error sending claim DBETs transaction'
-                                                                : 'Successfully sent claim DBETs transaction'
-                                                        )
-                                                    }
-                                                )
-                                            }}
-                                        />
-                                    </MuiThemeProvider>
-                                </div>
-                            </div>
-                        </Card>
-                    </div>
-                )
-            },
-            channelDetails: () => {
-                return (
-                    <div className="col-12 mt-4">
-                        <Card style={styles.card} className="p-4">
-                            <section className="channel-details">
-                                <h3 className="text-center text-uppercase mb-3">
-                                    Channel Details
-                                </h3>
-                                <div className="row mt-4">
-                                    <div className="col-6">
-                                        <h5>Initial Deposit</h5>
-                                        <p>
-                                            {helper.formatEther(
-                                                self.state.info.initialDeposit.toString()
-                                            )}{' '}
-                                            DBETs
-                                        </p>
-                                    </div>
-                                    <div className="col-6">
-                                        <h5>Initial User Number</h5>
-                                        <p>
-                                            {
-                                                self.state.hashes
-                                                    .initialUserNumber
-                                            }
-                                        </p>
-                                    </div>
-                                    <div className="col-6">
-                                        <h5>Final User Hash</h5>
-                                        <p>{self.state.hashes.finalUserHash}</p>
-                                    </div>
-                                    <div className="col-6">
-                                        <h5>Initial House Seed Hash</h5>
-                                        <p>
-                                            {
-                                                self.state.hashes
-                                                    .initialHouseSeedHash
-                                            }
-                                        </p>
-                                    </div>
-                                    <div className="col-6">
-                                        <h5>Final Reel Hash</h5>
-                                        <p>{self.state.hashes.finalReelHash}</p>
-                                    </div>
-                                    <div className="col-6">
-                                        <h5>Final Seed Hash</h5>
-                                        <p>{self.state.hashes.finalSeedHash}</p>
-                                    </div>
-                                </div>
-                            </section>
-                        </Card>
-                    </div>
-                )
-            },
-            spinHistory: () => {
-                return (
-                    <div className="col-12 my-4">
-                        <Card style={styles.card} className="p-4">
-                            <section>
-                                <h3 className="text-center text-uppercase mb-3">
-                                    Spin History
-                                </h3>
-                                <table className="table table-striped table-responsive">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>User Hash</th>
-                                            <th>Reel Hash</th>
-                                            <th>Reel Seed Hash</th>
-                                            <th>Reel</th>
-                                            <th>Payout</th>
-                                            <th>Valid?</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {self
-                                            .helpers()
-                                            .spinsHistory()
-                                            .map(spin => (
-                                                <tr>
-                                                    <td>{spin.nonce}</td>
-                                                    <td>{spin.userHash}</td>
-                                                    <td>{spin.reelHash}</td>
-                                                    <td>{spin.reelSeedHash}</td>
-                                                    <td>
-                                                        {JSON.stringify(
-                                                            spin.reel
-                                                        )}
-                                                    </td>
-                                                    <td>{spin.payout}</td>
-                                                    <td>
-                                                        {spin.isValid ? (
-                                                            <span className="text-success text-uppercase">
-                                                                Valid
-                                                            </span>
-                                                        ) : (
-                                                            <span className="text-danger text-uppercase">
-                                                                Invalid
-                                                            </span>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                    </tbody>
-                                </table>
-                            </section>
-                        </Card>
-                    </div>
-                )
-            }
+    onFinalizeListener = async () => {
+        try {
+            await Bluebird.fromCallback(cb =>
+                slotsChannelHandler.finalizeChannel(this.state, cb)
+            )
+            let message = 'Successfully sent finalize channel transaction'
+            helper.toggleSnackbar(message)
+        } catch (err) {
+            console.log(err.message)
+            helper.toggleSnackbar('Error sending finalize channel transaction')
+        }
+    }
+
+    onClaimListener = async () => {
+        try {
+            await Bluebird.fromCallback(cb =>
+                slotsChannelHandler.claimDbets(this.state, cb)
+            )
+            helper.toggleSnackbar('Successfully sent claim DBETs transaction')
+        } catch (err) {
+            console.log('Claim DBETs callback', err)
+            helper.toggleSnackbar('Error sending claim DBETs transaction')
+        }
+    }
+
+    renderGame = () => {
+        if (this.state.finalized) {
+            return (
+                <Card style={styles.card} className="p-4">
+                    <h3 className="text-center">
+                        The channel has been finalized. Please wait a minute
+                        before the channel closes and claiming your DBETs.
+                    </h3>
+                    <p className="lead text-center mt-2">
+                        Final Balance:{' '}
+                        {window.slotsController().balances().user}
+                    </p>
+                </Card>
+            )
+        } else {
+            return (
+                <Iframe
+                    id="slots-iframe"
+                    url={process.env.PUBLIC_URL + '/slots-game'}
+                    width="100%"
+                    height="600px"
+                    display="initial"
+                    position="relative"
+                    allowFullScreen
+                />
+            )
         }
     }
 
     render() {
-        const self = this
-        return (
-            <div className="slots-game container">
-                {self.state.lastSpinLoaded && (
+        if (this.state.lastSpinLoaded) {
+            return (
+                <main className="slots-game container">
                     <div className="row">
-                        {self.views().game()}
-                        {self.views().channelOptions()}
-                        {self.views().channelDetails()}
-                        {self.views().spinHistory()}
+                        <div className="col-12 mx-auto">
+                            {this.renderGame()}
+                        </div>
+
+                        <div className="col-12 mt-4">
+                            <ChannelOptions
+                                isClosed={this.state.closed}
+                                isClaimed={this.state.claimed}
+                                isFinalized={this.state.finalized}
+                                onClaimListener={this.onClaimListener}
+                                onFinalizeListener={this.onFinalizeListener}
+                            />
+                        </div>
+
+                        <div className="col-12 mt-4">
+                            <ChannelDetail
+                                initialDeposit={this.state.info.initialDeposit}
+                                hashes={this.state.hashes}
+                            />
+                        </div>
+
+                        <div className="col-12 my-4">
+                            <SpinHistory
+                                spinArray={this.helpers().spinsHistory()}
+                            />
+                        </div>
                     </div>
-                )}
-            </div>
-        )
+                </main>
+            )
+        }
+        return null
     }
 }
