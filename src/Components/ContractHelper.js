@@ -419,7 +419,7 @@ class ContractHelper {
                         return houseFundsControllerInstance.houseFunds(sessionNumber)
                     },
                     getUserCreditsForSession: (sessionNumber, address) => {
-                        return houseSessionsControllerInstance.getUserCreditsForSession.call(sessionNumber, address, {
+                        return houseFundsControllerInstance.getUserCreditsForSession.call(sessionNumber, address, {
                             from: window.web3Object.eth.defaultAccount
                         })
                     },
