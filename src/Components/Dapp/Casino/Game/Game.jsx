@@ -1,139 +1,50 @@
 import React, { Component } from 'react'
 import { Card } from 'material-ui'
-import EventBus from 'eventing-bus'
 import Bluebird from 'bluebird'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
 import Helper from '../../../Helper'
 import Iframe from '../../../Base/Iframe'
-import SlotsChannelHandler from '../SlotsChannelHandler'
+import { SlotsChannelHandler } from '../../../../Model/spins/'
 import ChannelOptions from './ChannelOptions'
 import ChannelDetail from './ChannelDetail'
 import SpinHistory from './SpinHistory'
+import { Actions } from '../../../../Model/spins'
 
 import './game.css'
 
-const async = require('async')
 const styles = require('../../../Base/styles').styles()
 
 const helper = new Helper()
 const slotsChannelHandler = new SlotsChannelHandler()
 
-export default class Game extends Component {
-    constructor(props) {
-        super(props)
+class Game extends Component {
+    componentWillMount = () => {
+        let channelId = this.props.match.params.id
+        let { dispatch } = this.props
+        dispatch(Actions.getAesKey(channelId))
+        dispatch(Actions.getChannelDetails(channelId))
+        dispatch(Actions.getLastSpin(channelId))
 
-        this.state = {
-            id: this.props.match.params.id,
-            aesKey: null,
-            info: null,
-            houseAuthorizedAddress: null,
-            hashes: null,
-            nonce: null,
-            houseSpins: null,
-            lastSpinLoaded: false,
-            finalized: false,
-            closed: false,
-            claimed: {}
-        }
-    }
-
-    componentWillMount() {
-        this.initData()
-    }
-
-    initData = () => {
-        if (window.web3Loaded) {
-            this.initChannel()
-            this.initWatchers()
-        } else {
-            let web3Loaded = EventBus.on('web3Loaded', () => {
-                this.initChannel()
-                this.initWatchers()
-                // Unregister callback
-                web3Loaded()
-            })
-        }
-    }
-
-    initChannel = () => {
-        const self = this
-        async.series(
-            {
-                aesKey: cb => {
-                    slotsChannelHandler
-                        .helpers()
-                        .getAesKey(this.state.id, (err, data) => {
-                            if (!err) {
-                                console.log('Aes key', data)
-                                self.setState({
-                                    aesKey: data
-                                })
-                                cb(false)
-                            } else cb(true, data)
-                        })
-                },
-                channelDetails: cb => {
-                    slotsChannelHandler.getChannelDetails(
-                        this.state.id,
-                        (err, data) => {
-                            if (!err) {
-                                console.log('Channel details', data)
-                                self.setState({
-                                    info: data.info,
-                                    houseAuthorizedAddress:
-                                        data.houseAuthorizedAddress,
-                                    closed: data.closed,
-                                    hashes: data.hashes
-                                })
-                                cb(false)
-                            } else cb(true, data)
-                        }
-                    )
-                },
-                loadLastSpin: cb => {
-                    slotsChannelHandler.loadLastSpin(
-                        this.state.id,
-                        this.state.hashes,
-                        self.state.aesKey,
-                        (err, data) => {
-                            if (!err) {
-                                console.log('Last spin', data)
-                                self.initSlotsController()
-                                self.setState({
-                                    nonce: data.nonce,
-                                    houseSpins: data.houseSpins,
-                                    userHashes: data.userHashes,
-                                    lastSpinLoaded: true
-                                })
-                                cb(false)
-                            } else cb(true, data)
-                        }
-                    )
-                }
-            },
-            (err, results) => {
-                console.log('initChannel', err, results)
-            }
-        )
-    }
-
-    initSlotsController = () => {
-        const self = this
+        // TODO: Make this less ugly
+        // Maybe we should use websockets to communicate instead?
+        let BoundActions = bindActionCreators(Actions, dispatch)
+        let self = this
         window.slotsController = () => {
             return {
                 spin: (betSize, callback) => {
+                    let tempProps = self.props
+                    tempProps = {
+                        ...tempProps,
+                        id: channelId
+                    }
                     slotsChannelHandler.spin(
                         betSize,
-                        self.state,
+                        tempProps,
                         (err, msg, lines) => {
                             if (!err) {
-                                let nonce = self.state.nonce
-                                nonce += 1
-                                let houseSpins = self.state.houseSpins
-                                houseSpins.push(msg)
-                                self.setState({
-                                    nonce: nonce,
-                                    houseSpins: houseSpins
-                                })
+                                BoundActions.nonceIncrease()
+                                BoundActions.postSpin(msg)
                             }
                             callback(err, msg, lines)
                         }
@@ -141,16 +52,15 @@ export default class Game extends Component {
                 },
                 balances: () => {
                     let lastHouseSpin =
-                        self.state.houseSpins[self.state.houseSpins.length - 1]
-                    let nonce = self.state.nonce
-                    console.log('Balances', nonce)
+                        self.props.houseSpins[self.props.houseSpins.length - 1]
+                    let nonce = self.props.nonce
                     let userBalance =
-                        nonce == 1
-                            ? self.state.info.initialDeposit
+                        nonce === 1
+                            ? self.props.info.initialDeposit
                             : lastHouseSpin.userBalance
                     let houseBalance =
-                        nonce == 1
-                            ? self.state.info.initialDeposit
+                        nonce === 1
+                            ? self.props.info.initialDeposit
                             : lastHouseSpin.houseBalance
                     return {
                         user: helper.formatEther(userBalance),
@@ -162,8 +72,8 @@ export default class Game extends Component {
     }
 
     initWatchers = () => {
-        this.watchers().channelFinalized()
-        this.watchers().claimChannelTokens()
+        /*this.watchers().channelFinalized()
+        this.watchers().claimChannelTokens()*/
     }
 
     watchers = () => {
@@ -178,7 +88,7 @@ export default class Game extends Component {
                     .watch((err, event) => {
                         if (!err) {
                             let id = event.args.id.toNumber()
-                            if (self.state.id == id)
+                            if (self.state.id === id)
                                 self.setState({
                                     finalized: true
                                 })
@@ -201,7 +111,7 @@ export default class Game extends Component {
                                 event.args.id.toString()
                             )
                             let id = event.args.id.toNumber()
-                            if (id == self.state.id) {
+                            if (id === self.state.id) {
                                 let isHouse = event.args.isHouse
                                 let claimed = self.state.claimed
                                 claimed[isHouse] = true
@@ -219,11 +129,10 @@ export default class Game extends Component {
         const self = this
         return {
             spinsHistory: () => {
-                let history = []
-                let houseSpins = self.state.houseSpins
-                houseSpins.map(spin => {
+                let houseSpins = self.props.houseSpins
+                let history = houseSpins.map(spin => {
                     let nonce = spin.nonce
-                    history.push({
+                    return {
                         nonce: nonce,
                         reelHash: spin.reelHash,
                         reelSeedHash: spin.reelSeedHash,
@@ -236,12 +145,12 @@ export default class Game extends Component {
                                 helper.convertToEther(5)
                             ),
                         isValid: true
-                    })
+                    }
                 })
                 return history
             },
             getUserHashForNonce: nonce => {
-                let userHashes = self.state.userHashes
+                let userHashes = self.props.userHashes
                 return userHashes[userHashes.length - nonce]
             }
         }
@@ -250,7 +159,7 @@ export default class Game extends Component {
     onFinalizeListener = async () => {
         try {
             await Bluebird.fromCallback(cb =>
-                slotsChannelHandler.finalizeChannel(this.state, cb)
+                slotsChannelHandler.finalizeChannel(this.props, cb)
             )
             let message = 'Successfully sent finalize channel transaction'
             helper.toggleSnackbar(message)
@@ -263,7 +172,7 @@ export default class Game extends Component {
     onClaimListener = async () => {
         try {
             await Bluebird.fromCallback(cb =>
-                slotsChannelHandler.claimDbets(this.state, cb)
+                slotsChannelHandler.claimDbets(this.props, cb)
             )
             helper.toggleSnackbar('Successfully sent claim DBETs transaction')
         } catch (err) {
@@ -273,7 +182,7 @@ export default class Game extends Component {
     }
 
     renderGame = () => {
-        if (this.state.finalized) {
+        if (this.props.finalized) {
             return (
                 <Card style={styles.card} className="p-4">
                     <h3 className="text-center">
@@ -286,7 +195,7 @@ export default class Game extends Component {
                     </p>
                 </Card>
             )
-        } else {
+        } else if (this.props.lastSpinLoaded) {
             return (
                 <Iframe
                     id="slots-iframe"
@@ -298,44 +207,43 @@ export default class Game extends Component {
                     allowFullScreen
                 />
             )
+        } else {
+            return <h1>Loading</h1>
         }
     }
 
     render() {
-        if (this.state.lastSpinLoaded) {
-            return (
-                <main className="slots-game container">
-                    <div className="row">
-                        <div className="col-12 mx-auto">
-                            {this.renderGame()}
-                        </div>
+        return (
+            <main className="slots-game container">
+                <div className="row">
+                    <div className="col-12 mx-auto">{this.renderGame()}</div>
 
-                        <div className="col-12 mt-4">
-                            <ChannelOptions
-                                isClosed={this.state.closed}
-                                isClaimed={this.state.claimed}
-                                isFinalized={this.state.finalized}
-                                onClaimListener={this.onClaimListener}
-                                onFinalizeListener={this.onFinalizeListener}
-                            />
-                        </div>
-
-                        <div className="col-12 mt-4">
-                            <ChannelDetail
-                                initialDeposit={this.state.info.initialDeposit}
-                                hashes={this.state.hashes}
-                            />
-                        </div>
-
-                        <div className="col-12 my-4">
-                            <SpinHistory
-                                spinArray={this.helpers().spinsHistory()}
-                            />
-                        </div>
+                    <div className="col-12 mt-4">
+                        <ChannelOptions
+                            isClosed={this.props.closed}
+                            isClaimed={this.props.claimed}
+                            isFinalized={this.props.finalized}
+                            onClaimListener={this.onClaimListener}
+                            onFinalizeListener={this.onFinalizeListener}
+                        />
                     </div>
-                </main>
-            )
-        }
-        return null
+
+                    <div className="col-12 mt-4">
+                        <ChannelDetail
+                            initialDeposit={this.props.info.initialDeposit}
+                            hashes={this.props.hashes}
+                        />
+                    </div>
+
+                    <div className="col-12 my-4">
+                        <SpinHistory
+                            spinArray={this.helpers().spinsHistory()}
+                        />
+                    </div>
+                </div>
+            </main>
+        )
     }
 }
+
+export default connect(state => state.spins)(Game)

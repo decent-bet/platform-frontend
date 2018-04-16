@@ -1,10 +1,7 @@
-import DecentAPI from '../../Base/DecentAPI'
-import Helper from '../../Helper'
-
+import DecentAPI from '../../Components/Base/DecentAPI'
+import Helper from '../../Components/Helper'
 import SlotsConstants from './Constants'
-
-import KeyHandler from '../../Base/KeyHandler'
-
+import KeyHandler from '../../Components/Base/KeyHandler'
 import sha256 from 'crypto-js/sha256'
 import Promise from 'bluebird'
 

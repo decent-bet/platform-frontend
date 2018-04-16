@@ -1,7 +1,7 @@
 import Actions, { PREFIX } from './actionTypes'
 import { createActions } from 'redux-actions'
 import Helper from '../../Components/Helper'
-import SlotsChannelHandler from '../../Components/Dapp/Casino/SlotsChannelHandler'
+import { SlotsChannelHandler } from '../spins'
 
 const helper = new Helper()
 const slotsChannelHandler = new SlotsChannelHandler()
@@ -71,6 +71,7 @@ async function createChannel(deposit) {
 
 // Send a deposit transaction to channel
 async function depositToChannel(id) {
+
     let params = await slotsChannelHandler.getChannelDepositParamsAsync(id)
     let { initialUserNumber, finalUserHash } = params
 
