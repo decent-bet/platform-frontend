@@ -1,175 +1,19 @@
 import DecentAPI from '../../Components/Base/DecentAPI'
 import Helper from '../../Components/Helper'
 import SlotsConstants from './Constants'
-import KeyHandler from '../../Components/Base/KeyHandler'
 import sha256 from 'crypto-js/sha256'
-import Promise from 'bluebird'
 
 const async = require('async')
 const BigNumber = require('bignumber.js')
-const cryptoJs = require("crypto-js")
 
 const decentApi = new DecentAPI()
 const helper = new Helper()
-const keyHandler = new KeyHandler()
 
 const slotsConstants = new SlotsConstants()
 const slotReels = slotsConstants.reels
 const paytable = slotsConstants.paytable
 
 export default class SlotsChannelHandler {
-
-    /**
-     * Returns parameters required to call the depositToChannel function - initialRandomNumber and finalUserHash
-     *
-     * Initial User Number is generated using an 18 digit random number which's AES-256 encrypted with a key that is
-     * a SHA3 of the channel id signed with the user's account
-     *
-     *
-     * @param id
-     * @param callback
-     */
-    getChannelDepositParams = (id, callback) => {
-        const self = this
-        let randomNumber = this.helpers().randomNumber(18).toString()
-
-        this.helpers().getAesKey(id, (err, res) => {
-            if (!err) {
-                console.log('randomNumber', randomNumber, 'aesKey', res)
-                let initialUserNumber = cryptoJs.AES.encrypt(randomNumber, res).toString()
-                let userHashes = self.helpers().getUserHashes(randomNumber)
-                let finalUserHash = userHashes[userHashes.length - 1]
-                callback(false, {
-                    initialUserNumber: initialUserNumber,
-                    finalUserHash: finalUserHash
-                })
-            } else
-                callback(true, res)
-        })
-    }
-
-    /*
-    * Promise Wrapper for getChannelDepositParams.
-    * Used for Async functions
-    */
-    getChannelDepositParamsAsync = id => {
-        return Promise.fromCallback(resolver => {
-            return this.getChannelDepositParams(id, resolver)
-        })
-    }
-
-    /**
-     * Get info and hashes required to interact with an active channel
-     * @param id
-     * @param callback
-     */
-    getChannelDetails = (id, callback) => {
-        async.parallel({
-            info: (cb) => {
-                helper.getContractHelper().getWrappers().slotsChannelManager()
-                    .getChannelInfo(id).then((info) => {
-                    console.log('Info', info)
-                    let playerAddress = info[0]
-                    let ready = info[1]
-                    let activated = info[2]
-                    let finalized = info[3]
-                    let initialDeposit = info[4]
-                    let exists = (playerAddress == '0x0')
-                    cb(false, {
-                        exists: exists,
-                        playerAddress: playerAddress,
-                        ready: ready,
-                        activated: activated,
-                        initialDeposit: initialDeposit,
-                        finalized: finalized
-                    })
-                }).catch((err) => {
-                    console.log('Error retrieving channel details', err.message)
-                    cb(true, err.message)
-                })
-            },
-            houseAuthorizedAddress: (cb) => {
-                helper.getContractHelper().getWrappers().slotsChannelManager()
-                    .getPlayer(id, true).then((authorizedAddress) => {
-                    cb(false, authorizedAddress)
-                }).catch((err) => {
-                    console.log('Error retrieving house authorized address', err.message)
-                    cb(true, err.message)
-                })
-            },
-            closed: (cb) => {
-                helper.getContractHelper().getWrappers().slotsChannelManager()
-                    .isChannelClosed(id).then((closed) => {
-                    cb(false, closed)
-                }).catch((err) => {
-                    console.log('Error retrieving is channel closed', err.message)
-                    cb(true, err.message)
-                })
-            },
-            hashes: (cb) => {
-                helper.getContractHelper().getWrappers().slotsChannelManager()
-                    .getChannelHashes(id).then((hashes) => {
-                    console.log('Hashes', hashes, id)
-                    cb(false, {
-                        finalUserHash: hashes[0],
-                        initialUserNumber: hashes[1],
-                        initialHouseSeedHash: hashes[2],
-                        finalReelHash: hashes[3],
-                        finalSeedHash: hashes[4]
-                    })
-                }).catch((err) => {
-                    console.log('Error retrieving channel hashes', err.message)
-                    cb(true, err.message)
-                })
-            }
-        }, (err, results) => {
-            callback(err, results)
-        })
-    }
-
-    /**
-     * Loads the last spin for an active channel
-     * @param id
-     * @param hashes
-     * @param aesKey
-     * @param callback
-     */
-    loadLastSpin = (id, hashes, aesKey, callback) => {
-        const self = this
-        decentApi.getLastSpin(id, (err, result) => {
-            if (!err) {
-                console.log('getLastSpin', result, hashes)
-                let encryptedSpin = result.userSpin
-                let houseSpin = result.houseSpin
-                let nonce = result.nonce + 1
-                let userSpin, houseSpins
-                if (encryptedSpin) {
-                    try {
-                        userSpin = JSON.parse(cryptoJs.AES.decrypt(encryptedSpin, aesKey)
-                            .toString(cryptoJs.enc.Utf8))
-                    } catch (e) {
-
-                    }
-                }
-                if (houseSpin)
-                    houseSpins = [houseSpin]
-                else
-                    houseSpins = []
-                let isValid = self.helpers().isValidInitialUserNumber(
-                    aesKey,
-                    hashes.initialUserNumber,
-                    hashes.finalUserHash)
-                console.log('Load last spin', nonce, houseSpins)
-                callback(!isValid, isValid ? {
-                        nonce: nonce,
-                        houseSpins: houseSpins,
-                        userHashes: self.helpers().getUserHashes(hashes.initialUserNumber)
-                    } : 'Invalid initial user number')
-            } else
-                callback(true, result)
-        })
-    }
-
     /**
      *
      * @param betSize
@@ -268,27 +112,6 @@ export default class SlotsChannelHandler {
     helpers = () => {
         const self = this
         return {
-            randomNumber: (length) => {
-                return Math.floor(Math.pow(10, length - 1) + Math.random() * 9 * Math.pow(10, length - 1))
-            },
-            getAesKey: (id, cb) => {
-                let idHash = helper.getWeb3().utils.sha3(id)
-                console.log('getAesKey', helper.getWeb3().eth.defaultAccount)
-                let aesKey = helper.getWeb3().eth.accounts.sign(helper.getWeb3().utils.utf8ToHex(idHash),
-                    keyHandler.get()).signature
-                console.log('Retrieved aes key', aesKey)
-                cb(false, aesKey)
-            },
-            getUserHashes: (randomNumber) => {
-                let lastHash
-                let hashes = []
-                for (let i = 0; i < 1000; i++) {
-                    let hash = sha256(i == 0 ? randomNumber : lastHash).toString()
-                    hashes.push(hash)
-                    lastHash = hash
-                }
-                return hashes
-            },
             getSpin: (betSize, state, callback) => {
 
                 const lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]
@@ -436,14 +259,6 @@ export default class SlotsChannelHandler {
                 ], (err, result) => {
                     callback(err, result)
                 })
-            },
-            isValidInitialUserNumber: (aesKey, initialUserNumber, finalUserHash) => {
-                console.log('isValidInitialUserNumber: aesKey', aesKey, 'initialUserNumber', initialUserNumber,
-                    'finalUserHash', finalUserHash)
-                initialUserNumber = cryptoJs.AES.decrypt(initialUserNumber, aesKey).toString(cryptoJs.enc.Utf8)
-                console.log('Unencrypted initial user number: ', initialUserNumber)
-                let userHashes = self.helpers().getUserHashes(initialUserNumber)
-                return (userHashes[userHashes.length - 1] == finalUserHash)
             },
             /**
              * Returns a tightly packed spin string
