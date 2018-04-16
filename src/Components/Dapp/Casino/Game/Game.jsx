@@ -28,7 +28,6 @@ class Game extends Component {
 
         // TODO: Make this less ugly
         // Maybe we should use websockets to communicate instead?
-        let BoundActions = bindActionCreators(Actions, dispatch)
         let self = this
         window.slotsController = () => {
             return {
@@ -43,8 +42,11 @@ class Game extends Component {
                         tempProps,
                         (err, msg, lines) => {
                             if (!err) {
-                                BoundActions.nonceIncrease()
-                                BoundActions.postSpin(msg)
+                                // Spin the Slots, AND THEN increase the nonce 
+                                dispatch(async dispatch2 => {
+                                    await dispatch(Actions.postSpin(msg))
+                                    await dispatch(Actions.nonceIncrease())
+                                })
                             }
                             callback(err, msg, lines)
                         }

@@ -29,7 +29,7 @@ export default function spinsReducer(
             return { ...handlerState, ...action.payload }
 
         case `${PREFIX}/${Actions.NONCE_INCREASE}`:
-            return { ...handlerState, nonce: handlerState.nonce++ }
+            return { ...handlerState, nonce: handlerState.nonce + 1 }
 
         case `${PREFIX}/${Actions.POST_SPIN}`:
             return {
