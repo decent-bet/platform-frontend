@@ -1,6 +1,6 @@
 import KeyHandler from '../../Components/Base/KeyHandler'
 import Helper from '../../Components/Helper'
-import cryptoJs, { SHA256 } from 'crypto-js'
+import { SHA256, AES } from 'crypto-js'
 
 const keyHandler = new KeyHandler()
 const helper = new Helper()
@@ -44,7 +44,7 @@ export async function getChannelDepositParams(id, callback) {
     let randomNumber = random(18).toString()
 
     const key = getAesKey(id)
-    let initialUserNumber = cryptoJs.AES.encrypt(randomNumber, key).toString()
+    let initialUserNumber = AES.encrypt(randomNumber, key).toString()
     let userHashes = await getUserHashes(randomNumber)
     let finalUserHash = userHashes[userHashes.length - 1]
     return {

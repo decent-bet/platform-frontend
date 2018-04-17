@@ -22,7 +22,7 @@ export default class SlotsChannelHandler {
      */
     spin = (betSize, state, callback) => {
         const self = this
-        const id = state.id
+        const id = state.channelId
         betSize = helper.convertToEther(betSize)
         this.helpers().getSpin(betSize, state, (err, userSpin) => {
             if (!err) {
@@ -62,7 +62,7 @@ export default class SlotsChannelHandler {
      */
     finalizeChannel = (state, callback) => {
         const self = this
-        let id = state.id
+        let id = state.channelId
         let betSize = helper.convertToEther(1)
         this.helpers().getSpin(betSize, state, (err, userSpin) => {
             if (!err) {
@@ -73,7 +73,7 @@ export default class SlotsChannelHandler {
                         self.notifyFinalizeToHouse(id, userSpin, state.aesKey)
                         callback(false, txHash)
                     }).catch((err) => {
-                    callback(true, ('Error closing channel' + ', ' + err.message))
+                    callback(true, ('Error closing channel, ' + err.message))
                 })
             } else if (callback)
                 callback(true, 'Error generating user spin')
@@ -100,7 +100,7 @@ export default class SlotsChannelHandler {
      * @param callback
      */
     claimDbets = (state, callback) => {
-        let id = state.id
+        let id = state.channelId
         helper.getContractHelper().getWrappers().slotsChannelManager()
             .claim(id).then((txHash) => {
             callback(false, txHash)
@@ -191,7 +191,7 @@ export default class SlotsChannelHandler {
                         if (userSpin.betSize !== houseSpin.betSize)
                             callback(true, 'Invalid betsize')
 
-                        let betSize = parseInt(houseSpin.betSize)
+                        let betSize = parseInt(houseSpin.betSize, 10)
                         let payout = helper.convertToEther(self.helpers().calculateReelPayout(reel, betSize))
                         let userBalance, houseBalance
 

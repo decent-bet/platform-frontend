@@ -18,8 +18,7 @@ const slotsChannelHandler = new SlotsChannelHandler()
 
 class Game extends Component {
     componentWillMount = () => {
-        let channelId = this.props.match.params.id
-        let { dispatch } = this.props
+        let { dispatch, channelId } = this.props
         dispatch(Actions.getAesKey(channelId))
         dispatch(Actions.getChannelDetails(channelId))
         dispatch(Actions.getLastSpin(channelId))
@@ -42,8 +41,12 @@ class Game extends Component {
                             if (!err) {
                                 // Spin the Slots, AND THEN increase the nonce 
                                 dispatch(async dispatch2 => {
-                                    await dispatch2(Actions.postSpin(msg))
-                                    await dispatch2(Actions.nonceIncrease())
+                                    await dispatch2(
+                                        Actions.postSpin(channelId, msg)
+                                    )
+                                    await dispatch2(
+                                        Actions.nonceIncrease(channelId)
+                                    )
                                 })
                             }
                             callback(err, msg, lines)
@@ -84,11 +87,11 @@ class Game extends Component {
                     .getContractHelper()
                     .getWrappers()
                     .slotsChannelManager()
-                    .logChannelFinalized(self.state.id)
+                    .logChannelFinalized(self.props.channelId)
                     .watch((err, event) => {
                         if (!err) {
                             let id = event.args.id.toNumber()
-                            if (self.state.id === id)
+                            if (self.props.channelId === id)
                                 self.setState({
                                     finalized: true
                                 })
@@ -100,7 +103,7 @@ class Game extends Component {
                     .getContractHelper()
                     .getWrappers()
                     .slotsChannelManager()
-                    .logClaimChannelTokens(self.state.id)
+                    .logClaimChannelTokens(self.props.channelId)
                     .watch((err, event) => {
                         if (err)
                             console.log('Claim channel tokens event error', err)
@@ -111,7 +114,7 @@ class Game extends Component {
                                 event.args.id.toString()
                             )
                             let id = event.args.id.toNumber()
-                            if (id === self.state.id) {
+                            if (id === self.props.channelId) {
                                 let isHouse = event.args.isHouse
                                 let claimed = self.state.claimed
                                 claimed[isHouse] = true
@@ -212,6 +215,24 @@ class Game extends Component {
         }
     }
 
+    renderChannelDetail = () => {
+        if (this.props.info) {
+            return (
+                <ChannelDetail
+                    initialDeposit={this.props.info.initialDeposit}
+                    hashes={this.props.hashes}
+                />
+            )
+        }
+        return null
+    }
+
+    renderSpinHistory = () => {
+        if (this.props.houseSpins) {
+            return <SpinHistory spinArray={this.helpers().spinsHistory()} />
+        }
+    }
+
     render() {
         return (
             <main className="slots-game container">
@@ -229,16 +250,11 @@ class Game extends Component {
                     </div>
 
                     <div className="col-12 mt-4">
-                        <ChannelDetail
-                            initialDeposit={this.props.info.initialDeposit}
-                            hashes={this.props.hashes}
-                        />
+                        {this.renderChannelDetail()}
                     </div>
 
                     <div className="col-12 my-4">
-                        <SpinHistory
-                            spinArray={this.helpers().spinsHistory()}
-                        />
+                        {this.renderSpinHistory()}
                     </div>
                 </div>
             </main>
@@ -246,4 +262,12 @@ class Game extends Component {
     }
 }
 
-export default connect(state => state.slotsManager.spins)(Game)
+export default connect((state, props) => {
+    let channelId = props.match.params.id
+    let channelData = state.slotsManager.channels[channelId]
+    if (!channelData) {
+        channelData = {}
+    }
+    channelData.channelId = props.match.params.id
+    return channelData
+})(Game)

@@ -3,7 +3,7 @@ import DecentAPI from '../../Components/Base/DecentAPI'
 import Bluebird from 'bluebird'
 import Actions, { PREFIX } from './actionTypes'
 import Helper from '../../Components/Helper'
-import cryptoJs from 'crypto-js'
+import cryptoJs, { AES } from 'crypto-js'
 import { getUserHashes, getAesKey } from './functions'
 
 const helper = new Helper()
@@ -11,20 +11,20 @@ const decentApi = new DecentAPI()
 
 async function fetchAesKey(channelId) {
     let key = getAesKey(channelId)
-    return Promise.resolve(key)
+    return Promise.resolve({ channelId, key })
 }
 
 /**
  * The Basic information of a State Channel
- * @param id
+ * @param channelId
  */
-async function getChannelInfo(id) {
+async function getChannelInfo(channelId) {
     try {
         let info = await helper
             .getContractHelper()
             .getWrappers()
             .slotsChannelManager()
-            .getChannelInfo(id)
+            .getChannelInfo(channelId)
 
         let playerAddress = info[0]
         return {
@@ -44,13 +44,13 @@ async function getChannelInfo(id) {
  * Get the player's house address
  * @param id
  */
-async function getAuthorizedAddress(id) {
+async function getAuthorizedAddress(channelId) {
     try {
         return helper
             .getContractHelper()
             .getWrappers()
             .slotsChannelManager()
-            .getPlayer(id, true)
+            .getPlayer(channelId, true)
     } catch (error) {
         console.log('Error retrieving house authorized address', error.message)
     }
@@ -60,13 +60,13 @@ async function getAuthorizedAddress(id) {
  * Is the channel closed?
  * @param {number} id
  */
-async function isChannelClosed(id) {
+async function isChannelClosed(channelId) {
     try {
         return helper
             .getContractHelper()
             .getWrappers()
             .slotsChannelManager()
-            .isChannelClosed(id)
+            .isChannelClosed(channelId)
     } catch (err) {
         console.log('Error retrieving is channel closed', err.message)
     }
@@ -101,6 +101,7 @@ async function getChannelHashes(id) {
  */
 async function getChannelDetails(id) {
     return Bluebird.props({
+        channelId: id,
         info: getChannelInfo(id),
         houseAuthorizedAddress: getAuthorizedAddress(id),
         closed: isChannelClosed(id),
@@ -125,7 +126,7 @@ async function loadLastSpin(id, hashes, aesKey) {
     let userSpin, houseSpins
     if (encryptedSpin) {
         try {
-            let rawSpinData = cryptoJs.AES.decrypt(encryptedSpin, aesKey)
+            let rawSpinData = AES.decrypt(encryptedSpin, aesKey)
             userSpin = JSON.parse(rawSpinData.toString(cryptoJs.enc.Utf8))
         } catch (e) {}
     }
@@ -135,7 +136,7 @@ async function loadLastSpin(id, hashes, aesKey) {
         houseSpins = []
     }
 
-    let initialUserNumber = cryptoJs.AES.decrypt(
+    let initialUserNumber = AES.decrypt(
         hashes.initialUserNumber,
         aesKey
     ).toString(cryptoJs.enc.Utf8)
@@ -157,6 +158,7 @@ async function getLastSpin(channelId) {
     let data = await loadLastSpin(channelId, hashes, aesKey)
 
     return {
+        channelId,
         nonce: data.nonce,
         houseSpins: data.houseSpins,
         userHashes: data.userHashes,
@@ -169,7 +171,7 @@ export default createActions({
         [Actions.GET_AES_KEY]: fetchAesKey,
         [Actions.GET_CHANNEL_DETAILS]: getChannelDetails,
         [Actions.GET_LAST_SPIN]: getLastSpin,
-        [Actions.NONCE_INCREASE]: () => {},
-        [Actions.POST_SPIN]: spin => ({ ...spin })
+        [Actions.NONCE_INCREASE]: channelId => ({channelId}),
+        [Actions.POST_SPIN]: (channelId, spin) => ({ ...spin, channelId })
     }
 })
