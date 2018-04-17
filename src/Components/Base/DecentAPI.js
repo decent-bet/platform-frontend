@@ -81,7 +81,7 @@ class DecentAPI {
                     sign: sign,
                     timestamp: timestamp
                 })
-            },
+            }
         }
         request(options, (err, response, body) => {
             try {
@@ -97,13 +97,22 @@ class DecentAPI {
      * Notify the house when the user would like to finalize a channel to ensure the user can't spin while the
      * close channel transaction is being sent to the network
      *  */
-    finalizeChannel = (id, spin, aesKey, callback) => {
+    finalizeChannel = async (id, spin, aesKey, callback) => {
         let encryptedSpin = cryptoJs.AES.encrypt(JSON.stringify(spin), aesKey).toString()
         let url = BASE_URL + '/casino/channels/slots/' + id + '/finalize'
+
+        let timestamp = helper.getTimestampInMillis()
+        let sign = await this._getSign(url, timestamp)
 
         let options = {
             url: url,
             method: 'POST',
+            headers: {
+                Authorization: JSON.stringify({
+                    sign: sign,
+                    timestamp: timestamp
+                })
+            },
             body: {
                 spin: spin,
                 encryptedSpin: encryptedSpin
