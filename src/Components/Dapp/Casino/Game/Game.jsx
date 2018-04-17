@@ -41,42 +41,12 @@ class Game extends Component {
         window.slotsController = () => controller
     }
 
-    helpers = () => {
-        const self = this
-        return {
-            spinsHistory: () => {
-                let houseSpins = self.props.houseSpins
-                let history = houseSpins.map(spin => {
-                    let nonce = spin.nonce
-                    return {
-                        nonce: nonce,
-                        reelHash: spin.reelHash,
-                        reelSeedHash: spin.reelSeedHash,
-                        userHash: self.helpers().getUserHashForNonce(nonce),
-                        reel: spin.reel,
-                        payout: slotsChannelHandler
-                            .helpers()
-                            .calculateReelPayout(
-                                spin.reel,
-                                helper.convertToEther(5)
-                            ),
-                        isValid: true
-                    }
-                })
-                return history
-            },
-            getUserHashForNonce: nonce => {
-                let userHashes = self.props.userHashes
-                return userHashes[userHashes.length - nonce]
-            }
-        }
-    }
-
     spin = (betSize, callback) => {
         let { dispatch, channelId } = this.props
         slotsChannelHandler.spin(betSize, this.props, (err, msg, lines) => {
             if (!err) {
-                // Spin the Slots, AND THEN increase the nonce
+                // Spin the slots, wait for the action to complete,
+                // AND THEN increase the nonce.
                 dispatch(async dispatch2 => {
                     await dispatch2(Actions.postSpin(channelId, msg))
                     await dispatch2(Actions.nonceIncrease(channelId))
@@ -173,7 +143,18 @@ class Game extends Component {
 
     renderSpinHistory = () => {
         if (this.props.houseSpins) {
-            let spinArray = this.helpers().spinsHistory()
+            let { userHashes, houseSpins } = this.props
+            let spinArray = houseSpins.map(spin => {
+                let payout = slotsChannelHandler
+                    .helpers()
+                    .calculateReelPayout(spin.reel, helper.convertToEther(5))
+                return {
+                    ...spin,
+                    userHash: userHashes[userHashes.length - spin.nonce],
+                    payout,
+                    isValid: true
+                }
+            })
             return <SpinHistory spinArray={spinArray} />
         }
     }
@@ -211,7 +192,7 @@ class Game extends Component {
 
 export default connect((state, props) => {
     // This component's props is the data of a single State Channel,
-    // whose ID is defined in `props.match.params.id` 
+    // whose ID is defined in `props.match.params.id`
     let channelId = props.match.params.id
     let channelData = state.slotsManager.channels[channelId]
     if (!channelData) {
