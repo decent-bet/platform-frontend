@@ -104,10 +104,8 @@ export function initWatchers(dispatch) {
     contract.logNewGameOdds().watch((err, event) => {
         console.log('New game odds event', err, JSON.stringify(event))
         let gameId = event.args.id.toNumber()
-
         helper.toggleSnackbar(`New odds available for Game ID ${gameId} `)
-
-        dispatch(Actions.getGameOddsCount(gameId))
+        dispatch(Actions.getGameOdds(gameId))
     })
 
     // Updated Game Odds
@@ -115,8 +113,7 @@ export function initWatchers(dispatch) {
         console.log('Updated game odds event', err, JSON.stringify(event))
         let gameId = event.args.id.toNumber()
         helper.toggleSnackbar(`Odds updated for game ID ${gameId}`)
-
-        dispatch(Actions.getGameOddsCount(gameId))
+        dispatch(Actions.getGameOdds(gameId))
     })
 
     // Updated Max Bet

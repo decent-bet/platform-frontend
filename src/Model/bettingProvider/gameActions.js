@@ -199,11 +199,6 @@ async function fetchGames() {
 // Documentation https://redux-actions.js.org/docs/api/createAction.html#createactionsactionmap
 export default createActions({
     [Prefix]: {
-        [Actions.GET_GAME_ODDS_COUNT]: [
-            fetchGameOddsCount,
-            gameId => ({ gameId: gameId })
-        ],
-
         [Actions.GET_GAME_ODDS]: [
             fetchGameOdds,
             gameId => ({ gameId: gameId })
