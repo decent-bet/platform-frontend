@@ -17,7 +17,7 @@ const request = require('request')
 class DecentAPI {
 
     /** Off-chain finally verifiable slot spins */
-    spin = (address, spin, aesKey, callback) => {
+    spin = async (address, spin, aesKey, callback) => {
         /**
          * Spin:
          * {
@@ -37,14 +37,23 @@ class DecentAPI {
          * aesKey - send encrypted spin to server to save state
          */
         let encryptedSpin = cryptoJs.AES.encrypt(JSON.stringify(spin), aesKey).toString()
-        let url = BASE_URL + '/casino/channels/slots/' + address + '/spin'
+        let url = '/casino/channels/slots/' + address + '/spin'
+
+        let timestamp = helper.getTimestampInMillis()
+        let sign = await this._getSign(url, timestamp)
 
         let options = {
-            url: url,
+            url: BASE_URL + url,
             method: 'POST',
             body: {
                 spin: spin,
                 encryptedSpin: encryptedSpin
+            },
+            headers: {
+                Authorization: JSON.stringify({
+                    sign: sign,
+                    timestamp: timestamp
+                })
             },
             json: true
         }
@@ -58,12 +67,21 @@ class DecentAPI {
     /**
      * Get the latest encrypted spin saved by the house
      **/
-    getLastSpin = (id, callback) => {
-        let url = BASE_URL + '/casino/channels/slots/' + id + '/spin'
-        console.log('getLastSpin', url)
+    getLastSpin = async (id, callback) => {
+        let url = '/casino/channels/slots/' + id + '/spin'
+
+        let timestamp = helper.getTimestampInMillis()
+        let sign = await this._getSign(url, timestamp)
+
         let options = {
-            url: url,
-            method: 'GET'
+            url: BASE_URL + url,
+            method: 'GET',
+            headers: {
+                Authorization: JSON.stringify({
+                    sign: sign,
+                    timestamp: timestamp
+                })
+            }
         }
         request(options, (err, response, body) => {
             try {
@@ -79,13 +97,22 @@ class DecentAPI {
      * Notify the house when the user would like to finalize a channel to ensure the user can't spin while the
      * close channel transaction is being sent to the network
      *  */
-    finalizeChannel = (id, spin, aesKey, callback) => {
+    finalizeChannel = async (id, spin, aesKey, callback) => {
         let encryptedSpin = cryptoJs.AES.encrypt(JSON.stringify(spin), aesKey).toString()
         let url = BASE_URL + '/casino/channels/slots/' + id + '/finalize'
+
+        let timestamp = helper.getTimestampInMillis()
+        let sign = await this._getSign(url, timestamp)
 
         let options = {
             url: url,
             method: 'POST',
+            headers: {
+                Authorization: JSON.stringify({
+                    sign: sign,
+                    timestamp: timestamp
+                })
+            },
             body: {
                 spin: spin,
                 encryptedSpin: encryptedSpin
@@ -99,57 +126,42 @@ class DecentAPI {
     }
 
     /** Solidity ecsign implementation */
-    signString = (text, callback) => {
+    signString = async (text) => {
         /*
          * Sign a string and return (hash, v, r, s) used by ecrecover to regenerate the user's address;
          */
-        let msgHash = ethUtil.sha3(text)
-        let privateKey = ethUtil.toBuffer(keyHandler.get())
+        return new Promise((resolve, reject) => {
+            let msgHash = ethUtil.sha3(text)
+            let privateKey = ethUtil.toBuffer(keyHandler.get())
 
-        console.log('Signing', text, ethUtil.bufferToHex(msgHash), 'as', helper.getWeb3().eth.defaultAccount,
-            ethUtil.isValidPrivate(privateKey))
+            console.log('Signing', text, ethUtil.bufferToHex(msgHash), 'as', helper.getWeb3().eth.defaultAccount,
+                ethUtil.isValidPrivate(privateKey))
 
-        const {v, r, s} = ethUtil.ecsign(msgHash, privateKey)
-        const sgn = ethUtil.toRpcSig(v, r, s)
+            const {v, r, s} = ethUtil.ecsign(msgHash, privateKey)
+            const sgn = ethUtil.toRpcSig(v, r, s)
 
-        console.log('v: ' + v + ', r: ' + sgn.slice(0, 66) + ', s: ' + '0x' + sgn.slice(66, 130))
+            console.log('v: ' + v + ', r: ' + sgn.slice(0, 66) + ', s: ' + '0x' + sgn.slice(66, 130))
 
-        let m = ethUtil.toBuffer(msgHash)
-        let pub = ethUtil.ecrecover(m, v, r, s)
-        let adr = '0x' + ethUtil.pubToAddress(pub).toString('hex')
+            let m = ethUtil.toBuffer(msgHash)
+            let pub = ethUtil.ecrecover(m, v, r, s)
+            let adr = '0x' + ethUtil.pubToAddress(pub).toString('hex')
 
-        console.log('Generated sign address', adr, helper.getWeb3().eth.defaultAccount)
+            console.log('Generated sign address', adr, helper.getWeb3().eth.defaultAccount)
 
-        console.log('Generated msgHash', msgHash, 'Sign', sgn)
+            console.log('Generated msgHash', msgHash, 'Sign', sgn)
 
-        let nonChecksummedAddress = helper.getWeb3().eth.defaultAccount.toLowerCase()
+            if (adr !== (helper.getWeb3().eth.defaultAccount).toLowerCase()) reject(new Error("Invalid address for signed message"))
 
-        if (adr != nonChecksummedAddress) throw new Error("Invalid address for signed message")
-
-        callback(false, {msgHash: msgHash, sig: sgn})
+            resolve({msgHash: msgHash, sig: sgn})
+        })
     }
 
-    getSpinBuffer = (spin) => {
-        let buffer = ethUtil.toBuffer(spin.reelHash)
-        buffer = Buffer.concat([buffer, ethUtil.toBuffer((spin.reel != '' ? JSON.stringify(spin.reel) : ''))])
-        buffer = Buffer.concat([buffer, ethUtil.toBuffer(spin.reelSeedHash)])
-        buffer = Buffer.concat([buffer, ethUtil.toBuffer(spin.prevReelSeedHash)])
-        buffer = Buffer.concat([buffer, ethUtil.toBuffer(spin.userHash)])
-        buffer = Buffer.concat([buffer, ethUtil.toBuffer(spin.prevUserHash)])
-        buffer = Buffer.concat([buffer, ethUtil.toBuffer('' + spin.nonce)])
-        buffer = Buffer.concat([buffer, ethUtil.toBuffer(('' + spin.turn))])
-        buffer = Buffer.concat([buffer, ethUtil.toBuffer((spin.userBalance))])
-        buffer = Buffer.concat([buffer, ethUtil.toBuffer((spin.houseBalance))])
-        buffer = Buffer.concat([buffer, ethUtil.toBuffer((spin.betSize))])
-        return buffer
-    }
+    _getSign = async (path, timestamp) => {
+        let input = path + timestamp
+        let sign = await this.signString(input)
+        console.log('_getSign', input, sign)
 
-    /**
-     * Returns solidity sha3 of a spin used for checksig on contract
-     * @param spin
-     */
-    getSha3Spin = (spin) => {
-        return ethUtil.bufferToHex(ethUtil.sha3(this.getSpinBuffer(spin)))
+        return sign.sig
     }
 
 }

@@ -77,7 +77,7 @@ export default class SlotsChannelHandler {
                     let activated = info[2]
                     let finalized = info[3]
                     let initialDeposit = info[4]
-                    let exists = (playerAddress == '0x0')
+                    let exists = (playerAddress === '0x0')
                     cb(false, {
                         exists: exists,
                         playerAddress: playerAddress,
@@ -286,27 +286,27 @@ export default class SlotsChannelHandler {
                 let lastHash
                 let hashes = []
                 for (let i = 0; i < 1000; i++) {
-                    let hash = sha256(i == 0 ? randomNumber : lastHash).toString()
+                    let hash = sha256(i === 0 ? randomNumber : lastHash).toString()
                     hashes.push(hash)
                     lastHash = hash
                 }
                 return hashes
             },
-            getSpin: (betSize, state, callback) => {
+            getSpin: async (betSize, state, callback) => {
 
                 const lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]
                 const nonce = state.nonce
 
-                let reelHash = (nonce == 1) ? state.hashes.finalReelHash : lastHouseSpin.reelHash
+                let reelHash = (nonce === 1) ? state.hashes.finalReelHash : lastHouseSpin.reelHash
                 let reel = ''
-                let reelSeedHash = (nonce == 1) ? state.hashes.finalSeedHash : lastHouseSpin.reelSeedHash
-                let prevReelSeedHash = (nonce == 1 ) ? '' : lastHouseSpin.prevReelSeedHash
+                let reelSeedHash = (nonce === 1) ? state.hashes.finalSeedHash : lastHouseSpin.reelSeedHash
+                let prevReelSeedHash = (nonce === 1 ) ? '' : lastHouseSpin.prevReelSeedHash
                 let userHash = state.userHashes[state.userHashes.length - nonce]
                 let prevUserHash = state.userHashes[state.userHashes.length - nonce - 1]
-                let userBalance = ((nonce == 1) ? (state.info.initialDeposit) :
+                let userBalance = ((nonce === 1) ? (state.info.initialDeposit) :
                     lastHouseSpin.userBalance)
                 userBalance = new BigNumber(userBalance).toFixed(0)
-                let houseBalance = ((nonce == 1) ? (state.info.initialDeposit) :
+                let houseBalance = ((nonce === 1) ? (state.info.initialDeposit) :
                     lastHouseSpin.houseBalance)
                 houseBalance = new BigNumber(houseBalance).toFixed(0)
 
@@ -324,13 +324,14 @@ export default class SlotsChannelHandler {
                     betSize: betSize
                 }
 
-                decentApi.signString(self.helpers().getTightlyPackedSpin(spin), (err, sign) => {
-                    if (!err) {
-                        spin.sign = sign.sig
-                        callback(false, spin)
-                    } else
-                        callback(true)
-                })
+                try {
+                    let sign = await decentApi.signString(self.helpers().getTightlyPackedSpin(spin))
+                    spin.sign = sign.sig
+
+                    callback(false, spin)
+                } catch (e) {
+                    callback(true)
+                }
             },
             verifyHouseSpin: (state, houseSpin, userSpin, callback) => {
                 async.waterfall([
@@ -374,10 +375,10 @@ export default class SlotsChannelHandler {
                         let payout = helper.convertToEther(self.helpers().calculateReelPayout(reel, betSize))
                         let userBalance, houseBalance
 
-                        userBalance = (payout == 0) ?
+                        userBalance = (payout === 0) ?
                             (new BigNumber(userSpin.userBalance).minus(betSize)) :
                             (new BigNumber(userSpin.userBalance).plus(payout).minus(betSize))
-                        houseBalance = (payout == 0) ?
+                        houseBalance = (payout === 0) ?
                             (new BigNumber(userSpin.houseBalance).plus(betSize)) :
                             (new BigNumber(userSpin.houseBalance).minus(payout).plus(betSize))
 
@@ -423,7 +424,7 @@ export default class SlotsChannelHandler {
                             else if (houseSpin.prevUserHash !== userSpin.prevUserHash)
                                 callback(true, 'Invalid user hash')
                             else if (sha256(houseSpin.reelSeedHash + houseSpin.reel.toString())
-                                    .toString() != houseSpin.reelHash)
+                                    .toString() !== houseSpin.reelHash)
                                 callback(true, 'Invalid reel hash')
                             else
                                 callback(false)
@@ -446,7 +447,7 @@ export default class SlotsChannelHandler {
                 initialUserNumber = cryptoJs.AES.decrypt(initialUserNumber, aesKey).toString(cryptoJs.enc.Utf8)
                 console.log('Unencrypted initial user number: ', initialUserNumber)
                 let userHashes = self.helpers().getUserHashes(initialUserNumber)
-                return (userHashes[userHashes.length - 1] == finalUserHash)
+                return (userHashes[userHashes.length - 1] === finalUserHash)
             },
             /**
              * Returns a tightly packed spin string
@@ -459,9 +460,9 @@ export default class SlotsChannelHandler {
             },
             // Get the symbol that matches with a position on a reel
             getSymbol: (reel, position) => {
-                if (position == 21)
+                if (position === 21)
                     position = 0;
-                else if (position == -1)
+                else if (position === -1)
                     position = 20;
                 return slotReels[reel][position]
             },
@@ -491,7 +492,7 @@ export default class SlotsChannelHandler {
                 let repetitions = 1
                 let rewardMultiplier = 0
                 for (let i = 1; i <= line.length; i++) {
-                    if (line[i] == line[i - 1])
+                    if (line[i] === line[i - 1])
                         repetitions++
                     else
                         break
@@ -535,9 +536,9 @@ export default class SlotsChannelHandler {
                         break
                     case 3:
                         for (let i = 0; i < slotsConstants.NUMBER_OF_REELS; i++) {
-                            if (i == 0 || i == 4)
+                            if (i === 0 || i === 4)
                                 line[i] = self.helpers().getSymbol(i, reel[i] - 1);
-                            else if (i == 2)
+                            else if (i === 2)
                                 line[i] = self.helpers().getSymbol(i, reel[i] + 1);
                             else
                                 line[i] = self.helpers().getSymbol(i, reel[i]);
@@ -545,9 +546,9 @@ export default class SlotsChannelHandler {
                         break
                     case 4:
                         for (let i = 0; i < slotsConstants.NUMBER_OF_REELS; i++) {
-                            if (i == 0 || i == 4)
+                            if (i === 0 || i === 4)
                                 line[i] = self.helpers().getSymbol(i, reel[i] + 1);
-                            else if (i == 2)
+                            else if (i === 2)
                                 line[i] = self.helpers().getSymbol(i, reel[i] - 1);
                             else
                                 line[i] = self.helpers().getSymbol(i, reel[i]);
