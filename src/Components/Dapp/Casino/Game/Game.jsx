@@ -100,8 +100,7 @@ class Game extends Component {
     }
 
     renderGame = () => {
-        const isFinalized = this.props.status === CHANNEL_STATUS_FINALIZED
-        if (isFinalized && this.props.houseSpins) {
+        if (this.props.isFinalized && this.props.houseSpins) {
             return (
                 <Card style={styles.card} className="p-4">
                     <h3 className="text-center">
@@ -160,8 +159,6 @@ class Game extends Component {
     }
 
     render() {
-        const isClaimed = this.props.claimed ? this.props.claimed[true] : false
-        const isFinalized = this.props.status === CHANNEL_STATUS_FINALIZED
         return (
             <main className="slots-game container">
                 <div className="row">
@@ -170,8 +167,8 @@ class Game extends Component {
                     <div className="col-12 mt-4">
                         <ChannelOptions
                             isClosed={this.props.closed}
-                            isClaimed={isClaimed}
-                            isFinalized={isFinalized}
+                            isClaimed={this.props.isClaimed}
+                            isFinalized={this.props.isFinalized}
                             onClaimListener={this.onClaimListener}
                             onFinalizeListener={this.onFinalizeListener}
                         />
@@ -199,5 +196,10 @@ export default connect((state, props) => {
         channelData = {}
     }
     channelData.channelId = props.match.params.id
+
+    // Shortcuts for the Channel State
+    channelData.isClaimed = channelData.claimed ? channelData.claimed[true] : false
+    channelData.isFinalized = channelData.status === CHANNEL_STATUS_FINALIZED
+
     return channelData
 })(Game)
