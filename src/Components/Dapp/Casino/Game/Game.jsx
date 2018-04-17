@@ -56,23 +56,10 @@ class Game extends Component {
         })
     }
 
-    getBalance = () => {
-        let penultimate = this.props.houseSpins.length - 1
-        let lastHouseSpin = this.props.houseSpins[penultimate]
-        let nonce = this.props.nonce
-        let userBalance =
-            nonce === 1
-                ? this.props.info.initialDeposit
-                : lastHouseSpin.userBalance
-        let houseBalance =
-            nonce === 1
-                ? this.props.info.initialDeposit
-                : lastHouseSpin.houseBalance
-        return {
-            user: helper.formatEther(userBalance),
-            house: helper.formatEther(houseBalance)
-        }
-    }
+    getBalance = () => ({
+        user: helper.formatEther(this.props.userBalance),
+        house: helper.formatEther(this.props.houseBalance)
+    })
 
     onFinalizeListener = async () => {
         try {
@@ -108,7 +95,8 @@ class Game extends Component {
                         before the channel closes and claiming your DBETs.
                     </h3>
                     <p className="lead text-center mt-2">
-                        Final Balance: {this.getBalance().user}
+                        Final Balance:{' '}
+                        {helper.formatEther(this.props.userBalance)}
                     </p>
                 </Card>
             )
@@ -198,8 +186,30 @@ export default connect((state, props) => {
     channelData.channelId = props.match.params.id
 
     // Shortcuts for the Channel State
-    channelData.isClaimed = channelData.claimed ? channelData.claimed[true] : false
+    channelData.isClaimed = channelData.claimed
+        ? channelData.claimed[true]
+        : false
     channelData.isFinalized = channelData.status === CHANNEL_STATUS_FINALIZED
+
+    // Get the Balances for the House and the user. Set them as 'initialDeposit' if nothing is found
+    if (!channelData.info) {
+        // Default Values
+        channelData.userBalance = 0
+        channelData.houseBalance = 0
+    } else {
+        // Default values if the `info` is already loaded
+        channelData.userBalance = channelData.info.initialDeposit
+        channelData.houseBalance = channelData.info.initialDeposit
+        if (channelData.houseSpins && channelData.nonce) {
+            let penultimate = channelData.houseSpins.length - 1
+            let lastHouseSpin = channelData.houseSpins[penultimate]
+            if (channelData.nonce !== 1) {
+                // Real Values if there has been at least a spin
+                channelData.userBalance = lastHouseSpin.userBalance
+                channelData.houseBalance = lastHouseSpin.houseBalance
+            }
+        }
+    }
 
     return channelData
 })(Game)
