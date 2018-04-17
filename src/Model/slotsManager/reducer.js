@@ -23,7 +23,10 @@ const ChannelDefaultState = {
     lastSpinLoaded: false,
     finalized: false,
     closed: false,
-    claimed: {}
+    claimed: {
+        [true]: false,
+        [false]: false
+    }
 }
 
 function stateChannelSubreducer(

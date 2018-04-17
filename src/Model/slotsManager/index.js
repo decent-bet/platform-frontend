@@ -51,7 +51,7 @@ function watcherChannelActivate(id, dispatch) {
 }
 
 // Watcher that monitors channel finalization
-function watcherChannelFinalized(id, dispatch) {
+export function watcherChannelFinalized(id, dispatch) {
     helper
         .getContractHelper()
         .getWrappers()
@@ -68,7 +68,7 @@ function watcherChannelFinalized(id, dispatch) {
 }
 
 // Watcher that monitors the claiming of a channel's Chips
-function watcherChannelClaimed(id, dispatch) {
+export function watcherChannelClaimed(id, dispatch) {
     helper
         .getContractHelper()
         .getWrappers()

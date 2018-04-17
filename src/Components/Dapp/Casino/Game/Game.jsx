@@ -7,12 +7,18 @@ import Iframe from '../../../Base/Iframe'
 import ChannelOptions from './ChannelOptions'
 import ChannelDetail from './ChannelDetail'
 import SpinHistory from './SpinHistory'
-import { Actions, SlotsChannelHandler } from '../../../../Model/slotsManager'
+import {
+    Actions,
+    SlotsChannelHandler,
+    watcherChannelClaimed,
+    watcherChannelFinalized
+} from '../../../../Model/slotsManager'
+import { CHANNEL_STATUS_FINALIZED } from '../../../Constants'
+import { styles as Styles } from '../../../Base/styles'
 
 import './game.css'
 
-const styles = require('../../../Base/styles').styles()
-
+const styles = Styles()
 const helper = new Helper()
 const slotsChannelHandler = new SlotsChannelHandler()
 
@@ -23,109 +29,16 @@ class Game extends Component {
         dispatch(Actions.getChannelDetails(channelId))
         dispatch(Actions.getLastSpin(channelId))
 
+        watcherChannelClaimed(channelId, dispatch)
+        watcherChannelFinalized(channelId, dispatch)
+
         // TODO: Make this less ugly
         // Maybe we should use websockets to communicate instead?
-        let self = this
-        window.slotsController = () => {
-            return {
-                spin: (betSize, callback) => {
-                    let tempProps = self.props
-                    tempProps = {
-                        ...tempProps,
-                        id: channelId
-                    }
-                    slotsChannelHandler.spin(
-                        betSize,
-                        tempProps,
-                        (err, msg, lines) => {
-                            if (!err) {
-                                // Spin the Slots, AND THEN increase the nonce 
-                                dispatch(async dispatch2 => {
-                                    await dispatch2(
-                                        Actions.postSpin(channelId, msg)
-                                    )
-                                    await dispatch2(
-                                        Actions.nonceIncrease(channelId)
-                                    )
-                                })
-                            }
-                            callback(err, msg, lines)
-                        }
-                    )
-                },
-                balances: () => {
-                    let lastHouseSpin =
-                        self.props.houseSpins[self.props.houseSpins.length - 1]
-                    let nonce = self.props.nonce
-                    let userBalance =
-                        nonce === 1
-                            ? self.props.info.initialDeposit
-                            : lastHouseSpin.userBalance
-                    let houseBalance =
-                        nonce === 1
-                            ? self.props.info.initialDeposit
-                            : lastHouseSpin.houseBalance
-                    return {
-                        user: helper.formatEther(userBalance),
-                        house: helper.formatEther(houseBalance)
-                    }
-                }
-            }
+        let controller = {
+            spin: this.spin,
+            balances: this.getBalance
         }
-    }
-
-    initWatchers = () => {
-        /*this.watchers().channelFinalized()
-        this.watchers().claimChannelTokens()*/
-    }
-
-    watchers = () => {
-        const self = this
-        return {
-            channelFinalized: () => {
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .slotsChannelManager()
-                    .logChannelFinalized(self.props.channelId)
-                    .watch((err, event) => {
-                        if (!err) {
-                            let id = event.args.id.toNumber()
-                            if (self.props.channelId === id)
-                                self.setState({
-                                    finalized: true
-                                })
-                        }
-                    })
-            },
-            claimChannelTokens: () => {
-                helper
-                    .getContractHelper()
-                    .getWrappers()
-                    .slotsChannelManager()
-                    .logClaimChannelTokens(self.props.channelId)
-                    .watch((err, event) => {
-                        if (err)
-                            console.log('Claim channel tokens event error', err)
-                        else {
-                            console.log(
-                                'Claim channel tokens event',
-                                event.args,
-                                event.args.id.toString()
-                            )
-                            let id = event.args.id.toNumber()
-                            if (id === self.props.channelId) {
-                                let isHouse = event.args.isHouse
-                                let claimed = self.state.claimed
-                                claimed[isHouse] = true
-                                self.setState({
-                                    claimed: claimed
-                                })
-                            }
-                        }
-                    })
-            }
-        }
+        window.slotsController = () => controller
     }
 
     helpers = () => {
@@ -159,6 +72,38 @@ class Game extends Component {
         }
     }
 
+    spin = (betSize, callback) => {
+        let { dispatch, channelId } = this.props
+        slotsChannelHandler.spin(betSize, this.props, (err, msg, lines) => {
+            if (!err) {
+                // Spin the Slots, AND THEN increase the nonce
+                dispatch(async dispatch2 => {
+                    await dispatch2(Actions.postSpin(channelId, msg))
+                    await dispatch2(Actions.nonceIncrease(channelId))
+                })
+            }
+            callback(err, msg, lines)
+        })
+    }
+
+    getBalance = () => {
+        let penultimate = this.props.houseSpins.length - 1
+        let lastHouseSpin = this.props.houseSpins[penultimate]
+        let nonce = this.props.nonce
+        let userBalance =
+            nonce === 1
+                ? this.props.info.initialDeposit
+                : lastHouseSpin.userBalance
+        let houseBalance =
+            nonce === 1
+                ? this.props.info.initialDeposit
+                : lastHouseSpin.houseBalance
+        return {
+            user: helper.formatEther(userBalance),
+            house: helper.formatEther(houseBalance)
+        }
+    }
+
     onFinalizeListener = async () => {
         try {
             await Bluebird.fromCallback(cb =>
@@ -185,7 +130,8 @@ class Game extends Component {
     }
 
     renderGame = () => {
-        if (this.props.finalized) {
+        const isFinalized = this.props.status === CHANNEL_STATUS_FINALIZED
+        if (isFinalized && this.props.houseSpins) {
             return (
                 <Card style={styles.card} className="p-4">
                     <h3 className="text-center">
@@ -193,8 +139,7 @@ class Game extends Component {
                         before the channel closes and claiming your DBETs.
                     </h3>
                     <p className="lead text-center mt-2">
-                        Final Balance:{' '}
-                        {window.slotsController().balances().user}
+                        Final Balance: {this.getBalance().user}
                     </p>
                 </Card>
             )
@@ -224,16 +169,18 @@ class Game extends Component {
                 />
             )
         }
-        return null
     }
 
     renderSpinHistory = () => {
         if (this.props.houseSpins) {
-            return <SpinHistory spinArray={this.helpers().spinsHistory()} />
+            let spinArray = this.helpers().spinsHistory()
+            return <SpinHistory spinArray={spinArray} />
         }
     }
 
     render() {
+        const isClaimed = this.props.claimed ? this.props.claimed[true] : false
+        const isFinalized = this.props.status === CHANNEL_STATUS_FINALIZED
         return (
             <main className="slots-game container">
                 <div className="row">
@@ -242,8 +189,8 @@ class Game extends Component {
                     <div className="col-12 mt-4">
                         <ChannelOptions
                             isClosed={this.props.closed}
-                            isClaimed={this.props.claimed}
-                            isFinalized={this.props.finalized}
+                            isClaimed={isClaimed}
+                            isFinalized={isFinalized}
                             onClaimListener={this.onClaimListener}
                             onFinalizeListener={this.onFinalizeListener}
                         />
@@ -263,6 +210,8 @@ class Game extends Component {
 }
 
 export default connect((state, props) => {
+    // This component's props is the data of a single State Channel,
+    // whose ID is defined in `props.match.params.id` 
     let channelId = props.match.params.id
     let channelData = state.slotsManager.channels[channelId]
     if (!channelData) {
