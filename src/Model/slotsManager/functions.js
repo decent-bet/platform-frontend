@@ -1,5 +1,5 @@
-import KeyHandler from '../Components/Base/KeyHandler'
-import Helper from '../Components/Helper'
+import KeyHandler from '../../Components/Base/KeyHandler'
+import Helper from '../../Components/Helper'
 import cryptoJs, { SHA256 } from 'crypto-js'
 
 const keyHandler = new KeyHandler()

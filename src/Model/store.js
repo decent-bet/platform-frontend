@@ -8,13 +8,11 @@ import { Reducer as oracleReducer } from './oracle'
 import { Reducer as balanceReducer } from './balance'
 import { Reducer as houseReducer } from './house'
 import { Reducer as slotsManagerReducer } from './slotsManager'
-import { Reducer as spinsReducer } from './spins'
 
 // Combine all Reducers
 const CombinedReducers = combineReducers({
     house: houseReducer,
     slotsManager: slotsManagerReducer,
-    spins: spinsReducer,
     bettingProvider: bettingProviderReducer,
     sportsOracle: oracleReducer,
     balance: balanceReducer

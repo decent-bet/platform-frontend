@@ -10,7 +10,19 @@ const SlotsManagerDefaultState = {
     channels: {},
     allowance: 0,
     balance: 0,
-    currentSession: -1
+    currentSession: -1,
+    spins: {
+        aesKey: '0x',
+        info: { initialDeposit: 0 },
+        houseAuthorizedAddress: '0x',
+        hashes: {},
+        nonce: 0,
+        houseSpins: [],
+        lastSpinLoaded: false,
+        finalized: false,
+        closed: false,
+        claimed: {}
+    }
 }
 
 function stateChannelSubreducer(
@@ -55,6 +67,31 @@ function stateChannelSubreducer(
     return { ...channelState, [channelId]: channel }
 }
 
+function spinsSubreducer(spinState, action = { type: null }) {
+    switch (action.type) {
+        case `${PREFIX}/${Actions.GET_AES_KEY}/${FULFILLED}`:
+            return { ...spinState, aesKey: action.payload }
+
+        case `${PREFIX}/${Actions.GET_CHANNEL_DETAILS}/${FULFILLED}`:
+            return { ...spinState, ...action.payload }
+
+        case `${PREFIX}/${Actions.GET_LAST_SPIN}/${FULFILLED}`:
+            return { ...spinState, ...action.payload }
+
+        case `${PREFIX}/${Actions.NONCE_INCREASE}`:
+            return { ...spinState, nonce: spinState.nonce + 1 }
+
+        case `${PREFIX}/${Actions.POST_SPIN}`:
+            return {
+                ...spinState,
+                houseSpins: [...spinState.houseSpins, action.payload]
+            }
+
+        default:
+            return { ...spinState }
+    }
+}
+
 export default function slotsManagerReducer(
     slotsManagerState = SlotsManagerDefaultState,
     action = { type: null }
@@ -76,6 +113,16 @@ export default function slotsManagerReducer(
                     slotsManagerState.channels,
                     action
                 )
+            }
+
+        case `${PREFIX}/${Actions.GET_AES_KEY}/${FULFILLED}`:
+        case `${PREFIX}/${Actions.GET_CHANNEL_DETAILS}/${FULFILLED}`:
+        case `${PREFIX}/${Actions.GET_LAST_SPIN}/${FULFILLED}`:
+        case `${PREFIX}/${Actions.NONCE_INCREASE}`:
+        case `${PREFIX}/${Actions.POST_SPIN}`:
+            return {
+                ...slotsManagerState,
+                spins: spinsSubreducer(slotsManagerState.spins, action)
             }
 
         case `${PREFIX}/${Actions.SET_CHANNEL}`:

@@ -2,10 +2,9 @@ import { createActions } from 'redux-actions'
 import DecentAPI from '../../Components/Base/DecentAPI'
 import Bluebird from 'bluebird'
 import Actions, { PREFIX } from './actionTypes'
-import { getAesKey } from '../functions'
 import Helper from '../../Components/Helper'
 import cryptoJs from 'crypto-js'
-import { getUserHashes } from '../functions'
+import { getUserHashes, getAesKey } from './functions'
 
 const helper = new Helper()
 const decentApi = new DecentAPI()

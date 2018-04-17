@@ -1,12 +1,18 @@
-import actions from './actions'
+import actionsForChannel from './actionsForChannel'
+import actionsForSlots from './actionsForSlots'
 import reducer from './reducer'
 import Helper from '../../Components/Helper'
 import { CHANNEL_STATUS_WAITING } from '../../Components/Constants'
+import slotsChannelHandler from './SlotsChannelHandler'
 
 const helper = new Helper()
 
-export const Actions = actions.slotManager
+export const Actions = {
+    ...actionsForChannel.slotManager,
+    ...actionsForSlots.slotManager
+}
 export const Reducer = reducer
+export const SlotsChannelHandler = slotsChannelHandler
 
 let currentSessionsBeingWatched = []
 

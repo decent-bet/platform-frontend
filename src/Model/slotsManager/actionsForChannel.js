@@ -1,7 +1,7 @@
 import Actions, { PREFIX } from './actionTypes'
 import { createActions } from 'redux-actions'
 import Helper from '../../Components/Helper'
-import { getChannelDepositParams } from '../functions'
+import { getChannelDepositParams } from './functions'
 
 const helper = new Helper()
 

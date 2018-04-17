@@ -1,15 +1,13 @@
 import React, { Component } from 'react'
 import { Card } from 'material-ui'
 import Bluebird from 'bluebird'
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import Helper from '../../../Helper'
 import Iframe from '../../../Base/Iframe'
-import { SlotsChannelHandler } from '../../../../Model/spins/'
 import ChannelOptions from './ChannelOptions'
 import ChannelDetail from './ChannelDetail'
 import SpinHistory from './SpinHistory'
-import { Actions } from '../../../../Model/spins'
+import { Actions, SlotsChannelHandler } from '../../../../Model/slotsManager'
 
 import './game.css'
 
@@ -248,4 +246,4 @@ class Game extends Component {
     }
 }
 
-export default connect(state => state.spins)(Game)
+export default connect(state => state.slotsManager.spins)(Game)
