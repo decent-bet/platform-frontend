@@ -42,8 +42,8 @@ class Game extends Component {
                             if (!err) {
                                 // Spin the Slots, AND THEN increase the nonce 
                                 dispatch(async dispatch2 => {
-                                    await dispatch(Actions.postSpin(msg))
-                                    await dispatch(Actions.nonceIncrease())
+                                    await dispatch2(Actions.postSpin(msg))
+                                    await dispatch2(Actions.nonceIncrease())
                                 })
                             }
                             callback(err, msg, lines)
