@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { Card } from 'material-ui'
-import Bluebird from 'bluebird'
 import { connect } from 'react-redux'
 import Helper from '../../../Helper'
 import Iframe from '../../../Base/Iframe'
@@ -61,29 +60,14 @@ class Game extends Component {
         house: helper.formatEther(this.props.houseBalance)
     })
 
-    onFinalizeListener = async () => {
-        try {
-            await Bluebird.fromCallback(cb =>
-                slotsChannelHandler.finalizeChannel(this.props, cb)
-            )
-            let message = 'Successfully sent finalize channel transaction'
-            helper.toggleSnackbar(message)
-        } catch (err) {
-            console.log(err.message)
-            helper.toggleSnackbar('Error sending finalize channel transaction')
-        }
+    onFinalizeListener = () => {
+        let action = Actions.finalizeChannel(this.props.channelId, this.props)
+        this.props.dispatch(action)
     }
 
-    onClaimListener = async () => {
-        try {
-            await Bluebird.fromCallback(cb =>
-                slotsChannelHandler.claimDbets(this.props, cb)
-            )
-            helper.toggleSnackbar('Successfully sent claim DBETs transaction')
-        } catch (err) {
-            console.log('Claim DBETs callback', err)
-            helper.toggleSnackbar('Error sending claim DBETs transaction')
-        }
+    onClaimListener = () => {
+        let action = Actions.claimChannel(this.props.channelId)
+        this.props.dispatch(action)
     }
 
     renderGame = () => {

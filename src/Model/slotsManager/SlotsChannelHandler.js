@@ -1,15 +1,14 @@
 import DecentAPI from '../../Components/Base/DecentAPI'
 import Helper from '../../Components/Helper'
 import SlotsConstants from './Constants'
-import sha256 from 'crypto-js/sha256'
-
-const async = require('async')
-const BigNumber = require('bignumber.js')
+import { SHA256 } from 'crypto-js'
+import async from 'async'
+import BigNumber from 'bignumber.js'
 
 const decentApi = new DecentAPI()
 const helper = new Helper()
-
 const slotsConstants = new SlotsConstants()
+
 const slotReels = slotsConstants.reels
 const paytable = slotsConstants.paytable
 
@@ -52,60 +51,6 @@ export default class SlotsChannelHandler {
                 })
             } else if (callback)
                 callback(true, 'Error generating user spin')
-        })
-    }
-
-    /**
-     * Finalizes a channel allowing users to claim DBETs
-     * @param state
-     * @param callback
-     */
-    finalizeChannel = (state, callback) => {
-        const self = this
-        let id = state.channelId
-        let betSize = helper.convertToEther(1)
-        this.helpers().getSpin(betSize, state, (err, userSpin) => {
-            if (!err) {
-                let lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]
-                helper.getContractHelper().getWrappers().slotsChannelFinalizer()
-                    .finalize(id, userSpin, lastHouseSpin)
-                    .then((txHash) => {
-                        self.notifyFinalizeToHouse(id, userSpin, state.aesKey)
-                        callback(false, txHash)
-                    }).catch((err) => {
-                    callback(true, ('Error closing channel, ' + err.message))
-                })
-            } else if (callback)
-                callback(true, 'Error generating user spin')
-        })
-    }
-
-    /**
-     * After sending a finalize channel tx on the Ethereum network let the state channel API know that
-     * the transaction was sent to make sure future spins aren't processed.
-     * @param id
-     * @param userSpin
-     * @param aesKey
-     */
-    notifyFinalizeToHouse = (id, userSpin, aesKey) => {
-        /** Notify house about finalize channel tx */
-        decentApi.finalizeChannel(id, userSpin, aesKey, (err, message) => {
-            console.log(err ? ('Error notifying finalize to house: ' + message) : 'Notified finalize to house')
-        })
-    }
-
-    /**
-     * Allows users to claim DBETs from a closed channel
-     * @param state
-     * @param callback
-     */
-    claimDbets = (state, callback) => {
-        let id = state.channelId
-        helper.getContractHelper().getWrappers().slotsChannelManager()
-            .claim(id).then((txHash) => {
-            callback(false, txHash)
-        }).catch((err) => {
-            callback(true, ('Error sending claim DBETs tx ' + err.message))
         })
     }
 
@@ -236,14 +181,14 @@ export default class SlotsChannelHandler {
                             let prevHouseSpin = state.houseSpins[state.houseSpins.length - 1]
                             if (houseSpin.reelSeedHash !== prevHouseSpin.prevReelSeedHash)
                                 callback(true, 'Invalid reel seed hash')
-                            else if (sha256(houseSpin.prevReelSeedHash).toString() !==
+                            else if (SHA256(houseSpin.prevReelSeedHash).toString() !==
                                 houseSpin.reelSeedHash)
                                 callback(true, 'Invalid reel seed hash')
                             else if (houseSpin.userHash !== userSpin.userHash)
                                 callback(true, 'Invalid user hash')
                             else if (houseSpin.prevUserHash !== userSpin.prevUserHash)
                                 callback(true, 'Invalid user hash')
-                            else if (sha256(houseSpin.reelSeedHash + houseSpin.reel.toString())
+                            else if (SHA256(houseSpin.reelSeedHash + houseSpin.reel.toString())
                                     .toString() !== houseSpin.reelHash)
                                 callback(true, 'Invalid reel hash')
                             else

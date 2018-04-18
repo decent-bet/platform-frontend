@@ -171,7 +171,7 @@ export default createActions({
         [Actions.GET_AES_KEY]: fetchAesKey,
         [Actions.GET_CHANNEL_DETAILS]: getChannelDetails,
         [Actions.GET_LAST_SPIN]: getLastSpin,
-        [Actions.NONCE_INCREASE]: channelId => ({channelId}),
+        [Actions.NONCE_INCREASE]: channelId => ({ channelId }),
         [Actions.POST_SPIN]: (channelId, spin) => ({ ...spin, channelId })
     }
 })

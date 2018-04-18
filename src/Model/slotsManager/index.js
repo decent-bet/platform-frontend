@@ -1,5 +1,6 @@
 import actionsForChannel from './actionsForChannel'
 import actionsForSlots from './actionsForSlots'
+import actionsForChannelStatus from './actionsForChannelStatus'
 import reducer from './reducer'
 import Helper from '../../Components/Helper'
 import { CHANNEL_STATUS_WAITING } from '../../Components/Constants'
@@ -9,7 +10,8 @@ const helper = new Helper()
 
 export const Actions = {
     ...actionsForChannel.slotManager,
-    ...actionsForSlots.slotManager
+    ...actionsForSlots.slotManager,
+    ...actionsForChannelStatus.slotManager
 }
 export const Reducer = reducer
 export const SlotsChannelHandler = slotsChannelHandler
