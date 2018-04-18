@@ -4,6 +4,8 @@ import SlotsConstants from './Constants'
 import { SHA256 } from 'crypto-js'
 import async from 'async'
 import BigNumber from 'bignumber.js'
+import {getSpin, getTightlyPackedSpin} from './functions'
+import Bluebird from 'bluebird'
 
 const decentApi = new DecentAPI()
 const helper = new Helper()
@@ -19,85 +21,36 @@ export default class SlotsChannelHandler {
      * @param state
      * @param callback
      */
-    spin = (betSize, state, callback) => {
-        const self = this
+    spin = async (betSize, state, callback) => {
         const id = state.channelId
         betSize = helper.convertToEther(betSize)
-        this.helpers().getSpin(betSize, state, (err, userSpin) => {
-            if (!err) {
-                console.log('getSpin', userSpin)
-                decentApi.spin(id, userSpin, state.aesKey, (err, response) => {
-                    console.log('decentApi.spin', err, response)
-                    if (!err) {
-                        if (!response.error) {
-                            let houseSpin = response.message
-                            self.helpers().verifyHouseSpin(state, houseSpin, userSpin, (err, message) => {
-                                console.log('verifyHouseSpin', err, message)
-                                if (!err) {
-                                    if (callback) {
-                                        let lines = self.helpers().getLines(response.message.reel)
-                                        // Increase nonce and add response.message to houseSpins in callback
-                                        callback(false, response.message, lines)
-                                    }
-                                } else {
-                                    if (callback)
-                                        callback(true, message)
-                                }
-                            })
-                        } else if (callback)
-                            callback(true, response.message)
-                    } else if (callback)
-                        callback(true, 'Error retrieving house spin')
-                })
-            } else if (callback)
-                callback(true, 'Error generating user spin')
-        })
+
+        try {
+            let userSpin = await getSpin(betSize, state)
+            let response = await Bluebird.fromCallback(cb => 
+                decentApi.spin(id, userSpin, state.aesKey, cb) 
+            )
+
+            if (response.error) {
+                throw new Error(response.message)
+            }
+
+            let houseSpin = response.message
+            await Bluebird.fromCallback(cb => 
+                this.helpers().verifyHouseSpin(state, houseSpin, userSpin, cb)
+            )
+
+            let lines = this.helpers().getLines(response.message.reel)
+            // Increase nonce and add response.message to houseSpins in callback
+            callback(false, response.message, lines)
+        } catch (error) {
+            callback(true, error.message)
+        }
     }
 
     helpers = () => {
         const self = this
         return {
-            getSpin: async (betSize, state, callback) => {
-
-                const lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]
-                const nonce = state.nonce
-
-                let reelHash = (nonce === 1) ? state.hashes.finalReelHash : lastHouseSpin.reelHash
-                let reel = ''
-                let reelSeedHash = (nonce === 1) ? state.hashes.finalSeedHash : lastHouseSpin.reelSeedHash
-                let prevReelSeedHash = (nonce === 1 ) ? '' : lastHouseSpin.prevReelSeedHash
-                let userHash = state.userHashes[state.userHashes.length - nonce]
-                let prevUserHash = state.userHashes[state.userHashes.length - nonce - 1]
-                let userBalance = ((nonce === 1) ? (state.info.initialDeposit) :
-                    lastHouseSpin.userBalance)
-                userBalance = new BigNumber(userBalance).toFixed(0)
-                let houseBalance = ((nonce === 1) ? (state.info.initialDeposit) :
-                    lastHouseSpin.houseBalance)
-                houseBalance = new BigNumber(houseBalance).toFixed(0)
-
-                let spin = {
-                    reelHash: reelHash,
-                    reel: reel,
-                    reelSeedHash: reelSeedHash,
-                    prevReelSeedHash: prevReelSeedHash,
-                    userHash: userHash,
-                    prevUserHash: prevUserHash,
-                    nonce: nonce,
-                    turn: false,
-                    userBalance: userBalance,
-                    houseBalance: houseBalance,
-                    betSize: betSize
-                }
-
-                try {
-                    let sign = await decentApi.signString(self.helpers().getTightlyPackedSpin(spin))
-                    spin.sign = sign.sig
-
-                    callback(false, spin)
-                } catch (e) {
-                    callback(true)
-                }
-            },
             verifyHouseSpin: (state, houseSpin, userSpin, callback) => {
                 async.waterfall([
                     /**
@@ -111,7 +64,7 @@ export default class SlotsChannelHandler {
                         let nonSignatureSpin = helper.duplicate(houseSpin)
                         delete nonSignatureSpin.sign
 
-                        let msg = self.helpers().getTightlyPackedSpin(nonSignatureSpin)
+                        let msg = getTightlyPackedSpin(nonSignatureSpin)
                         let sign = houseSpin.sign
 
                         console.log('sign', sign)
@@ -206,15 +159,7 @@ export default class SlotsChannelHandler {
                     callback(err, result)
                 })
             },
-            /**
-             * Returns a tightly packed spin string
-             * @param spin
-             */
-            getTightlyPackedSpin: (spin) => {
-                return (spin.reelHash + (spin.reel !== '' ? spin.reel.toString() : '') +
-                spin.reelSeedHash + spin.prevReelSeedHash + spin.userHash + spin.prevUserHash +
-                spin.nonce + spin.turn + spin.userBalance + spin.houseBalance + spin.betSize)
-            },
+            
             // Get the symbol that matches with a position on a reel
             getSymbol: (reel, position) => {
                 if (position === 21)
