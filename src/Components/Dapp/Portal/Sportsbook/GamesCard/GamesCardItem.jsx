@@ -44,7 +44,7 @@ export default function GamesCardItem({
                     <div className="col-12">
                         <BettingStatus
                             game={game}
-                            gameProviderTime={bettingProviderTime}
+                            bettingProviderTime={bettingProviderTime}
                         />
                         <br />
                         <small>Cut-off time: {cutoffTime}</small>

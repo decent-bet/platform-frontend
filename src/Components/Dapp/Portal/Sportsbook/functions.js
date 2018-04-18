@@ -1,13 +1,13 @@
 import bettingReturnsCalculator from '../BettingReturnsCalculator'
+import * as constants from '../../../Constants'
 
-const constants = require('../../../Constants')
 const BettingReturnsCalculator = new bettingReturnsCalculator()
 
-function formatOddsNumber(val) {
+export function formatOddsNumber(val) {
     return val > 0 ? '+' + val : val
 }
 
-function getPeriodDescription(game, periodNumber) {
+export function getPeriodDescription(game, periodNumber) {
     let periodDescription = 'Loading..'
     if (game.oracleInfo && game.oracleInfo.periodDescriptions) {
         for (let _period of game.oracleInfo.periodDescriptions) {
@@ -35,7 +35,7 @@ function getFormattedOddsType(type) {
     }
 }
 
-function getFormattedOdds(oddsItem) {
+export function getFormattedOdds(oddsItem) {
     let formattedOddsType = getFormattedOddsType(oddsItem.betType)
     if (oddsItem.betType === constants.ODDS_TYPE_SPREAD) {
         return (
@@ -73,7 +73,7 @@ function getFormattedOdds(oddsItem) {
     }
 }
 
-function getFormattedBetChoice(game, choice) {
+export function getFormattedBetChoice(game, choice) {
     switch (choice) {
         case constants.BET_CHOICE_TEAM1:
         case constants.BET_CHOICE_TEAM2:
@@ -92,12 +92,12 @@ function getFormattedBetChoice(game, choice) {
     }
 }
 
-function isGameOutcomeAvailable(gameItem, period) {
+export function isGameOutcomeAvailable(gameItem, period) {
     let outcome = gameItem.outcomes[period]
-    return outcome ? outcome.isPublished : 'Loading..'
+    return outcome ? outcome.isPublished : null
 }
 
-function getGameOutcome(gameItem, period) {
+export function getGameOutcome(gameItem, period) {
     if (!isGameOutcomeAvailable(gameItem, period)) return 'Not Published'
     else {
         let outcome = gameItem.outcomes[period]
@@ -113,7 +113,7 @@ function getGameOutcome(gameItem, period) {
     }
 }
 
-function isWinningBet(gameItem, oddsObj, placedBet) {
+export function isWinningBet(gameItem, oddsObj, placedBet) {
     let period = oddsObj.period
     let outcome = gameItem.outcomes[period]
     let choice = placedBet.choice
@@ -173,7 +173,7 @@ function isWinningBet(gameItem, oddsObj, placedBet) {
     }
 }
 
-function getWinnings(gameItem, oddsObj, placedBet) {
+export function getWinnings(gameItem, oddsObj, placedBet) {
     let period = oddsObj.period
 
     // No outcome available
@@ -210,14 +210,4 @@ function getWinnings(gameItem, oddsObj, placedBet) {
             betAmount
         )
     }
-}
-
-export {
-    formatOddsNumber,
-    isGameOutcomeAvailable,
-    getPeriodDescription,
-    getFormattedOdds,
-    getFormattedBetChoice,
-    getGameOutcome,
-    getWinnings
 }
