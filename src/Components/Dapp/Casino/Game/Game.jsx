@@ -116,9 +116,10 @@ class Game extends Component {
         if (this.props.houseSpins) {
             let { userHashes, houseSpins } = this.props
             let spinArray = houseSpins.map(spin => {
-                let payout = slotsChannelHandler
-                    .helpers()
-                    .calculateReelPayout(spin.reel, helper.convertToEther(5))
+                let payout = slotsChannelHandler.calculateReelPayout(
+                    spin.reel,
+                    helper.convertToEther(5)
+                )
                 return {
                     ...spin,
                     userHash: userHashes[userHashes.length - spin.nonce],
