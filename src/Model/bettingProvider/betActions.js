@@ -150,6 +150,12 @@ export default createActions({
     [Prefix]: {
         [Actions.SET_BET]: putBet,
         [Actions.GET_USER_BETS]: fetchUserBets,
-        [Actions.CLAIM_BET]: executeClaimBet
+        [Actions.CLAIM_BET]: [
+            executeClaimBet,
+            (gameId, betId) => ({
+                gameId,
+                betId
+            })
+        ]
     }
 })
