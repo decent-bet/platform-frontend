@@ -1,5 +1,40 @@
 import React from 'react'
-import { formatOddsNumber, getPeriodDescription } from '../functions'
+import { getPeriodDescription } from '../functions'
+import {
+    ODDS_TYPE_SPREAD,
+    ODDS_TYPE_MONEYLINE,
+    ODDS_TYPE_TOTALS,
+    ODDS_TYPE_TEAM_TOTALS
+} from '../../../../Constants'
+import SpreadOdds from './SpreadOdds'
+import MoneylineOdds from './MoneylineOdds'
+import TotalOdds from './TotalOdds'
+import TeamTotalOdds from './TeamTotalOdds'
+
+function teamName(isTeam1, game) {
+    if (game) {
+        if (game.oracleInfo) {
+            return isTeam1 ? game.oracleInfo.team1 : game.oracleInfo.team2
+        }
+    }
+    return 'Loading...'
+}
+
+function numberDisplay(_odds, game) {
+    switch (_odds.betType) {
+        case ODDS_TYPE_SPREAD:
+            return <SpreadOdds oddItem={_odds} />
+        case ODDS_TYPE_MONEYLINE:
+            return <MoneylineOdds oddItem={_odds} />
+        case ODDS_TYPE_TOTALS:
+            return <TotalOdds oddItem={_odds} />
+        case ODDS_TYPE_TEAM_TOTALS:
+            let name = teamName(_odds.isTeam1, game)
+            return <TeamTotalOdds oddItem={_odds} teamName={name} />
+        default:
+            return null
+    }
+}
 
 export default function GameOddsItem({
     game,
@@ -13,22 +48,13 @@ export default function GameOddsItem({
         innerContent = oddsArray.map((_odds, index) => {
             return (
                 <div className="row" key={index}>
-                    <div className="col-3">
-                        <p className="key">Home</p>
-                        <p>{formatOddsNumber(_odds.team1)}</p>
-                    </div>
-                    <div className="col-3">
-                        <p className="key">Away</p>
-                        <p>{formatOddsNumber(_odds.team2)}</p>
-                    </div>
-                    <div className="col-3">
-                        <p className="key">Draw</p>
-                        <p>{formatOddsNumber(_odds.draw)}</p>
-                    </div>
-                    <div className="col-3">
+                    {numberDisplay(_odds, game)}
+
+                    <div className="col">
                         <p className="key">Period</p>
                         <p>{getPeriodDescription(game, _odds.period)}</p>
                     </div>
+
                     <div className="col-12">
                         {// Setup the Buy Button
                         betNowButtonWrapper(_odds, game)}
