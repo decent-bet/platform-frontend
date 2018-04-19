@@ -1,6 +1,11 @@
 import DecentAPI from '../../Components/Base/DecentAPI'
 import Helper from '../../Components/Helper'
-import SlotsConstants from './Constants'
+import {
+    reels as slotReels,
+    paytable,
+    NUMBER_OF_LINES,
+    NUMBER_OF_REELS
+} from './Constants'
 import { SHA256 } from 'crypto-js'
 import BigNumber from 'bignumber.js'
 import { getSpin, getTightlyPackedSpin } from './functions'
@@ -8,10 +13,6 @@ import Bluebird from 'bluebird'
 
 const decentApi = new DecentAPI()
 const helper = new Helper()
-const slotsConstants = new SlotsConstants()
-
-const slotReels = slotsConstants.reels
-const paytable = slotsConstants.paytable
 
 export default class SlotsChannelHandler {
     /**
@@ -220,7 +221,7 @@ export default class SlotsChannelHandler {
     // Returns NUMBER_OF_LINES lines containing NUMBER_OF_REELS symbols each
     getLines = reel => {
         let lines = []
-        for (let i = 0; i < slotsConstants.NUMBER_OF_LINES; i++) {
+        for (let i = 0; i < NUMBER_OF_LINES; i++) {
             lines.push(this.getLine(i, reel))
         }
         return lines
@@ -231,22 +232,22 @@ export default class SlotsChannelHandler {
         let line = []
         switch (lineIndex) {
             case 0:
-                for (let i = 0; i < slotsConstants.NUMBER_OF_REELS; i++) {
+                for (let i = 0; i < NUMBER_OF_REELS; i++) {
                     line[i] = this.getSymbol(i, reel[i])
                 }
                 break
             case 1:
-                for (let i = 0; i < slotsConstants.NUMBER_OF_REELS; i++) {
+                for (let i = 0; i < NUMBER_OF_REELS; i++) {
                     line[i] = this.getSymbol(i, reel[i] - 1)
                 }
                 break
             case 2:
-                for (let i = 0; i < slotsConstants.NUMBER_OF_REELS; i++) {
+                for (let i = 0; i < NUMBER_OF_REELS; i++) {
                     line[i] = this.getSymbol(i, reel[i] + 1)
                 }
                 break
             case 3:
-                for (let i = 0; i < slotsConstants.NUMBER_OF_REELS; i++) {
+                for (let i = 0; i < NUMBER_OF_REELS; i++) {
                     if (i === 0 || i === 4)
                         line[i] = this.getSymbol(i, reel[i] - 1)
                     else if (i === 2) line[i] = this.getSymbol(i, reel[i] + 1)
@@ -254,7 +255,7 @@ export default class SlotsChannelHandler {
                 }
                 break
             case 4:
-                for (let i = 0; i < slotsConstants.NUMBER_OF_REELS; i++) {
+                for (let i = 0; i < NUMBER_OF_REELS; i++) {
                     if (i === 0 || i === 4)
                         line[i] = this.getSymbol(i, reel[i] + 1)
                     else if (i === 2) line[i] = this.getSymbol(i, reel[i] - 1)
