@@ -3,11 +3,10 @@ import DecentAPI from '../../Components/Base/DecentAPI'
 import Bluebird from 'bluebird'
 import Actions, { PREFIX } from './actionTypes'
 import Helper from '../../Components/Helper'
-import SlotsChannelHandler from './SlotsChannelHandler'
+import { getSpin } from './functions'
 
 const helper = new Helper()
 const decentApi = new DecentAPI()
-const slotsChannelHandler = new SlotsChannelHandler()
 
 /**
  * Finalizes a channel allowing users to claim DBETs
@@ -20,7 +19,7 @@ async function finalizeChannel(channelId, state) {
         let betSize = helper.convertToEther(1)
 
         let userSpin = await Bluebird.fromCallback(cb =>
-            slotsChannelHandler.helpers().getSpin(betSize, state, cb)
+            getSpin(betSize, state, cb)
         )
         let lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]
         const txHash = await helper
