@@ -18,9 +18,7 @@ async function finalizeChannel(channelId, state) {
     try {
         let betSize = helper.convertToEther(1)
 
-        let userSpin = await Bluebird.fromCallback(cb =>
-            getSpin(betSize, state, cb)
-        )
+        let userSpin = await getSpin(betSize, state)
         let lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]
         const txHash = await helper
             .getContractHelper()
