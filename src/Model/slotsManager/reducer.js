@@ -33,11 +33,13 @@ function stateChannelSubreducer(
     channelState = ChannelDefaultState,
     action = { type: null, payload: null }
 ) {
+    if (!action.payload) return { ...channelState}
     let { channelId } = action.payload
-    if (!channelId) return channelState
 
+    if (!channelId) return { ...channelState}
     let channel = { ...channelState[channelId] }
-    if (!channel) return channelState
+    
+    if (!channel) return { ...channelState}
 
     switch (action.type) {
         case `${PREFIX}/${Actions.SET_CHANNEL_DEPOSITED}`:
@@ -99,23 +101,6 @@ export default function slotsManagerReducer(
         case `${PREFIX}/${Actions.GET_SESSION_ID}/${FULFILLED}`:
             return { ...slotsManagerState, currentSession: action.payload }
 
-        case `${PREFIX}/${Actions.SET_CHANNEL_DEPOSITED}`:
-        case `${PREFIX}/${Actions.SET_CHANNEL_ACTIVATED}`:
-        case `${PREFIX}/${Actions.SET_CHANNEL_CLAIMED}`:
-        case `${PREFIX}/${Actions.SET_CHANNEL_FINALIZED}`:
-        case `${PREFIX}/${Actions.GET_AES_KEY}/${FULFILLED}`:
-        case `${PREFIX}/${Actions.GET_CHANNEL_DETAILS}/${FULFILLED}`:
-        case `${PREFIX}/${Actions.GET_LAST_SPIN}/${FULFILLED}`:
-        case `${PREFIX}/${Actions.NONCE_INCREASE}`:
-        case `${PREFIX}/${Actions.POST_SPIN}`:
-            return {
-                ...slotsManagerState,
-                channels: stateChannelSubreducer(
-                    slotsManagerState.channels,
-                    action
-                )
-            }
-
         case `${PREFIX}/${Actions.SET_CHANNEL}`:
             let newChannel = action.payload
             return {
@@ -127,6 +112,12 @@ export default function slotsManagerReducer(
             }
 
         default:
-            return { ...slotsManagerState }
+            return {
+                ...slotsManagerState,
+                channels: stateChannelSubreducer(
+                    slotsManagerState.channels,
+                    action
+                )
+            }
     }
 }
