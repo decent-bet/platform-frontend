@@ -1,7 +1,11 @@
 import React from 'react'
 import GameOddsItem from './GameOddsItem'
-
-const constants = require('../../../../Constants')
+import {
+    ODDS_TYPE_SPREAD,
+    ODDS_TYPE_MONEYLINE,
+    ODDS_TYPE_TOTALS,
+    ODDS_TYPE_TEAM_TOTALS
+} from '../../../../Constants'
 
 export default function GameOdds({ game, betNowButtonWrapper }) {
     let odds = game.odds
@@ -13,18 +17,20 @@ export default function GameOdds({ game, betNowButtonWrapper }) {
             teamTotals: []
         }
 
-        Object.keys(odds).forEach(oddsId => {
-            const _odds = odds[oddsId]
-            if (_odds.betType === constants.ODDS_TYPE_SPREAD) {
-                gameOdds.spread.push(_odds)
-            } else if (_odds.betType === constants.ODDS_TYPE_MONEYLINE) {
-                gameOdds.moneyline.push(_odds)
-            } else if (_odds.betType === constants.ODDS_TYPE_TOTALS) {
-                gameOdds.totals.push(_odds)
-            } else if (_odds.betType === constants.ODDS_TYPE_TEAM_TOTALS) {
-                gameOdds.teamTotals.push(_odds)
+        for (const oddsId in odds) {
+            if (odds.hasOwnProperty(oddsId)) {
+                const _odds = odds[oddsId]
+                if (_odds.betType === ODDS_TYPE_SPREAD) {
+                    gameOdds.spread.push(_odds)
+                } else if (_odds.betType === ODDS_TYPE_MONEYLINE) {
+                    gameOdds.moneyline.push(_odds)
+                } else if (_odds.betType === ODDS_TYPE_TOTALS) {
+                    gameOdds.totals.push(_odds)
+                } else if (_odds.betType === ODDS_TYPE_TEAM_TOTALS) {
+                    gameOdds.teamTotals.push(_odds)
+                }
             }
-        })
+        }
 
         let content = []
         let parameters = {
