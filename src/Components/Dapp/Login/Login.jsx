@@ -26,39 +26,25 @@ export default class Login extends Component {
     }
 
     login = () => {
-        if (this.state.login === constants.LOGIN_PRIVATE_KEY) {
-            this.loginPrivateKey()
-        } else if (this.state.login === constants.LOGIN_MNEMONIC) {
-            this.loginMnemonic()
-        }
-    }
-
-    loginPrivateKey = () => {
+        let errorDialogMessage
         try {
-            const wallet = new Wallet(this.state.key)
-            keyHandler.set(wallet.privateKey, wallet.address)
-            this.props.history.push('/')
-        } catch (e) {
-            this.setState({
-                isErrorDialogOpen: true,
-                errorDialogTitle: 'Error',
-                errorDialogMessage:
+            let wallet
+            if (this.state.login === constants.LOGIN_PRIVATE_KEY) {
+                errorDialogMessage =
                     "Invalid private key. Please make sure you're entering a valid private key"
-            })
-        }
-    }
-
-    loginMnemonic = () => {
-        try {
-            const wallet = Wallet.fromMnemonic(this.state.mnemonic)
+                wallet = new Wallet(this.state.key)
+            } else if (this.state.login === constants.LOGIN_MNEMONIC) {
+                errorDialogMessage =
+                    "Invalid mnemonic. Please make sure you're entering a valid mnemonic"
+                wallet = Wallet.fromMnemonic(this.state.mnemonic)
+            }
             keyHandler.set(wallet.privateKey, wallet.address)
             this.props.history.push('/')
         } catch (e) {
             this.setState({
                 isErrorDialogOpen: true,
                 errorDialogTitle: 'Error',
-                errorDialogMessage:
-                    "Invalid mnemonic. Please make sure you're entering a valid mnemonic"
+                errorDialogMessage
             })
         }
     }
