@@ -143,6 +143,8 @@ export default createActions({
         [Actions.GET_CURRENT_SESSION]: fetchCurrentSession,
         [Actions.GET_STATS]: fetchSessionStats,
         [Actions.GET_TIME]: fetchTime,
-        [Actions.GET_ADDRESS]: fetchAddress
+        [Actions.GET_ADDRESS]: fetchAddress,
+
+        [Actions.SET_TIME]: time => time
     }
 })

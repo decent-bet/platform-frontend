@@ -63,9 +63,12 @@ function gamesListSubreducer(gamesListState = {}, action = DefaultAction) {
             return { ...gamesListState, [gameId]: action.payload }
 
         default:
+            // Null protection
+            let gameItem = gamesListState[gameId]
+            if (!gameItem) gameItem = {}
             return {
                 ...gamesListState,
-                [gameId]: gameItemSubReducer(gamesListState[gameId], action)
+                [gameId]: gameItemSubReducer(gameItem, action)
             }
     }
 }
