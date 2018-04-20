@@ -1,7 +1,6 @@
 import React from 'react'
 import { MenuItem, SelectField } from 'material-ui'
-
-const constants = require('../../Constants')
+import * as constants from '../../Constants'
 
 export default function LoginNodeTypes({
     provider,

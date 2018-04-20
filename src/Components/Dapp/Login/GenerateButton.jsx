@@ -1,8 +1,6 @@
 import React from 'react'
 import { RaisedButton } from 'material-ui'
-import FontAwesomeIcon from '@fortawesome/react-fontawesome'
-
-const constants = require('../../Constants')
+import * as constants from '../../Constants'
 
 export default function GenerateButton({
     loginType,
@@ -27,8 +25,6 @@ export default function GenerateButton({
     return (
         <RaisedButton
             {...variables}
-
-            icon={<FontAwesomeIcon icon="user-plus" />}
             secondary={true}
             className="generate"
         />

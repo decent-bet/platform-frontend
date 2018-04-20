@@ -5,28 +5,24 @@ import LoginInner from './LoginInner'
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import Helper from '../../Helper'
 import KeyHandler from '../../Base/KeyHandler'
+import bip39 from 'bip39'
+import * as constants from '../../Constants'
+import { Wallet } from 'ethers'
 
 import './login.css'
 
-const bip39 = require('bip39')
-const constants = require('../../Constants')
-const ethers = require('ethers')
-const Wallet = ethers.Wallet
 const helper = new Helper()
 const keyHandler = new KeyHandler()
 
 export default class Login extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            login: constants.LOGIN_MNEMONIC,
-            key: '',
-            mnemonic: '',
-            provider: helper.getGethProvider(),
-            isErrorDialogOpen: false,
-            errorDialogTitle: '',
-            errorDialogMessage: ''
-        }
+    state = {
+        login: constants.LOGIN_MNEMONIC,
+        key: '',
+        mnemonic: '',
+        provider: helper.getGethProvider(),
+        isErrorDialogOpen: false,
+        errorDialogTitle: '',
+        errorDialogMessage: ''
     }
 
     login = () => {
