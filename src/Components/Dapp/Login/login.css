@@ -64,6 +64,11 @@
     text-transform: none !important;
 }
 
+/* Force monospace in the input */
+.login .login-card .login-inner textarea {
+    font-family: Inconsolata, monospace !important;
+}
+
 @media (max-width: 767px) {
     .login {
         background-size: 200%;
