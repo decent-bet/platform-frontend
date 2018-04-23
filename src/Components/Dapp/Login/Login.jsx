@@ -32,7 +32,14 @@ export default class Login extends Component {
             if (this.state.login === constants.LOGIN_PRIVATE_KEY) {
                 errorDialogMessage =
                     "Invalid private key. Please make sure you're entering a valid private key"
-                wallet = new Wallet(this.state.key)
+
+                // Adds '0x' to the beginning of the key if it is not there.
+                let privateKey = this.state.key
+                if (privateKey.substring(0, 2) !== '0x') {
+                    privateKey = '0x' + privateKey
+                }
+
+                wallet = new Wallet(privateKey)
             } else if (this.state.login === constants.LOGIN_MNEMONIC) {
                 errorDialogMessage =
                     "Invalid mnemonic. Please make sure you're entering a valid mnemonic"
@@ -41,13 +48,13 @@ export default class Login extends Component {
             keyHandler.set(wallet.privateKey, wallet.address)
 
             // Reload Web3 Address.
-            window.web3Object.eth.defaultAccount = keyHandler
-                .getAddress()
-                .toLowerCase()
+            window.web3Object.eth.defaultAccount = wallet.address
 
             // Go to the Root
             this.props.history.push('/')
         } catch (e) {
+
+            // Login Failed. Open error dialog.
             this.setState({
                 isErrorDialogOpen: true,
                 errorDialogTitle: 'Error',
