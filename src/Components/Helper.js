@@ -66,7 +66,7 @@ export default class Helper {
     }
 
     isUndefined = object => {
-        return typeof object == 'undefined'
+        return typeof object === 'undefined'
     }
 
     duplicate = obj => {
