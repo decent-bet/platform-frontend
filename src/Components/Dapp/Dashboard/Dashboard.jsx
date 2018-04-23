@@ -83,9 +83,7 @@ class Dashboard extends Component {
         return (
             <div className="dashboard">
                 {this.renderAppbar()}
-                <div className="main">
-                    <DashboardRouter />
-                </div>
+                <DashboardRouter />
                 {this.renderDrawer()}
             </div>
         )

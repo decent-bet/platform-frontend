@@ -98,7 +98,7 @@ input::-webkit-inner-spin-button {
     color: #f2b45c !important;
 }
 
-.dashboard .main {
+.dashboard main {
     padding-top: 60px;
     height: 100%;
 }

@@ -38,8 +38,8 @@
 /* Inner Login Dialog. Uses CSS Grid.  */
 .login .login-card .login-inner {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 15px;
+    grid-template-columns: 0fr 1fr;
+    column-gap: 15px;
 }
 
 .login .login-card .login-inner .input {
@@ -48,7 +48,7 @@
 
 /* Fixes for the Logo Image */
 .login .login-card .logo{
-    max-height: 56px;
+    max-height: 48px;
     object-fit: scale-down;
     object-position: left;
     align-self: center;
