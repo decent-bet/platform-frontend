@@ -22,31 +22,31 @@ function teamName(isTeam1, game) {
 }
 
 // Switch between the display of the different odd types
-function numberDisplay(oddsItem, game) {
-    switch (oddsItem.betType) {
+function numberDisplay(oddItem, game) {
+    switch (oddItem.betType) {
         case ODDS_TYPE_SPREAD:
-            return <SpreadOdds oddItem={oddsItem} />
+            return <SpreadOdds oddItem={oddItem} />
         case ODDS_TYPE_MONEYLINE:
-            return <MoneylineOdds oddItem={oddsItem} />
+            return <MoneylineOdds oddItem={oddItem} />
         case ODDS_TYPE_TOTALS:
-            return <TotalOdds oddItem={oddsItem} />
+            return <TotalOdds oddItem={oddItem} />
         case ODDS_TYPE_TEAM_TOTALS:
-            let name = teamName(oddsItem.isTeam1, game)
-            return <TeamTotalOdds oddItem={oddsItem} teamName={name} />
+            let name = teamName(oddItem.isTeam1, game)
+            return <TeamTotalOdds oddItem={oddItem} teamName={name} />
         default:
             return null
     }
 }
 
 // Entry Point
-export default function GameOddsItemInner({ game, oddsItem }) {
+export default function GameOddsItemInner({ game, oddItem }) {
     return (
         <div className="row">
-            {numberDisplay(oddsItem, game)}
+            {numberDisplay(oddItem, game)}
 
             <div className="col">
                 <p className="key">Period</p>
-                <p>{getPeriodDescription(game, oddsItem.period)}</p>
+                <p>{getPeriodDescription(game, oddItem.period)}</p>
             </div>
         </div>
     )

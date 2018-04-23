@@ -1,7 +1,8 @@
 import React from 'react'
 import { Card, FlatButton } from 'material-ui'
+import { styles as Styles } from '../../../Base/styles'
 
-const styles = require('../../../Base/styles').styles()
+const styles = Styles()
 
 export default function ChannelOptions({
     onClaimListener,
@@ -10,7 +11,7 @@ export default function ChannelOptions({
     isClosed,
     isClaimed
 }) {
-    let isClaimButtonDisabled = !isClosed || isClaimed[false]
+    let isClaimButtonDisabled = !isClosed || isClaimed
     return (
         <Card style={styles.card} className="p-4">
             <div className="row channel-options">

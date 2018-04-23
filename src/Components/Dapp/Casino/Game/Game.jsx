@@ -172,7 +172,7 @@ export default connect((state, props) => {
 
     // Shortcuts for the Channel State
     channelData.isClaimed = channelData.claimed
-        ? channelData.claimed[true]
+        ? channelData.claimed[false]
         : false
     channelData.isFinalized = channelData.status === CHANNEL_STATUS_FINALIZED
 
