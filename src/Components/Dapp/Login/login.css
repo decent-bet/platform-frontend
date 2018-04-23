@@ -15,7 +15,8 @@
 }
 
 .login .login-card {
-    width: 100%;
+    max-width: 600px;
+    margin: auto;
     height: 100%;
 }
 
@@ -37,8 +38,8 @@
 /* Inner Login Dialog. Uses CSS Grid.  */
 .login .login-card .login-inner {
     display: grid;
-    grid-template-columns: 1fr 256px;
-    grid-gap: 30px;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 15px;
 }
 
 .login .login-card .login-inner .input {
@@ -46,10 +47,11 @@
 }
 
 /* Fixes for the Logo Image */
-.login .login-card header .logo{
-    max-height: 60px;
+.login .login-card .logo{
+    max-height: 56px;
     object-fit: scale-down;
     object-position: left;
+    align-self: center;
 }
 
 /* Fixes for the 'Node Type' select box */
@@ -67,9 +69,18 @@
         background-size: 200%;
     }
 
+    .login .login-card{
+        margin: 8px;
+    }
+
     /* Changes the layout of the main grid: 1 column only */
     .login .login-card .login-inner {
         grid-template-columns: 1fr;
+    }
+
+    .login .login-card .logo{
+        max-height: unset;
+        max-width: 100%;
     }
 
 }

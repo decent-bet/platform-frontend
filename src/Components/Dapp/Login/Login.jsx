@@ -118,7 +118,7 @@ export default class Login extends Component {
     render() {
         return (
             <main className="login">
-                <div className="container">{this.renderCard()}</div>
+                {this.renderCard()}
                 {this.renderErrorDialog()}
             </main>
         )

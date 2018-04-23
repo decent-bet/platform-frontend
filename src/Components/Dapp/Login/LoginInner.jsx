@@ -13,9 +13,7 @@ export default function LoginInner({
 }) {
     return (
         <CardText className="login-inner">
-            <header>
-                <img className="logo" src={logoUrl} alt="Decent.bet Logo" />
-            </header>
+            <img className="logo" src={logoUrl} alt="Decent.bet Logo" />
 
             <LoginNodeTypes
                 provider={provider}
