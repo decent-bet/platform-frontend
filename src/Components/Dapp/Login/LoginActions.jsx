@@ -11,7 +11,6 @@ export default function LoginActions({
             <RaisedButton
                 label="Create New Passphase"
                 onClick={onGenerateMnemonicListener}
-                secondary={true}
                 className="generate"
             />
             <RaisedButton
