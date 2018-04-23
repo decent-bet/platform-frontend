@@ -7,7 +7,7 @@ import DashboardRouter from './DashboardRouter'
 import DashboardDrawer from './DashboardDrawer'
 import ProviderSelector from './ProviderSelector'
 import Helper from '../../Helper'
-import { Actions } from '../../../Model/balance'
+import { Actions, initWatchers } from '../../../Model/balance'
 
 import './dashboard.css'
 
@@ -16,8 +16,15 @@ const helper = new Helper()
 class Dashboard extends Component {
     state = {
         provider: helper.getGethProvider(),
-        drawerOpen: false,
-        web3Loaded: false
+        drawerOpen: false
+    }
+
+    componentDidMount = () => {
+        // Initialize the datastore
+        this.props.dispatch(Actions.getPublicAddress())
+        this.props.dispatch(Actions.getTokens())
+        this.props.dispatch(Actions.getEtherBalance())
+        this.props.dispatch(initWatchers)
     }
 
     // Faucet Button Clicked. Execute Faucet

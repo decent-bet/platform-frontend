@@ -39,6 +39,8 @@ export default class Login extends Component {
                 wallet = Wallet.fromMnemonic(this.state.mnemonic)
             }
             keyHandler.set(wallet.privateKey, wallet.address)
+
+            // Go to the Root
             this.props.history.push('/')
         } catch (e) {
             this.setState({

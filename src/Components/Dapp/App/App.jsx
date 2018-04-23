@@ -10,7 +10,6 @@ import LogoutRoute from './LogoutRoute'
 import EventBus from 'eventing-bus'
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import { MainTheme, SnackbarTheme } from '../../Base/Themes'
-import { Actions, initWatchers } from '../../../Model/balance'
 import { VIEW_LOGIN } from '../../Constants'
 
 export default class App extends Component {
@@ -33,13 +32,6 @@ export default class App extends Component {
         } else {
             let web3Loaded = EventBus.on('web3Loaded', () => {
                 this.setState({ stateMachine: 'loaded' })
-
-                // Initialize the datastore
-                store.dispatch(Actions.getPublicAddress())
-                store.dispatch(Actions.getTokens())
-                store.dispatch(Actions.getEtherBalance())
-                store.dispatch(initWatchers)
-
                 // Unregister callback
                 web3Loaded()
             })
