@@ -103,14 +103,7 @@ export default class SlotsChannelHandler {
         userBalance = userBalance.toFixed()
         houseBalance = houseBalance.toFixed()
 
-        if (
-            new BigNumber(houseSpin.betSize).isLessThan(
-                helper.convertToEther(1)
-            ) ||
-            new BigNumber(houseSpin.betSize).isGreaterThan(
-                helper.convertToEther(5)
-            )
-        )
+        if (!this.validateBetSize(houseSpin.betSize))
             callback(true, 'Invalid betSize')
         else if (
             houseSpin.userBalance !== userBalance ||
@@ -173,7 +166,7 @@ export default class SlotsChannelHandler {
 
     // Calculates total payout for slotsConstants.NUMBER_OF_LINES lines in the given reel
     calculateReelPayout = (reel, betSize) => {
-        betSize = helper.formatEther(betSize)
+        let adjustedBetSize = this.getAdjustedBetSize(betSize)
         let isValid = true
         for (let i = 0; i < reel.length; i++) {
             if (reel[i] > 20) {
@@ -189,14 +182,39 @@ export default class SlotsChannelHandler {
             'calculateReelPayout lines: ' +
                 JSON.stringify(lines) +
                 ', ' +
-                betSize +
+                adjustedBetSize +
                 ', ' +
-                typeof betSize
+                typeof adjustedBetSize
         )
-        for (let i = 0; i < betSize; i++)
+        for (let i = 0; i < adjustedBetSize; i++)
             totalReward += this.getLineRewardMultiplier(lines[i])
         console.log('calculateReelPayout totalReward: ' + totalReward)
         return totalReward
+    }
+
+    getAdjustedBetSize = betSize => {
+        let ethBetSize = new BigNumber(betSize)
+            .dividedBy(helper.getEtherInWei())
+            .toNumber()
+        let tenthEthBetSize = new BigNumber(betSize)
+            .dividedBy(helper.getEtherInWei())
+            .multipliedBy(10)
+            .toNumber()
+        let hundredthEthBetSize = new BigNumber(betSize)
+            .dividedBy(helper.getEtherInWei())
+            .multipliedBy(100)
+            .toNumber()
+
+        if (ethBetSize <= 5 && ethBetSize >= 1) return ethBetSize
+        else if (tenthEthBetSize <= 5 && tenthEthBetSize >= 1)
+            return tenthEthBetSize
+        else if (hundredthEthBetSize <= 5 && hundredthEthBetSize >= 1)
+            return hundredthEthBetSize
+        else return 0
+    }
+
+    validateBetSize = betSize => {
+        return this.getAdjustedBetSize(betSize) !== 0
     }
 
     // Checks if a line is a winning line and returns the reward multiplier

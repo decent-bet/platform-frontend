@@ -266,6 +266,9 @@ function CInterface(iCurBet, iTotBet, iMoney) {
 
         // Default lines
         window.lines = 5
+
+        // Default betsize
+        window.betSize = 1
     };
 
     this.isBetButtonEnabled = function (line) {
@@ -406,7 +409,7 @@ function CInterface(iCurBet, iTotBet, iMoney) {
     };
 
     this._onSpin = function () {
-        parent.window.slotsController().spin(window.lines, (err, message, lines) => {
+        parent.window.slotsController().spin(window.lines, window.betSize, (err, message, lines) => {
             if(!err) {
                 lines = lines.splice(0, 3)
                 var temp = lines[0]
