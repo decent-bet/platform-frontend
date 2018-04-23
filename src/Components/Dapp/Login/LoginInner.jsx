@@ -1,29 +1,14 @@
 import React from 'react'
-import { RadioButtonGroup, RadioButton, TextField, CardText } from 'material-ui'
+import { TextField, CardText } from 'material-ui'
 import LoginNodeTypes from './LoginNodeTypes'
-import * as constants from '../../Constants'
 
 const logoUrl = `${process.env.PUBLIC_URL}/assets/img/logos/dbet-white.svg`
 
-function getHint(valueType) {
-    switch (valueType) {
-        case constants.LOGIN_MNEMONIC:
-            return 'Enter your passphrase'
-        case constants.LOGIN_PRIVATE_KEY:
-            return 'Enter your private key'
-        default:
-            // Should never happen
-            return ''
-    }
-}
-
 export default function LoginInner({
-    loginMethod,
     provider,
     value,
     onChange,
     onLoginKeypress,
-    onLoginMethodChangeListener,
     onProviderChangedListener
 }) {
     return (
@@ -37,28 +22,12 @@ export default function LoginInner({
                 onProviderChangedListener={onProviderChangedListener}
             />
 
-            <RadioButtonGroup
-                className="login-type"
-                name="loginType"
-                valueSelected={loginMethod}
-                onChange={onLoginMethodChangeListener}
-            >
-                <RadioButton
-                    value={constants.LOGIN_MNEMONIC}
-                    label="Passphrase"
-                />
-                <RadioButton
-                    value={constants.LOGIN_PRIVATE_KEY}
-                    label="Private key"
-                />
-            </RadioButtonGroup>
-
             <TextField
                 className="input"
                 type="text"
                 fullWidth={true}
                 multiLine={true}
-                floatingLabelText={getHint(loginMethod)}
+                floatingLabelText="Enter Passphrase or Private Key"
                 value={value}
                 onChange={onChange}
                 onKeyPress={onLoginKeypress}

@@ -41,8 +41,7 @@
     grid-gap: 30px;
 }
 
-.login .login-card .login-inner .input,
-.login .login-card .login-inner .login-type {
+.login .login-card .login-inner .input {
     grid-column: 1 / -1;
 }
 

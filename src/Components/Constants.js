@@ -33,10 +33,6 @@ export const
     PROVIDER_LOCAL = 'ws://localhost:8545',
     KEY_GETH_PROVIDER = 'gethProvider',
 
-    /** Login types **/
-    LOGIN_PRIVATE_KEY = 0,
-    LOGIN_MNEMONIC = 1,
-
     PORTAL_PAGE_DISCOVER = 'discover',
     PORTAL_PAGE_SPORTSBOOK = 'sportsbook',
     PORTAL_PAGE_SLOTS = 'slots',

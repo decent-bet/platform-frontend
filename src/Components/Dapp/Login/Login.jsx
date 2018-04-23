@@ -6,7 +6,6 @@ import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import Helper from '../../Helper'
 import KeyHandler from '../../Base/KeyHandler'
 import bip39 from 'bip39'
-import * as constants from '../../Constants'
 import { Wallet } from 'ethers'
 
 import './login.css'
@@ -16,34 +15,26 @@ const keyHandler = new KeyHandler()
 
 export default class Login extends Component {
     state = {
-        login: constants.LOGIN_MNEMONIC,
-        key: '',
-        mnemonic: '',
+        value: '',
         provider: helper.getGethProvider(),
-        isErrorDialogOpen: false,
-        errorDialogTitle: '',
-        errorDialogMessage: ''
+        isErrorDialogOpen: false
     }
 
     login = () => {
-        let errorDialogMessage
         try {
             let wallet
-            if (this.state.login === constants.LOGIN_PRIVATE_KEY) {
-                errorDialogMessage =
-                    "Invalid private key. Please make sure you're entering a valid private key"
-
+            let login = this.state.value
+            if (login.includes(' ')) {
+                // Passphrase Mnemonic mode
+                wallet = Wallet.fromMnemonic(login)
+            } else {
+                // Private Key Mode
                 // Adds '0x' to the beginning of the key if it is not there.
-                let privateKey = this.state.key
-                if (privateKey.substring(0, 2) !== '0x') {
-                    privateKey = '0x' + privateKey
+                if (login.substring(0, 2) !== '0x') {
+                    login = '0x' + login
                 }
 
-                wallet = new Wallet(privateKey)
-            } else if (this.state.login === constants.LOGIN_MNEMONIC) {
-                errorDialogMessage =
-                    "Invalid mnemonic. Please make sure you're entering a valid mnemonic"
-                wallet = Wallet.fromMnemonic(this.state.mnemonic)
+                wallet = new Wallet(login)
             }
             keyHandler.set(wallet.privateKey, wallet.address)
 
@@ -53,40 +44,19 @@ export default class Login extends Component {
             // Go to the Root
             this.props.history.push('/')
         } catch (e) {
-
             // Login Failed. Open error dialog.
             this.setState({
-                isErrorDialogOpen: true,
-                errorDialogTitle: 'Error',
-                errorDialogMessage
+                isErrorDialogOpen: true
             })
         }
     }
 
     generateMnemonic = () => {
         let mnemonic = bip39.generateMnemonic()
-        this.setState({ mnemonic: mnemonic })
+        this.setState({ value: mnemonic })
     }
 
-    generatePrivateKey = () => {
-        try {
-            let mnemonic = bip39.generateMnemonic()
-            const wallet = Wallet.fromMnemonic(mnemonic)
-            this.setState({ key: wallet.privateKey })
-        } catch (e) {
-            console.log('Error generating private key', e.message)
-        }
-    }
-
-    isValidCredentials = () => {
-        let isPrivateKeyValid =
-            this.state.login === constants.LOGIN_PRIVATE_KEY &&
-            this.state.key.length > 0
-        let isMnemonicValid =
-            this.state.login === constants.LOGIN_MNEMONIC &&
-            this.state.mnemonic.length > 0
-        return isPrivateKeyValid || isMnemonicValid
-    }
+    isValidCredentials = () => this.state.value.length > 0
 
     loginWithKeyPress = ev => {
         if (ev.key === 'Enter') {
@@ -104,30 +74,7 @@ export default class Login extends Component {
         }
     }
 
-    onLoginMethodChangeListener = (event, value) => {
-        let key = this.state.key
-        let mnemonic = this.state.mnemonic
-        if (value === constants.LOGIN_MNEMONIC) {
-            mnemonic = ''
-        } else {
-            key = ''
-        }
-        this.setState({
-            key: key,
-            mnemonic: mnemonic,
-            login: value
-        })
-    }
-
-    onLoginTextChangedListener = (event, value) => {
-        let state = this.state
-        if (state.login === constants.LOGIN_PRIVATE_KEY) {
-            state.key = value
-        } else if (state.login === constants.LOGIN_MNEMONIC) {
-            state.mnemonic = value
-        }
-        this.setState(state)
-    }
+    onLoginTextChangedListener = (event, value) => this.setState({ value })
 
     onProviderChangedListener = (event, index, value) => {
         helper.setGethProvider(value)
@@ -143,41 +90,30 @@ export default class Login extends Component {
         <ConfirmationDialog
             onClick={this.onCloseErrorDialogListener}
             onClose={this.onCloseErrorDialogListener}
-            title={this.state.errorDialogTitle}
-            message={this.state.errorDialogMessage}
+            title="Invalid Login"
+            message="Please make sure you're entering a valid Private Key or Passphase"
             open={this.state.isErrorDialogOpen}
         />
     )
 
-    renderCard = () => {
-        let value =
-            this.state.login === constants.LOGIN_MNEMONIC
-                ? this.state.mnemonic
-                : this.state.key
-        return (
-            <Card className="login-card">
-                <LoginInner
-                    loginMethod={this.state.login}
-                    provider={this.state.provider}
-                    value={value}
-                    onChange={this.onLoginTextChangedListener}
-                    onLoginKeypress={this.loginWithKeyPress}
-                    onLoginMethodChangeListener={
-                        this.onLoginMethodChangeListener
-                    }
-                    onProviderChangedListener={this.onProviderChangedListener}
-                />
+    renderCard = () => (
+        <Card className="login-card">
+            <LoginInner
+                loginMethod={this.state.login}
+                provider={this.state.provider}
+                value={this.state.value}
+                onChange={this.onLoginTextChangedListener}
+                onLoginKeypress={this.loginWithKeyPress}
+                onProviderChangedListener={this.onProviderChangedListener}
+            />
 
-                <LoginActions
-                    loginType={this.state.login}
-                    onGenerateMnemonicListener={this.generateMnemonic}
-                    onGeneratePrivateKeyListener={this.generatePrivateKey}
-                    isLoginDisabled={!this.isValidCredentials()}
-                    onLoginListener={this.onLoginListener}
-                />
-            </Card>
-        )
-    }
+            <LoginActions
+                onGenerateMnemonicListener={this.generateMnemonic}
+                isLoginDisabled={!this.isValidCredentials()}
+                onLoginListener={this.onLoginListener}
+            />
+        </Card>
+    )
 
     render() {
         return (
