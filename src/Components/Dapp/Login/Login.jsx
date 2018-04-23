@@ -40,6 +40,11 @@ export default class Login extends Component {
             }
             keyHandler.set(wallet.privateKey, wallet.address)
 
+            // Reload Web3 Address.
+            window.web3Object.eth.defaultAccount = keyHandler
+                .getAddress()
+                .toLowerCase()
+
             // Go to the Root
             this.props.history.push('/')
         } catch (e) {
