@@ -1,15 +1,12 @@
 import React from 'react'
-
 import EventBus from 'eventing-bus'
+import ethUnits from 'ethereum-units'
+import BigNumber from 'bignumber.js'
+import * as constants from './Constants'
 
-const ethUnits = require('ethereum-units')
-const BigNumber = require('bignumber.js')
-const constants = require('./Constants')
-
-class Helper {
-
+export default class Helper {
     isDev = () => {
-        return process.env["NODE_ENV"] !== "production"
+        return process.env['NODE_ENV'] !== 'production'
     }
 
     getWeb3 = () => {
@@ -22,15 +19,18 @@ class Helper {
 
     getGethProvider = () => {
         let provider = localStorage.getItem(constants.KEY_GETH_PROVIDER)
-        return provider == null ? constants.PROVIDER_DBET : provider
+        let defaultProvider = this.isDev()
+            ? constants.PROVIDER_LOCAL
+            : constants.PROVIDER_DBET
+        return provider == null ? defaultProvider : provider
     }
 
-    setGethProvider = (provider) => {
+    setGethProvider = provider => {
         localStorage.setItem(constants.KEY_GETH_PROVIDER, provider)
     }
 
     getTimestamp = () => {
-        return this.getTimestampInMillis()/1000
+        return this.getTimestampInMillis() / 1000
     }
 
     getTimestampInMillis = () => {
@@ -38,18 +38,18 @@ class Helper {
     }
 
     Htmlify(html) {
-        return <div dangerouslySetInnerHTML={{__html: html}}></div>;
+        return <div dangerouslySetInnerHTML={{ __html: html }} />
     }
 
     getEtherInWei = () => {
         return ethUnits.units.ether
     }
 
-    convertToEther = (number) => {
+    convertToEther = number => {
         return new BigNumber(number).times(this.getEtherInWei()).toFixed(0)
     }
 
-    formatEther = (ether) => {
+    formatEther = ether => {
         return new BigNumber(ether).dividedBy(this.getEtherInWei()).toFixed(2)
     }
 
@@ -58,26 +58,26 @@ class Helper {
         return Math.round(number * multiplier) / multiplier
     }
 
-    capitalize = (string) => {
-        return string.substr(0, 1).toUpperCase() + string.substring(1, string.length + 1)
+    capitalize = string => {
+        return (
+            string.substr(0, 1).toUpperCase() +
+            string.substring(1, string.length + 1)
+        )
     }
 
-    isUndefined = (object) => {
+    isUndefined = object => {
         return typeof object == 'undefined'
     }
 
-    duplicate = (obj) => {
+    duplicate = obj => {
         return JSON.parse(JSON.stringify(obj))
     }
 
-    commafy = (number) => {
-        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+    commafy = number => {
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
     }
 
-    toggleSnackbar = (message) => {
+    toggleSnackbar = message => {
         EventBus.publish('showSnackbar', message)
     }
-
 }
-
-export default Helper
