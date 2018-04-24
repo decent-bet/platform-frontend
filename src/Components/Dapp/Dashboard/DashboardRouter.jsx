@@ -6,8 +6,7 @@ import House from '../House'
 import Game from '../Casino/Game'
 import Slots from '../Casino/Slots'
 import Portal from '../Portal'
-
-const constants = require('../../Constants')
+import * as constants from '../../Constants'
 
 // Renders the page inside the Dashboard
 const DashboardRouter = () => (
@@ -16,7 +15,7 @@ const DashboardRouter = () => (
         <Route path={constants.VIEW_HOUSE} component={House} />
         <Route path={constants.VIEW_BALANCES} component={Balances} />
         <Route path={constants.VIEW_PORTAL} component={Portal} />
-        <Route path={constants.VIEW_SLOTS} component={Slots} />
+        <Route exact path={constants.VIEW_SLOTS} component={Slots} />
         <Route path={constants.VIEW_SLOTS_GAME} component={Game} />
     </Switch>
 )
