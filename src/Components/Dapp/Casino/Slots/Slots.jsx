@@ -22,7 +22,6 @@ const helper = new Helper()
 
 class Slots extends Component {
     state = {
-        address: helper.getWeb3().eth.defaultAccount,
         isDialogNewChannelOpen: false,
         isDialogGetChipsOpen: false,
         isDialogWithdrawChipsOpen: false

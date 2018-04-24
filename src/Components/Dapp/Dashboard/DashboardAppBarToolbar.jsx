@@ -14,9 +14,16 @@ export default function DashboardAppBarToolbar({
     tokenBalance,
     etherBalance
 }) {
+    // Null protection
+    if (!etherBalance) {
+        etherBalance = 0
+    }
+    if (!tokenBalance) {
+        tokenBalance = 0
+    }
     let addressText = `Public Address: ${address}`
-    let tokenText = `Tokens: ${tokenBalance} DBETs`
-    let etherText = `Balance: ${etherBalance} Ether`
+    let tokenText = `Tokens: ${tokenBalance.toFixed(2)} DBETs`
+    let etherText = `Balance: ${etherBalance.toFixed(5)} Ether`
     return (
         <Fragment>
             <CopyToClipboard
