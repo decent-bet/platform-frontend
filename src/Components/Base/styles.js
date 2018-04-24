@@ -19,7 +19,7 @@ export const styles = () => {
             color: constants.COLOR_WHITE
         },
         addressLabel: {
-            fontFamily: 'TradeGothic',
+            fontFamily: 'Inconsolata, monospace',
             fontSize: '0.75rem',
             letterSpacing: '1px',
             textTransform: 'none'
