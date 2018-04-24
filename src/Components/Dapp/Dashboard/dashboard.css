@@ -78,19 +78,19 @@ input::-webkit-inner-spin-button {
     display: block;
 }
 
-.dashboard .menu-item {
+.menu-item {
     font-family: 'GothamLight' !important;
     font-size: 17px;
     padding: 10px 0 10px 0 !important;
 }
 
-.dashboard .menu-item,
-.dashboard .menu-item svg {
+.menu-item,
+.menu-item svg {
     color: #EEE;
 }
 
-.dashboard .menu-item.selected,
-.dashboard .menu-item.selected .menu-icon {
+.menu-item.selected,
+.menu-item.selected svg {
     color: #f2b45c !important;
 }
 

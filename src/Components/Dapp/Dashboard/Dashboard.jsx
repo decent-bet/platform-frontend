@@ -35,7 +35,7 @@ class Dashboard extends Component {
 
     onDrawerButtonPressedListener = open => this.setState({ drawerOpen: open })
 
-    onProviderChangeListener = (event, index, value) => {
+    onProviderChangeListener = value => {
         if (value !== this.state.provider) {
             helper.setGethProvider(value)
             this.setState({ provider: value })

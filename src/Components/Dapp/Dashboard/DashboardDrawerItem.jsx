@@ -12,15 +12,14 @@ export default class DashboardDrawerItem extends Component {
             <MenuItem
                 className={itemClasses}
                 onClick={this.onClick}
+                primaryText={this.props.title}
                 leftIcon={
                     <FontAwesomeIcon
                         icon={this.props.iconClass}
-                        className="menu-icon fa-fw"
+                        className="fa-fw"
                     />
                 }
-            >
-                {this.props.title}
-            </MenuItem>
+            />
         )
     }
 }

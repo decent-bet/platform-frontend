@@ -1,41 +1,55 @@
-import React from 'react'
-import { MenuItem, DropDownMenu } from 'material-ui'
+import React, { Component, Fragment } from 'react'
+import { MenuItem } from 'material-ui'
+import * as constants from '../../Constants'
+import FontAwesomeIcon from '@fortawesome/react-fontawesome'
+import ProviderSelectorItem from './ProviderSelectorItem'
 
-const constants = require('../../Constants')
-const styles = require('../../Base/styles').styles()
+export default class ProviderSelector extends Component {
+    onClickListener = item => {
+        this.props.onProviderChangeListener(null, 0, item.dataset.provider)
+    }
+    render() {
+        return (
+            <MenuItem
+                className="menu-item"
+                leftIcon={
+                    <FontAwesomeIcon
+                        icon="wrench"
+                        className="menu-icon fa-fw"
+                    />
+                }
+                primaryText="Connected to:"
+                menuItems={
+                    <Fragment>
+                        <ProviderSelectorItem
+                            label="DBET Node"
+                            selectedProvider={this.props.gethNodeProvider}
+                            providerUrl={constants.PROVIDER_DBET}
+                            onProviderChangeListener={
+                                this.props.onProviderChangeListener
+                            }
+                        />
 
-export default function ProviderSelector({
-    onProviderChangeListener,
-    gethNodeProvider
-}) {
-    return (
-        <MenuItem>
-            <p className="mb-0">Select Geth Node</p>
-            <DropDownMenu
-                value={gethNodeProvider}
-                onChange={onProviderChangeListener}
-                underlineStyle={styles.dropdown.underlineStyle}
-                labelStyle={styles.dropdown.labelStyle}
-                selectedMenuItemStyle={styles.dropdown.selectedMenuItemStyle}
-                menuItemStyle={styles.dropdown.menuItemStyle}
-                listStyle={styles.dropdown.listStyle}
-            >
-                <MenuItem
-                    value={constants.PROVIDER_DBET}
-                    primaryText="DBET Node"
-                    style={styles.menuItem}
-                />
-                <MenuItem
-                    value={constants.PROVIDER_LOCAL}
-                    primaryText="Local Node"
-                    style={styles.menuItem}
-                />
-                <MenuItem
-                    value={constants.PROVIDER_INFURA}
-                    primaryText="Infura"
-                    style={styles.menuItem}
-                />
-            </DropDownMenu>
-        </MenuItem>
-    )
+                        <ProviderSelectorItem
+                            label="Local Node"
+                            providerUrl={constants.PROVIDER_LOCAL}
+                            selectedProvider={this.props.gethNodeProvider}
+                            onProviderChangeListener={
+                                this.props.onProviderChangeListener
+                            }
+                        />
+
+                        <ProviderSelectorItem
+                            label="Infura"
+                            providerUrl={constants.PROVIDER_INFURA}
+                            selectedProvider={this.props.gethNodeProvider}
+                            onProviderChangeListener={
+                                this.props.onProviderChangeListener
+                            }
+                        />
+                    </Fragment>
+                }
+            />
+        )
+    }
 }

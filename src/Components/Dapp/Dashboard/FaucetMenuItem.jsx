@@ -13,15 +13,14 @@ export default function FaucetMenuItem({ onFaucetClickedListener }) {
             <MenuItem
                 className="menu-item"
                 onClick={onFaucetClickedListener}
+                primaryText="Claim Faucet"
                 leftIcon={
                     <FontAwesomeIcon
-                        icon={["fab", "ethereum"]}
-                        className="menu-icon fa-fw"
+                        icon={['fab', 'ethereum']}
+                        className="fa-fw"
                     />
                 }
-            >
-                Claim Faucet
-            </MenuItem>
+            />
         )
     }
 }
