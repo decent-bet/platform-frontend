@@ -61,13 +61,14 @@ input::-webkit-inner-spin-button {
     object-fit: contain;
 }
 
-.dashboard .appbar .appbar-toolbar {
-    display: flex;
-    align-items: center;
+.dashboard .appbar .toolbar-button {
+    align-self: center;
 }
 
-.dashboard .appbar .appbar-toolbar > * {
-    margin-left: .5rem;
+/* Counters on the Appbar */
+.dashboard .appbar button span {
+    font-family: Inconsolata, monospace;
+    font-size: 0.75rem !important;
 }
 
 .dashboard .drawer .logo {

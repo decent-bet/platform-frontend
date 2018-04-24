@@ -1,10 +1,8 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import { FlatButton } from 'material-ui'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Helper from '../../Helper'
-import { styles as Styles } from '../../Base/styles'
 
-const styles = Styles()
 const helper = new Helper()
 
 function copyConfirmation() {
@@ -16,21 +14,20 @@ export default function DashboardAppBarToolbar({
     tokenBalance,
     etherBalance
 }) {
+    let addressText = `Public Address: ${address}`
     let tokenText = `Tokens: ${tokenBalance} DBETs`
     let etherText = `Balance: ${etherBalance} Ether`
     return (
-        <div className="appbar-toolbar">
-            <FlatButton
-                className="hidden-md-down"
-                label={
-                    <CopyToClipboard text={address} onCopy={copyConfirmation}>
-                        <span>Public Address: {address}</span>
-                    </CopyToClipboard>
-                }
-                labelStyle={styles.addressLabel}
-            />
-            <FlatButton labelStyle={styles.addressLabel} label={tokenText} />
-            <FlatButton labelStyle={styles.addressLabel} label={etherText} />
-        </div>
+        <Fragment>
+            <CopyToClipboard
+                className="toolbar-button hidden-md-down"
+                text={address}
+                onCopy={copyConfirmation}
+            >
+                <FlatButton label={addressText} />
+            </CopyToClipboard>
+            <FlatButton className="toolbar-button" label={tokenText} />
+            <FlatButton className="toolbar-button" label={etherText} />
+        </Fragment>
     )
 }
