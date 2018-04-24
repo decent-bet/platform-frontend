@@ -9,12 +9,17 @@ export default class DashboardDrawerItem extends Component {
             ? 'menu-item selected'
             : 'menu-item'
         return (
-            <MenuItem className={itemClasses} onClick={this.onClick}>
-                <FontAwesomeIcon
-                    icon={this.props.iconClass}
-                    className="menu-icon fa-fw"
-                />
-                {`  ${this.props.title}`}
+            <MenuItem
+                className={itemClasses}
+                onClick={this.onClick}
+                leftIcon={
+                    <FontAwesomeIcon
+                        icon={this.props.iconClass}
+                        className="menu-icon fa-fw"
+                    />
+                }
+            >
+                {this.props.title}
             </MenuItem>
         )
     }

@@ -71,30 +71,26 @@ input::-webkit-inner-spin-button {
 }
 
 .dashboard .drawer .logo {
-    height: 150px;
-    width: 80%;
+    height: 144px;
+    width: 100%;
     object-fit: contain;
-    margin: 20px auto 20px auto;
+    padding: 0px 8px;
     display: block;
 }
 
 .dashboard .menu-item {
-    color: #FFF;
     font-family: 'GothamLight' !important;
     font-size: 17px;
     padding: 10px 0 10px 0 !important;
 }
 
-.dashboard .menu-item.selected {
-    font-weight: bold;
-    color: #f2b45c !important;
+.dashboard .menu-item,
+.dashboard .menu-item svg {
+    color: #EEE;
 }
 
-.dashboard .menu-item:hover {
-    background: #292b2c !important;
-}
-
-.dashboard .menu-icon {
+.dashboard .menu-item.selected,
+.dashboard .menu-item.selected .menu-icon {
     color: #f2b45c !important;
 }
 

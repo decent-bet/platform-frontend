@@ -29,6 +29,7 @@ class Dashboard extends Component {
 
     // Faucet Button Clicked. Execute Faucet
     onFaucetClickedListener = () => {
+        this.onToggleDrawerListener()
         this.props.dispatch(Actions.faucet())
     }
 
@@ -58,7 +59,6 @@ class Dashboard extends Component {
         <DashboardAppBar onToggleDrawerListener={this.onToggleDrawerListener}>
             <DashboardAppBarToolbar
                 address={this.props.address}
-                onFaucetClickedListener={this.onFaucetClickedListener}
                 tokenBalance={this.props.balance}
                 etherBalance={this.props.etherBalance}
             />
@@ -71,6 +71,7 @@ class Dashboard extends Component {
             onDrawerStatusChangeListener={this.onDrawerButtonPressedListener}
             onViewChangeListener={this.onViewChangeListener}
             selectedView={this.props.location.pathname}
+            onFaucetClickedListener={this.onFaucetClickedListener}
         >
             <ProviderSelector
                 onProviderChangeListener={this.onProviderChangeListener}

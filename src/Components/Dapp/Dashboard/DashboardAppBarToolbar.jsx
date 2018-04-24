@@ -1,9 +1,10 @@
 import React from 'react'
-import { FlatButton, RaisedButton } from 'material-ui'
+import { FlatButton } from 'material-ui'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Helper from '../../Helper'
+import { styles as Styles } from '../../Base/styles'
 
-const styles = require('../../Base/styles').styles()
+const styles = Styles()
 const helper = new Helper()
 
 function copyConfirmation() {
@@ -12,7 +13,6 @@ function copyConfirmation() {
 
 export default function DashboardAppBarToolbar({
     address,
-    onFaucetClickedListener,
     tokenBalance,
     etherBalance
 }) {
@@ -31,11 +31,6 @@ export default function DashboardAppBarToolbar({
             />
             <FlatButton labelStyle={styles.addressLabel} label={tokenText} />
             <FlatButton labelStyle={styles.addressLabel} label={etherText} />
-            <RaisedButton
-                secondary={true}
-                label="Claim faucet"
-                onClick={onFaucetClickedListener}
-            />
         </div>
     )
 }
