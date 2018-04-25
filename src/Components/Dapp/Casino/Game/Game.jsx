@@ -40,9 +40,11 @@ class Game extends Component {
         window.slotsController = () => controller
     }
 
-    spin = (betSize, callback) => {
+    spin = (lines, betSize, callback) => {
+        console.log('spin', lines, betSize)
         let { dispatch, channelId } = this.props
-        slotsChannelHandler.spin(betSize, this.props, (err, msg, lines) => {
+        let totalBetSize = lines * betSize
+        slotsChannelHandler.spin(totalBetSize, this.props, (err, msg, lines) => {
             if (!err) {
                 // Spin the slots, wait for the action to complete,
                 // AND THEN increase the nonce.

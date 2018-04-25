@@ -410,26 +410,21 @@ function CGame(oData) {
     };
 
     this.changeCoinBet = function () {
-        var iNewBet = Math.floor((_iCurBet + 0.05) * 100) / 100;
-        var iNewTotalBet;
+        var iCurBetIndex = BET_SIZES.indexOf(_iCurBet)
+        if(iCurBetIndex === BET_SIZES.length - 1)
+            iCurBetIndex = 0;
+        else
+            iCurBetIndex++;
 
-        if (iNewBet > MAX_BET) {
-            _iCurBet = MIN_BET;
-            _iTotBet = _iCurBet * _iLastLineActive;
-            _oInterface.refreshBet(_iCurBet);
-            _oInterface.refreshTotalBet(_iTotBet);
-            iNewTotalBet = _iTotBet;
-        } else {
-            iNewTotalBet = iNewBet * _iLastLineActive;
+        _iCurBet = BET_SIZES[iCurBetIndex];
+        _iTotBet = _iCurBet * _iLastLineActive;
 
-            _iCurBet += 0.05;
-            _iCurBet = Math.floor(_iCurBet * 100) / 100;
-            _iTotBet = iNewTotalBet;
-            _oInterface.refreshBet(_iCurBet);
-            _oInterface.refreshTotalBet(_iTotBet);
-        }
+        _oInterface.refreshBet(_iCurBet);
+        _oInterface.refreshTotalBet(_iTotBet);
 
-        if (iNewTotalBet > _iMoney) {
+        window.betSize = _iCurBet;
+
+        if (_iTotBet > _iMoney) {
             _oInterface.disableSpin();
         } else {
             _oInterface.enableSpin();

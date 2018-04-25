@@ -48,6 +48,7 @@ var TIME_SHOW_WIN;
 var TIME_SHOW_ALL_WINS;
 var MIN_BET = 1;
 var MAX_BET = 1;
+var BET_SIZES = [0.01, 0.1, 1]
 var TOTAL_MONEY;
 var WIN_OCCURRENCE;
 var SLOT_CASH;
