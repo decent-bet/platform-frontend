@@ -6,10 +6,26 @@ export default function SlotChannelListInner({
     onDepositToChannelListener,
     onGoToGameroomListener
 }) {
-    let stateChannelList = Object.keys(stateChannels)
+    // Build the rows of the table
+    let stateChannelList = []
+    for (const id in stateChannels) {
+        if (stateChannels.hasOwnProperty(id)) {
+            const element = stateChannels[id]
+            stateChannelList.push(
+                <SlotChannelListItem
+                    key={id}
+                    id={id}
+                    stateChannel={element}
+                    onDepositToChannelListener={onDepositToChannelListener}
+                    onGoToGameroomListener={onGoToGameroomListener}
+                />
+            )
+        }
+    }
     if (stateChannelList.length > 0) {
+        // There is at least one row
         return (
-            <table className="table table-striped mt-4">
+            <table className="table mt-4">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -18,35 +34,11 @@ export default function SlotChannelListInner({
                         <th>Options</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {stateChannelList.map(id => {
-                        // Iterate Through all available state channels
-                        // and print them as a Table Row
-                        if (stateChannels.hasOwnProperty(id)) {
-                            let channel = stateChannels[id]
-                            return (
-                                <SlotChannelListItem
-                                    key={id}
-                                    id={id}
-                                    stateChannel={channel}
-                                    onDepositToChannelListener={
-                                        onDepositToChannelListener
-                                    }
-                                    onGoToGameroomListener={onGoToGameroomListener}
-                                />
-                            )
-                        } else {
-                            return <span />
-                        }
-                    })}
-                </tbody>
+                <tbody>{stateChannelList}</tbody>
             </table>
         )
     } else {
-        return (
-            <h5 className="text-center">
-                No channels available yet
-            </h5>
-        )
+        // There are no rows. Print a placeholder.
+        return <h5 className="text-center">No channels available yet</h5>
     }
 }
