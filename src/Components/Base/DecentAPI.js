@@ -1,5 +1,5 @@
 import Helper from '../Helper'
-import KeyHandler from '../Base/KeyHandler'
+import { KeyHandler } from '../../Web3'
 
 const helper = new Helper()
 const keyHandler = new KeyHandler()

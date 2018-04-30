@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Route } from 'react-router-dom'
 
-import KeyHandler from '../../Base/KeyHandler'
+import { KeyHandler } from '../../../Web3'
 
 const keyHandler = new KeyHandler()
 

@@ -1,9 +1,9 @@
 import React from 'react'
 import { Route, Redirect } from 'react-router-dom'
-import KeyHandler from '../../Base/KeyHandler'
+import { KeyHandler } from '../../../Web3'
+import * as constants from '../../Constants'
 
 const keyHandler = new KeyHandler()
-const constants = require('../../Constants')
 
 export default class PrivateRoute extends React.Component {
     renderCaptiveComponent = props => {

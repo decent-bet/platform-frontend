@@ -1,4 +1,4 @@
-import KeyHandler from '../../Components/Base/KeyHandler'
+import { KeyHandler } from '../../Web3'
 import Helper from '../../Components/Helper'
 import { SHA256, AES } from 'crypto-js'
 import DecentAPI from '../../Components/Base/DecentAPI'
@@ -58,8 +58,8 @@ export async function getChannelDepositParams(id, callback) {
 
 /**
  * Executes a spin for the Slots
- * @param {BigNumber} betSize 
- * @param {state} state 
+ * @param {BigNumber} betSize
+ * @param {state} state
  */
 export async function getSpin(betSize, state) {
     const lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]

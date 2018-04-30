@@ -11,11 +11,9 @@ import SlotsChannelFinalizer from '../../build/contracts/SlotsChannelFinalizer.j
 import SlotsChannelManager from '../../build/contracts/SlotsChannelManager.json'
 import SportsOracle from '../../build/contracts/SportsOracle.json'
 
-import Helper from './Helper'
-import KeyHandler from './Base/KeyHandler'
-import NonceHandler from './Base/NonceHandler'
-
-const constants = require('./Constants')
+import Helper from '../Components/Helper'
+import KeyHandler from './KeyHandler'
+import NonceHandler from './NonceHandler'
 
 const async = require('async')
 const ethUtil  = require('ethereumjs-util')

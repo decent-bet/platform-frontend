@@ -4,7 +4,7 @@ import LoginActions from './LoginActions'
 import LoginInner from './LoginInner'
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import Helper from '../../Helper'
-import KeyHandler from '../../Base/KeyHandler'
+import { KeyHandler } from '../../../Web3'
 import bip39 from 'bip39'
 import { Wallet } from 'ethers'
 

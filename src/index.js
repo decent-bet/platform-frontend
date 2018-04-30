@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 
 import injectTapEventPlugin from 'react-tap-event-plugin'
 import App from './Components/Dapp'
-import Web3Loader from './Components/Base/Web3Loader'
+import { Web3Loader } from './Web3'
 
 import './index.css'
 import './css/bootstrap.min.css'
@@ -18,8 +18,8 @@ fontawesome.library.add(faSolid, faEthereum)
 // Inject tap event plugin
 injectTapEventPlugin()
 
-const web3Loader = new Web3Loader()
-web3Loader.init()
+// Init Web3
+new Web3Loader()
 
 let landingApp = React.createElement(App)
 ReactDOM.render(landingApp, document.getElementById('root'))
