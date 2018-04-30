@@ -1,4 +1,4 @@
-const constants = require('../Constants')
+import * as constants from '../Constants'
 
 export const styles = () => {
     return {
@@ -17,12 +17,6 @@ export const styles = () => {
             marginRight: 10,
             fontFamily: 'Lato',
             color: constants.COLOR_WHITE
-        },
-        addressLabel: {
-            fontFamily: 'TradeGothic',
-            fontSize: '0.75rem',
-            letterSpacing: '1px',
-            textTransform: 'none'
         },
         keyboard: {
             key: {

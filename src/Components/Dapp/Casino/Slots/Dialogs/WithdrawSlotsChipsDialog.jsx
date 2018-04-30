@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 import { Dialog, CircularProgress, FlatButton, TextField } from 'material-ui'
-
-const constants = require('../../../../Constants')
-const ethUnits = require('ethereum-units')
+import { COLOR_GOLD } from '../../../../Constants'
+import ethUnits from 'ethereum-units'
 
 export default class WithdrawSlotsChipsDialog extends Component {
     constructor(props) {
@@ -31,7 +30,7 @@ export default class WithdrawSlotsChipsDialog extends Component {
         if (this.props.balance != null) {
             return this.props.balance
         } else {
-            return <CircularProgress color={constants.COLOR_GOLD} size={18} />
+            return <CircularProgress color={COLOR_GOLD} size={18} />
         }
     }
 

@@ -3,8 +3,7 @@
  */
 
 import React, { Component } from 'react'
-import { Dialog, CircularProgress, FlatButton, TextField } from 'material-ui'
-import { COLOR_GOLD } from '../../../../Constants'
+import { Dialog, FlatButton, TextField } from 'material-ui'
 import ethUnits from 'ethereum-units'
 
 export default class GetSlotsChipsDialog extends Component {
@@ -25,17 +24,9 @@ export default class GetSlotsChipsDialog extends Component {
     onCloseListener = () => this.props.toggleDialog(false)
     onValueChangedListener = (event, value) => this.setState({ amount: value })
 
-    renderAllowanceLabel = () => {
-        if (this.props.allowance != null) {
-            return ethUnits
-                .convert(this.props.allowance, 'wei', 'ether')
-                .toString()
-        } else {
-            return <CircularProgress color={COLOR_GOLD} size={18} />
-        }
-    }
-
     render() {
+
+        let allowance = this.props.allowance || 0
         return (
             <Dialog
                 title="Get Slots Chips"
@@ -65,7 +56,7 @@ export default class GetSlotsChipsDialog extends Component {
                 </small>
                 <br />
                 <small className="color-gold">
-                    Current slots allowance: {this.renderAllowanceLabel()} DBETs
+                    Current slots allowance: {allowance.toFixed(2)} DBETs
                 </small>
             </Dialog>
         )

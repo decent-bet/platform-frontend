@@ -43,6 +43,7 @@ export default class DepositTokensDialog extends Component {
                 ? 'You do not have enough DBETs. Please enter a valid amount and try again.'
                 : 'Please enter a valid amount of DBETs'
         }
+        let balance = this.props.balance || 0
         return (
             <Dialog
                 title={title}
@@ -67,7 +68,7 @@ export default class DepositTokensDialog extends Component {
                     errorText={errorMessage}
                 />
                 <p className="color-gold">
-                    Available balance: {this.props.balance} DBETs
+                    Available balance: {balance.toFixed(2)} DBETs
                 </p>
                 <br />
                 Please note that if you haven't set an allowance for the

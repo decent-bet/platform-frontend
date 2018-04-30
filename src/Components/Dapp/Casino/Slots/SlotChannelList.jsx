@@ -2,15 +2,13 @@ import React from 'react'
 import { Card, CardText, CardHeader } from 'material-ui'
 import SlotChannelListInner from './SlotChannelListInner'
 
-const styles = require('../../../Base/styles').styles()
-
 export default function SlotChannelList({
     stateChannels,
     onDepositToChannelListener,
     onGoToGameroomListener
 }) {
     return (
-        <Card className="channel-list-card" style={styles.card}>
+        <Card className="channel-list-card card">
             <CardHeader title="Open Channels" />
             <CardText>
                 <span className="text-gold font-weight-bold">Decent.bet </span>

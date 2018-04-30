@@ -21,16 +21,9 @@
     grid-column: 1 / -1;
 }
 
-/* Center the logo in the middle of the page */
-.slots .logo-container {
-    display: flex;
-    align-items: center;
-}
-
-.slots .logo-container .logo {
-    height: 48px;
-    flex: 1;
-    object-fit: fill;
+/* All cards inside the slots component */
+.slots .card {
+    border-radius: 15px !important;
 }
 
 /* Game Card */

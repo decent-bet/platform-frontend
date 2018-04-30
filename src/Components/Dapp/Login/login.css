@@ -4,10 +4,6 @@
     flex-flow: column nowrap;
     align-items: center;
     justify-content: center;
-
-    background-image: url('../../../../public/assets/img/backgrounds/platform.PNG');
-    background-size: cover;
-    background-attachment: fixed;
 }
 
 .login > * {

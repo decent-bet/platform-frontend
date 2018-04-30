@@ -22,7 +22,6 @@ const helper = new Helper()
 
 class Slots extends Component {
     state = {
-        address: helper.getWeb3().eth.defaultAccount,
         isDialogNewChannelOpen: false,
         isDialogGetChipsOpen: false,
         isDialogWithdrawChipsOpen: false
@@ -159,26 +158,8 @@ class Slots extends Component {
     )
 
     render() {
-        let logoUrl =
-            process.env.PUBLIC_URL + '/assets/img/logos/dbet-white.svg'
         return (
             <main className="slots container">
-                <section className="logo-container">
-                    <img src={logoUrl} className="logo" alt="Decent.bet Logo" />
-                </section>
-
-                <section className="title-container">
-                    <h3 className="text-center">SLOTS</h3>
-                </section>
-
-                <section className="intro-container">
-                    <h5 className="text-center">
-                        Select a slot machine from the variety{' '}
-                        <span className="text-gold">Decent.bet </span> offers to
-                        start a new channel
-                    </h5>
-                </section>
-
                 {this.renderChipToolbar()}
 
                 <SlotsGameCard

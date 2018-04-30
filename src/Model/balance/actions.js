@@ -1,17 +1,20 @@
 import Helper from '../../Components/Helper'
 import { createActions } from 'redux-actions'
 import Actions, { Prefix } from './actionTypes'
+import BigNumber from 'bignumber.js'
+import { units } from 'ethereum-units'
 
 const helper = new Helper()
 
 async function fetchTokens() {
     try {
-        let rawBalance = await helper
+        let address = await fetchPublicAddress()
+        let rawResult = await helper
             .getContractHelper()
             .getWrappers()
             .token()
-            .balanceOf(helper.getWeb3().eth.defaultAccount)
-        return helper.formatEther(rawBalance.toString())
+            .balanceOf(address)
+        return new BigNumber(rawResult).dividedBy(units.ether)
     } catch (err) {
         console.log('Error retrieving token balance', err.message)
     }
@@ -94,7 +97,7 @@ async function fetchEtherBalance() {
     try {
         let address = await fetchPublicAddress()
         let rawAmount = await helper.getWeb3().eth.getBalance(address)
-        return helper.formatEther(rawAmount)
+        return new BigNumber(rawAmount).dividedBy(units.ether)
     } catch (err) {
         console.log('error retrieving ether balance')
     }

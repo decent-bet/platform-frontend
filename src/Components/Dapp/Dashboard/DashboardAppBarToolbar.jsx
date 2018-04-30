@@ -1,9 +1,8 @@
-import React from 'react'
-import { FlatButton, RaisedButton } from 'material-ui'
+import React, { Fragment } from 'react'
+import { FlatButton } from 'material-ui'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Helper from '../../Helper'
 
-const styles = require('../../Base/styles').styles()
 const helper = new Helper()
 
 function copyConfirmation() {
@@ -12,30 +11,30 @@ function copyConfirmation() {
 
 export default function DashboardAppBarToolbar({
     address,
-    onFaucetClickedListener,
     tokenBalance,
     etherBalance
 }) {
-    let tokenText = `Tokens: ${tokenBalance} DBETs`
-    let etherText = `Balance: ${etherBalance} Ether`
+    // Null protection
+    if (!etherBalance) {
+        etherBalance = 0
+    }
+    if (!tokenBalance) {
+        tokenBalance = 0
+    }
+    let addressText = `Public Address: ${address}`
+    let tokenText = `Tokens: ${tokenBalance.toFixed(2)} DBETs`
+    let etherText = `Balance: ${etherBalance.toFixed(5)} Ether`
     return (
-        <div className="appbar-toolbar">
-            <FlatButton
-                className="hidden-md-down"
-                label={
-                    <CopyToClipboard text={address} onCopy={copyConfirmation}>
-                        <span>Public Address: {address}</span>
-                    </CopyToClipboard>
-                }
-                labelStyle={styles.addressLabel}
-            />
-            <FlatButton labelStyle={styles.addressLabel} label={tokenText} />
-            <FlatButton labelStyle={styles.addressLabel} label={etherText} />
-            <RaisedButton
-                secondary={true}
-                label="Claim faucet"
-                onClick={onFaucetClickedListener}
-            />
-        </div>
+        <Fragment>
+            <CopyToClipboard
+                className="toolbar-button hidden-md-down"
+                text={address}
+                onCopy={copyConfirmation}
+            >
+                <FlatButton label={addressText} />
+            </CopyToClipboard>
+            <FlatButton className="toolbar-button" label={tokenText} />
+            <FlatButton className="toolbar-button" label={etherText} />
+        </Fragment>
     )
 }
