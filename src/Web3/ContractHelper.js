@@ -1102,7 +1102,6 @@ class ContractHelper {
             slotsChannelFinalizer: () => {
                 return {
                     finalize: (id, userSpin, houseSpin) => {
-                        id = parseInt(id)
                         userSpin = self.getSpinParts(userSpin)
                         houseSpin = self.getSpinParts(houseSpin)
 
@@ -1127,7 +1126,7 @@ class ContractHelper {
                             inputs: [
                                 {
                                     name: 'id',
-                                    type: 'uint256'
+                                    type: 'bytes32'
                                 },
                                 {
                                     name: '_curr',
@@ -1289,7 +1288,7 @@ class ContractHelper {
                             inputs: [
                                 {
                                     name: 'id',
-                                    type: 'uint256'
+                                    type: 'bytes32'
                                 },
                                 {
                                     name: '_initialUserNumber',
@@ -1317,7 +1316,7 @@ class ContractHelper {
                             inputs: [
                                 {
                                     name: 'id',
-                                    type: 'uint256'
+                                    type: 'bytes32'
                                 }
                             ]
                         }, [id])
