@@ -7,11 +7,11 @@ const helper = new Helper()
 
 // Get the allowance
 async function fetchAllowance() {
-    let contractHelper = helper.getContractHelper()
-    let defaultAccount = helper.getWeb3().eth.defaultAccount
-    let slotsAddress = contractHelper.getSlotsChannelManagerInstance().address
+    const contractHelper = helper.getContractHelper()
+    const defaultAccount = helper.getWeb3().eth.defaultAccount
+    const slotsAddress = contractHelper.SlotsChannelManager.instance.address
     try {
-        let allowance = await contractHelper
+        const allowance = await contractHelper
             .getWrappers()
             .token()
             .allowance(defaultAccount, slotsAddress)
@@ -27,11 +27,8 @@ async function fetchAllowance() {
 // Starts the current session
 async function fetchSessionId() {
     try {
-        let session = await helper
-            .getContractHelper()
-            .getWrappers()
-            .slotsChannelManager()
-            .currentSession()
+        const instance = helper.getContractHelper().SlotsChannelManager
+        const session = await instance.currentSession()
         return session.toNumber()
     } catch (err) {
         console.log('Error retrieving current session', err.message)
@@ -41,12 +38,12 @@ async function fetchSessionId() {
 // Get the current session balance
 async function fetchSessionBalance() {
     try {
-        let sessionId = await fetchSessionId()
-        let balance = await helper
-            .getContractHelper()
-            .getWrappers()
-            .slotsChannelManager()
-            .balanceOf(helper.getWeb3().eth.defaultAccount, sessionId)
+        const sessionId = await fetchSessionId()
+        const instance = helper.getContractHelper().SlotsChannelManager
+        const balance = await instance.balanceOf(
+            helper.getWeb3().eth.defaultAccount,
+            sessionId
+        )
         return balance.toFixed()
     } catch (err) {
         console.log('Error retrieving balance', err.message)
@@ -56,11 +53,8 @@ async function fetchSessionBalance() {
 // Create a state channel
 async function createChannel(deposit) {
     try {
-        let tx = await helper
-            .getContractHelper()
-            .getWrappers()
-            .slotsChannelManager()
-            .createChannel(deposit)
+        const instance = helper.getContractHelper().SlotsChannelManager
+        const tx = await instance.createChannel(deposit)
         helper.toggleSnackbar('Successfully sent create channel transaction')
         return tx
     } catch (err) {
@@ -74,11 +68,12 @@ async function depositToChannel(id) {
     let { initialUserNumber, finalUserHash } = params
 
     try {
-        let tx = await helper
-            .getContractHelper()
-            .getWrappers()
-            .slotsChannelManager()
-            .depositToChannel(id, initialUserNumber, finalUserHash)
+        const instance = helper.getContractHelper().SlotsChannelManager
+        const tx = await instance.depositToChannel(
+            id,
+            initialUserNumber,
+            finalUserHash
+        )
         helper.toggleSnackbar(
             'Successfully sent deposit transaction to channel'
         )
@@ -91,14 +86,14 @@ async function depositToChannel(id) {
 // Increase allowance and then deposit new Chips
 async function approveAndDepositChips(amount) {
     try {
-        let contractHelper = helper.getContractHelper()
-        let contractAddress = contractHelper.getSlotsChannelManagerInstance()
-            .address
-        let tx = await contractHelper
+        const contractHelper = helper.getContractHelper()
+        const contractAddress =
+            contractHelper.SlotsChannelManager.instance.address
+        const tx = await contractHelper
             .getWrappers()
             .token()
             .approve(contractAddress, amount)
-        let tx2 = await depositChips(amount)
+        const tx2 = await depositChips(amount)
         helper.toggleSnackbar('Successfully sent approve transaction')
         return [tx, tx2]
     } catch (err) {
@@ -109,11 +104,8 @@ async function approveAndDepositChips(amount) {
 // Deposit new Chips, sourced from wallet's tokens
 async function depositChips(amount) {
     try {
-        let tx = await helper
-            .getContractHelper()
-            .getWrappers()
-            .slotsChannelManager()
-            .deposit(amount)
+        const instance = helper.getContractHelper().SlotsChannelManager
+        const tx = await instance.deposit(amount)
         helper.toggleSnackbar('Successfully sent deposit transaction')
         return tx
     } catch (err) {
@@ -124,12 +116,9 @@ async function depositChips(amount) {
 // Withdraw Chips and return them as Tokens to the Wallet
 async function withdrawChips(amount) {
     try {
-        let session = await fetchSessionId()
-        let tx = await helper
-            .getContractHelper()
-            .getWrappers()
-            .slotsChannelManager()
-            .withdraw(amount, session)
+        const session = await fetchSessionId()
+        const instance = helper.getContractHelper().SlotsChannelManager
+        const tx = await instance.withdraw(amount, session)
         helper.toggleSnackbar('Successfully sent withdraw transaction')
         return tx
     } catch (err) {

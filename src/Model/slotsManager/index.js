@@ -20,79 +20,60 @@ let currentSessionsBeingWatched = []
 
 // Watcher for deposits to a channel
 function watcherChannelDeposit(id, dispatch) {
-    helper
-        .getContractHelper()
-        .getWrappers()
-        .slotsChannelManager()
-        .logChannelDeposit(id)
-        .watch((err, event) => {
-            if (err) {
-                console.log('Deposit channel event error', err)
-                return
-            }
-            let _id = event.args.id.toString()
-            dispatch(Actions.setChannelDeposited(_id))
-        })
+    const instance = helper.getContractHelper().SlotsChannelManager
+    instance.logChannelDeposit(id).watch((err, event) => {
+        if (err) {
+            console.log('Deposit channel event error', err)
+            return
+        }
+        let _id = event.args.id.toString()
+        dispatch(Actions.setChannelDeposited(_id))
+    })
 }
 
 // Watcher that monitors channel activation
 function watcherChannelActivate(id, dispatch) {
-    helper
-        .getContractHelper()
-        .getWrappers()
-        .slotsChannelManager()
-        .logChannelActivate(id)
-        .watch((err, event) => {
-            if (err) {
-                console.log('Activate channel event error', err)
-                return
-            }
-            let _id = event.args.id.toString()
-            dispatch(Actions.setChannelActivated(_id))
-        })
+    const instance = helper.getContractHelper().SlotsChannelManager
+    instance.logChannelActivate(id).watch((err, event) => {
+        if (err) {
+            console.log('Activate channel event error', err)
+            return
+        }
+        let _id = event.args.id.toString()
+        dispatch(Actions.setChannelActivated(_id))
+    })
 }
 
 // Watcher that monitors channel finalization
 export function watcherChannelFinalized(id, dispatch) {
-    helper
-        .getContractHelper()
-        .getWrappers()
-        .slotsChannelManager()
-        .logChannelFinalized(id)
-        .watch((err, event) => {
-            if (err) {
-                console.log('Finalized channel event error', err)
-                return
-            }
-            let _id = event.args.id.toString()
-            dispatch(Actions.setChannelFinalized(_id))
-        })
+    const instance = helper.getContractHelper().SlotsChannelManager
+    instance.logChannelFinalized(id).watch((err, event) => {
+        if (err) {
+            console.log('Finalized channel event error', err)
+            return
+        }
+        let _id = event.args.id.toString()
+        dispatch(Actions.setChannelFinalized(_id))
+    })
 }
 
 // Watcher that monitors the claiming of a channel's Chips
 export function watcherChannelClaimed(id, dispatch) {
-    helper
-        .getContractHelper()
-        .getWrappers()
-        .slotsChannelManager()
-        .logClaimChannelTokens(id)
-        .watch((err, event) => {
-            if (err) {
-                console.log('Claim channel tokens event error', err)
-                return
-            }
+    const instance = helper.getContractHelper().SlotsChannelManager
+    instance.logClaimChannelTokens(id).watch((err, event) => {
+        if (err) {
+            console.log('Claim channel tokens event error', err)
+            return
+        }
 
-            let _id = event.args.id.toString()
-            let isHouse = event.args.isHouse
-            dispatch(Actions.setChannelClaimed(_id, isHouse))
-        })
+        let _id = event.args.id.toString()
+        let isHouse = event.args.isHouse
+        dispatch(Actions.setChannelClaimed(_id, isHouse))
+    })
 }
 
 export function initWatchers(dispatch) {
-    let channelManager = helper
-        .getContractHelper()
-        .getWrappers()
-        .slotsChannelManager()
+    const channelManager = helper.getContractHelper().SlotsChannelManager
 
     // Watch for new channels being opened
     channelManager.logNewChannel().watch((err, event) => {
@@ -140,10 +121,7 @@ export function initWatchers(dispatch) {
 export function stopWatchers(dispatch) {
     // TODO: Web3 as of 1.beta33 has these functions broken
     try {
-        let channelManager = helper
-            .getContractHelper()
-            .getWrappers()
-            .slotsChannelManager()
+        const channelManager = helper.getContractHelper().SlotsChannelManager
 
         channelManager.logNewChannel().stopWatching()
         channelManager.logDeposit().stopWatching()

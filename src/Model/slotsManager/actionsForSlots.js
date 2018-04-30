@@ -20,13 +20,9 @@ async function fetchAesKey(channelId) {
  */
 async function getChannelInfo(channelId) {
     try {
-        let info = await helper
-            .getContractHelper()
-            .getWrappers()
-            .slotsChannelManager()
-            .getChannelInfo(channelId)
-
-        let playerAddress = info[0]
+        const instance = helper.getContractHelper().SlotsChannelManager
+        const info = await instance.getChannelInfo(channelId)
+        const playerAddress = info[0]
         return {
             playerAddress,
             ready: info[1],
@@ -46,11 +42,8 @@ async function getChannelInfo(channelId) {
  */
 async function getAuthorizedAddress(channelId) {
     try {
-        return helper
-            .getContractHelper()
-            .getWrappers()
-            .slotsChannelManager()
-            .getPlayer(channelId, true)
+        const instance = helper.getContractHelper().SlotsChannelManager
+        return instance.getPlayer(channelId, true)
     } catch (error) {
         console.log('Error retrieving house authorized address', error.message)
     }
@@ -62,11 +55,8 @@ async function getAuthorizedAddress(channelId) {
  */
 async function isChannelClosed(channelId) {
     try {
-        return helper
-            .getContractHelper()
-            .getWrappers()
-            .slotsChannelManager()
-            .isChannelClosed(channelId)
+        const instance = helper.getContractHelper().SlotsChannelManager
+        return instance.isChannelClosed(channelId)
     } catch (err) {
         console.log('Error retrieving is channel closed', err.message)
     }
@@ -78,11 +68,8 @@ async function isChannelClosed(channelId) {
  */
 async function getChannelHashes(id) {
     try {
-        let hashes = await helper
-            .getContractHelper()
-            .getWrappers()
-            .slotsChannelManager()
-            .getChannelHashes(id)
+        const instance = helper.getContractHelper().SlotsChannelManager
+        const hashes = await instance.getChannelHashes(id)
         return {
             finalUserHash: hashes[0],
             initialUserNumber: hashes[1],

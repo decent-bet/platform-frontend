@@ -8,7 +8,6 @@ import HouseLotteryController from '../../build/contracts/HouseLotteryController
 import HouseSessionsController from '../../build/contracts/HouseSessionsController.json'
 import BettingProvider from '../../build/contracts/BettingProvider.json'
 import SlotsChannelFinalizer from '../../build/contracts/SlotsChannelFinalizer.json'
-import SlotsChannelManager from '../../build/contracts/SlotsChannelManager.json'
 import SportsOracle from '../../build/contracts/SportsOracle.json'
 
 import Helper from '../Components/Helper'
@@ -19,6 +18,9 @@ import ethUtil from 'ethereumjs-util'
 import ethAbi from 'web3-eth-abi'
 import EthAccounts from 'web3-eth-accounts'
 import Promise from 'bluebird'
+
+// New Contract Objects
+import SlotChannelManagerContract from './SlotChannelManagerContract'
 
 // Used for VSCode Type Checking
 import Web3 from 'web3' // eslint-disable-line no-unused-vars
@@ -36,7 +38,6 @@ let bettingProvider,
     houseFundsController,
     houseLotteryController,
     houseSessionsController,
-    slotsChannelManager,
     slotsChannelFinalizer,
     sportsOracle
 
@@ -47,7 +48,6 @@ let bettingProviderInstance,
     houseFundsControllerInstance,
     houseLotteryControllerInstance,
     houseSessionsControllerInstance,
-    slotsChannelManagerInstance,
     slotsChannelFinalizerInstance,
     sportsOracleInstance
 
@@ -59,13 +59,12 @@ const TYPE_DBET_TOKEN = 0,
     TYPE_HOUSE_SESSIONS_CONTROLLER = 5,
     TYPE_BETTING_PROVIDER = 6,
     TYPE_SLOTS_CHANNEL_FINALIZER = 7,
-    TYPE_SLOTS_CHANNEL_MANAGER = 8,
     TYPE_SPORTS_ORACLE = 9
 
 class ContractHelper {
     /**
-     * 
-     * @param {Web3} web3Param 
+     *
+     * @param {Web3} web3Param
      */
     constructor(web3Param) {
         this.web3 = web3Param
@@ -79,7 +78,6 @@ class ContractHelper {
         sportsOracle = Contract(SportsOracle)
         decentBetToken = Contract(DecentBetToken)
         bettingProvider = Contract(BettingProvider)
-        slotsChannelManager = Contract(SlotsChannelManager)
         slotsChannelFinalizer = Contract(SlotsChannelFinalizer)
 
         for (let c of [
@@ -91,7 +89,6 @@ class ContractHelper {
             houseLotteryController,
             houseSessionsController,
             slotsChannelFinalizer,
-            slotsChannelManager,
             sportsOracle
         ]) {
             c.setProvider(this.provider)
@@ -107,14 +104,13 @@ class ContractHelper {
                 }
             }
         }
+
+        // Initialize new Contracts
+        this.SlotsChannelManager = new SlotChannelManagerContract(this.web3)
     }
 
     getTokenInstance = () => {
         return decentBetTokenInstance
-    }
-
-    getSlotsChannelManagerInstance = () => {
-        return slotsChannelManagerInstance
     }
 
     getBettingProviderInstance = () => {
@@ -171,10 +167,6 @@ class ContractHelper {
 
     getBettingProviderContract = callback => {
         this.getContract(TYPE_BETTING_PROVIDER, callback)
-    }
-
-    getSlotsChannelManagerContract = callback => {
-        this.getContract(TYPE_SLOTS_CHANNEL_MANAGER, callback)
     }
 
     getSlotsChannelFinalizerContract = callback => {
@@ -241,10 +233,9 @@ class ContractHelper {
                     })
                 },
                 slotsChannelManager: callback => {
-                    this.getSlotsChannelManagerContract(instance => {
-                        self.setInstance(TYPE_SLOTS_CHANNEL_MANAGER, instance)
-                        callback(null, instance)
-                    })
+                    self.SlotsChannelManager.deployed().then(_instance =>
+                        callback(null, _instance)
+                    )
                 },
                 slotsChannelFinalizer: callback => {
                     this.getSlotsChannelFinalizerContract(instance => {
@@ -301,8 +292,6 @@ class ContractHelper {
                 return bettingProvider
             case TYPE_SLOTS_CHANNEL_FINALIZER:
                 return slotsChannelFinalizer
-            case TYPE_SLOTS_CHANNEL_MANAGER:
-                return slotsChannelManager
             case TYPE_SPORTS_ORACLE:
                 return sportsOracle
             default:
@@ -328,8 +317,6 @@ class ContractHelper {
                 return bettingProviderInstance
             case TYPE_SLOTS_CHANNEL_FINALIZER:
                 return slotsChannelFinalizerInstance
-            case TYPE_SLOTS_CHANNEL_MANAGER:
-                return slotsChannelManagerInstance
             case TYPE_SPORTS_ORACLE:
                 return sportsOracleInstance
             default:
@@ -362,9 +349,6 @@ class ContractHelper {
                 break
             case TYPE_SLOTS_CHANNEL_FINALIZER:
                 slotsChannelFinalizerInstance = instance
-                break
-            case TYPE_SLOTS_CHANNEL_MANAGER:
-                slotsChannelManagerInstance = instance
                 break
             case TYPE_SPORTS_ORACLE:
                 sportsOracleInstance = instance
@@ -537,8 +521,7 @@ class ContractHelper {
                     ) => {
                         return houseInstance.LogPurchasedCredits(
                             {
-                                creditHolder:
-                                    this.web3.eth.defaultAccount,
+                                creditHolder: this.web3.eth.defaultAccount,
                                 session: sessionNumber
                             },
                             {
@@ -554,8 +537,7 @@ class ContractHelper {
                     ) => {
                         return houseInstance.LogLiquidateCredits(
                             {
-                                creditHolder:
-                                    this.web3.eth.defaultAccount,
+                                creditHolder: this.web3.eth.defaultAccount,
                                 session: sessionNumber
                             },
                             {
@@ -1534,305 +1516,7 @@ class ContractHelper {
                 }
             },
             slotsChannelManager: () => {
-                return {
-                    /**
-                     * Getters
-                     */
-                    getChannelInfo: id => {
-                        return slotsChannelManagerInstance.getChannelInfo.call(
-                            id,
-                            {
-                                from: this.web3.eth.defaultAccount
-                            }
-                        )
-                    },
-                    getChannelHashes: id => {
-                        return slotsChannelManagerInstance.getChannelHashes.call(
-                            id,
-                            {
-                                from: this.web3.eth.defaultAccount
-                            }
-                        )
-                    },
-                    checkSig: (id, msgHash, sign, turn) => {
-                        console.log('Checksig', id, msgHash, sign, turn)
-                        return slotsChannelManagerInstance.checkSig.call(
-                            id,
-                            msgHash,
-                            sign,
-                            turn,
-                            {
-                                from: this.web3.eth.defaultAccount
-                            }
-                        )
-                    },
-                    balanceOf: (address, session) => {
-                        return slotsChannelManagerInstance.balanceOf.call(
-                            address,
-                            session,
-                            {
-                                from: this.web3.eth.defaultAccount
-                            }
-                        )
-                    },
-                    currentSession: () => {
-                        return slotsChannelManagerInstance.currentSession.call({
-                            from: this.web3.eth.defaultAccount
-                        })
-                    },
-                    getPlayer: (id, isHouse) => {
-                        return slotsChannelManagerInstance.getPlayer.call(
-                            id,
-                            isHouse,
-                            {
-                                from: this.web3.eth.defaultAccount
-                            }
-                        )
-                    },
-                    isChannelClosed: id => {
-                        return slotsChannelManagerInstance.isChannelClosed.call(
-                            id,
-                            {
-                                from: this.web3.eth.defaultAccount
-                            }
-                        )
-                    },
-                    finalBalances: (id, isHouse) => {
-                        return slotsChannelManagerInstance.finalBalances.call(
-                            id,
-                            isHouse,
-                            {
-                                from: this.web3.eth.defaultAccount
-                            }
-                        )
-                    },
-                    /**
-                     * Setters
-                     */
-                    createChannel: deposit => {
-                        let encodedFunctionCall = ethAbi.encodeFunctionCall(
-                            {
-                                name: 'createChannel',
-                                type: 'function',
-                                inputs: [
-                                    {
-                                        name: 'initialDeposit',
-                                        type: 'uint256'
-                                    }
-                                ]
-                            },
-                            [deposit]
-                        )
-
-                        return self.signAndSendRawTransaction(
-                            keyHandler.get(),
-                            slotsChannelManagerInstance.address,
-                            null,
-                            5000000,
-                            encodedFunctionCall
-                        )
-                    },
-                    deposit: amount => {
-                        let encodedFunctionCall = ethAbi.encodeFunctionCall(
-                            {
-                                name: 'deposit',
-                                type: 'function',
-                                inputs: [
-                                    {
-                                        name: 'amount',
-                                        type: 'uint256'
-                                    }
-                                ]
-                            },
-                            [amount]
-                        )
-
-                        return self.signAndSendRawTransaction(
-                            keyHandler.get(),
-                            slotsChannelManagerInstance.address,
-                            null,
-                            5000000,
-                            encodedFunctionCall
-                        )
-                    },
-                    withdraw: (amount, session) => {
-                        console.log(
-                            'Withdraw',
-                            amount,
-                            'from slots channel manager as',
-                            this.web3.eth.defaultAccount
-                        )
-
-                        let encodedFunctionCall = ethAbi.encodeFunctionCall(
-                            {
-                                name: 'withdraw',
-                                type: 'function',
-                                inputs: [
-                                    {
-                                        name: 'amount',
-                                        type: 'uint256'
-                                    },
-                                    {
-                                        name: 'session',
-                                        type: 'uint256'
-                                    }
-                                ]
-                            },
-                            [amount, session]
-                        )
-
-                        return self.signAndSendRawTransaction(
-                            keyHandler.get(),
-                            slotsChannelManagerInstance.address,
-                            null,
-                            5000000,
-                            encodedFunctionCall
-                        )
-                    },
-                    depositToChannel: (
-                        id,
-                        initialUserNumber,
-                        finalUserHash
-                    ) => {
-                        let encodedFunctionCall = ethAbi.encodeFunctionCall(
-                            {
-                                name: 'depositChannel',
-                                type: 'function',
-                                inputs: [
-                                    {
-                                        name: 'id',
-                                        type: 'bytes32'
-                                    },
-                                    {
-                                        name: '_initialUserNumber',
-                                        type: 'string'
-                                    },
-                                    {
-                                        name: '_finalUserHash',
-                                        type: 'string'
-                                    }
-                                ]
-                            },
-                            [id, initialUserNumber, finalUserHash]
-                        )
-
-                        return self.signAndSendRawTransaction(
-                            keyHandler.get(),
-                            slotsChannelManagerInstance.address,
-                            null,
-                            5000000,
-                            encodedFunctionCall
-                        )
-                    },
-                    claim: id => {
-                        let encodedFunctionCall = ethAbi.encodeFunctionCall(
-                            {
-                                name: 'claim',
-                                type: 'function',
-                                inputs: [
-                                    {
-                                        name: 'id',
-                                        type: 'bytes32'
-                                    }
-                                ]
-                            },
-                            [id]
-                        )
-
-                        return self.signAndSendRawTransaction(
-                            keyHandler.get(),
-                            slotsChannelManagerInstance.address,
-                            null,
-                            5000000,
-                            encodedFunctionCall
-                        )
-                    },
-                    /**
-                     * Events
-                     */
-                    logNewChannel: (fromBlock, toBlock) => {
-                        return slotsChannelManagerInstance.LogNewChannel(
-                            {
-                                user: this.web3.eth.defaultAccount
-                            },
-                            {
-                                fromBlock: fromBlock ? fromBlock : 0,
-                                toBlock: toBlock ? toBlock : 'latest'
-                            }
-                        )
-                    },
-                    logChannelDeposit: (id, fromBlock, toBlock) => {
-                        return slotsChannelManagerInstance.LogChannelDeposit(
-                            {
-                                user: this.web3.eth.defaultAccount,
-                                id: id
-                            },
-                            {
-                                fromBlock: fromBlock ? fromBlock : 0,
-                                toBlock: toBlock ? toBlock : 'latest'
-                            }
-                        )
-                    },
-                    logChannelActivate: (id, fromBlock, toBlock) => {
-                        console.log(
-                            'logChannelActivate',
-                            this.web3.eth.defaultAccount
-                        )
-                        return slotsChannelManagerInstance.LogChannelActivate(
-                            {
-                                user: this.web3.eth.defaultAccount,
-                                id: id
-                            },
-                            {
-                                fromBlock: fromBlock ? fromBlock : 0,
-                                toBlock: toBlock ? toBlock : 'latest'
-                            }
-                        )
-                    },
-                    logChannelFinalized: (id, fromBlock, toBlock) => {
-                        return slotsChannelManagerInstance.LogChannelFinalized(
-                            {
-                                id: id
-                            },
-                            {
-                                fromBlock: fromBlock ? fromBlock : 0,
-                                toBlock: toBlock ? toBlock : 'latest'
-                            }
-                        )
-                    },
-                    logClaimChannelTokens: (id, fromBlock, toBlock) => {
-                        const filter = id ? { id: id } : {}
-                        return slotsChannelManagerInstance.LogClaimChannelTokens(
-                            filter,
-                            {
-                                fromBlock: fromBlock ? fromBlock : 0,
-                                toBlock: toBlock ? toBlock : 'latest'
-                            }
-                        )
-                    },
-                    logDeposit: (fromBlock, toBlock) => {
-                        return slotsChannelManagerInstance.LogDeposit(
-                            {
-                                _address: this.web3.eth.defaultAccount
-                            },
-                            {
-                                fromBlock: fromBlock ? fromBlock : 0,
-                                toBlock: toBlock ? toBlock : 'latest'
-                            }
-                        )
-                    },
-                    logWithdraw: (fromBlock, toBlock) => {
-                        return slotsChannelManagerInstance.LogWithdraw(
-                            {
-                                _address: this.web3.eth.defaultAccount
-                            },
-                            {
-                                fromBlock: fromBlock ? fromBlock : 0,
-                                toBlock: toBlock ? toBlock : 'latest'
-                            }
-                        )
-                    }
-                }
+                return {}
             }
         }
     }

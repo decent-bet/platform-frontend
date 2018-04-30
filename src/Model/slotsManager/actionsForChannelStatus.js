@@ -48,11 +48,8 @@ async function finalizeChannel(channelId, state) {
  * @param state
  */
 async function claimChannel(channelId) {
-    let txHash = await helper
-        .getContractHelper()
-        .getWrappers()
-        .slotsChannelManager()
-        .claim(channelId)
+    const instance = helper.getContractHelper().SlotsChannelManager
+    const txHash = await instance.claim(channelId)
     helper.toggleSnackbar('Successfully sent claim DBETs transaction')
     return txHash
 }
