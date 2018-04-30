@@ -62,7 +62,7 @@
     "@fortawesome/react-fontawesome": "^0.0.18",
     "aes256": "^1.0.3",
     "async": "^2.6.0",
-    "bignumber.js": "^6.0.0",
+    "bignumber.js": "^7.0.0",
     "bip39": "^2.5.0",
     "bluebird": "^3.5.1",
     "chai": "^4.1.2",
