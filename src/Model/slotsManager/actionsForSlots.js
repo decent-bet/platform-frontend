@@ -86,9 +86,8 @@ async function getChannelHashes(id) {
         return {
             finalUserHash: hashes[0],
             initialUserNumber: hashes[1],
-            initialHouseSeedHash: hashes[2],
-            finalReelHash: hashes[3],
-            finalSeedHash: hashes[4]
+            finalReelHash: hashes[2],
+            finalSeedHash: hashes[3]
         }
     } catch (err) {
         console.log('Error retrieving channel hashes', err.message)

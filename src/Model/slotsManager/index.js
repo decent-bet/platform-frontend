@@ -101,7 +101,7 @@ export function initWatchers(dispatch) {
             return
         }
 
-        let id = event.args.id.toNumber()
+        let id = event.args.id
         let newChannel = {
             id,
             status: CHANNEL_STATUS_WAITING,

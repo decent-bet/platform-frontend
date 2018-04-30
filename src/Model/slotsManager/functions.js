@@ -11,8 +11,7 @@ const decentAPI = new DecentAPI()
 export function getAesKey(id) {
     const web3 = helper.getWeb3()
     const idHash = web3.utils.sha3(id)
-    const idHashHex = web3.utils.utf8ToHex(idHash)
-    const aesKey = web3.eth.accounts.sign(idHashHex, keyHandler.get()).signature
+    const aesKey = web3.eth.accounts.sign(idHash, keyHandler.get()).signature
     return aesKey
 }
 
@@ -28,9 +27,16 @@ export async function getUserHashes(randomNumber) {
 }
 
 export function random(length) {
-    return Math.floor(
-        Math.pow(10, length - 1) + Math.random() * 9 * Math.pow(10, length - 1)
-    )
+    let randomValuesArray = new Uint32Array(length)
+    let crypto = window.crypto || window.msCrypto
+    crypto.getRandomValues(randomValuesArray)
+
+    let outputString = "";
+    for (let i = 0; i < randomValuesArray.length; i++) {
+        outputString += randomValuesArray[i]
+    }
+
+    return outputString.slice(0, length)
 }
 
 /**
@@ -58,8 +64,8 @@ export async function getChannelDepositParams(id, callback) {
 
 /**
  * Executes a spin for the Slots
- * @param {BigNumber} betSize 
- * @param {state} state 
+ * @param {BigNumber} betSize
+ * @param {state} state
  */
 export async function getSpin(betSize, state) {
     const lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]

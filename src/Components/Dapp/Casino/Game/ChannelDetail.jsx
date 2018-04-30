@@ -26,10 +26,6 @@ export default function channelDetail({ initialDeposit, hashes }) {
                         <p>{hashes.finalUserHash}</p>
                     </div>
                     <div className="col-6">
-                        <h5>Initial House Seed Hash</h5>
-                        <p>{hashes.initialHouseSeedHash}</p>
-                    </div>
-                    <div className="col-6">
                         <h5>Final Reel Hash</h5>
                         <p>{hashes.finalReelHash}</p>
                     </div>
