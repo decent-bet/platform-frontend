@@ -50,7 +50,7 @@ export default class Web3Loader {
                 .getAddress()
                 .toLowerCase()
 
-        const contractHelper = new ContractHelper()
+        const contractHelper = new ContractHelper(window.web3Object)
         contractHelper.getAllContracts((err, res) => {
             window.contractHelper = contractHelper
             window.web3Loaded = true

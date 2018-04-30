@@ -140,7 +140,7 @@ class DecentAPI {
             const {v, r, s} = ethUtil.ecsign(msgHash, privateKey)
             const sgn = ethUtil.toRpcSig(v, r, s)
 
-            console.log('v: ' + v + ', r: ' + sgn.slice(0, 66) + ', s: ' + '0x' + sgn.slice(66, 130))
+            console.log('v: ' + v + ', r: ' + sgn.slice(0, 66) + ', s: 0x' + sgn.slice(66, 130))
 
             let m = ethUtil.toBuffer(msgHash)
             let pub = ethUtil.ecrecover(m, v, r, s)
