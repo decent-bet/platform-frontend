@@ -87,7 +87,6 @@ class Slots extends Component {
     // Withdraw Chips from the State Channel
     onWithdrawChipsListener = amount => {
         let rawBalance = this.props.balance
-        console.log('onWithdrawChips', amount, rawBalance)
         let balance = new BigNumber(rawBalance)
         if (balance.isGreaterThanOrEqualTo(amount)) {
             let action = Actions.withdrawChips(amount.toString())
@@ -104,11 +103,9 @@ class Slots extends Component {
 
     // Deposit Tokens and convert them to Chips
     onGetChipsListener = amount => {
-        let allowance = new BigNumber(this.props.allowance)
-        let string = amount.toString()
-        let action = allowance.isLessThan(amount)
-            ? Actions.approveAndDepositChips(string)
-            : Actions.depositChips(string)
+        const allowance = new BigNumber(this.props.allowance)
+        const parsedAmount = new BigNumber(amount)
+        const action = Actions.buildChannel(parsedAmount, allowance)
         this.props.dispatch(action)
         this.onGetChipsDialogToggleListener(false)
     }

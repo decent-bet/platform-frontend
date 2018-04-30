@@ -126,6 +126,43 @@ async function withdrawChips(amount) {
     }
 }
 
+/**
+ * Builds a Statechannel in a single step
+ * @param {BigNumber} amount
+ * @param {BigNumber} allowance
+ */
+async function buildChannel(amount, allowance) {
+    const contractHelper = helper.getContractHelper()
+    const contract = contractHelper.SlotsChannelManager
+    const contractAddress = contract.instance.address
+
+    // Approve Tokens if it needs more allowance
+    if (allowance.isLessThan(amount)) {
+        await contractHelper
+            .getWrappers()
+            .token()
+            .approve(contractAddress, amount)
+    }
+
+    // Deposit Tokens into Chips
+    await contract.deposit(amount)
+
+    // Create Channel
+    const newChannel = await contract.createChannel(amount)
+
+    const results = newChannel.logs[0]
+    const eventResults = contract.logNewChannelDecode(
+        results.data,
+        results.topics
+    )
+    const channelId = eventResults.id
+
+    // Deposit Tokens to channel
+    await depositToChannel(channelId)
+
+    return
+}
+
 // Functions of this object are the "ACTION_KEYS" "inCamelCase"
 // They are namespaced by the "Prefix" "inCamelCase".
 // Documentation https://redux-actions.js.org/docs/api/createAction.html#createactionsactionmap
@@ -139,6 +176,7 @@ export default createActions({
         [Actions.GET_BALANCE]: fetchSessionBalance,
         [Actions.GET_SESSION_ID]: fetchSessionId,
         [Actions.SET_CHANNEL]: channel => channel,
+        [Actions.BUILD_CHANNEL]: buildChannel,
         [Actions.SET_CHANNEL_DEPOSITED]: channelId => ({ channelId }),
         [Actions.SET_CHANNEL_ACTIVATED]: channelId => ({ channelId }),
         [Actions.SET_CHANNEL_FINALIZED]: channelId => ({ channelId }),

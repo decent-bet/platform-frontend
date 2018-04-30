@@ -319,6 +319,36 @@ export default class SlotsChannelManager {
         )
     }
 
+    /**
+     * Event Decoders
+     */
+
+    logNewChannelDecode = (log, topics) => {
+        const params = [
+            {
+                indexed: false,
+                name: 'id',
+                type: 'bytes32'
+            },
+            {
+                indexed: true,
+                name: 'user',
+                type: 'address'
+            },
+            {
+                indexed: false,
+                name: 'initialDeposit',
+                type: 'uint256'
+            },
+            {
+                indexed: false,
+                name: 'timestamp',
+                type: 'uint256'
+            }
+        ]
+        return ethAbi.decodeLog(params, log, topics)
+    }
+
     signAndSendRawTransaction = async (
         privateKey,
         to,
@@ -344,8 +374,13 @@ export default class SlotsChannelManager {
             privateKey
         )
 
-        return this.web3.eth
-            .sendSignedTransaction(rawTransaction)
-            .then(() => nonceHandler.set(nonce))
+        const promiEvent = this.web3.eth.sendSignedTransaction(rawTransaction)
+        
+        // Increase nonce once transaction ahs been completed
+        promiEvent.once('receipt', () => nonceHandler.set(nonce))
+
+        // Return the "PromiEvent" 
+        // (https://web3js.readthedocs.io/en/1.0/callbacks-promises-events.html)
+        return promiEvent
     }
 }
