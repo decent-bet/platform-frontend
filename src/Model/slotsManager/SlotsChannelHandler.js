@@ -26,7 +26,7 @@ export default class SlotsChannelHandler {
         betSize = helper.convertToEther(betSize)
 
         try {
-            let userSpin = await getSpin(betSize, state)
+            let userSpin = await getSpin(betSize, state, false)
             let response = await Bluebird.fromCallback(cb =>
                 decentApi.spin(id, userSpin, state.aesKey, cb)
             )
@@ -68,6 +68,9 @@ export default class SlotsChannelHandler {
          * Verify spin balances
          */
         let reel = houseSpin.reel
+
+        if(houseSpin.nonce < 1 || houseSpin.nonce >= 1000)
+            callback(true, 'Invalid nonce')
 
         if (userSpin.betSize !== houseSpin.betSize)
             callback(true, 'Invalid betsize')

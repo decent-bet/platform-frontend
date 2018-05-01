@@ -18,13 +18,26 @@ async function finalizeChannel(channelId, state) {
     try {
         let betSize = helper.convertToEther(1)
 
-        let userSpin = await getSpin(betSize, state)
-        let lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]
-        const txHash = await helper
-            .getContractHelper()
-            .getWrappers()
-            .slotsChannelFinalizer()
-            .finalize(channelId, userSpin, lastHouseSpin)
+        let userSpin = await getSpin(betSize, state, true)
+        let lastHouseSpin
+        let txHash
+
+        // If the user nonce is 0
+        // this would mean that there haven't been any spin performed within the channel.
+        if(userSpin.nonce === 0) {
+            txHash = await helper
+                .getContractHelper()
+                .getWrappers()
+                .slotsChannelFinalizer()
+                .finalizeZeroNonce(channelId, userSpin)
+        } else {
+            lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]
+            txHash = await helper
+                .getContractHelper()
+                .getWrappers()
+                .slotsChannelFinalizer()
+                .finalize(channelId, userSpin, lastHouseSpin)
+        }
         /**
          * After sending a finalize channel tx on the Ethereum network let the state channel API know that
          * the transaction was sent to make sure future spins aren't processed.

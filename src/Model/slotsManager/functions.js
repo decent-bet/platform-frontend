@@ -66,9 +66,11 @@ export async function getChannelDepositParams(id, callback) {
  * Executes a spin for the Slots
  * @param {BigNumber} betSize
  * @param {state} state
+ * @param finalize
  */
-export async function getSpin(betSize, state) {
+export async function getSpin(betSize, state, finalize) {
     const lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]
+    const spinNonce = finalize ? (state.nonce === 1 ? 0 : state.nonce) : state.nonce
     const nonce = state.nonce
 
     let reelHash =
@@ -93,7 +95,7 @@ export async function getSpin(betSize, state) {
         prevReelSeedHash: prevReelSeedHash,
         userHash: userHash,
         prevUserHash: prevUserHash,
-        nonce: nonce,
+        nonce: spinNonce,
         turn: false,
         userBalance: userBalance,
         houseBalance: houseBalance,
