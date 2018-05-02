@@ -1,5 +1,5 @@
 import Actions, { PREFIX } from './actionTypes'
-import { FULFILLED } from 'redux-promise-middleware'
+import { FULFILLED, PENDING } from 'redux-promise-middleware'
 import {
     CHANNEL_STATUS_ACTIVATED,
     CHANNEL_STATUS_FINALIZED,
@@ -10,7 +10,9 @@ const SlotsManagerDefaultState = {
     channels: {},
     allowance: 0,
     balance: 0,
-    currentSession: -1
+    currentSession: -1,
+    isBuildingChannel: false,
+    builtChannelId: '0x'
 }
 
 const ChannelDefaultState = {
@@ -100,6 +102,13 @@ export default function slotsManagerReducer(
 
         case `${PREFIX}/${Actions.GET_SESSION_ID}/${FULFILLED}`:
             return { ...slotsManagerState, currentSession: action.payload }
+
+        case `${PREFIX}/${Actions.BUILD_CHANNEL}/${PENDING}`:
+            return { ...slotsManagerState, isBuildingChannel: true}
+
+        case `${PREFIX}/${Actions.BUILD_CHANNEL}/${FULFILLED}`:
+            const builtChannelId = action.payload
+            return { ...slotsManagerState, builtChannelId}
 
         case `${PREFIX}/${Actions.SET_CHANNEL}`:
             let newChannel = action.payload

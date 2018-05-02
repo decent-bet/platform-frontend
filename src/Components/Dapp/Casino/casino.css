@@ -45,6 +45,10 @@
     height: 300px;
 }
 
+.casino .progress-text {
+    text-align: center;
+}
+
 .casino .game-card .title {
     text-align: center;
     padding: 10px 0 10px 0;
