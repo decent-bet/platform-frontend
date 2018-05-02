@@ -3,6 +3,9 @@ import { createActions } from 'redux-actions'
 import Helper from '../../Components/Helper'
 import { getChannelDepositParams } from './functions'
 
+// Used for VSCode Code Completion
+import BigNumber from 'bignumber.js' // eslint-disable-line no-unused-vars
+
 const helper = new Helper()
 
 // Get the allowance
@@ -160,7 +163,7 @@ async function buildChannel(amount, allowance) {
     // Deposit Tokens to channel
     await depositToChannel(channelId)
 
-    return
+    return channelId
 }
 
 // Functions of this object are the "ACTION_KEYS" "inCamelCase"

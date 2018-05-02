@@ -1,11 +1,7 @@
-import React, { Component, Fragment } from 'react'
-import { CircularProgress } from 'material-ui'
+import React, { Component } from 'react'
 import SlotsGameCard from './SlotsGameCard'
 import SlotsChannelList from './SlotChannelList'
-import ChipToolbar from './ChipToolbar'
 import GetSlotsChipsDialog from './Dialogs/GetSlotsChipsDialog'
-import NewChannelDialog from './Dialogs/NewChannelDialog'
-import WithdrawSlotsChipsDialog from './Dialogs/WithdrawSlotsChipsDialog'
 import Helper from '../../../Helper'
 import { BigNumber } from 'bignumber.js'
 import { connect } from 'react-redux'
@@ -14,7 +10,6 @@ import {
     initWatchers,
     stopWatchers
 } from '../../../../Model/slotsManager'
-import { COLOR_GOLD } from '../../../Constants'
 
 import './slots.css'
 
@@ -22,9 +17,7 @@ const helper = new Helper()
 
 class Slots extends Component {
     state = {
-        isDialogNewChannelOpen: false,
-        isDialogGetChipsOpen: false,
-        isDialogWithdrawChipsOpen: false
+        isDialogGetChipsOpen: false
     }
 
     componentDidMount = () => {
@@ -56,44 +49,8 @@ class Slots extends Component {
         return placeholder
     }
 
-    // Create a new Channel
-    onCreateChannelListener = deposit => {
-        let action = Actions.createChannel(deposit.toString())
-        this.props.dispatch(action)
-        this.onNewChannelDialogToggleListener(false)
-    }
-
-    // Deposit to a Channel
-    onDepositToChannelListener = id => {
-        let action = Actions.depositToChannel(id)
-        this.props.dispatch(action)
-    }
-
-    // Opens the New Channel Dialog
-    onNewChannelDialogOpenListener = () =>
-        this.onNewChannelDialogToggleListener(true)
-    onNewChannelDialogToggleListener = isOpen =>
-        this.setState({ isDialogNewChannelOpen: isOpen })
-
     // Click the Slots Card
-    onSlotsGameClickedListener = () => this.onNewChannelDialogOpenListener(true)
-
-    // Opens the dialog to withdraw chips
-    onWithdrawChipsDialogOpenListener = () =>
-        this.onWithdrawChipsDialogToggleListener(true)
-    onWithdrawChipsDialogToggleListener = isOpen =>
-        this.setState({ isDialogWithdrawChipsOpen: isOpen })
-
-    // Withdraw Chips from the State Channel
-    onWithdrawChipsListener = amount => {
-        let rawBalance = this.props.balance
-        let balance = new BigNumber(rawBalance)
-        if (balance.isGreaterThanOrEqualTo(amount)) {
-            let action = Actions.withdrawChips(amount.toString())
-            this.props.dispatch(action)
-        }
-        this.onWithdrawChipsDialogToggleListener(false)
-    }
+    onSlotsGameClickedListener = () => this.onGetChipsDialogOpenListener()
 
     // Opens the Dialog to deposits tokens and transform them into Chips
     onGetChipsDialogOpenListener = () =>
@@ -101,8 +58,8 @@ class Slots extends Component {
     onGetChipsDialogToggleListener = isOpen =>
         this.setState({ isDialogGetChipsOpen: isOpen })
 
-    // Deposit Tokens and convert them to Chips
-    onGetChipsListener = amount => {
+    // Builds the entire State Channel in one Step
+    onBuildChannelListener = amount => {
         const allowance = new BigNumber(this.props.allowance)
         const parsedAmount = new BigNumber(amount)
         const action = Actions.buildChannel(parsedAmount, allowance)
@@ -113,55 +70,12 @@ class Slots extends Component {
     onGoToGameroomListener = gameID =>
         this.props.history.push(`/slots/${gameID}`)
 
-    renderChipToolbar = () => {
-        // Prints the amount of available Chips, or a loader component
-        let chipBalance = this.getChipBalance()
-        let progressbar = <CircularProgress size={18} color={COLOR_GOLD} />
-
-        // inspiration for the regex: https://stackoverflow.com/a/14428340
-        let chipsLabel = chipBalance
-            ? chipBalance.replace(/(\d)(?=(\d{3}))/g, '$1,') // Adds a space every three digits
-            : progressbar
-
-        return (
-            <ChipToolbar
-                onWithdrawChipsListener={this.onWithdrawChipsDialogOpenListener}
-                onGetChipsListener={this.onGetChipsDialogOpenListener}
-                chipsLabel={chipsLabel}
-            />
-        )
-    }
-
-    renderDialogs = () => (
-        <Fragment>
-            <WithdrawSlotsChipsDialog
-                open={this.state.isDialogWithdrawChipsOpen}
-                balance={this.getChipBalance('')}
-                onWithdrawChips={this.onWithdrawChipsListener}
-                toggleDialog={this.onWithdrawChipsDialogToggleListener}
-            />
-            <GetSlotsChipsDialog
-                open={this.state.isDialogGetChipsOpen}
-                allowance={this.props.allowance}
-                onGetChips={this.onGetChipsListener}
-                toggleDialog={this.onGetChipsDialogToggleListener}
-            />
-            <NewChannelDialog
-                open={this.state.isDialogNewChannelOpen}
-                onCreateChannel={this.onCreateChannelListener}
-                toggleDialog={this.onNewChannelDialogToggleListener}
-            />
-        </Fragment>
-    )
-
     render() {
         return (
             <main className="slots container">
-                {this.renderChipToolbar()}
-
                 <SlotsGameCard
                     imageUrl="backgrounds/slots-crypto-chaos.png"
-                    onClickListener={this.onSlotsGameClickedListener}
+                    onClickListener={this.onGetChipsDialogOpenListener}
                 />
 
                 <SlotsChannelList
@@ -170,7 +84,12 @@ class Slots extends Component {
                     onGoToGameroomListener={this.onGoToGameroomListener}
                 />
 
-                {this.renderDialogs()}
+                <GetSlotsChipsDialog
+                    open={this.state.isDialogGetChipsOpen}
+                    allowance={this.props.allowance}
+                    onGetChips={this.onBuildChannelListener}
+                    toggleDialog={this.onGetChipsDialogToggleListener}
+                />
             </main>
         )
     }
