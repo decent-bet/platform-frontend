@@ -376,7 +376,7 @@ export default class SlotsChannelManager {
 
         const promiEvent = this.web3.eth.sendSignedTransaction(rawTransaction)
         
-        // Increase nonce once transaction ahs been completed
+        // Increase nonce once transaction has been completed
         promiEvent.once('receipt', () => nonceHandler.set(nonce))
 
         // Return the "PromiEvent" 
