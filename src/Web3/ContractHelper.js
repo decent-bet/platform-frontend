@@ -20,7 +20,7 @@ import EthAccounts from 'web3-eth-accounts'
 import Promise from 'bluebird'
 
 // New Contract Objects
-import SlotChannelManagerContract from './SlotChannelManagerContract'
+import SlotChannelManagerContract from './contracts/SlotChannelManagerContract'
 
 // Used for VSCode Type Checking
 import Web3 from 'web3' // eslint-disable-line no-unused-vars

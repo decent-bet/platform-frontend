@@ -1,46 +1,20 @@
-import SlotsChannelManagerJson from '../../build/contracts/SlotsChannelManager.json'
-import Contract from 'truffle-contract'
-import KeyHandler from './KeyHandler'
-import NonceHandler from './NonceHandler'
+import SlotsChannelManagerJson from '../../../build/contracts/SlotsChannelManager.json'
+import KeyHandler from '../KeyHandler'
 import ethAbi from 'web3-eth-abi'
-import EthAccounts from 'web3-eth-accounts'
-import Helper from '../Components/Helper'
+import AbstractContract from './AbstractContract'
 
 // Used for VSCode Type Checking
 import Web3 from 'web3' // eslint-disable-line no-unused-vars
 
-const helper = new Helper()
 const keyHandler = new KeyHandler()
-const nonceHandler = new NonceHandler()
-const ethAccounts = new EthAccounts(helper.getGethProvider())
 
-export default class SlotsChannelManager {
+export default class SlotsChannelManager extends AbstractContract{
     /**
      * Builds the contract
      * @param {Web3} web3
      */
     constructor(web3) {
-        this.web3 = web3
-        this.contract = Contract(SlotsChannelManagerJson)
-        this.contract.setProvider(web3.currentProvider)
-
-        // Dirty hack for web3@1.0.0 support for localhost testrpc,
-        // see https://github.com/trufflesuite/truffle-contract/issues/56#issuecomment-331084530
-        if (typeof this.contract.currentProvider.sendAsync !== 'function') {
-            this.contract.currentProvider.sendAsync = function() {
-                return this.contract.currentProvider.send.apply(
-                    this.contract.currentProvider,
-                    arguments
-                )
-            }
-        }
-    }
-
-    /** Initializes an instance of the contract */
-    deployed = async () => {
-        return this.contract
-            .deployed()
-            .then(_instance => (this.instance = _instance))
+        super(web3, SlotsChannelManagerJson)
     }
 
     /**
@@ -146,13 +120,6 @@ export default class SlotsChannelManager {
     }
 
     withdraw = (amount, session) => {
-        console.log(
-            'Withdraw',
-            amount,
-            'from slots channel manager as',
-            this.web3.eth.defaultAccount
-        )
-
         let encodedFunctionCall = ethAbi.encodeFunctionCall(
             {
                 name: 'withdraw',
@@ -263,7 +230,6 @@ export default class SlotsChannelManager {
         )
     }
     logChannelActivate = (id, fromBlock, toBlock) => {
-        console.log('logChannelActivate', this.web3.eth.defaultAccount)
         return this.instance.LogChannelActivate(
             {
                 user: this.web3.eth.defaultAccount,
@@ -347,40 +313,5 @@ export default class SlotsChannelManager {
             }
         ]
         return ethAbi.decodeLog(params, log, topics)
-    }
-
-    signAndSendRawTransaction = async (
-        privateKey,
-        to,
-        gasPrice = 10000000000,
-        gas,
-        data
-    ) => {
-        const from = this.web3.eth.defaultAccount
-        const count = await this.web3.eth.getTransactionCount(from, 'latest')
-
-        const nonce = nonceHandler.get(count)
-        const tx = {
-            from,
-            to,
-            gas,
-            data,
-            nonce,
-            gasPrice
-        }
-
-        const { rawTransaction } = await ethAccounts.signTransaction(
-            tx,
-            privateKey
-        )
-
-        const promiEvent = this.web3.eth.sendSignedTransaction(rawTransaction)
-        
-        // Increase nonce once transaction has been completed
-        promiEvent.once('receipt', () => nonceHandler.set(nonce))
-
-        // Return the "PromiEvent" 
-        // (https://web3js.readthedocs.io/en/1.0/callbacks-promises-events.html)
-        return promiEvent
     }
 }
