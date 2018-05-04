@@ -1,9 +1,12 @@
 import React from 'react'
-import { Card, CardText, CardHeader } from 'material-ui'
+import { Card, CardText, CardHeader, RaisedButton } from 'material-ui'
 import { units } from 'ethereum-units'
 import BigNumber from 'bignumber.js'
 
-export default function StateChannelTable({ channelMap }) {
+export default function StateChannelTable({
+    channelMap,
+    onSelectChannelListener
+}) {
     // List all existing channels for this user
     const array = []
     for (const channelId in channelMap) {
@@ -31,6 +34,12 @@ export default function StateChannelTable({ channelMap }) {
                     <tr key={channelId}>
                         <td>{channel.channelId}</td>
                         <td>{totalTokens}</td>
+                        <td>
+                            <RaisedButton
+                                label="Use"
+                                onClick={onSelectChannelListener}
+                            />
+                        </td>
                     </tr>
                 )
             }
@@ -45,7 +54,7 @@ export default function StateChannelTable({ channelMap }) {
             <Card className="card">
                 <CardHeader title="Existing Channels" />
                 <CardText>
-                    <table className="table">
+                    <table>
                         <tbody>{array}</tbody>
                     </table>
                 </CardText>

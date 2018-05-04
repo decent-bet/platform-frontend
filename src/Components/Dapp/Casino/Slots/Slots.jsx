@@ -43,6 +43,11 @@ class Slots extends Component {
         this.props.dispatch(action)
     }
 
+    // SelectsAnExistingChannel
+    onSelectChannelListener = event => {
+        console.warn(event.target)
+    }
+
     onGoToGameroomListener = () =>
         this.props.history.push(`/slots/${this.props.builtChannelId}`)
 
@@ -53,7 +58,10 @@ class Slots extends Component {
             !Object.getOwnPropertyNames(this.props.channels).length > 0
         return (
             <main className="slots container">
-                <StateChannelTable channelMap={this.props.channels} />
+                <StateChannelTable
+                    channelMap={this.props.channels}
+                    onSelectChannelListener={this.onSelectChannelListener}
+                />
                 <StateChannelBuilder
                     onBuildChannelListener={this.onBuildChannelListener}
                     isVisible={isBuilderVisible}
