@@ -54,7 +54,7 @@ export function initWatchers(dispatch) {
         .watch((err, event) => {
             const channelId = event.args.id
             dispatch(Actions.getChannelDetails(channelId))
-            dispatch(Actions.getChannelDeposits(channelId, false))
+            dispatch(Actions.getLastSpin(channelId))
         })
 
     // Listen for Token deposits into Chips

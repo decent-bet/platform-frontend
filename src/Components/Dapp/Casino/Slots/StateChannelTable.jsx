@@ -1,6 +1,7 @@
 import React from 'react'
 import { Card, CardText, CardHeader } from 'material-ui'
 import { units } from 'ethereum-units'
+import BigNumber from 'bignumber.js'
 
 export default function StateChannelTable({ channelMap }) {
     // List all existing channels for this user
@@ -16,12 +17,14 @@ export default function StateChannelTable({ channelMap }) {
                 !channel.info.finalized
             ) {
                 // Parse the balance from the state
-                let totalTokens
-                if (channel.playerBalance) {
-                    totalTokens = channel.playerBalance
-                        .dividedBy(units.ether)
-                        .toFixed(2)
+                let totalTokens = channel.info ? channel.info.initialDeposit : 0
+                if (channel.houseSpins && channel.houseSpins.length > 0) {
+                    const penultimate = channel.houseSpins.length - 1
+                    const rawBalance =
+                        channel.houseSpins[penultimate].userBalance
+                    totalTokens = new BigNumber(rawBalance)
                 }
+                totalTokens = totalTokens.dividedBy(units.ether).toFixed(2)
 
                 // Send the row
                 array.push(
