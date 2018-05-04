@@ -15,7 +15,7 @@ export default class StateChannelBuilder extends Component {
 
     render() {
         // Only show this card if we are not loading a channel already
-        if (this.props.isBuildingChannel) return null
+        if (!this.props.isVisible) return null
         return (
             <section>
                 <Card className="card">

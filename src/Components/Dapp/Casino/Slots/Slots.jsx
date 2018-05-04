@@ -14,11 +14,17 @@ import {
 import './slots.css'
 
 class Slots extends Component {
+    state = {
+        isLoadingChannels: true
+    }
     componentDidMount = () => {
         this.props.dispatch(Actions.getSessionId())
         this.props.dispatch(Actions.getBalance())
         this.props.dispatch(Actions.getAllowance())
-        this.props.dispatch(Actions.getChannels())
+        this.props.dispatch(async dispatch2 => {
+            await dispatch2(Actions.getChannels())
+            this.setState({ isLoadingChannels: false })
+        })
 
         // Init Watchers
         this.props.dispatch(initWatchers)
@@ -41,12 +47,16 @@ class Slots extends Component {
         this.props.history.push(`/slots/${this.props.builtChannelId}`)
 
     render() {
+        const isBuilderVisible =
+            !this.props.isBuildingChannel &&
+            !this.state.isLoadingChannels &&
+            !Object.getOwnPropertyNames(this.props.channels).length > 0
         return (
             <main className="slots container">
                 <StateChannelTable channelMap={this.props.channels} />
                 <StateChannelBuilder
                     onBuildChannelListener={this.onBuildChannelListener}
-                    isBuildingChannel={this.props.isBuildingChannel}
+                    isVisible={isBuilderVisible}
                 />
 
                 <StateChannelWaiter
