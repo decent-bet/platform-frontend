@@ -8,7 +8,7 @@ import Web3 from 'web3' // eslint-disable-line no-unused-vars
 
 const keyHandler = new KeyHandler()
 
-export default class SlotsChannelManager extends AbstractContract{
+export default class SlotsChannelManager extends AbstractContract {
     /**
      * Builds the contract
      * @param {Web3} web3
@@ -64,6 +64,12 @@ export default class SlotsChannelManager extends AbstractContract{
 
     finalBalances = (id, isHouse) => {
         return this.instance.finalBalances.call(id, isHouse, {
+            from: this.web3.eth.defaultAccount
+        })
+    }
+
+    channelDeposits = (id, isHouse) => {
+        return this.instance.channelDeposits.call(id, isHouse, {
             from: this.web3.eth.defaultAccount
         })
     }

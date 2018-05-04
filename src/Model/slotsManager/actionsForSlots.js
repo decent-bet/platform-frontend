@@ -100,7 +100,6 @@ async function getChannelDetails(id) {
  * @param id
  * @param hashes
  * @param aesKey
- * @param callback
  */
 async function loadLastSpin(id, hashes, aesKey) {
     let result = await Bluebird.fromCallback(cb =>
@@ -152,10 +151,20 @@ async function getLastSpin(channelId) {
     }
 }
 
+async function getChannelDeposits(channelId) {
+    const contract = helper.getContractHelper().SlotsChannelManager
+    return Bluebird.props({
+        player: contract.channelDeposits(channelId, false),
+        house: contract.channelDeposits(channelId, true),
+        channelId
+    })
+}
+
 export default createActions({
     [PREFIX]: {
         [Actions.GET_AES_KEY]: fetchAesKey,
         [Actions.GET_CHANNEL_DETAILS]: getChannelDetails,
+        [Actions.GET_CHANNEL_DEPOSITS]: getChannelDeposits,
         [Actions.GET_LAST_SPIN]: getLastSpin,
         [Actions.NONCE_INCREASE]: channelId => ({ channelId }),
         [Actions.POST_SPIN]: (channelId, spin) => ({ ...spin, channelId })

@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import SlotsList from './SlotsList'
 import StateChannelBuilder from './StateChannelBuilder'
 import StateChannelWaiter from './StateChannelWaiter'
+import StateChannelTable from './StateChannelTable'
 import { BigNumber } from 'bignumber.js'
 import { connect } from 'react-redux'
 import {
@@ -41,6 +42,7 @@ class Slots extends Component {
     render() {
         return (
             <main className="slots container">
+                <StateChannelTable channelMap={this.props.channels} />
                 <StateChannelBuilder
                     onBuildChannelListener={this.onBuildChannelListener}
                     isBuildingChannel={this.props.isBuildingChannel}

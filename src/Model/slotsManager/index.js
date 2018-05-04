@@ -48,6 +48,15 @@ export function watcherChannelClaimed(id, dispatch) {
 export function initWatchers(dispatch) {
     const channelManager = helper.getContractHelper().SlotsChannelManager
 
+    // Gets all the channels for the current user
+    const channelListener = channelManager
+        .logNewChannel()
+        .watch((err, event) => {
+            const channelId = event.args.id
+            dispatch(Actions.getChannelDetails(channelId))
+            dispatch(Actions.getChannelDeposits(channelId, false))
+        })
+
     // Listen for Token deposits into Chips
     const depositListener = channelManager.logDeposit().watch((err, event) => {
         if (err) {
@@ -61,20 +70,20 @@ export function initWatchers(dispatch) {
     const withdrawListener = channelManager
         .logWithdraw()
         .watch((err, event) => {
-        if (err) {
-            console.log('Withdraw event error', err)
-            return
-        }
-        dispatch(Actions.getBalance())
-    })
+            if (err) {
+                console.log('Withdraw event error', err)
+                return
+            }
+            dispatch(Actions.getBalance())
+        })
 
-    listeners.push(depositListener, withdrawListener)
+    listeners.push(depositListener, withdrawListener, channelListener)
 }
 
 export function stopWatchers(dispatch) {
     try {
         for (const listener of listeners) {
             listener.requestManager.stopPolling()
-    }
+        }
     } catch (error) {}
 }

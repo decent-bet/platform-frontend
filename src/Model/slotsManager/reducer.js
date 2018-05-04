@@ -19,6 +19,8 @@ const ChannelDefaultState = {
     aesKey: '0x',
     info: { initialDeposit: 0 },
     houseAuthorizedAddress: '0x',
+    houseBalance: 0,
+    playerBalance: 0,
     hashes: {},
     nonce: 0,
     houseSpins: [],
@@ -83,6 +85,11 @@ function stateChannelSubreducer(
 
         case `${PREFIX}/${Actions.POST_SPIN}`:
             channel.houseSpins = [...channel.houseSpins, action.payload]
+            break
+
+        case `${PREFIX}/${Actions.GET_CHANNEL_DEPOSITS}/${FULFILLED}`:
+            channel.houseBalance = action.payload.house
+            channel.playerBalance = action.payload.player
             break
 
         default:
