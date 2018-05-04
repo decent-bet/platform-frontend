@@ -18,6 +18,7 @@ class Slots extends Component {
         this.props.dispatch(Actions.getSessionId())
         this.props.dispatch(Actions.getBalance())
         this.props.dispatch(Actions.getAllowance())
+        this.props.dispatch(Actions.getChannels())
 
         // Init Watchers
         this.props.dispatch(initWatchers)

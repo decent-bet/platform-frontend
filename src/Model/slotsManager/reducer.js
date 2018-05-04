@@ -37,13 +37,13 @@ function stateChannelSubreducer(
     channelState = ChannelDefaultState,
     action = { type: null, payload: null }
 ) {
-    if (!action.payload) return { ...channelState}
+    if (!action.payload) return { ...channelState }
     let { channelId } = action.payload
 
-    if (!channelId) return { ...channelState}
+    if (!channelId) return { ...channelState }
     let channel = { ...channelState[channelId] }
-    
-    if (!channel) return { ...channelState}
+
+    if (!channel) return { ...channelState }
 
     switch (action.type) {
         case `${PREFIX}/${Actions.SET_CHANNEL_DEPOSITED}`:
@@ -111,11 +111,11 @@ export default function slotsManagerReducer(
             return { ...slotsManagerState, currentSession: action.payload }
 
         case `${PREFIX}/${Actions.BUILD_CHANNEL}/${PENDING}`:
-            return { ...slotsManagerState, isBuildingChannel: true}
+            return { ...slotsManagerState, isBuildingChannel: true }
 
         case `${PREFIX}/${Actions.BUILD_CHANNEL}/${FULFILLED}`:
             const builtChannelId = action.payload
-            return { ...slotsManagerState, builtChannelId}
+            return { ...slotsManagerState, builtChannelId }
 
         case `${PREFIX}/${Actions.SET_CHANNEL}`:
             let newChannel = action.payload
@@ -125,6 +125,12 @@ export default function slotsManagerReducer(
                     ...slotsManagerState.channels,
                     [newChannel.id]: newChannel
                 }
+            }
+
+        case `${PREFIX}/${Actions.GET_CHANNELS}/${FULFILLED}`:
+            return {
+                ...slotsManagerState,
+                channels: { ...action.payload }
             }
 
         default:

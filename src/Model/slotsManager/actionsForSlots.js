@@ -1,10 +1,10 @@
+import Bluebird from 'bluebird'
+import cryptoJs, { AES } from 'crypto-js'
 import { createActions } from 'redux-actions'
 import DecentAPI from '../../Components/Base/DecentAPI'
-import Bluebird from 'bluebird'
-import Actions, { PREFIX } from './actionTypes'
 import Helper from '../../Components/Helper'
-import cryptoJs, { AES } from 'crypto-js'
-import { getUserHashes, getAesKey } from './functions'
+import Actions, { PREFIX } from './actionTypes'
+import { getAesKey, getUserHashes } from './functions'
 
 const helper = new Helper()
 const decentApi = new DecentAPI()
@@ -151,9 +151,33 @@ async function getLastSpin(channelId) {
     }
 }
 
+/**
+ * Get all channels for a user
+ */
+async function getChannels() {
+    const contract = helper.getContractHelper().SlotsChannelManager
+    const list = await contract.getChannels()
+    const accumulator = {}
+    for (const iterator of list) {
+        const id = iterator.args.id
+        // Execute both actions in parallel
+        const data = await Bluebird.props({
+            channelDetails: getChannelDetails(id),
+            lastSpin: getLastSpin(id)
+        })
+        const result = {
+            ...data.channelDetails,
+            ...data.lastSpin
+        }
+        accumulator[id] = result
+    }
+    return accumulator
+}
+
 export default createActions({
     [PREFIX]: {
         [Actions.GET_AES_KEY]: fetchAesKey,
+        [Actions.GET_CHANNELS]: getChannels,
         [Actions.GET_CHANNEL_DETAILS]: getChannelDetails,
         [Actions.GET_LAST_SPIN]: getLastSpin,
         [Actions.NONCE_INCREASE]: channelId => ({ channelId }),

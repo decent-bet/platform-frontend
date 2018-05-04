@@ -48,15 +48,6 @@ export function watcherChannelClaimed(id, dispatch) {
 export function initWatchers(dispatch) {
     const channelManager = helper.getContractHelper().SlotsChannelManager
 
-    // Gets all the channels for the current user
-    const channelListener = channelManager
-        .logNewChannel()
-        .watch((err, event) => {
-            const channelId = event.args.id
-            dispatch(Actions.getChannelDetails(channelId))
-            dispatch(Actions.getLastSpin(channelId))
-        })
-
     // Listen for Token deposits into Chips
     const depositListener = channelManager.logDeposit().watch((err, event) => {
         if (err) {
@@ -77,7 +68,7 @@ export function initWatchers(dispatch) {
             dispatch(Actions.getBalance())
         })
 
-    listeners.push(depositListener, withdrawListener, channelListener)
+    listeners.push(depositListener, withdrawListener)
 }
 
 export function stopWatchers(dispatch) {
