@@ -294,7 +294,6 @@ export default class SlotsChannelManager extends AbstractContract {
     /**
      * Event Decoders
      */
-
     logNewChannelDecode = (log, topics) => {
         const params = [
             {

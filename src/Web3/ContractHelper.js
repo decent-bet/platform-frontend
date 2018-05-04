@@ -20,7 +20,7 @@ import EthAccounts from 'web3-eth-accounts'
 import Promise from 'bluebird'
 
 // New Contract Objects
-import SlotChannelManagerContract from './contracts/SlotChannelManagerContract'
+import SlotsChannelManagerContract from './contracts/SlotsChannelManagerContract'
 
 // Used for VSCode Type Checking
 import Web3 from 'web3' // eslint-disable-line no-unused-vars
@@ -106,7 +106,7 @@ class ContractHelper {
         }
 
         // Initialize new Contracts
-        this.SlotsChannelManager = new SlotChannelManagerContract(this.web3)
+        this.SlotsChannelManager = new SlotsChannelManagerContract(this.web3)
     }
 
     getTokenInstance = () => {
