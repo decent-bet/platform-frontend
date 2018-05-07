@@ -34,9 +34,9 @@ export default function StateChannelTable({
                 // Parse the balance from the state
                 let totalTokens = channel.info ? channel.info.initialDeposit : 0
                 if (channel.houseSpins && channel.houseSpins.length > 0) {
-                    const penultimate = channel.houseSpins.length - 1
+                    const lastIdx = channel.houseSpins.length - 1
                     const rawBalance =
-                        channel.houseSpins[penultimate].userBalance
+                        channel.houseSpins[lastIdx].userBalance
                     totalTokens = new BigNumber(rawBalance)
                 }
                 totalTokens = totalTokens.dividedBy(units.ether).toFixed(2)

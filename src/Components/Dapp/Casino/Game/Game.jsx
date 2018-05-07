@@ -190,8 +190,8 @@ export default connect((state, props) => {
         channelData.userBalance = channelData.info.initialDeposit
         channelData.houseBalance = channelData.info.initialDeposit
         if (channelData.houseSpins && channelData.nonce) {
-            let penultimate = channelData.houseSpins.length - 1
-            let lastHouseSpin = channelData.houseSpins[penultimate]
+            let lastIdx = channelData.houseSpins.length - 1
+            let lastHouseSpin = channelData.houseSpins[lastIdx]
             if (channelData.nonce !== 1) {
                 // Real Values if there has been at least a spin
                 channelData.userBalance = lastHouseSpin.userBalance
