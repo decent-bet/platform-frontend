@@ -1,7 +1,19 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { Card, CardText, CardHeader, RaisedButton } from 'material-ui'
 import { units } from 'ethereum-units'
 import BigNumber from 'bignumber.js'
+
+// The "Use" buttons are stateful. They must rememeber their channelId for it to work
+class GoToChannelButton extends Component {
+    onGoToChannelListener = () => {
+        this.props.onClick(this.props.channelId)
+    }
+
+    render() {
+        const { onClick, channelId, ...rest } = this.props
+        return <RaisedButton {...rest} onClick={this.onGoToChannelListener} />
+    }
+}
 
 export default function StateChannelTable({
     channelMap,
@@ -35,7 +47,8 @@ export default function StateChannelTable({
                         <td>{channel.channelId}</td>
                         <td>{totalTokens}</td>
                         <td>
-                            <RaisedButton
+                            <GoToChannelButton
+                                channelId={channelId}
                                 label="Use"
                                 onClick={onSelectChannelListener}
                             />
@@ -52,7 +65,7 @@ export default function StateChannelTable({
     return (
         <section>
             <Card className="card">
-                <CardHeader title="Existing Channels" />
+                <CardHeader title="Use an existing channel" />
                 <CardText>
                     <table>
                         <tbody>{array}</tbody>

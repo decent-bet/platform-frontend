@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import SlotsList from './SlotsList'
 import StateChannelBuilder from './StateChannelBuilder'
 import StateChannelWaiter from './StateChannelWaiter'
@@ -15,15 +15,20 @@ import './slots.css'
 
 class Slots extends Component {
     state = {
-        isLoadingChannels: true
+        stateMachine: 'loading',
+        currentChannel: '0x'
     }
+
     componentDidMount = () => {
         this.props.dispatch(Actions.getSessionId())
         this.props.dispatch(Actions.getBalance())
         this.props.dispatch(Actions.getAllowance())
+
+        // Get channels, and when returned, set the State Machine
+        // to the next step
         this.props.dispatch(async dispatch2 => {
             await dispatch2(Actions.getChannels())
-            this.setState({ isLoadingChannels: false })
+            this.setState({ stateMachine: 'select_channels' })
         })
 
         // Init Watchers
@@ -39,44 +44,74 @@ class Slots extends Component {
     onBuildChannelListener = amount => {
         const allowance = new BigNumber(this.props.allowance)
         const parsedAmount = new BigNumber(amount)
-        const action = Actions.buildChannel(parsedAmount, allowance)
-        this.props.dispatch(action)
+
+        // UI Update. Tell the user we are building the channel
+        this.setState({ stateMachine: 'building_game' })
+
+        // Start creating the channel, and update the state afterwards
+        this.props.dispatch(async dispatch2 => {
+            const action = Actions.buildChannel(parsedAmount, allowance)
+            const currentChannel = await dispatch2(action)
+            this.setState({ stateMachine: 'select_game', currentChannel })
+        })
     }
 
-    // SelectsAnExistingChannel
-    onSelectChannelListener = event => {
-        console.warn(event.target)
+    // Selects An Existing Channel
+    onSelectChannelListener = channelId => {
+        this.setState({
+            stateMachine: 'select_game',
+            currentChannel: channelId
+        })
     }
 
     onGoToGameroomListener = () =>
-        this.props.history.push(`/slots/${this.props.builtChannelId}`)
+        this.props.history.push(`/slots/${this.state.currentChannel}`)
+
+    renderLoadingState = () => (
+        <StateChannelWaiter builtChannelId={this.props.builtChannelId} />
+    )
+
+    renderSelectChannelsState = () => (
+        <Fragment>
+            <StateChannelTable
+                channelMap={this.props.channels}
+                onSelectChannelListener={this.onSelectChannelListener}
+            />
+            <StateChannelBuilder
+                onBuildChannelListener={this.onBuildChannelListener}
+            />
+        </Fragment>
+    )
+
+    renderSelectGame = () => (
+        <SlotsList
+            builtChannelId={this.state.currentChannel}
+            onGameSelectedListener={this.onGoToGameroomListener}
+        />
+    )
+
+    renderStateMachine = () => {
+        switch (this.state.stateMachine) {
+            case 'loading':
+                return this.renderLoadingState()
+
+            case 'select_channels':
+                return this.renderSelectChannelsState()
+
+            case 'building_game':
+                return this.renderLoadingState()
+
+            case 'select_game':
+                return this.renderSelectGame()
+
+            default:
+                return null
+        }
+    }
 
     render() {
-        const isBuilderVisible =
-            !this.props.isBuildingChannel &&
-            !this.state.isLoadingChannels &&
-            !Object.getOwnPropertyNames(this.props.channels).length > 0
         return (
-            <main className="slots container">
-                <StateChannelTable
-                    channelMap={this.props.channels}
-                    onSelectChannelListener={this.onSelectChannelListener}
-                />
-                <StateChannelBuilder
-                    onBuildChannelListener={this.onBuildChannelListener}
-                    isVisible={isBuilderVisible}
-                />
-
-                <StateChannelWaiter
-                    isBuildingChannel={this.props.isBuildingChannel}
-                    builtChannelId={this.props.builtChannelId}
-                />
-
-                <SlotsList
-                    builtChannelId={this.props.builtChannelId}
-                    onGameSelectedListener={this.onGoToGameroomListener}
-                />
-            </main>
+            <main className="slots container">{this.renderStateMachine()}</main>
         )
     }
 }

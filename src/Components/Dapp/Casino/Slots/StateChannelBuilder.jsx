@@ -14,12 +14,13 @@ export default class StateChannelBuilder extends Component {
     }
 
     render() {
-        // Only show this card if we are not loading a channel already
-        if (!this.props.isVisible) return null
         return (
             <section>
                 <Card className="card">
-                    <CardHeader title="How much you want to DBET?" />
+                    <CardHeader
+                        title="Create a new State Channel"
+                        subtitle="How much you want to DBET?"
+                    />
                     <CardActions>
                         <RaisedButton
                             primary={true}
