@@ -99,13 +99,13 @@ class DecentAPI {
      *  */
     finalizeChannel = async (id, spin, aesKey, callback) => {
         let encryptedSpin = cryptoJs.AES.encrypt(JSON.stringify(spin), aesKey).toString()
-        let url = BASE_URL + '/casino/channels/slots/' + id + '/finalize'
+        let url = '/casino/channels/slots/' + id + '/finalize'
 
         let timestamp = helper.getTimestampInMillis()
         let sign = await this._getSign(url, timestamp)
 
         let options = {
-            url: url,
+            url: BASE_URL + url,
             method: 'POST',
             headers: {
                 Authorization: JSON.stringify({

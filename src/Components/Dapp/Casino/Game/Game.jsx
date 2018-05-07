@@ -14,6 +14,7 @@ import {
 } from '../../../../Model/slotsManager'
 import { CHANNEL_STATUS_FINALIZED } from '../../../Constants'
 import { styles as Styles } from '../../../Base/styles'
+import { SHA256 } from 'crypto-js'
 
 import './game.css'
 
@@ -122,11 +123,12 @@ class Game extends Component {
                     spin.reel,
                     helper.convertToEther(5)
                 )
+                let isValid = spin.reelHash === SHA256(spin.reelSeedHash + spin.reel.toString()).toString()
                 return {
                     ...spin,
                     userHash: userHashes[userHashes.length - spin.nonce],
                     payout,
-                    isValid: true
+                    isValid: isValid
                 }
             })
             return <SpinHistory spinArray={spinArray} />
