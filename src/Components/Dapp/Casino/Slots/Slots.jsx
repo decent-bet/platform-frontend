@@ -67,8 +67,11 @@ class Slots extends Component {
     onGoToGameroomListener = () =>
         this.props.history.push(`/slots/${this.state.currentChannel}`)
 
-    renderLoadingState = () => (
-        <StateChannelWaiter builtChannelId={this.props.builtChannelId} />
+    renderLoadingState = message => (
+        <StateChannelWaiter
+            builtChannelId={this.props.builtChannelId}
+            message={message}
+        />
     )
 
     renderSelectChannelsState = () => (
@@ -93,13 +96,13 @@ class Slots extends Component {
     renderStateMachine = () => {
         switch (this.state.stateMachine) {
             case 'loading':
-                return this.renderLoadingState()
+                return this.renderLoadingState('Loading your State Channels')
 
             case 'select_channels':
                 return this.renderSelectChannelsState()
 
             case 'building_game':
-                return this.renderLoadingState()
+                return this.renderLoadingState('Building your state channel')
 
             case 'select_game':
                 return this.renderSelectGame()
