@@ -44,12 +44,13 @@ export default function StateChannelTable({
                 // Send the row
                 array.push(
                     <tr key={channelId}>
-                        <td>{channel.channelId}</td>
                         <td>{totalTokens}</td>
+                        <td>{channel.channelId}</td>
                         <td>
                             <GoToChannelButton
                                 channelId={channelId}
                                 label="Use"
+                                primary={true}
                                 onClick={onSelectChannelListener}
                             />
                         </td>
@@ -65,9 +66,16 @@ export default function StateChannelTable({
     return (
         <section>
             <Card className="card">
-                <CardHeader title="Use an existing channel" />
-                <CardText>
+                <CardHeader title="Use an existing State Channel" />
+                <CardText className="channel-table">
                     <table>
+                        <thead>
+                            <tr>
+                                <th>Deposited Tokens</th>
+                                <th>Channel Id</th>
+                                <th />
+                            </tr>
+                        </thead>
                         <tbody>{array}</tbody>
                     </table>
                 </CardText>

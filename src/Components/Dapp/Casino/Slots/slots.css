@@ -46,6 +46,14 @@
     flex: 0 auto;
 }
 
+/* Channel List Table */
+.slots .channel-table table {
+    width: 100%;
+}
+.slots .channel-table table tr > * {
+    vertical-align: middle;
+}
+
 /* Typography */
 .slots .title-container h3 {
     color: #f2b45c;
@@ -57,19 +65,4 @@
 
 .slots .slot-channel-row .slot-channel-button span {
     text-transform: capitalize !important; /* Capitalization for the flatbuttons */
-}
-
-.slots th {
-    text-transform: uppercase;
-}
-
-.slots th,
-.slots td {
-    font-family: GothamLight;
-    font-size: 12px;
-}
-
-.slots th > p,
-.slots td > p {
-    padding-top: 10px;
 }
