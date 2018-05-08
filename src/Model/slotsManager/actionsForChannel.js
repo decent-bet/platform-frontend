@@ -166,6 +166,28 @@ async function buildChannel(amount, allowance) {
     return channelId
 }
 
+/**
+ * Allows users to claim DBETs from a closed channel
+ * @param {number} channelId
+ * @param state
+ */
+async function claimChannel(channelId) {
+    const instance = helper.getContractHelper().SlotsChannelManager
+    const txHash = await instance.claim(channelId)
+    helper.toggleSnackbar('Successfully sent claim DBETs transaction')
+    return txHash
+}
+
+/**
+ * Claims chips from a channel and withdraws them from the contract
+ * @param {number} channelId 
+ */
+async function claimAndWithdrawFromChannel(channelId){
+    await claimChannel(channelId)
+    const tokensInContract = await fetchSessionBalance()
+    await withdrawChips(new BigNumber(tokensInContract))
+}
+
 // Functions of this object are the "ACTION_KEYS" "inCamelCase"
 // They are namespaced by the "Prefix" "inCamelCase".
 // Documentation https://redux-actions.js.org/docs/api/createAction.html#createactionsactionmap
@@ -187,6 +209,8 @@ export default createActions({
             channelId,
             isHouse
         }),
+        [Actions.CLAIM_AND_WITHDRAW_CHANNEL]: claimAndWithdrawFromChannel,
+        [Actions.CLAIM_CHANNEL]: claimChannel,
         [Actions.WITHDRAW_CHIPS]: withdrawChips
     }
 })

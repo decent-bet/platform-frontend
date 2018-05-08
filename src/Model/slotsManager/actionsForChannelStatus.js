@@ -55,21 +55,8 @@ async function finalizeChannel(channelId, state) {
     }
 }
 
-/**
- * Allows users to claim DBETs from a closed channel
- * @param {number} channelId
- * @param state
- */
-async function claimChannel(channelId) {
-    const instance = helper.getContractHelper().SlotsChannelManager
-    const txHash = await instance.claim(channelId)
-    helper.toggleSnackbar('Successfully sent claim DBETs transaction')
-    return txHash
-}
-
 export default createActions({
     [PREFIX]: {
-        [Actions.FINALIZE_CHANNEL]: finalizeChannel,
-        [Actions.CLAIM_CHANNEL]: claimChannel
+        [Actions.FINALIZE_CHANNEL]: finalizeChannel
     }
 })

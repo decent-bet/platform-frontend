@@ -69,7 +69,7 @@ class Game extends Component {
     }
 
     onClaimListener = () => {
-        let action = Actions.claimChannel(this.props.channelId)
+        let action = Actions.claimAndWithdrawChannel(this.props.channelId)
         this.props.dispatch(action)
     }
 
