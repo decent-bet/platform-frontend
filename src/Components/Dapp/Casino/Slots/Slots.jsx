@@ -67,7 +67,7 @@ class Slots extends Component {
 
     // Claims the tokens from a Channel
     onClaimChannelListener = channelId =>
-        this.props.dispatch(Actions.claimAndWithdrawFromChannel(channelId))
+        this.props.dispatch(Actions.claimAndWithdrawChannel(channelId))
 
     onGoToGameroomListener = () =>
         this.props.history.push(`/slots/${this.state.currentChannel}`)
