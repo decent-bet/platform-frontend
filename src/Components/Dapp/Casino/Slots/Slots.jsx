@@ -1,17 +1,56 @@
-import React, { Component, Fragment } from 'react'
-import SlotsList from './SlotsList'
-import StateChannelBuilder from './StateChannelBuilder'
-import StateChannelWaiter from './StateChannelWaiter'
-import StateChannelTable from './StateChannelTable'
 import { BigNumber } from 'bignumber.js'
+import { RaisedButton } from 'material-ui'
+import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import {
     Actions,
     initWatchers,
     stopWatchers
 } from '../../../../Model/slotsManager'
+import SlotsList from './SlotsList'
+import StateChannelBuilder from './StateChannelBuilder'
+import StateChannelTable from './StateChannelTable'
+import StateChannelWaiter from './StateChannelWaiter'
 
 import './slots.css'
+
+/**
+ * The "Use" buttons are stateful. They must rememeber their channelId for it to work
+ */
+class GoToChannelButton extends Component {
+    onGoToChannelListener = () => {
+        this.props.onClick(this.props.channelId)
+    }
+
+    render() {
+        const { onClick, channelId, isEnabled, ...rest } = this.props
+        return (
+            <RaisedButton
+                {...rest}
+                onClick={this.onGoToChannelListener}
+                disabled={!isEnabled}
+            />
+        )
+    }
+}
+
+/**
+ * The "Claim" buttons are stateful. They must rememeber their channelId for it to work
+ */
+class ClaimChannelButton extends Component {
+    onClaimChannelListener = () => this.props.onClick(this.props.channelId)
+
+    render() {
+        const { onClick, channelId, isEnabled, ...rest } = this.props
+        return (
+            <RaisedButton
+                {...rest}
+                onClick={this.onClaimChannelListener}
+                disabled={!isEnabled}
+            />
+        )
+    }
+}
 
 class Slots extends Component {
     state = {
@@ -64,8 +103,34 @@ class Slots extends Component {
         })
     }
 
+    // Claims the tokens from a Channel
+    onClaimChannelListener = channelId =>
+        this.props.dispatch(Actions.claimAndWithdrawFromChannel(channelId))
+
     onGoToGameroomListener = () =>
         this.props.history.push(`/slots/${this.state.currentChannel}`)
+
+    /**
+     * Renders the buttons for each State Channel Row in the Table
+     */
+    renderStateChannelToolbar = channel => (
+        <Fragment>
+            <GoToChannelButton
+                channelId={channel.channelId}
+                label="Use"
+                primary={true}
+                onClick={this.onSelectChannelListener}
+                isEnabled={!channel.info.finalized}
+            />
+            <ClaimChannelButton
+                channelId={channel.channelId}
+                label="Claim Tokens"
+                primary={true}
+                onClick={this.onClaimChannelListener}
+                isEnabled={channel.info.finalized}
+            />
+        </Fragment>
+    )
 
     renderLoadingState = message => (
         <StateChannelWaiter
@@ -76,10 +141,12 @@ class Slots extends Component {
 
     renderSelectChannelsState = () => (
         <Fragment>
-            <StateChannelTable
-                channelMap={this.props.channels}
-                onSelectChannelListener={this.onSelectChannelListener}
-            />
+            <StateChannelTable channelMap={this.props.channels}>
+                {
+                    // Function as a child. Receives `channel`
+                    this.renderStateChannelToolbar
+                }
+            </StateChannelTable>
             <StateChannelBuilder
                 onBuildChannelListener={this.onBuildChannelListener}
             />

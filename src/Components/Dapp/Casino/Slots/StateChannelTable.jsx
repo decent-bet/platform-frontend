@@ -1,24 +1,19 @@
-import React, { Component } from 'react'
-import { Card, CardText, CardHeader, RaisedButton } from 'material-ui'
+import React from 'react'
+import { Card, CardText, CardHeader } from 'material-ui'
 import { units } from 'ethereum-units'
 import BigNumber from 'bignumber.js'
 
-// The "Use" buttons are stateful. They must rememeber their channelId for it to work
-class GoToChannelButton extends Component {
-    onGoToChannelListener = () => {
-        this.props.onClick(this.props.channelId)
+function channelBalanceParser(channel) {
+    let totalTokens = channel.info ? channel.info.initialDeposit : 0
+    if (channel.houseSpins && channel.houseSpins.length > 0) {
+        const lastIdx = channel.houseSpins.length - 1
+        const rawBalance = channel.houseSpins[lastIdx].userBalance
+        totalTokens = new BigNumber(rawBalance)
     }
-
-    render() {
-        const { onClick, channelId, ...rest } = this.props
-        return <RaisedButton {...rest} onClick={this.onGoToChannelListener} />
-    }
+    return totalTokens.dividedBy(units.ether).toFixed(2)
 }
 
-export default function StateChannelTable({
-    channelMap,
-    onSelectChannelListener
-}) {
+export default function StateChannelTable({ channelMap, children }) {
     // List all existing channels for this user
     const array = []
     for (const channelId in channelMap) {
@@ -29,30 +24,17 @@ export default function StateChannelTable({
             if (
                 channel.info.ready &&
                 channel.info.activated &&
-                !channel.info.finalized
+                !channel.info.claimed
             ) {
                 // Parse the balance from the state
-                let totalTokens = channel.info ? channel.info.initialDeposit : 0
-                if (channel.houseSpins && channel.houseSpins.length > 0) {
-                    const lastIdx = channel.houseSpins.length - 1
-                    const rawBalance = channel.houseSpins[lastIdx].userBalance
-                    totalTokens = new BigNumber(rawBalance)
-                }
-                totalTokens = totalTokens.dividedBy(units.ether).toFixed(2)
+                let totalTokens = channelBalanceParser(channel)
 
                 // Send the row
                 array.push(
                     <tr key={channelId}>
                         <td>{totalTokens}</td>
                         <td>{channel.channelId}</td>
-                        <td>
-                            <GoToChannelButton
-                                channelId={channelId}
-                                label="Use"
-                                primary={true}
-                                onClick={onSelectChannelListener}
-                            />
-                        </td>
+                        <td>{children(channel)}</td>
                     </tr>
                 )
             }
