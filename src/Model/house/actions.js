@@ -70,18 +70,19 @@ async function fetchHouseFunds(sessionNumber) {
 async function fetchSessionData() {
     try {
         let sessionId = await fetchCurrentSessionId()
+        let adjustedSessionId = sessionId === '0' ? 1 : sessionId
         let session = await helper
             .getContractHelper()
             .getWrappers()
             .house()
-            .getSession(sessionId)
+            .getSession(adjustedSessionId)
 
-        let sessionCredits = await fetchUserCreditsForSession(sessionId)
-        let houseFunds = await fetchHouseFunds(sessionId)
-        let lottery = await fetchLottery(sessionId)
+        let sessionCredits = await fetchUserCreditsForSession(adjustedSessionId)
+        let houseFunds = await fetchHouseFunds(adjustedSessionId)
+        let lottery = await fetchLottery(adjustedSessionId)
 
         return {
-            [sessionId]: {
+            [adjustedSessionId]: {
                 startTime: session[0].toFixed(0),
                 endTime: session[1].toFixed(0),
                 active: session[2],
@@ -98,6 +99,7 @@ async function fetchSessionData() {
 /**
  * Returns ticket numbers for a session lottery for the session
  * @param session
+ * @param address
  */
 async function fetchLotteryUserTickets(session, address) {
     let iterate = true
@@ -117,6 +119,11 @@ async function fetchLotteryUserTickets(session, address) {
             iterate = false
         }
     }
+
+    array = array.map((ticket) => {
+        return ticket.toNumber()
+    })
+
     return array
 }
 
@@ -156,6 +163,7 @@ async function fetchAuthorizedAddresses() {
     let result = []
     while (iterate) {
         try {
+            console.log('fetchAuthorizedAddresses')
             let address = await helper
                 .getContractHelper()
                 .getWrappers()

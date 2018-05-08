@@ -8,11 +8,12 @@ export default function HouseStats({
     authorizedAddresses,
     availableCredits
 }) {
+    const SESSION_ZERO_MESSAGE = '(Displaying stats for session 1)'
     return (
         <Fragment>
             <Card className="hvr-float" style={styles.card}>
                 <CardHeader title="Current Session" />
-                <CardText>{currentSession}</CardText>
+                <CardText>{currentSession} {currentSession === '0' && SESSION_ZERO_MESSAGE}</CardText>
             </Card>
             <Card className="hvr-float" style={styles.card}>
                 <CardHeader title="Authorized Addresses" />
