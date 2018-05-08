@@ -35,8 +35,7 @@ export default function StateChannelTable({
                 let totalTokens = channel.info ? channel.info.initialDeposit : 0
                 if (channel.houseSpins && channel.houseSpins.length > 0) {
                     const lastIdx = channel.houseSpins.length - 1
-                    const rawBalance =
-                        channel.houseSpins[lastIdx].userBalance
+                    const rawBalance = channel.houseSpins[lastIdx].userBalance
                     totalTokens = new BigNumber(rawBalance)
                 }
                 totalTokens = totalTokens.dividedBy(units.ether).toFixed(2)
@@ -64,22 +63,20 @@ export default function StateChannelTable({
     if (array.length <= 0) return null
 
     return (
-        <section>
-            <Card className="card">
-                <CardHeader title="Use an existing State Channel" />
-                <CardText className="channel-table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Deposited Tokens</th>
-                                <th>Channel Id</th>
-                                <th />
-                            </tr>
-                        </thead>
-                        <tbody>{array}</tbody>
-                    </table>
-                </CardText>
-            </Card>
-        </section>
+        <Card className="card">
+            <CardHeader title="Use an existing State Channel" />
+            <CardText className="channel-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Deposited Tokens</th>
+                            <th>Channel Id</th>
+                            <th />
+                        </tr>
+                    </thead>
+                    <tbody>{array}</tbody>
+                </table>
+            </CardText>
+        </Card>
     )
 }

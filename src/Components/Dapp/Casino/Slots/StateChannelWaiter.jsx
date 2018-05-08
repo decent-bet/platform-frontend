@@ -7,13 +7,11 @@ export default function StateChannelWaiter({
     message = 'Building your state channel'
 }) {
     return (
-        <section>
-            <Card className="card">
-                <CardHeader title="Please wait" subtitle={message} />
-                <CardText className="progress-text">
-                    <FontAwesomeIcon icon="cog" spin className="fa-5x" />
-                </CardText>
-            </Card>
-        </section>
+        <Card className="card">
+            <CardHeader title="Please wait" subtitle={message} />
+            <CardText className="progress-text">
+                <FontAwesomeIcon icon="cog" spin className="fa-5x" />
+            </CardText>
+        </Card>
     )
 }

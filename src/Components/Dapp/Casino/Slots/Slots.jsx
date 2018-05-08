@@ -86,12 +86,15 @@ class Slots extends Component {
         </Fragment>
     )
 
-    renderSelectGame = () => (
-        <SlotsList
-            builtChannelId={this.state.currentChannel}
-            onGameSelectedListener={this.onGoToGameroomListener}
-        />
-    )
+    renderSelectGame = () => {
+        const stateChannel = this.props.channels[this.state.currentChannel]
+        return (
+            <SlotsList
+                stateChannel={stateChannel}
+                onGameSelectedListener={this.onGoToGameroomListener}
+            />
+        )
+    }
 
     renderStateMachine = () => {
         switch (this.state.stateMachine) {
