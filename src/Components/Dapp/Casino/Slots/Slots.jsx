@@ -1,5 +1,4 @@
 import { BigNumber } from 'bignumber.js'
-import { RaisedButton } from 'material-ui'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import {
@@ -10,47 +9,10 @@ import {
 import SlotsList from './SlotsList'
 import StateChannelBuilder from './StateChannelBuilder'
 import StateChannelTable from './StateChannelTable'
+import StateChannelToolbar from './StateChannelToolbar'
 import StateChannelWaiter from './StateChannelWaiter'
 
 import './slots.css'
-
-/**
- * The "Use" buttons are stateful. They must rememeber their channelId for it to work
- */
-class GoToChannelButton extends Component {
-    onGoToChannelListener = () => {
-        this.props.onClick(this.props.channelId)
-    }
-
-    render() {
-        const { onClick, channelId, isEnabled, ...rest } = this.props
-        return (
-            <RaisedButton
-                {...rest}
-                onClick={this.onGoToChannelListener}
-                disabled={!isEnabled}
-            />
-        )
-    }
-}
-
-/**
- * The "Claim" buttons are stateful. They must rememeber their channelId for it to work
- */
-class ClaimChannelButton extends Component {
-    onClaimChannelListener = () => this.props.onClick(this.props.channelId)
-
-    render() {
-        const { onClick, channelId, isEnabled, ...rest } = this.props
-        return (
-            <RaisedButton
-                {...rest}
-                onClick={this.onClaimChannelListener}
-                disabled={!isEnabled}
-            />
-        )
-    }
-}
 
 class Slots extends Component {
     state = {
@@ -114,22 +76,11 @@ class Slots extends Component {
      * Renders the buttons for each State Channel Row in the Table
      */
     renderStateChannelToolbar = channel => (
-        <Fragment>
-            <GoToChannelButton
-                channelId={channel.channelId}
-                label="Use"
-                primary={true}
-                onClick={this.onSelectChannelListener}
-                isEnabled={!channel.info.finalized}
-            />
-            <ClaimChannelButton
-                channelId={channel.channelId}
-                label="Claim Tokens"
-                primary={true}
-                onClick={this.onClaimChannelListener}
-                isEnabled={channel.info.finalized}
-            />
-        </Fragment>
+        <StateChannelToolbar
+            channel={channel}
+            onSelectChannelListener={this.onSelectChannelListener}
+            onClaimChannelListener={this.onClaimChannelListener}
+        />
     )
 
     renderLoadingState = message => (
