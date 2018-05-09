@@ -9,6 +9,7 @@ import SpinHistory from './SpinHistory'
 import {
     Actions,
     SlotsChannelHandler,
+    Thunks,
     watcherChannelClaimed,
     watcherChannelFinalized
 } from '../../../../Model/slotsManager'
@@ -70,8 +71,8 @@ class Game extends Component {
     }
 
     onClaimListener = () => {
-        let action = Actions.claimAndWithdrawChannel(this.props.channelId)
-        this.props.dispatch(action)
+        const thunk = Thunks.claimAndWithdrawFromChannel(this.props.channelId)
+        this.props.dispatch(thunk)
     }
 
     renderGame = () => {
