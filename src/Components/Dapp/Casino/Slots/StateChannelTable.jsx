@@ -1,17 +1,6 @@
 import React from 'react'
 import { Card, CardText, CardHeader } from 'material-ui'
-import { units } from 'ethereum-units'
-import BigNumber from 'bignumber.js'
-
-function channelBalanceParser(channel) {
-    let totalTokens = channel.info ? channel.info.initialDeposit : 0
-    if (channel.houseSpins && channel.houseSpins.length > 0) {
-        const lastIdx = channel.houseSpins.length - 1
-        const rawBalance = channel.houseSpins[lastIdx].userBalance
-        totalTokens = new BigNumber(rawBalance)
-    }
-    return totalTokens.dividedBy(units.ether).toFixed(2)
-}
+import { channelBalanceParser, isChannelClaimed } from '../functions'
 
 export default function StateChannelTable({ channelMap, children }) {
     // List all existing channels for this user
@@ -19,10 +8,7 @@ export default function StateChannelTable({ channelMap, children }) {
     for (const channelId in channelMap) {
         if (channelMap.hasOwnProperty(channelId)) {
             const channel = channelMap[channelId]
-
-            const isClaimed =
-                channel.info.finalized &&
-                channel.deposited.isLessThanOrEqualTo(0)
+            const isClaimed = isChannelClaimed(channel)
 
             // Is channel still usable?
             if (channel.info.ready && channel.info.activated && !isClaimed) {

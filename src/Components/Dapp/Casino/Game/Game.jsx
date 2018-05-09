@@ -15,6 +15,7 @@ import {
 import { CHANNEL_STATUS_FINALIZED } from '../../../Constants'
 import { styles as Styles } from '../../../Base/styles'
 import { SHA256 } from 'crypto-js'
+import { isChannelClaimed } from '../functions'
 
 import './game.css'
 
@@ -175,9 +176,7 @@ export default connect((state, props) => {
     channelData.channelId = props.match.params.id
 
     // Shortcuts for the Channel State
-    channelData.isClaimed = channelData.claimed
-        ? channelData.claimed[false]
-        : false
+    channelData.isClaimed = isChannelClaimed(channelData)
     channelData.isFinalized = channelData.status === CHANNEL_STATUS_FINALIZED
 
     // Get the Balances for the House and the user. Set them as 'initialDeposit' if nothing is found
