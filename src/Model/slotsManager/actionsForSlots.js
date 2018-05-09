@@ -152,23 +152,35 @@ async function getLastSpin(channelId) {
 }
 
 /**
+ * Gets a single channel's data
+ * @param {string} channelId 
+ */
+async function getChannel(channelId){
+    // Execute both actions in parallel
+    const data = await Bluebird.props({
+        channelDetails: getChannelDetails(channelId),
+        lastSpin: getLastSpin(channelId)
+    })
+    return {
+        ...data.channelDetails,
+        ...data.lastSpin
+    }
+}
+
+/**
  * Get all channels for a user
  */
 async function getChannels() {
     const contract = helper.getContractHelper().SlotsChannelManager
+
+    //Query a list of all channel ids
     const list = await contract.getChannels()
     const accumulator = {}
     for (const iterator of list) {
+
+        // Query every channel and accumulate it
         const id = iterator.args.id
-        // Execute both actions in parallel
-        const data = await Bluebird.props({
-            channelDetails: getChannelDetails(id),
-            lastSpin: getLastSpin(id)
-        })
-        const result = {
-            ...data.channelDetails,
-            ...data.lastSpin
-        }
+        const result = await getChannel(id)
         accumulator[id] = result
     }
     return accumulator
@@ -177,6 +189,7 @@ async function getChannels() {
 export default createActions({
     [PREFIX]: {
         [Actions.GET_AES_KEY]: fetchAesKey,
+        [Actions.GET_CHANNEL]: getChannel,
         [Actions.GET_CHANNELS]: getChannels,
         [Actions.GET_CHANNEL_DETAILS]: getChannelDetails,
         [Actions.GET_LAST_SPIN]: getLastSpin,

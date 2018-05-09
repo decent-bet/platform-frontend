@@ -51,9 +51,18 @@ class Slots extends Component {
 
         // Start creating the channel, and update the state afterwards
         this.props.dispatch(async dispatch2 => {
+            // Build the channel
             const action = Actions.buildChannel(parsedAmount, allowance)
-            const currentChannel = await dispatch2(action)
-            this.setState({ stateMachine: 'select_game', currentChannel })
+            const response = await dispatch2(action)
+
+            // Query the channel's data and add it to the redux state
+            await dispatch2(Actions.getChannel(response.value))
+
+            // Update UI
+            this.setState({
+                stateMachine: 'select_game',
+                currentChannel: response.value
+            })
         })
     }
 

@@ -41,9 +41,14 @@ function stateChannelSubreducer(
     if (!channelId) return { ...channelState }
     let channel = { ...channelState[channelId] }
 
-    if (!channel) return { ...channelState }
+    if (!channel) channel = {}
 
     switch (action.type) {
+
+        case `${PREFIX}/${Actions.GET_CHANNEL}/${FULFILLED}`:
+            channel = action.payload
+            break
+
         case `${PREFIX}/${Actions.SET_CHANNEL_DEPOSITED}`:
             if (
                 channel.status !== CHANNEL_STATUS_ACTIVATED &&
