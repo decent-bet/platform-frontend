@@ -1,4 +1,4 @@
-import Actions, { PREFIX } from './actionTypes'
+import Actions, { PREFIX } from './actions/actionTypes'
 import { FULFILLED } from 'redux-promise-middleware'
 import {
     CHANNEL_STATUS_ACTIVATED,

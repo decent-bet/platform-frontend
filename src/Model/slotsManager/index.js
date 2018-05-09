@@ -1,19 +1,15 @@
-import actionsForChannel from './actionsForChannel'
-import actionsForSlots from './actionsForSlots'
-import actionsForChannelStatus from './actionsForChannelStatus'
-import reducer from './reducer'
+import Reducer from './reducer'
+import Actions from './actions'
 import Helper from '../../Components/Helper'
-import slotsChannelHandler from './SlotsChannelHandler'
+import SlotsChannelHandler from './SlotsChannelHandler'
+
+export {
+    Actions,
+    Reducer,
+    SlotsChannelHandler
+}
 
 const helper = new Helper()
-
-export const Actions = {
-    ...actionsForChannel.slotManager,
-    ...actionsForSlots.slotManager,
-    ...actionsForChannelStatus.slotManager
-}
-export const Reducer = reducer
-export const SlotsChannelHandler = slotsChannelHandler
 
 // Watcher that monitors channel finalization
 export function watcherChannelFinalized(id, dispatch) {

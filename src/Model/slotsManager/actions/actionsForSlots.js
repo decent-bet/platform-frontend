@@ -1,10 +1,10 @@
 import Bluebird from 'bluebird'
 import cryptoJs, { AES } from 'crypto-js'
 import { createActions } from 'redux-actions'
-import DecentAPI from '../../Components/Base/DecentAPI'
-import Helper from '../../Components/Helper'
+import DecentAPI from '../../../Components/Base/DecentAPI'
+import Helper from '../../../Components/Helper'
 import Actions, { PREFIX } from './actionTypes'
-import { getAesKey, getUserHashes } from './functions'
+import { getAesKey, getUserHashes } from '../functions'
 import BigNumber from 'bignumber.js'
 
 const helper = new Helper()

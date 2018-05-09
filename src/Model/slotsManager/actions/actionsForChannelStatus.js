@@ -1,9 +1,9 @@
 import { createActions } from 'redux-actions'
-import DecentAPI from '../../Components/Base/DecentAPI'
+import DecentAPI from '../../../Components/Base/DecentAPI'
 import Bluebird from 'bluebird'
 import Actions, { PREFIX } from './actionTypes'
-import Helper from '../../Components/Helper'
-import { getSpin } from './functions'
+import Helper from '../../../Components/Helper'
+import { getSpin } from '../functions'
 
 const helper = new Helper()
 const decentApi = new DecentAPI()

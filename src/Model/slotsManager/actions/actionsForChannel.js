@@ -1,7 +1,7 @@
 import Actions, { PREFIX } from './actionTypes'
 import { createActions } from 'redux-actions'
-import Helper from '../../Components/Helper'
-import { getChannelDepositParams } from './functions'
+import Helper from '../../../Components/Helper'
+import { getChannelDepositParams } from '../functions'
 
 // Used for VSCode Code Completion
 import BigNumber from 'bignumber.js' // eslint-disable-line no-unused-vars
