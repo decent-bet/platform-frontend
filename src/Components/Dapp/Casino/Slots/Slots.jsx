@@ -1,11 +1,7 @@
 import { BigNumber } from 'bignumber.js'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
-import {
-    Actions,
-    initWatchers,
-    stopWatchers
-} from '../../../../Model/slotsManager'
+import { Actions } from '../../../../Model/slotsManager'
 import SlotsList from './SlotsList'
 import StateChannelBuilder from './StateChannelBuilder'
 import StateChannelTable from './StateChannelTable'
@@ -25,20 +21,17 @@ class Slots extends Component {
         this.props.dispatch(Actions.getBalance())
         this.props.dispatch(Actions.getAllowance())
 
+        this.refreshChannels()
+    }
+
+    refreshChannels = () => {
         // Get channels, and when returned, set the State Machine
         // to the next step
+        this.setState({ stateMachine: 'loading' })
         this.props.dispatch(async dispatch2 => {
             await dispatch2(Actions.getChannels())
             this.setState({ stateMachine: 'select_channels' })
         })
-
-        // Init Watchers
-        this.props.dispatch(initWatchers)
-    }
-
-    componentWillUnmount = () => {
-        // Stop watchers
-        this.props.dispatch(stopWatchers)
     }
 
     // Builds the entire State Channel in one Step
@@ -76,7 +69,15 @@ class Slots extends Component {
 
     // Claims the tokens from a Channel
     onClaimChannelListener = channelId =>
-        this.props.dispatch(Actions.claimAndWithdrawChannel(channelId))
+        this.props.dispatch(async dispatch2 => {
+            // Claim the channel, check token total in the contract, and withdraw tokens
+            await dispatch2(Actions.claimChannel(channelId))
+            const tokensInContract = await dispatch2(Actions.getBalance())
+            await dispatch2(Actions.withdrawChips(tokensInContract.value))
+
+            // Refresh UI
+            this.refreshChannels()
+        })
 
     onGoToGameroomListener = () =>
         this.props.history.push(`/slots/${this.state.currentChannel}`)

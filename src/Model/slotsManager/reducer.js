@@ -25,6 +25,7 @@ const ChannelDefaultState = {
     lastSpinLoaded: false,
     finalized: false,
     closed: false,
+    deposited: 0,
     claimed: {
         [true]: false,
         [false]: false

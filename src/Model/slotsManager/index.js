@@ -15,8 +15,6 @@ export const Actions = {
 export const Reducer = reducer
 export const SlotsChannelHandler = slotsChannelHandler
 
-const listeners = []
-
 // Watcher that monitors channel finalization
 export function watcherChannelFinalized(id, dispatch) {
     const instance = helper.getContractHelper().SlotsChannelManager
@@ -43,38 +41,4 @@ export function watcherChannelClaimed(id, dispatch) {
         let isHouse = event.args.isHouse
         dispatch(Actions.setChannelClaimed(_id, isHouse))
     })
-}
-
-export function initWatchers(dispatch) {
-    const channelManager = helper.getContractHelper().SlotsChannelManager
-
-    // Listen for Token deposits into Chips
-    const depositListener = channelManager.logDeposit().watch((err, event) => {
-        if (err) {
-            console.log('Deposit event error', err)
-            return
-        }
-        dispatch(Actions.getBalance())
-    })
-
-    // Listen for Chip withdrawal into Tokens
-    const withdrawListener = channelManager
-        .logWithdraw()
-        .watch((err, event) => {
-            if (err) {
-                console.log('Withdraw event error', err)
-                return
-            }
-            dispatch(Actions.getBalance())
-        })
-
-    listeners.push(depositListener, withdrawListener)
-}
-
-export function stopWatchers(dispatch) {
-    try {
-        for (const listener of listeners) {
-            listener.requestManager.stopPolling()
-        }
-    } catch (error) {}
 }

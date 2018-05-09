@@ -5,6 +5,7 @@ import DecentAPI from '../../Components/Base/DecentAPI'
 import Helper from '../../Components/Helper'
 import Actions, { PREFIX } from './actionTypes'
 import { getAesKey, getUserHashes } from './functions'
+import BigNumber from 'bignumber.js'
 
 const helper = new Helper()
 const decentApi = new DecentAPI()
@@ -81,12 +82,19 @@ async function getChannelHashes(id) {
     }
 }
 
+async function getDeposited(channelId, isHouse = false) {
+    const instance = helper.getContractHelper().SlotsChannelManager
+    const rawBalance = await instance.channelDeposits(channelId, isHouse)
+    return new BigNumber(rawBalance)
+}
+
 /**
  * Get info and hashes required to interact with an active channel
  * @param id
  */
 async function getChannelDetails(id) {
     return Bluebird.props({
+        deposited: getDeposited(id),
         channelId: id,
         info: getChannelInfo(id),
         houseAuthorizedAddress: getAuthorizedAddress(id),
@@ -153,9 +161,9 @@ async function getLastSpin(channelId) {
 
 /**
  * Gets a single channel's data
- * @param {string} channelId 
+ * @param {string} channelId
  */
-async function getChannel(channelId){
+async function getChannel(channelId) {
     // Execute both actions in parallel
     const data = await Bluebird.props({
         channelDetails: getChannelDetails(channelId),
@@ -177,7 +185,6 @@ async function getChannels() {
     const list = await contract.getChannels()
     const accumulator = {}
     for (const iterator of list) {
-
         // Query every channel and accumulate it
         const id = iterator.args.id
         const result = await getChannel(id)

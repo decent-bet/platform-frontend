@@ -20,12 +20,12 @@ export default function StateChannelTable({ channelMap, children }) {
         if (channelMap.hasOwnProperty(channelId)) {
             const channel = channelMap[channelId]
 
+            const isClaimed =
+                channel.info.finalized &&
+                channel.deposited.isLessThanOrEqualTo(0)
+
             // Is channel still usable?
-            if (
-                channel.info.ready &&
-                channel.info.activated &&
-                !channel.info.claimed
-            ) {
+            if (channel.info.ready && channel.info.activated && !isClaimed) {
                 // Parse the balance from the state
                 let totalTokens = channelBalanceParser(channel)
 
