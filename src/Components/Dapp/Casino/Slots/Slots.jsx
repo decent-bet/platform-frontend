@@ -40,30 +40,20 @@ class Slots extends Component {
         const allowance = new BigNumber(this.props.allowance)
         const parsedAmount = new BigNumber(amount)
 
-        // UI Update. Tell the user we are building the channel
+        // Update UI. Tell the user we are building the channel
         this.setState({ stateMachine: 'building_game' })
 
-        // Start creating the channel, and update the state afterwards
-        const action = Actions.buildChannel(parsedAmount, allowance)
-        const response = await this.props.dispatch(action)
-
-        // Query the channel's data and add it to the redux state
-        await this.props.dispatch(Actions.getChannel(response.value))
+        // Create the channel
+        const thunk = Thunks.buildChannel(parsedAmount, allowance)
+        const currentChannel = await this.props.dispatch(thunk)
 
         // Update UI
-        this.setState({
-            stateMachine: 'select_game',
-            currentChannel: response.value
-        })
+        this.setState({ stateMachine: 'select_game', currentChannel })
     }
 
     // Selects An Existing Channel
-    onSelectChannelListener = channelId => {
-        this.setState({
-            stateMachine: 'select_game',
-            currentChannel: channelId
-        })
-    }
+    onSelectChannelListener = currentChannel =>
+        this.setState({ stateMachine: 'select_game', currentChannel })
 
     // Claims the tokens from a Channel
     onClaimChannelListener = async channelId => {

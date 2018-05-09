@@ -3,9 +3,6 @@ import { createActions } from 'redux-actions'
 import Helper from '../../../Components/Helper'
 import { getChannelDepositParams } from '../functions'
 
-// Used for VSCode Code Completion
-import BigNumber from 'bignumber.js' // eslint-disable-line no-unused-vars
-
 const helper = new Helper()
 
 // Get the allowance
@@ -58,8 +55,17 @@ async function createChannel(deposit) {
     try {
         const instance = helper.getContractHelper().SlotsChannelManager
         const tx = await instance.createChannel(deposit)
+
+        // Get the ChannelId
+        const results = tx.logs[0]
+        const eventResults = instance.logNewChannelDecode(
+            results.data,
+            results.topics
+        )
+        const channelId = eventResults.id
+
         helper.toggleSnackbar('Successfully sent create channel transaction')
-        return tx
+        return channelId
     } catch (err) {
         console.log('Error creating new channel', err.message)
     }
@@ -67,9 +73,8 @@ async function createChannel(deposit) {
 
 // Send a deposit transaction to channel
 async function depositToChannel(id) {
-    let params = await getChannelDepositParams(id)
-    let { initialUserNumber, finalUserHash } = params
-
+    const params = await getChannelDepositParams(id)
+    const { initialUserNumber, finalUserHash } = params
     try {
         const instance = helper.getContractHelper().SlotsChannelManager
         const tx = await instance.depositToChannel(
@@ -88,17 +93,16 @@ async function depositToChannel(id) {
 
 // Increase allowance and then deposit new Chips
 async function approveAndDepositChips(amount) {
+    const contractHelper = helper.getContractHelper()
+    const contractAddress = contractHelper.SlotsChannelManager.instance.address
     try {
-        const contractHelper = helper.getContractHelper()
-        const contractAddress =
-            contractHelper.SlotsChannelManager.instance.address
-        const tx = await contractHelper
+        const tx1 = await contractHelper
             .getWrappers()
             .token()
             .approve(contractAddress, amount)
         const tx2 = await depositChips(amount)
         helper.toggleSnackbar('Successfully sent approve transaction')
-        return [tx, tx2]
+        return [tx1, tx2]
     } catch (err) {
         console.log('Error sending approve tx', err.message)
     }
@@ -106,8 +110,8 @@ async function approveAndDepositChips(amount) {
 
 // Deposit new Chips, sourced from wallet's tokens
 async function depositChips(amount) {
+    const instance = helper.getContractHelper().SlotsChannelManager
     try {
-        const instance = helper.getContractHelper().SlotsChannelManager
         const tx = await instance.deposit(amount)
         helper.toggleSnackbar('Successfully sent deposit transaction')
         return tx
@@ -127,43 +131,6 @@ async function withdrawChips(amount) {
     } catch (err) {
         console.log('Error sending withdraw tx', err.message)
     }
-}
-
-/**
- * Builds a Statechannel in a single step
- * @param {BigNumber} amount
- * @param {BigNumber} allowance
- */
-async function buildChannel(amount, allowance) {
-    const contractHelper = helper.getContractHelper()
-    const contract = contractHelper.SlotsChannelManager
-    const contractAddress = contract.instance.address
-
-    // Approve Tokens if it needs more allowance
-    if (allowance.isLessThan(amount)) {
-        await contractHelper
-            .getWrappers()
-            .token()
-            .approve(contractAddress, amount)
-    }
-
-    // Deposit Tokens into Chips
-    await contract.deposit(amount)
-
-    // Create Channel
-    const newChannel = await contract.createChannel(amount)
-
-    const results = newChannel.logs[0]
-    const eventResults = contract.logNewChannelDecode(
-        results.data,
-        results.topics
-    )
-    const channelId = eventResults.id
-
-    // Deposit Tokens to channel
-    await depositToChannel(channelId)
-
-    return channelId
 }
 
 /**
@@ -191,7 +158,6 @@ export default createActions({
         [Actions.GET_BALANCE]: fetchSessionBalance,
         [Actions.GET_SESSION_ID]: fetchSessionId,
         [Actions.SET_CHANNEL]: channel => channel,
-        [Actions.BUILD_CHANNEL]: buildChannel,
         [Actions.SET_CHANNEL_DEPOSITED]: channelId => ({ channelId }),
         [Actions.SET_CHANNEL_ACTIVATED]: channelId => ({ channelId }),
         [Actions.SET_CHANNEL_FINALIZED]: channelId => ({ channelId }),
