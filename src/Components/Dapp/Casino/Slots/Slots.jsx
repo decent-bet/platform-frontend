@@ -1,7 +1,7 @@
 import { BigNumber } from 'bignumber.js'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
-import { Actions } from '../../../../Model/slotsManager'
+import { Actions, Thunks } from '../../../../Model/slotsManager'
 import SlotsList from './SlotsList'
 import StateChannelBuilder from './StateChannelBuilder'
 import StateChannelTable from './StateChannelTable'
@@ -24,18 +24,19 @@ class Slots extends Component {
         this.refreshChannels()
     }
 
-    refreshChannels = () => {
-        // Get channels, and when returned, set the State Machine
-        // to the next step
+    refreshChannels = async () => {
+        // UI Update
         this.setState({ stateMachine: 'loading' })
-        this.props.dispatch(async dispatch2 => {
-            await dispatch2(Actions.getChannels())
-            this.setState({ stateMachine: 'select_channels' })
-        })
+
+        // Get channels and wait
+        await this.props.dispatch(Actions.getChannels())
+
+        // UI Update
+        this.setState({ stateMachine: 'select_channels' })
     }
 
     // Builds the entire State Channel in one Step
-    onBuildChannelListener = amount => {
+    onBuildChannelListener = async amount => {
         const allowance = new BigNumber(this.props.allowance)
         const parsedAmount = new BigNumber(amount)
 
@@ -43,19 +44,16 @@ class Slots extends Component {
         this.setState({ stateMachine: 'building_game' })
 
         // Start creating the channel, and update the state afterwards
-        this.props.dispatch(async dispatch2 => {
-            // Build the channel
-            const action = Actions.buildChannel(parsedAmount, allowance)
-            const response = await dispatch2(action)
+        const action = Actions.buildChannel(parsedAmount, allowance)
+        const response = await this.props.dispatch(action)
 
-            // Query the channel's data and add it to the redux state
-            await dispatch2(Actions.getChannel(response.value))
+        // Query the channel's data and add it to the redux state
+        await this.props.dispatch(Actions.getChannel(response.value))
 
-            // Update UI
-            this.setState({
-                stateMachine: 'select_game',
-                currentChannel: response.value
-            })
+        // Update UI
+        this.setState({
+            stateMachine: 'select_game',
+            currentChannel: response.value
         })
     }
 
@@ -68,16 +66,12 @@ class Slots extends Component {
     }
 
     // Claims the tokens from a Channel
-    onClaimChannelListener = channelId =>
-        this.props.dispatch(async dispatch2 => {
-            // Claim the channel, check token total in the contract, and withdraw tokens
-            await dispatch2(Actions.claimChannel(channelId))
-            const tokensInContract = await dispatch2(Actions.getBalance())
-            await dispatch2(Actions.withdrawChips(tokensInContract.value))
+    onClaimChannelListener = async channelId => {
+        await this.props.dispatch(Thunks.claimAndWithdrawFromChannel(channelId))
 
-            // Refresh UI
-            this.refreshChannels()
-        })
+        // Refresh UI
+        this.refreshChannels()
+    }
 
     onGoToGameroomListener = () =>
         this.props.history.push(`/slots/${this.state.currentChannel}`)
