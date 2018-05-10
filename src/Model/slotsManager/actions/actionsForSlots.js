@@ -6,6 +6,7 @@ import Helper from '../../../Components/Helper'
 import Actions, { PREFIX } from './actionTypes'
 import { getAesKey, getUserHashes } from '../functions'
 import BigNumber from 'bignumber.js'
+import moment from 'moment'
 
 const helper = new Helper()
 const decentApi = new DecentAPI()
@@ -28,8 +29,10 @@ async function getChannelInfo(channelId) {
             playerAddress,
             ready: info[1],
             activated: info[2],
-            initialDeposit: info[4],
             finalized: info[3],
+            initialDeposit: info[4],
+            finalNonce: info[5],
+            endTime: moment(info[6]),
             exists: playerAddress === '0x0'
         }
     } catch (error) {
