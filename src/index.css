@@ -3,10 +3,6 @@ body {
     height: 100%;
 }
 
-#root {
-    height: 100%;
-}
-
 body {
     background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
         url('../public/assets/img/backgrounds/platform.PNG');
