@@ -21,5 +21,6 @@ export function channelBalanceParser(channel) {
  * @returns {boolean}
  */
 export function isChannelClaimed(channel) {
+    if (!channel.info) return false
     return channel.info.finalized && channel.deposited.isLessThanOrEqualTo(0)
 }

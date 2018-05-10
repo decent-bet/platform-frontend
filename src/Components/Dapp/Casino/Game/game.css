@@ -1,15 +1,62 @@
 .slots-game {
-    min-height: 105vh;
-    padding-top: 10vh;
+    margin: 25px 0px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 32px;
 }
 
-.slots-game table {
-    color: #FFFFFF;
-    font-size: 14px;
+@media (max-width: 700px) {
+    .slots-game {
+        grid-template-columns: 1fr;
+    }
 }
 
-.slots-game h3 {
-    font-family: GothamMedium !important;
+.slots-game iframe,
+.slots-game .full-size {
+    grid-column: 1/ -1;
+}
+
+.slots-game .double-size {
+    grid-column: span 2;
+}
+
+@media (max-width: 700px) {
+    .slots-game .double-size {
+        grid-column: auto;
+    }
+}
+
+.slots-game .card {
+    border-radius: 16px !important;
+}
+
+.slots-game .channel-options > * {
+    display: flex;
+    flex-flow: column nowrap;
+    height: 100%;
+}
+
+.slots-game .channel-options .card-text {
+    flex: 1;
+}
+
+.slots-game .card .card-actions {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+}
+
+.slots-game .card .card-actions > * {
+    flex: auto;
+}
+
+.slots-game .card table {
+    width: 100%;
+}
+
+.slots-game dl dd,
+.slots-game table td:not(.no-text-break) {
+    word-break: break-all;
 }
 
 ::-webkit-scrollbar,
@@ -26,20 +73,4 @@
 ::-webkit-scrollbar-thumb,
 .slots-game table tbody::-webkit-scrollbar-thumb {
     background: #f2b45c;
-}
-
-.slots-game .channel-details h5 {
-    font-family: GothamMedium !important;
-    text-transform: uppercase;
-    font-size: 1.1rem;
-}
-
-.slots-game .channel-details p {
-    text-overflow: clip;
-    font-size: 0.85rem;
-}
-
-.slots-game .channel-details p,
-.slots-game .channel-details h5 {
-    text-align: center;
 }

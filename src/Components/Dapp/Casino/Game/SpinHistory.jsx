@@ -1,17 +1,13 @@
 import React from 'react'
-import { Card } from 'material-ui'
+import { Card, CardHeader, CardText } from 'material-ui'
 import SpinHistoryItem from './SpinHistoryItem'
-
-const styles = require('../../../Base/styles').styles()
 
 export default function spinHistory({ spinArray }) {
     return (
-        <Card style={styles.card} className="p-4">
-            <section>
-                <h3 className="text-center text-uppercase mb-3">
-                    Spin History
-                </h3>
-                <table className="table table-striped table-responsive">
+        <Card className="full-size card">
+            <CardHeader title="Spin History" />
+            <CardText>
+                <table className="table">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -29,7 +25,7 @@ export default function spinHistory({ spinArray }) {
                         ))}
                     </tbody>
                 </table>
-            </section>
+            </CardText>
         </Card>
     )
 }

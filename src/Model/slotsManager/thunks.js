@@ -44,3 +44,14 @@ export function buildChannel(amount, allowance) {
         return value
     }
 }
+/**
+ * Spin the slots, wait for the action to complete, AND THEN increase the nonce.
+ * @param {string} channelId
+ * @param {string} msg
+ */
+export function spinAndIncreaseNonce(channelId, msg) {
+    return async dispatch2 => {
+        await dispatch2(Actions.postSpin(channelId, msg))
+        await dispatch2(Actions.nonceIncrease(channelId))
+    }
+}

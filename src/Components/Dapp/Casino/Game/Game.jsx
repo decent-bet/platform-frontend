@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Card } from 'material-ui'
+import { Card, CardHeader, CardText } from 'material-ui'
 import { connect } from 'react-redux'
 import Helper from '../../../Helper'
 import Iframe from '../../../Base/Iframe'
@@ -14,13 +14,11 @@ import {
     watcherChannelFinalized
 } from '../../../../Model/slotsManager'
 import { CHANNEL_STATUS_FINALIZED } from '../../../Constants'
-import { styles as Styles } from '../../../Base/styles'
 import { SHA256 } from 'crypto-js'
 import { isChannelClaimed } from '../functions'
 
 import './game.css'
 
-const styles = Styles()
 const helper = new Helper()
 const slotsChannelHandler = new SlotsChannelHandler()
 
@@ -36,28 +34,23 @@ class Game extends Component {
 
         // TODO: Make this less ugly
         // Maybe we should use websockets to communicate instead?
-        let controller = {
+        window.slotsController = () => ({
             spin: this.spin,
             balances: this.getBalance
-        }
-        window.slotsController = () => controller
+        })
     }
 
     spin = (lines, betSize, callback) => {
-        console.log('spin', lines, betSize)
-        let { dispatch, channelId } = this.props
-        let totalBetSize = lines * betSize
-        slotsChannelHandler.spin(totalBetSize, this.props, (err, msg, lines) => {
+        const { dispatch, channelId } = this.props
+        const totalBetSize = lines * betSize
+        const listener = (err, msg, lines) => {
             if (!err) {
-                // Spin the slots, wait for the action to complete,
-                // AND THEN increase the nonce.
-                dispatch(async dispatch2 => {
-                    await dispatch2(Actions.postSpin(channelId, msg))
-                    await dispatch2(Actions.nonceIncrease(channelId))
-                })
+                dispatch(Thunks.spinAndIncreaseNonce(channelId, msg))
             }
             callback(err, msg, lines)
-        })
+        }
+
+        slotsChannelHandler.spin(totalBetSize, this.props, listener)
     }
 
     getBalance = () => ({
@@ -70,28 +63,33 @@ class Game extends Component {
         this.props.dispatch(action)
     }
 
-    onClaimListener = () => {
+    onClaimListener = async () => {
         const thunk = Thunks.claimAndWithdrawFromChannel(this.props.channelId)
-        this.props.dispatch(thunk)
+        await this.props.dispatch(thunk)
+        this.props.history.push(`/slots/`)
     }
 
     renderGame = () => {
         if (this.props.isFinalized && this.props.houseSpins) {
             return (
-                <Card style={styles.card} className="p-4">
-                    <h3 className="text-center">
-                        The channel has been finalized. Please wait a minute
-                        before the channel closes and claiming your DBETs.
-                    </h3>
-                    <p className="lead text-center mt-2">
-                        Final Balance:{' '}
-                        {helper.formatEther(this.props.userBalance)}
-                    </p>
+                <Card className="card full-size">
+                    <CardHeader title="The channel has been finalized" />
+                    <CardText>
+                        <p>
+                            Please wait a minute before the channel closes and
+                            claiming your DBETs.
+                        </p>
+                        <p>
+                            Final Balance:{' '}
+                            {helper.formatEther(this.props.userBalance)}
+                        </p>
+                    </CardText>
                 </Card>
             )
         } else if (this.props.lastSpinLoaded) {
             return (
                 <Iframe
+                    className="full-size"
                     id="slots-iframe"
                     url={process.env.PUBLIC_URL + '/slots-game'}
                     width="100%"
@@ -102,7 +100,11 @@ class Game extends Component {
                 />
             )
         } else {
-            return <h1>Loading</h1>
+            return (
+                <div className="full-size">
+                    <h1>Loading</h1>
+                </div>
+            )
         }
     }
 
@@ -125,7 +127,9 @@ class Game extends Component {
                     spin.reel,
                     helper.convertToEther(5)
                 )
-                let isValid = spin.reelHash === SHA256(spin.reelSeedHash + spin.reel.toString()).toString()
+                let isValid =
+                    spin.reelHash ===
+                    SHA256(spin.reelSeedHash + spin.reel.toString()).toString()
                 return {
                     ...spin,
                     userHash: userHashes[userHashes.length - spin.nonce],
@@ -137,30 +141,23 @@ class Game extends Component {
         }
     }
 
+    renderChannelOptions = () => (
+        <ChannelOptions
+            isClosed={this.props.closed}
+            isClaimed={this.props.isClaimed}
+            isFinalized={this.props.isFinalized}
+            onClaimListener={this.onClaimListener}
+            onFinalizeListener={this.onFinalizeListener}
+        />
+    )
+
     render() {
         return (
             <main className="slots-game container">
-                <div className="row">
-                    <div className="col-12 mx-auto">{this.renderGame()}</div>
-
-                    <div className="col-12 mt-4">
-                        <ChannelOptions
-                            isClosed={this.props.closed}
-                            isClaimed={this.props.isClaimed}
-                            isFinalized={this.props.isFinalized}
-                            onClaimListener={this.onClaimListener}
-                            onFinalizeListener={this.onFinalizeListener}
-                        />
-                    </div>
-
-                    <div className="col-12 mt-4">
-                        {this.renderChannelDetail()}
-                    </div>
-
-                    <div className="col-12 my-4">
-                        {this.renderSpinHistory()}
-                    </div>
-                </div>
+                {this.renderGame()}
+                {this.renderChannelOptions()}
+                {this.renderChannelDetail()}
+                {this.renderSpinHistory()}
             </main>
         )
     }
