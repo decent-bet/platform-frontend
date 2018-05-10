@@ -1,11 +1,7 @@
-import React, { Component } from 'react'
+import { SHA256 } from 'crypto-js'
 import { Card, CardHeader, CardText } from 'material-ui'
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import Helper from '../../../Helper'
-import Iframe from '../../../Base/Iframe'
-import ChannelOptions from './ChannelOptions'
-import ChannelDetail from './ChannelDetail'
-import SpinHistory from './SpinHistory'
 import {
     Actions,
     SlotsChannelHandler,
@@ -14,8 +10,12 @@ import {
     watcherChannelFinalized
 } from '../../../../Model/slotsManager'
 import { CHANNEL_STATUS_FINALIZED } from '../../../Constants'
-import { SHA256 } from 'crypto-js'
+import Helper from '../../../Helper'
 import { isChannelClaimed } from '../functions'
+import ChannelDetail from './ChannelDetail'
+import ChannelOptions from './ChannelOptions'
+import Iframe from './Iframe'
+import SpinHistory from './SpinHistory'
 
 import './game.css'
 
