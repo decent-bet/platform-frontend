@@ -121,17 +121,8 @@ class Slots extends Component {
         <Fragment>
             <StateChannelTable
                 channelMap={this.props.channels}
-                activeChannels={this.state.claimableChannels}
-                title="Finalized Channels"
-                subtitle="You must wait 1 minute after these channels were finalized to claim them"
-            >
-                {/* Function as a child. Receives `channel` */}
-                {this.renderStateChannelToolbar}
-            </StateChannelTable>
-            <StateChannelTable
-                channelMap={this.props.channels}
                 activeChannels={this.state.activeChannels}
-                title="Use an existing State Channel"
+                claimableChannels={this.state.claimableChannels}
             >
                 {/* Function as a child. Receives `channel` */}
                 {this.renderStateChannelToolbar}
