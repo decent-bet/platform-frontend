@@ -13,6 +13,8 @@ import './slots.css'
 class Slots extends Component {
     state = {
         stateMachine: 'loading',
+        claimableChannels: [],
+        activeChannels: [],
         currentChannel: '0x'
     }
 
@@ -29,10 +31,41 @@ class Slots extends Component {
         this.setState({ stateMachine: 'loading' })
 
         // Get channels and wait
-        await this.props.dispatch(Actions.getChannels())
+        const result = await this.props.dispatch(Actions.getChannels())
+        const channels = result.value
 
-        // UI Update
-        this.setState({ stateMachine: 'select_channels' })
+        // Make a list of all usable channels for the user and publish it
+        const activeChannels = []
+        const claimableChannels = []
+        for (const channelId in channels) {
+            if (channels.hasOwnProperty(channelId)) {
+                const channel = channels[channelId]
+
+                // Is channel still usable?
+                const isUsable =
+                    channel.info.ready &&
+                    channel.info.activated &&
+                    !channel.info.finalized
+                if (isUsable) {
+                    activeChannels.push(channelId)
+                }
+                if (channel.info.finalized && !channel.info.claimed) {
+                    claimableChannels.push(channelId)
+                }
+            }
+        }
+        this.setState({ activeChannels, claimableChannels })
+
+        // If there is exactly one usable channel active, switch to it.
+        if (activeChannels.length === 1) {
+            this.setState({
+                stateMachine: 'select_game',
+                currentChannel: activeChannels[0]
+            })
+        } else {
+            // Ask the user to either select a channel or create a new one
+            this.setState({ stateMachine: 'select_channels' })
+        }
     }
 
     // Builds the entire State Channel in one Step
@@ -86,11 +119,22 @@ class Slots extends Component {
 
     renderSelectChannelsState = () => (
         <Fragment>
-            <StateChannelTable channelMap={this.props.channels}>
-                {
-                    // Function as a child. Receives `channel`
-                    this.renderStateChannelToolbar
-                }
+            <StateChannelTable
+                channelMap={this.props.channels}
+                activeChannels={this.state.claimableChannels}
+                title="Finalized Channels"
+                subtitle="You must wait 1 minute after these channels were finalized to claim them"
+            >
+                {/* Function as a child. Receives `channel` */}
+                {this.renderStateChannelToolbar}
+            </StateChannelTable>
+            <StateChannelTable
+                channelMap={this.props.channels}
+                activeChannels={this.state.activeChannels}
+                title="Use an existing State Channel"
+            >
+                {/* Function as a child. Receives `channel` */}
+                {this.renderStateChannelToolbar}
             </StateChannelTable>
             <StateChannelBuilder
                 onBuildChannelListener={this.onBuildChannelListener}
