@@ -58,16 +58,22 @@ class Game extends Component {
         house: helper.formatEther(this.props.houseBalance)
     })
 
-    onFinalizeListener = () => {
+    onFinalizeListener = async () => {
         let action = Actions.finalizeChannel(this.props.channelId, this.props)
-        this.props.dispatch(action)
+        await this.props.dispatch(action)
+        this.back()
     }
 
     onClaimListener = async () => {
         const thunk = Thunks.claimAndWithdrawFromChannel(this.props.channelId)
         await this.props.dispatch(thunk)
-        this.props.history.push(`/slots/`)
+        this.back()
     }
+
+    /**
+     * Go to the previous page
+     */
+    back = () => this.props.history.push(`/slots/`)
 
     renderGame = () => {
         if (this.props.isFinalized && this.props.houseSpins) {
