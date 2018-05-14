@@ -105,7 +105,10 @@ class House extends Component {
 
     renderHouseStats = () => {
         let currentSession = this.props.house.sessionId
-        let currentSessionCredits = this.props.house.credits[currentSession]
+        let adjustedCurrentSession = currentSession === '0' ? 1 : currentSession
+        let currentSessionCredits = this.props.house.sessionState.hasOwnProperty(adjustedCurrentSession) ?
+            this.props.house.sessionState[adjustedCurrentSession].credits :
+            0
         let availableCredits = currentSessionCredits
             ? helper.formatEther(currentSessionCredits)
             : '0'
@@ -120,9 +123,11 @@ class House extends Component {
 
     renderLotteryDetails = () => {
         let currentSession = this.props.house.sessionId
-        let currentSessionState = this.props.house.sessionState[currentSession]
+        let adjustedCurrentSession = currentSession === '0' ? 1 : currentSession
+        let currentSessionState = this.props.house.sessionState[adjustedCurrentSession]
         if (currentSessionState) {
             let currentLottery = currentSessionState.lottery
+            console.log('currentLottery', currentLottery)
             return (
                 <Fragment>
                     <LotteryTicketsCard lottery={currentLottery} />
@@ -136,7 +141,8 @@ class House extends Component {
 
     renderSessionStats = () => {
         let currentSession = this.props.house.sessionId
-        let currentSessionState = this.props.house.sessionState[currentSession]
+        let adjustedCurrentSession = currentSession === '0' ? 1 : currentSession
+        let currentSessionState = this.props.house.sessionState[adjustedCurrentSession]
         if (currentSessionState) {
             let houseFunds = currentSessionState.houseFunds
             return <SessionStats houseFunds={houseFunds} />

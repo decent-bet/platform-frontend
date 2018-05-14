@@ -7,7 +7,7 @@ At the start, the house session begins with a 0 session which needs to be initia
 If the house session is 0 and does not have a valid startTime (i.e is 0), it sets the startTime as **now** and the endTime as **now + 2 weeks**.
 
 This makes the first session last for 2 weeks of which the first week is meant for credit buying and the second week would be for
-allocating tokens to house offerings.
+allocating and depositing tokens to house offerings.
 
 At the end of the 2 weeks allotted for session 0, the house can now call beginNextSession() and start session 1
 provided it has allocated a % of tokens to all house offerings AND deposited the token allocation to each of the house offerings.

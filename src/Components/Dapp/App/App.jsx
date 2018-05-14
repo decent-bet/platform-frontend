@@ -19,7 +19,7 @@ export default class App extends Component {
         stateMachine: 'loading'
     }
 
-    componentWillMount = () => {
+    componentDidMount = () => {
         EventBus.on('showSnackbar', message => {
             this.setState({
                 isSnackBarOpen: true,

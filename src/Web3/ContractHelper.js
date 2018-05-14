@@ -333,7 +333,7 @@ class ContractHelper {
                 houseInstance = instance
                 break
             case TYPE_HOUSE_AUTHORIZED_CONTROLLER:
-                houseAuthorizedController = instance
+                houseAuthorizedControllerInstance = instance
                 break
             case TYPE_HOUSE_FUNDS_CONTROLLER:
                 houseFundsControllerInstance = instance
