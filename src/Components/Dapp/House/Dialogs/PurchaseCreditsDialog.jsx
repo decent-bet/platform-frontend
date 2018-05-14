@@ -37,7 +37,8 @@ export default class PurchaseCreditsDialog extends Component {
     }
 
     render() {
-        let title = `PURCHASE CREDITS FOR SESSION ${this.props.sessionNumber}`
+        let adjustedSessionNumber = this.props.sessionNumber === '0' ? 1 : this.props.sessionNumber
+        let title = `PURCHASE CREDITS FOR SESSION ${adjustedSessionNumber}`
         let isValueValid = this.isAmountValid()
         let amount = parseInt(this.state.amount, 10)
         let errorMessage = null

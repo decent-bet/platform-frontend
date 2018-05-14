@@ -18,12 +18,11 @@ export default function LotteryTicketsList({ lottery }) {
         return <p>Account not yet loaded</p>
     }
 
-    let lotteryTickets = lottery.tickets[account]
+    let lotteryTickets = lottery.tickets
     if (!lotteryTickets) {
         return <p>No Lottery tickets for your address.</p>
     }
 
-    let userTickets = Object.keys(lotteryTickets)
     return (
         <table className="table">
             <thead>
@@ -34,7 +33,7 @@ export default function LotteryTicketsList({ lottery }) {
             </thead>
 
             <tbody>
-                {userTickets.map((ticket, index) => (
+                {lotteryTickets.map((ticket, index) => (
                     <LotteryTicketsListItem
                         key={ticket}
                         index={index}

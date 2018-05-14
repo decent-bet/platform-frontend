@@ -14,7 +14,7 @@ async function fetchTokens() {
             .getWrappers()
             .token()
             .balanceOf(address)
-        return new BigNumber(rawResult).dividedBy(units.ether)
+        return new BigNumber(rawResult).dividedBy(units.ether).toNumber()
     } catch (err) {
         console.log('Error retrieving token balance', err.message)
     }
