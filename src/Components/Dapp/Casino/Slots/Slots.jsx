@@ -2,6 +2,7 @@ import { BigNumber } from 'bignumber.js'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { Actions, Thunks } from '../../../../Model/slotsManager'
+import { isChannelClaimed } from '../functions'
 import SlotsList from './SlotsList'
 import StateChannelBuilder from './StateChannelBuilder'
 import StateChannelTable from './StateChannelTable'
@@ -49,7 +50,7 @@ class Slots extends Component {
                 if (isUsable) {
                     activeChannels.push(channelId)
                 }
-                if (channel.info.finalized && !channel.info.claimed) {
+                if (channel.info.finalized && !isChannelClaimed(channel)) {
                     claimableChannels.push(channelId)
                 }
             }
