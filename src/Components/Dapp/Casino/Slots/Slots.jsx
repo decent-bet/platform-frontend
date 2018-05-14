@@ -85,10 +85,6 @@ class Slots extends Component {
         this.setState({ stateMachine: 'select_game', currentChannel })
     }
 
-    // Selects An Existing Channel
-    onSelectChannelListener = currentChannel =>
-        this.setState({ stateMachine: 'select_game', currentChannel })
-
     // Claims the tokens from a Channel
     onClaimChannelListener = async channelId => {
         await this.props.dispatch(Thunks.claimAndWithdrawFromChannel(channelId))
@@ -106,7 +102,6 @@ class Slots extends Component {
     renderStateChannelToolbar = channel => (
         <StateChannelToolbar
             channel={channel}
-            onSelectChannelListener={this.onSelectChannelListener}
             onClaimChannelListener={this.onClaimChannelListener}
         />
     )
@@ -120,14 +115,6 @@ class Slots extends Component {
 
     renderSelectChannelsState = () => (
         <Fragment>
-            <StateChannelTable
-                channelMap={this.props.channels}
-                activeChannels={this.state.activeChannels}
-                claimableChannels={this.state.claimableChannels}
-            >
-                {/* Function as a child. Receives `channel` */}
-                {this.renderStateChannelToolbar}
-            </StateChannelTable>
             <StateChannelBuilder
                 onBuildChannelListener={this.onBuildChannelListener}
             />
@@ -165,7 +152,17 @@ class Slots extends Component {
 
     render() {
         return (
-            <main className="slots container">{this.renderStateMachine()}</main>
+            <main className="slots container">
+                <StateChannelTable
+                    channelMap={this.props.channels}
+                    activeChannels={this.state.activeChannels}
+                    claimableChannels={this.state.claimableChannels}
+                >
+                    {/* Function as a child. Receives `channel` */}
+                    {this.renderStateChannelToolbar}
+                </StateChannelTable>
+                {this.renderStateMachine()}
+            </main>
         )
     }
 }
