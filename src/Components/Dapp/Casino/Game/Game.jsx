@@ -25,7 +25,7 @@ const helper = new Helper()
 const slotsChannelHandler = new SlotsChannelHandler()
 
 class Game extends Component {
-    componentWillMount = () => {
+    componentDidMount = () => {
         let { dispatch, channelId } = this.props
         dispatch(Actions.getAesKey(channelId))
         dispatch(Actions.getChannelDetails(channelId))
