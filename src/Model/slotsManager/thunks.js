@@ -1,4 +1,5 @@
 import Actions from './actions'
+import { Actions as BalanceActions } from '../balance'
 
 // Used for VSCode Code Completion
 import BigNumber from 'bignumber.js' // eslint-disable-line no-unused-vars
@@ -14,6 +15,9 @@ export function claimAndWithdrawFromChannel(channelId) {
         await dispatch(Actions.claimChannel(channelId))
         const tokensInContract = await dispatch(Actions.getBalance())
         await dispatch(Actions.withdrawChips(tokensInContract.value))
+        
+        // Update the ether balance
+        await dispatch(BalanceActions.getEtherBalance())
     }
 }
 
@@ -40,6 +44,9 @@ export function buildChannel(amount, allowance) {
 
         // Query the channel's data and add it to the redux state
         await dispatch(Actions.getChannel(value))
+
+        // Update the ether balance
+        await dispatch(BalanceActions.getEtherBalance())
 
         return value
     }
