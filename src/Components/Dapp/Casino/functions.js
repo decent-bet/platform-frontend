@@ -12,7 +12,7 @@ export function channelBalanceParser(channel) {
         const rawBalance = channel.houseSpins[lastIdx].userBalance
         totalTokens = new BigNumber(rawBalance)
     }
-    return totalTokens.dividedBy(units.ether).toFixed(2)
+    return totalTokens.dividedBy(units.ether).toFixed(0)
 }
 
 /**

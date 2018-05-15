@@ -12,13 +12,13 @@ export default function StateChannelTable({
         const channel = channelMap[channelId]
 
         // Parse the balance from the state
-        let totalTokens = channelBalanceParser(channel)
+        const totalTokens = channelBalanceParser(channel)
+        const text = `You have ${totalTokens} chips in channel ${channelId}`
         return (
-            <tr key={channelId}>
-                <td>{totalTokens}</td>
-                <td>{channel.channelId}</td>
-                <td>{children(channel)}</td>
-            </tr>
+            <CardText>
+                <p>{text}</p>
+                {children(channel)}
+            </CardText>
         )
     })
 
@@ -28,21 +28,10 @@ export default function StateChannelTable({
     return (
         <Card className="card">
             <CardHeader
-                title="Finalized Channels"
+                title="Finished Slot Games"
                 subtitle="You must wait 1 minute after these channels were finalized to claim them"
             />
-            <CardText className="channel-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Deposited Tokens</th>
-                            <th>Channel Id</th>
-                            <th />
-                        </tr>
-                    </thead>
-                    <tbody>{claimableChannelsArray}</tbody>
-                </table>
-            </CardText>
+            {claimableChannelsArray}
         </Card>
     )
 }

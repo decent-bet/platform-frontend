@@ -31,7 +31,7 @@ export default class StateChannelBuilder extends Component {
     }
 
     render() {
-        const errorText = this.isValueValid()
+        const errorText = this.isValueValid() || this.state.value === ''
             ? null
             : 'Between [100 and 1000]'
         return (
@@ -52,7 +52,7 @@ export default class StateChannelBuilder extends Component {
                 <CardActions>
                     <RaisedButton
                         primary={true}
-                        label="Go!"
+                        label="Play Slots"
                         onClick={this.commit}
                     />
                 </CardActions>

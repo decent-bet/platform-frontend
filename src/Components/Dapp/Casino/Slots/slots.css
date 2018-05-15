@@ -74,14 +74,6 @@
     flex: 0 auto;
 }
 
-/* Channel List Table */
-.slots .channel-table table {
-    width: 100%;
-}
-.slots .channel-table table tr > * {
-    vertical-align: middle;
-}
-
 /* Typography */
 .slots .title-container h3 {
     color: #f2b45c;
