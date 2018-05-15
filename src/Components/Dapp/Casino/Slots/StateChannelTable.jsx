@@ -15,7 +15,7 @@ export default function StateChannelTable({
         const totalTokens = channelBalanceParser(channel)
         const text = `You have ${totalTokens} chips in channel ${channelId}`
         return (
-            <CardText>
+            <CardText key={channelId}>
                 <p>{text}</p>
                 {children(channel)}
             </CardText>

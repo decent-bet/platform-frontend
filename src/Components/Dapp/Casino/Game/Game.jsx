@@ -1,5 +1,5 @@
 import { SHA256 } from 'crypto-js'
-import { Card, CardHeader, CardText } from 'material-ui'
+import { Card, CardHeader, CardText, RaisedButton } from 'material-ui'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import {
@@ -157,9 +157,25 @@ class Game extends Component {
         />
     )
 
+    renderHeader = () => (
+        <section className="full-size controls">
+            <RaisedButton
+                label="Change Game"
+                primary={true}
+                onClick={this.back}
+            />
+            <RaisedButton
+                label="Finalize Channel"
+                primary={true}
+                onClick={this.onFinalizeListener}
+            />
+        </section>
+    )
+
     render() {
         return (
             <main className="slots-game container">
+                {this.renderHeader()}
                 {this.renderGame()}
                 {this.renderChannelOptions()}
                 {this.renderChannelDetail()}

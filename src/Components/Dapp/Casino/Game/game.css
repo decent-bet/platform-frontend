@@ -30,6 +30,11 @@
     border-radius: 16px !important;
 }
 
+.slots-game .controls {
+    display: flex;
+    justify-content: space-between;
+}
+
 .slots-game .channel-options > * {
     display: flex;
     flex-flow: column nowrap;
