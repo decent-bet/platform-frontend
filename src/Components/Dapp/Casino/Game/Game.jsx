@@ -1,4 +1,3 @@
-import { SHA256 } from 'crypto-js'
 import { Card, CardHeader, CardText, RaisedButton } from 'material-ui'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -13,9 +12,7 @@ import { CHANNEL_STATUS_FINALIZED } from '../../../Constants'
 import Helper from '../../../Helper'
 import { isChannelClaimed } from '../functions'
 import ChannelDetail from './ChannelDetail'
-import ChannelOptions from './ChannelOptions'
 import Iframe from './Iframe'
-import SpinHistory from './SpinHistory'
 
 import './game.css'
 
@@ -24,7 +21,7 @@ const slotsChannelHandler = new SlotsChannelHandler()
 
 class Game extends Component {
     componentDidMount = () => {
-        let { dispatch, channelId } = this.props
+        const { dispatch, channelId } = this.props
         dispatch(Actions.getAesKey(channelId))
         dispatch(Actions.getChannelDetails(channelId))
         dispatch(Actions.getLastSpin(channelId))
@@ -120,52 +117,22 @@ class Game extends Component {
                 <ChannelDetail
                     initialDeposit={this.props.info.initialDeposit}
                     hashes={this.props.hashes}
+                    houseSpins={this.props.houseSpins}
+                    userHashes={this.props.userHashes}
                 />
             )
         }
     }
 
-    renderSpinHistory = () => {
-        if (this.props.houseSpins) {
-            let { userHashes, houseSpins } = this.props
-            let spinArray = houseSpins.map(spin => {
-                let payout = slotsChannelHandler.calculateReelPayout(
-                    spin.reel,
-                    helper.convertToEther(5)
-                )
-                let isValid =
-                    spin.reelHash ===
-                    SHA256(spin.reelSeedHash + spin.reel.toString()).toString()
-                return {
-                    ...spin,
-                    userHash: userHashes[userHashes.length - spin.nonce],
-                    payout,
-                    isValid: isValid
-                }
-            })
-            return <SpinHistory spinArray={spinArray} />
-        }
-    }
-
-    renderChannelOptions = () => (
-        <ChannelOptions
-            isClosed={this.props.closed}
-            isClaimed={this.props.isClaimed}
-            isFinalized={this.props.isFinalized}
-            onClaimListener={this.onClaimListener}
-            onFinalizeListener={this.onFinalizeListener}
-        />
-    )
-
     renderHeader = () => (
-        <section className="full-size controls">
+        <section className="controls">
             <RaisedButton
-                label="Change Game"
+                label="Switch Game"
                 primary={true}
                 onClick={this.back}
             />
             <RaisedButton
-                label="Finalize Channel"
+                label="Exit Slots"
                 primary={true}
                 onClick={this.onFinalizeListener}
             />
@@ -177,9 +144,7 @@ class Game extends Component {
             <main className="slots-game container">
                 {this.renderHeader()}
                 {this.renderGame()}
-                {this.renderChannelOptions()}
                 {this.renderChannelDetail()}
-                {this.renderSpinHistory()}
             </main>
         )
     }

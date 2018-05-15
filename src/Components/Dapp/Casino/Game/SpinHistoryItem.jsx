@@ -12,8 +12,7 @@ export default function spinHistoryItem({ spin }) {
             <td>{spin.userHash}</td>
             <td>{spin.reelHash}</td>
             <td>{spin.reelSeedHash}</td>
-            <td>{JSON.stringify(spin.reel)}</td>
-            <td>{spin.payout}</td>
+            <td className="no-text-break">{JSON.stringify(spin.reel)}</td>
             <td className="no-text-break">{statusString}</td>
         </tr>
     )
