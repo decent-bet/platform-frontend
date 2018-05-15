@@ -1,0 +1,3 @@
+[submodule "public/slots-mythsmagic"]
+	path = public/slots-mythsmagic
+	url = git@gitlab.dcntbt.com:slots/mythmagic.git
