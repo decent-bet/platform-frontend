@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardText, RaisedButton } from 'material-ui'
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import {
     Actions,
@@ -10,7 +10,6 @@ import {
 } from '../../../../Model/slotsManager'
 import { CHANNEL_STATUS_FINALIZED } from '../../../Constants'
 import Helper from '../../../Helper'
-import { isChannelClaimed } from '../functions'
 import ChannelDetail from './ChannelDetail'
 import Iframe from './Iframe'
 
@@ -20,6 +19,10 @@ const helper = new Helper()
 const slotsChannelHandler = new SlotsChannelHandler()
 
 class Game extends Component {
+    state = {
+        isFinalizing: false
+    }
+
     componentDidMount = () => {
         const { dispatch, channelId } = this.props
         dispatch(Actions.getAesKey(channelId))
@@ -56,14 +59,10 @@ class Game extends Component {
     })
 
     onFinalizeListener = async () => {
+        this.setState({ isFinalizing: true })
         let action = Actions.finalizeChannel(this.props.channelId, this.props)
         await this.props.dispatch(action)
-        this.back()
-    }
-
-    onClaimListener = async () => {
-        const thunk = Thunks.claimAndWithdrawFromChannel(this.props.channelId)
-        await this.props.dispatch(thunk)
+        this.setState({ isFinalizing: false })
         this.back()
     }
 
@@ -73,15 +72,12 @@ class Game extends Component {
     back = () => this.props.history.push(`/slots/`)
 
     renderGame = () => {
-        if (this.props.isFinalized && this.props.houseSpins) {
+        if (this.props.status === CHANNEL_STATUS_FINALIZED) {
             return (
                 <Card className="card full-size">
                     <CardHeader title="The channel has been finalized" />
                     <CardText>
-                        <p>
-                            Please wait a minute before the channel closes and
-                            claiming your DBETs.
-                        </p>
+                        <p>Please wait a minute before claiming your DBETs.</p>
                         <p>
                             Final Balance:{' '}
                             {helper.formatEther(this.props.userBalance)}
@@ -90,7 +86,8 @@ class Game extends Component {
                 </Card>
             )
         } else if (this.props.lastSpinLoaded) {
-            const path = `${process.env.PUBLIC_URL}/slots-${this.props.match.params.gameName}`
+            const game = this.props.match.params.gameName || 'game'
+            const path = `${process.env.PUBLIC_URL}/slots-${game}`
             return (
                 <Iframe
                     className="full-size"
@@ -140,13 +137,29 @@ class Game extends Component {
         </section>
     )
 
+    renderInner = () => {
+        if (this.state.isFinalizing) {
+            // If finalizing, print simple placeholder
+            return (
+                <Card className="card">
+                    <CardHeader title="Exiting" />
+                </Card>
+            )
+        } else {
+            // Show normal page
+            return (
+                <Fragment>
+                    {this.renderHeader()}
+                    {this.renderGame()}
+                    {this.renderChannelDetail()}
+                </Fragment>
+            )
+        }
+    }
+
     render() {
         return (
-            <main className="slots-game container">
-                {this.renderHeader()}
-                {this.renderGame()}
-                {this.renderChannelDetail()}
-            </main>
+            <main className="slots-game container">{this.renderInner()}</main>
         )
     }
 }
@@ -160,10 +173,6 @@ export default connect((state, props) => {
         channelData = {}
     }
     channelData.channelId = props.match.params.id
-
-    // Shortcuts for the Channel State
-    channelData.isClaimed = isChannelClaimed(channelData)
-    channelData.isFinalized = channelData.status === CHANNEL_STATUS_FINALIZED
 
     // Get the Balances for the House and the user. Set them as 'initialDeposit' if nothing is found
     if (!channelData.info) {
