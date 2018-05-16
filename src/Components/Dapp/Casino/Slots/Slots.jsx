@@ -154,19 +154,19 @@ class Slots extends Component {
     renderStateMachine = () => {
         switch (this.state.stateMachine) {
             case 'loading':
-                return this.renderLoadingState('Loading your State Channels')
+                return this.renderLoadingState()
 
             case 'select_channels':
                 return this.renderSelectChannelsState()
 
             case 'building_game':
-                return this.renderLoadingState('Building your state channel')
+                return this.renderLoadingState()
 
             case 'select_game':
                 return this.renderSelectGameState()
 
             case 'claiming':
-                return this.renderLoadingState('Claiming Channel Tokens')
+                return this.renderLoadingState()
 
             default:
                 return null
