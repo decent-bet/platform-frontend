@@ -11,7 +11,7 @@ import ethUnits from 'ethereum-units'
 
 export default class StateChannelBuilder extends Component {
     state = {
-        value: ''
+        value: '100'
     }
 
     onValueChanged = (event, value) => this.setState({ value })

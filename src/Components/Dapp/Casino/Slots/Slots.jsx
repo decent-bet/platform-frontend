@@ -138,18 +138,16 @@ class Slots extends Component {
         )
     }
 
-    renderChannelTable = () => {
-        return (
-            <StateChannelTable
-                channelMap={this.props.channels}
-                activeChannels={this.state.activeChannels}
-                claimableChannels={this.state.claimableChannels}
-            >
-                {/* Function as a child. Receives `channel` */}
-                {this.renderStateChannelToolbar}
-            </StateChannelTable>
-        )
-    }
+    renderChannelTable = () => (
+        <StateChannelTable
+            channelMap={this.props.channels}
+            activeChannels={this.state.activeChannels}
+            claimableChannels={this.state.claimableChannels}
+        >
+            {/* Function as a child. Receives `channel` */}
+            {this.renderStateChannelToolbar}
+        </StateChannelTable>
+    )
 
     renderStateMachine = () => {
         switch (this.state.stateMachine) {
@@ -175,9 +173,7 @@ class Slots extends Component {
 
     render() {
         return (
-            <main className="slots container">
-                {this.renderStateMachine()}
-            </main>
+            <main className="slots container">{this.renderStateMachine()}</main>
         )
     }
 }

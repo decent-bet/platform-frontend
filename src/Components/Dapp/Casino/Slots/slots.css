@@ -21,10 +21,16 @@
     font-size: 14px;
 }
 
-.slots .channel-description > * {
+.slots .channel-description .header {
     display: flex !important;
     flex-flow: row nowrap;
     height: 48px;
+    padding: 0px !important;
+}
+
+/* Hide the empty text space in the card header on the Channel Description header */
+.slots .channel-description .header > div:not(.balance) {
+    display: none !important;
 }
 
 .slots .channel-description .balance {
@@ -40,19 +46,11 @@
     font-family: Inconsolata, monospace !important;
     text-align: right;
     border-bottom-left-radius: 16px;
-    border-top-left-radius: 16px; 
+    border-top-left-radius: 16px;
 }
 
-.slots .channel-description .balance > *{
-    flex: 1 auto;
-}
-
-.slots .channel-description .channel-id {
-    flex: 1;
-    display: flex;
-    padding: 16px;
-
-    align-items: center;
+.slots .channel-description .balance > * {
+    flex: 1 100%;
 }
 
 /* All cards inside the slots component */
