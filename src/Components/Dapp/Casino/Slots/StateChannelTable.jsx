@@ -13,7 +13,7 @@ export default function StateChannelTable({
 
         // Parse the balance from the state
         const totalTokens = channelBalanceParser(channel)
-        const text = `You have ${totalTokens} chips in channel ${channelId}`
+        const text = `You have ${totalTokens} chips`
         return (
             <CardText key={channelId}>
                 <p>{text}</p>
@@ -29,7 +29,7 @@ export default function StateChannelTable({
         <Card className="card">
             <CardHeader
                 title="Finished Slot Games"
-                subtitle="You must wait 1 minute after these channels were finalized to claim them"
+                subtitle="You must wait 1 minute after exiting to claim these games"
             />
             {claimableChannelsArray}
         </Card>
