@@ -23,7 +23,7 @@ export default function SlotsList({ stateChannel, onGameSelectedListener }) {
                 gameName="game"
             />
             <SlotsGameCard
-                imageUrl=""
+                imageUrl="backgrounds/slots-mythsmagic.jpg"
                 onGameSelectedListener={onGameSelectedListener}
                 gameName="mythsmagic"
             />
