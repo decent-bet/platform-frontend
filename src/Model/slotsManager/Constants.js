@@ -24,7 +24,7 @@ export const reels = [
 export const paytable = {
     [symbolA]: 10,
     [symbolB]: 20,
-    [symbolC]: 40,
+    [symbolC]: 30,
     [symbolD]: 50,
     [symbolE]: 75,
     [symbolF]: 150,
