@@ -87,6 +87,7 @@ class Slots extends Component {
 
     // Claims the tokens from a Channel
     onClaimChannelListener = async channelId => {
+        this.setState({ stateMachine: 'claiming' })
         await this.props.dispatch(Thunks.claimAndWithdrawFromChannel(channelId))
 
         // Refresh UI
@@ -117,19 +118,36 @@ class Slots extends Component {
 
     renderSelectChannelsState = () => (
         <Fragment>
+            {this.renderChannelTable()}
             <StateChannelBuilder
                 onBuildChannelListener={this.onBuildChannelListener}
             />
         </Fragment>
     )
 
-    renderSelectGame = () => {
+    renderSelectGameState = () => {
         const stateChannel = this.props.channels[this.state.currentChannel]
         return (
-            <SlotsList
-                stateChannel={stateChannel}
-                onGameSelectedListener={this.onGoToGameroomListener}
-            />
+            <Fragment>
+                {this.renderChannelTable()}
+                <SlotsList
+                    stateChannel={stateChannel}
+                    onGameSelectedListener={this.onGoToGameroomListener}
+                />
+            </Fragment>
+        )
+    }
+
+    renderChannelTable = () => {
+        return (
+            <StateChannelTable
+                channelMap={this.props.channels}
+                activeChannels={this.state.activeChannels}
+                claimableChannels={this.state.claimableChannels}
+            >
+                {/* Function as a child. Receives `channel` */}
+                {this.renderStateChannelToolbar}
+            </StateChannelTable>
         )
     }
 
@@ -145,7 +163,10 @@ class Slots extends Component {
                 return this.renderLoadingState('Building your state channel')
 
             case 'select_game':
-                return this.renderSelectGame()
+                return this.renderSelectGameState()
+
+            case 'claiming':
+                return this.renderLoadingState('Claiming Channel Tokens')
 
             default:
                 return null
@@ -155,14 +176,6 @@ class Slots extends Component {
     render() {
         return (
             <main className="slots container">
-                <StateChannelTable
-                    channelMap={this.props.channels}
-                    activeChannels={this.state.activeChannels}
-                    claimableChannels={this.state.claimableChannels}
-                >
-                    {/* Function as a child. Receives `channel` */}
-                    {this.renderStateChannelToolbar}
-                </StateChannelTable>
                 {this.renderStateMachine()}
             </main>
         )
