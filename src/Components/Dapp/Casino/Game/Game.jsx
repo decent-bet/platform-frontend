@@ -90,11 +90,12 @@ class Game extends Component {
                 </Card>
             )
         } else if (this.props.lastSpinLoaded) {
+            const path = `${process.env.PUBLIC_URL}/slots-${this.props.match.params.gameName}`
             return (
                 <Iframe
                     className="full-size"
                     id="slots-iframe"
-                    url={process.env.PUBLIC_URL + '/slots-game'}
+                    url={path}
                     width="100%"
                     height="600px"
                     display="initial"

@@ -93,8 +93,10 @@ class Slots extends Component {
         this.refreshChannels()
     }
 
-    onGoToGameroomListener = () =>
-        this.props.history.push(`/slots/${this.state.currentChannel}`)
+    onGoToGameroomListener = gameName => {
+        const path = `/slots/${this.state.currentChannel}/${gameName}`
+        this.props.history.push(path)
+    }
 
     /**
      * Renders the buttons for each State Channel Row in the Table

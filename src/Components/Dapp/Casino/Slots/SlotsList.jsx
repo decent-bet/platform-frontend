@@ -19,7 +19,13 @@ export default function SlotsList({ stateChannel, onGameSelectedListener }) {
             </Card>
             <SlotsGameCard
                 imageUrl="backgrounds/slots-crypto-chaos.png"
-                onClickListener={onGameSelectedListener}
+                onGameSelectedListener={onGameSelectedListener}
+                gameName="game"
+            />
+            <SlotsGameCard
+                imageUrl=""
+                onGameSelectedListener={onGameSelectedListener}
+                gameName="mythsmagic"
             />
         </Fragment>
     )
