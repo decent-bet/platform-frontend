@@ -31,32 +31,32 @@ export default function SlotsList({ stateChannel, onGameSelectedListener }) {
             <SlotsGameCard
                 imageUrl="backgrounds/slots-classic-7even.jpg"
                 onGameSelectedListener={onGameSelectedListener}
-                gameName="mythsmagic"
+                gameName="classic-7even"
             />
             <SlotsGameCard
                 imageUrl="backgrounds/slots-monster-mayhem.jpg"
                 onGameSelectedListener={onGameSelectedListener}
-                gameName="mythsmagic"
+                gameName="monster-mayhem"
             />
             <SlotsGameCard
-                imageUrl="backgrounds/slots-mountcrypto.jpg"
+                imageUrl="backgrounds/slots-mount-crypto.jpg"
                 onGameSelectedListener={onGameSelectedListener}
-                gameName="mythsmagic"
+                gameName="mount-crypto"
             />
             <SlotsGameCard
                 imageUrl="backgrounds/slots-shiprekt.jpg"
                 onGameSelectedListener={onGameSelectedListener}
-                gameName="mythsmagic"
+                gameName="shiprekt"
             />
             <SlotsGameCard
                 imageUrl="backgrounds/slots-spaceman.jpg"
                 onGameSelectedListener={onGameSelectedListener}
-                gameName="mythsmagic"
+                gameName="spaceman"
             />
             <SlotsGameCard
                 imageUrl="backgrounds/slots-crypto-chaos.png"
                 onGameSelectedListener={onGameSelectedListener}
-                gameName="game"
+                gameName="crypto-chaos"
             />
         </Fragment>
     )

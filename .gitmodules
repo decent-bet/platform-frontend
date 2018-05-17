@@ -1,3 +1,21 @@
 [submodule "public/slots-mythsmagic"]
 	path = public/slots-mythsmagic
 	url = git@gitlab.dcntbt.com:slots/mythmagic.git
+[submodule "public/slots-classic-7even"]
+	path = public/slots-classic-7even
+	url = git@gitlab.dcntbt.com:slots/classic-7even.git
+[submodule "public/slots-monster-mayhem"]
+	path = public/slots-monster-mayhem
+	url = git@gitlab.dcntbt.com:slots/monster-mayhem.git
+[submodule "public/slots-shiprekt"]
+	path = public/slots-shiprekt
+	url = git@gitlab.dcntbt.com:slots/shiprekt.git
+[submodule "public/slots-mount-crypto"]
+	path = public/slots-mount-crypto
+	url = git@gitlab.dcntbt.com:slots/mount-crypto.git
+[submodule "public/slots-spaceman"]
+	path = public/slots-spaceman
+	url = git@gitlab.dcntbt.com:slots/spaceman.git
+[submodule "public/slots-crypto-chaos"]
+	path = public/slots-crypto-chaos
+	url = git@gitlab.dcntbt.com:slots/crypto-chaos.git
