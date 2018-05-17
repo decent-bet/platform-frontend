@@ -1,17 +1,19 @@
-import React, { Component } from 'react'
+import ethUnits from 'ethereum-units'
 import {
     Card,
-    RaisedButton,
     CardActions,
     CardHeader,
     CardText,
+    Checkbox,
+    RaisedButton,
     TextField
 } from 'material-ui'
-import ethUnits from 'ethereum-units'
+import React, { Component } from 'react'
 
 export default class StateChannelBuilder extends Component {
     state = {
-        value: '100'
+        value: '100',
+        acceptanceChecked: true
     }
 
     onValueChanged = (event, value) => this.setState({ value })
@@ -30,10 +32,16 @@ export default class StateChannelBuilder extends Component {
         return parsedValue >= 100 && parsedValue <= 1000
     }
 
+    onAcceptanceCheckedListener = () =>
+        this.setState(oldState => ({
+            acceptanceChecked: !oldState.acceptanceChecked
+        }))
+
     render() {
-        const errorText = this.isValueValid() || this.state.value === ''
-            ? null
-            : 'Between [100 and 1000]'
+        const errorText =
+            this.isValueValid() || this.state.value === ''
+                ? null
+                : 'Between [100 and 1000]'
         return (
             <Card className="card">
                 <CardHeader
@@ -48,12 +56,18 @@ export default class StateChannelBuilder extends Component {
                         fullWidth={true}
                         errorText={errorText}
                     />
+                    <Checkbox
+                        label="Use XX eth to cover session gas costs"
+                        checked={this.state.acceptanceChecked}
+                        onCheck={this.onAcceptanceCheckedListener}
+                    />
                 </CardText>
                 <CardActions>
                     <RaisedButton
                         primary={true}
                         label="Play Slots"
                         onClick={this.commit}
+                        disabled={!this.state.acceptanceChecked}
                     />
                 </CardActions>
             </Card>
