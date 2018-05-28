@@ -9,7 +9,7 @@ import PrivateRoute from './PrivateRoute'
 import LogoutRoute from './LogoutRoute'
 import EventBus from 'eventing-bus'
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
-import { MainTheme, SnackbarTheme } from '../../Base/Themes'
+import { MainTheme } from '../../Base/Themes'
 import { VIEW_LOGIN } from '../../Constants'
 
 export default class App extends Component {
@@ -47,13 +47,11 @@ export default class App extends Component {
     renderSnackBar = () => {
         if (this.state.snackbarMessage) {
             return (
-                <MuiThemeProvider muiTheme={SnackbarTheme}>
-                    <Snackbar
-                        message={this.state.snackbarMessage}
-                        open={this.state.isSnackBarOpen}
-                        autoHideDuration={6000}
-                    />
-                </MuiThemeProvider>
+                <Snackbar
+                    message={this.state.snackbarMessage}
+                    open={this.state.isSnackBarOpen}
+                    autoHideDuration={6000}
+                />
             )
         } else {
             return null

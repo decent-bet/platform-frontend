@@ -1,30 +1,26 @@
-import React, { Component } from 'react'
-import { Dialog, FlatButton, MuiThemeProvider } from 'material-ui'
-import { DialogTheme } from '../Themes'
+import React from 'react'
+import { Dialog, FlatButton } from 'material-ui'
 
-class ConfirmationDialog extends Component {
-    render() {
-        return (
-            <MuiThemeProvider muiTheme={DialogTheme}>
-                <Dialog
-                    title={this.props.title}
-                    actions={
-                        <FlatButton
-                            label="Ok"
-                            primary={false}
-                            onTouchTap={this.props.onClick}
-                        />
-                    }
-                    modal={false}
-                    open={this.props.open}
-                    autoScrollBodyContent={false}
-                    onRequestClose={this.props.onClose}
-                >
-                    <p>{this.props.message}</p>
-                </Dialog>
-            </MuiThemeProvider>
-        )
-    }
+export default function ConfirmationDialog({
+    title,
+    onClick,
+    open,
+    onClose,
+    message
+}) {
+    const actions = (
+        <FlatButton label="Ok" primary={false} onTouchTap={onClick} />
+    )
+    return (
+        <Dialog
+            title={title}
+            actions={actions}
+            modal={false}
+            open={open}
+            autoScrollBodyContent={false}
+            onRequestClose={onClose}
+        >
+            <p>{message}</p>
+        </Dialog>
+    )
 }
-
-export default ConfirmationDialog
