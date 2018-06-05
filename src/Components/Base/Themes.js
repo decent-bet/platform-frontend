@@ -2,13 +2,13 @@
  * Created by user on 2/23/2017.
  */
 
-import getMuiTheme from 'material-ui/styles/getMuiTheme'
-import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme'
+import { createMuiTheme } from '@material-ui/core/styles'
 import * as constants from './../Constants'
 
 // Main Theme for all the Application
-export const MainTheme = getMuiTheme(darkBaseTheme, {
+export const MainTheme = createMuiTheme({
     palette: {
+        type: 'dark',
         primary1Color: constants.COLOR_GOLD,
         primary2Color: constants.COLOR_GOLD_DARK,
         accent1Color: constants.COLOR_BLUE,

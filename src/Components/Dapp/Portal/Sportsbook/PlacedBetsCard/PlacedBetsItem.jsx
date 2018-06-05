@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { RaisedButton } from 'material-ui'
+import { Button } from '@material-ui/core'
 import {
     isGameOutcomeAvailable,
     getPeriodDescription,
@@ -34,16 +34,18 @@ export default class PlacedBetsItem extends Component {
                 <td>{getGameOutcome(gameItem, oddsObj.period)}</td>
                 <td>{winnings} DBETs</td>
                 <td>
-                    <RaisedButton
+                    <Button
+                        variant="raised"
                         secondary={true}
-                        label="Claim Winnings"
                         disabled={
                             !isGameOutcomeAvailable(gameItem, oddsObj.period) ||
                             winnings === 0 ||
                             betItem.claimed
                         }
                         onClick={this.onClickListener}
-                    />
+                    >
+                        Claim Winnings
+                    </Button>
                 </td>
             </tr>
         )

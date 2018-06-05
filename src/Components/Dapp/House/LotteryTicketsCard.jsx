@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, CardHeader, CardText } from 'material-ui'
+import { Card, CardHeader, CardContent } from '@material-ui/core'
 import LotteryTicketsList from './LotteryTicketsList'
 
 const styles = require('../../Base/styles').styles()
@@ -12,9 +12,9 @@ export default function LotteryTicketsCard({ lottery }) {
     return (
         <Card className="hvr-float" style={styles.card}>
             <CardHeader title="Your Tickets" />
-            <CardText>
+            <CardContent>
                 <LotteryTicketsList lottery={lottery} />
-            </CardText>
+            </CardContent>
         </Card>
     )
 }

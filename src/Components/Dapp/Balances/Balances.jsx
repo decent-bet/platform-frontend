@@ -3,7 +3,7 @@
  */
 
 import React, { Component } from 'react'
-import { Card, CardHeader, CardText } from 'material-ui'
+import { Card, CardHeader, CardContent } from '@material-ui/core'
 import Helper from '../../Helper'
 import { Actions as HouseActions } from '../../../Model/house'
 import { Actions as BettingActions } from '../../../Model/bettingProvider'
@@ -32,9 +32,9 @@ class Balances extends Component {
             return (
                 <Card style={styles.card}>
                     <CardHeader title="Slots" />
-                    <CardText>
+                    <CardContent>
                         <h4>{text}</h4>
-                    </CardText>
+                    </CardContent>
                 </Card>
             )
         }
@@ -47,9 +47,9 @@ class Balances extends Component {
             return (
                 <Card style={styles.card}>
                     <CardHeader title="Sportsbook" />
-                    <CardText>
+                    <CardContent>
                         <h4>{text} DBETs</h4>
-                    </CardText>
+                    </CardContent>
                 </Card>
             )
         }
@@ -60,9 +60,9 @@ class Balances extends Component {
             return (
                 <Card style={styles.card} className="session-container">
                     <CardHeader title="Current Session" />
-                    <CardText>
+                    <CardContent>
                         <h4>#{this.props.house.sessionId}</h4>
-                    </CardText>
+                    </CardContent>
                 </Card>
             )
         }

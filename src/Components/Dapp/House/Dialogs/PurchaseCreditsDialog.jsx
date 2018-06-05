@@ -3,7 +3,7 @@
  */
 
 import React, { Component } from 'react'
-import { Dialog, RaisedButton, TextField } from 'material-ui'
+import { Dialog, Button, TextField } from '@material-ui/core'
 
 export default class PurchaseCreditsDialog extends Component {
     constructor(props) {
@@ -37,7 +37,8 @@ export default class PurchaseCreditsDialog extends Component {
     }
 
     render() {
-        let adjustedSessionNumber = this.props.sessionNumber === '0' ? 1 : this.props.sessionNumber
+        let adjustedSessionNumber =
+            this.props.sessionNumber === '0' ? 1 : this.props.sessionNumber
         let title = `PURCHASE CREDITS FOR SESSION ${adjustedSessionNumber}`
         let isValueValid = this.isAmountValid()
         let amount = parseInt(this.state.amount, 10)
@@ -51,12 +52,14 @@ export default class PurchaseCreditsDialog extends Component {
             <Dialog
                 title={title}
                 actions={
-                    <RaisedButton
-                        label="Purchase"
+                    <Button
+                        variant="raised"
                         disabled={!isValueValid}
                         primary={true}
                         onClick={this.onClickListener}
-                    />
+                    >
+                        Purchase
+                    </Button>
                 }
                 modal={false}
                 open={this.props.isOpen}

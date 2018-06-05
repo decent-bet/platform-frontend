@@ -4,7 +4,7 @@
 
 import React, { Component, Fragment } from 'react'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
-import { RaisedButton, Card, CardText, CardActions } from 'material-ui'
+import { Button, Card, CardContent, CardActions } from '@material-ui/core'
 import PurchaseCreditsDialog from './Dialogs/PurchaseCreditsDialog'
 import Helper from '../../Helper'
 import HouseStats from './HouseStats'
@@ -88,15 +88,18 @@ class House extends Component {
                 </header>
 
                 <Card>
-                    <CardText>{`House Allowance: ${allowance} DBETs`}</CardText>
+                    <CardContent
+                    >{`House Allowance: ${allowance} DBETs`}</CardContent>
                     <CardActions>
-                        <RaisedButton
+                        <Button
+                            variant="raised"
                             icon={<FontAwesomeIcon icon="money-bill-alt" />}
-                            label="Purchase Credits"
                             secondary={true}
                             fullWidth={true}
                             onClick={this.onOpenPurchaseDialogListener}
-                        />
+                        >
+                            Purchase Credits
+                        </Button>
                     </CardActions>
                 </Card>
             </Fragment>
@@ -106,9 +109,11 @@ class House extends Component {
     renderHouseStats = () => {
         let currentSession = this.props.house.sessionId
         let adjustedCurrentSession = currentSession === '0' ? 1 : currentSession
-        let currentSessionCredits = this.props.house.sessionState.hasOwnProperty(adjustedCurrentSession) ?
-            this.props.house.sessionState[adjustedCurrentSession].credits :
-            0
+        let currentSessionCredits = this.props.house.sessionState.hasOwnProperty(
+            adjustedCurrentSession
+        )
+            ? this.props.house.sessionState[adjustedCurrentSession].credits
+            : 0
         let availableCredits = currentSessionCredits
             ? helper.formatEther(currentSessionCredits)
             : '0'
@@ -124,7 +129,9 @@ class House extends Component {
     renderLotteryDetails = () => {
         let currentSession = this.props.house.sessionId
         let adjustedCurrentSession = currentSession === '0' ? 1 : currentSession
-        let currentSessionState = this.props.house.sessionState[adjustedCurrentSession]
+        let currentSessionState = this.props.house.sessionState[
+            adjustedCurrentSession
+        ]
         if (currentSessionState) {
             let currentLottery = currentSessionState.lottery
             console.log('currentLottery', currentLottery)
@@ -142,7 +149,9 @@ class House extends Component {
     renderSessionStats = () => {
         let currentSession = this.props.house.sessionId
         let adjustedCurrentSession = currentSession === '0' ? 1 : currentSession
-        let currentSessionState = this.props.house.sessionState[adjustedCurrentSession]
+        let currentSessionState = this.props.house.sessionState[
+            adjustedCurrentSession
+        ]
         if (currentSessionState) {
             let houseFunds = currentSessionState.houseFunds
             return <SessionStats houseFunds={houseFunds} />

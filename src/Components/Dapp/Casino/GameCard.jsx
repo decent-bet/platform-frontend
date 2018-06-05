@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, CardMedia, CardText } from 'material-ui'
+import { Card, CardMedia, CardContent } from '@material-ui/core'
 
 // Each card shown in the main menu of the "Casino Page"
 export default class GameCard extends React.Component {
@@ -44,10 +44,10 @@ export default class GameCard extends React.Component {
                     />
                 </CardMedia>
 
-                <CardText className="title">
+                <CardContent className="title">
                     <h4>{title}</h4>
                     {this.renderSubtitle()}
-                </CardText>
+                </CardContent>
             </Card>
         )
     }

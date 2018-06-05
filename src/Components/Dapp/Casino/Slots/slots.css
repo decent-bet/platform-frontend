@@ -88,5 +88,5 @@
 }
 
 .slots .slot-channel-row .slot-channel-button span {
-    text-transform: capitalize !important; /* Capitalization for the flatbuttons */
+    text-transform: capitalize !important; /* Capitalization for the buttons */
 }

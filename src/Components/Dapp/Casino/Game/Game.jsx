@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardText, RaisedButton } from 'material-ui'
+import { Card, CardHeader, CardContent, Button } from '@material-ui/core'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import {
@@ -76,13 +76,13 @@ class Game extends Component {
             return (
                 <Card className="card full-size">
                     <CardHeader title="The channel has been finalized" />
-                    <CardText>
+                    <CardContent>
                         <p>Please wait a minute before claiming your DBETs.</p>
                         <p>
                             Final Balance:{' '}
                             {helper.formatEther(this.props.userBalance)}
                         </p>
-                    </CardText>
+                    </CardContent>
                 </Card>
             )
         } else if (this.props.lastSpinLoaded) {
@@ -124,16 +124,16 @@ class Game extends Component {
 
     renderHeader = () => (
         <section className="controls">
-            <RaisedButton
-                label="Switch Game"
-                primary={true}
-                onClick={this.back}
-            />
-            <RaisedButton
-                label="Exit Slots"
+            <Button variant="raised" primary={true} onClick={this.back}>
+                Switch Game
+            </Button>
+            <Button
+                variant="raised"
                 primary={true}
                 onClick={this.onFinalizeListener}
-            />
+            >
+                Exit Slots
+            </Button>
         </section>
     )
 

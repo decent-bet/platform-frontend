@@ -1,5 +1,5 @@
 import React from 'react'
-import { TextField, CardText } from 'material-ui'
+import { TextField, CardContent } from '@material-ui/core'
 import LoginNodeTypes from './LoginNodeTypes'
 
 const logoUrl = `${process.env.PUBLIC_URL}/assets/img/logos/dbet-white.svg`
@@ -12,7 +12,7 @@ export default function LoginInner({
     onProviderChangedListener
 }) {
     return (
-        <CardText className="login-inner">
+        <CardContent className="login-inner">
             <img className="logo" src={logoUrl} alt="Decent.bet Logo" />
 
             <LoginNodeTypes
@@ -30,6 +30,6 @@ export default function LoginInner({
                 onChange={onChange}
                 onKeyPress={onLoginKeypress}
             />
-        </CardText>
+        </CardContent>
     )
 }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Dialog, FlatButton, TextField } from 'material-ui'
+import { Dialog, Button, TextField } from '@material-ui/core'
 
 export default class DepositTokensDialog extends Component {
     constructor(props) {
@@ -48,12 +48,14 @@ export default class DepositTokensDialog extends Component {
             <Dialog
                 title={title}
                 actions={
-                    <FlatButton
-                        label="Deposit"
+                    <Button
+                        variant="flat"
                         primary={true}
                         disabled={!isValid}
                         onClick={this.onDepositListener}
-                    />
+                    >
+                        Deposit
+                    </Button>
                 }
                 modal={false}
                 open={this.props.open}

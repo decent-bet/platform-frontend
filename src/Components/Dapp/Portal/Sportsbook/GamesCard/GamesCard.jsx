@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card } from 'material-ui'
+import { Card } from '@material-ui/core'
 import GamesCardInner from './GamesCardInner'
 
 const styles = require('../../../../Base/styles').styles()

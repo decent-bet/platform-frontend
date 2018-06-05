@@ -1,5 +1,10 @@
 import React, { Component } from 'react'
-import { MenuItem } from 'material-ui'
+import {
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    SvgIcon
+} from '@material-ui/core'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 
 export default class DashboardDrawerItem extends Component {
@@ -9,17 +14,17 @@ export default class DashboardDrawerItem extends Component {
             ? 'menu-item selected'
             : 'menu-item'
         return (
-            <MenuItem
-                className={itemClasses}
-                onClick={this.onClick}
-                primaryText={this.props.title}
-                leftIcon={
-                    <FontAwesomeIcon
-                        icon={this.props.iconClass}
-                        className="fa-fw"
-                    />
-                }
-            />
+            <ListItem button className={itemClasses} onClick={this.onClick}>
+                <ListItemIcon>
+                    <SvgIcon>
+                        <FontAwesomeIcon
+                            icon={this.props.iconClass}
+                            className="fa-fw"
+                        />
+                    </SvgIcon>
+                </ListItemIcon>
+                <ListItemText primary={this.props.title} />
+            </ListItem>
         )
     }
 }

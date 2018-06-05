@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react'
 import { BrowserRouter, Switch } from 'react-router-dom'
-import { MuiThemeProvider, Snackbar, CircularProgress } from 'material-ui'
+import { MuiThemeProvider, Snackbar, CircularProgress } from '@material-ui/core'
 import { Provider } from 'react-redux'
 import store from '../../../Model/store'
 import Dashboard from '../Dashboard'
@@ -103,7 +103,7 @@ export default class App extends Component {
     render() {
         return (
             <Provider store={store}>
-                <MuiThemeProvider muiTheme={MainTheme}>
+                <MuiThemeProvider theme={MainTheme}>
                     {this.renderInner()}
                 </MuiThemeProvider>
             </Provider>

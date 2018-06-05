@@ -1,5 +1,5 @@
 import React from 'react'
-import { MenuItem, SelectField } from 'material-ui'
+import { MenuItem, Select } from '@material-ui/core'
 import * as constants from '../../Constants'
 
 export default function LoginNodeTypes({
@@ -7,7 +7,7 @@ export default function LoginNodeTypes({
     onProviderChangedListener
 }) {
     return (
-        <SelectField
+        <Select
             className="node-types"
             floatingLabelText="Connection:"
             value={provider}
@@ -19,6 +19,6 @@ export default function LoginNodeTypes({
                 primaryText="Local Node"
             />
             <MenuItem value={constants.PROVIDER_INFURA} primaryText="Infura" />
-        </SelectField>
+        </Select>
     )
 }

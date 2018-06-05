@@ -15,6 +15,7 @@
 }
 
 .dashboard .appbar .logo-container {
+    flex: 1;
     display: flex;
     height: 100%;
     align-items: center;
@@ -34,14 +35,6 @@
 .dashboard .appbar button span {
     font-family: Inconsolata, monospace;
     font-size: 0.75rem !important;
-}
-
-.dashboard .drawer .logo {
-    height: 144px;
-    width: 100%;
-    object-fit: contain;
-    padding: 0px 8px;
-    display: block;
 }
 
 .menu-item {
@@ -93,4 +86,17 @@
 
 .dashboard #sidebar-wrapper::-webkit-scrollbar {
     width: 1px;
+}
+
+/* Drawer */
+.drawerInner {
+    max-width: 320px;
+}
+
+.drawer img {
+    height: 144px;
+    width: 100%;
+    object-fit: contain;
+    padding: 0px 8px;
+    display: block;
 }

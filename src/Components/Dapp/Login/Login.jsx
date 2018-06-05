@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Card } from 'material-ui'
+import { Card } from '@material-ui/core'
 import LoginActions from './LoginActions'
 import LoginInner from './LoginInner'
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'

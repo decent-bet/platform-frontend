@@ -1,5 +1,6 @@
 import React from 'react'
-import { AppBar } from 'material-ui'
+import { AppBar, Toolbar, IconButton } from '@material-ui/core'
+import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import { Link } from 'react-router-dom'
 
 function DashboardAppBarLogo() {
@@ -13,14 +14,18 @@ function DashboardAppBarLogo() {
 
 export default function DashboardAppBar({ children, onToggleDrawerListener }) {
     return (
-        <AppBar
-            zDepth={4}
-            className="appbar"
-            showMenuIconButton={true}
-            onLeftIconButtonClick={onToggleDrawerListener}
-            title={<DashboardAppBarLogo />}
-        >
-            {children}
+        <AppBar className="appbar">
+            <Toolbar>
+                <IconButton
+                    color="inherit"
+                    aria-label="Menu"
+                    onClick={onToggleDrawerListener}
+                >
+                    <FontAwesomeIcon icon="bars" />
+                </IconButton>
+                <DashboardAppBarLogo />
+                {children}
+            </Toolbar>
         </AppBar>
     )
 }

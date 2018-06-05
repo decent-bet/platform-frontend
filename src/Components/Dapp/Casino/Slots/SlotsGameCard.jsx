@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Card, CardMedia } from 'material-ui'
+import { Card, CardMedia } from '@material-ui/core'
 
 class SlotsGameCard extends Component {
     onClickListener = () => this.props.onGameSelectedListener(this.props.gameName)

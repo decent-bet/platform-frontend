@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-import { Card, CardHeader, CardText } from 'material-ui'
+import { Card, CardHeader, CardContent } from '@material-ui/core'
 import Helper from '../../Helper'
 
 const helper = new Helper()
@@ -24,15 +24,15 @@ export default function SessionStats({ houseFunds }) {
         <Fragment>
             <Card className="hvr-float" style={styles.card}>
                 <CardHeader title="Total House Funds" />
-                <CardText>{totalFunds} DBETs</CardText>
+                <CardContent>{totalFunds} DBETs</CardContent>
             </Card>
             <Card className="hvr-float" style={styles.card}>
                 <CardHeader title="Total House Credits" />
-                <CardText>{totalCredits} Credits</CardText>
+                <CardContent>{totalCredits} Credits</CardContent>
             </Card>
             <Card className="hvr-float" style={styles.card}>
                 <CardHeader title="Profit Generated" />
-                <CardText>{totalProfit} DBETs</CardText>
+                <CardContent>{totalProfit} DBETs</CardContent>
             </Card>
         </Fragment>
     )

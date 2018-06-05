@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-import { FlatButton } from 'material-ui'
+import { Button } from '@material-ui/core'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Helper from '../../Helper'
 
@@ -31,10 +31,14 @@ export default function DashboardAppBarToolbar({
                 text={address}
                 onCopy={copyConfirmation}
             >
-                <FlatButton label={addressText} />
+                <Button variant="flat">{addressText}</Button>
             </CopyToClipboard>
-            <FlatButton className="toolbar-button" label={tokenText} />
-            <FlatButton className="toolbar-button" label={etherText} />
+            <Button variant="flat" className="toolbar-button">
+                {tokenText}
+            </Button>
+            <Button variant="flat" className="toolbar-button">
+                {etherText}
+            </Button>
         </Fragment>
     )
 }

@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 import SlotsGameCard from './SlotsGameCard'
-import { Card, CardHeader, CardText } from 'material-ui'
+import { Card, CardHeader, CardContent } from '@material-ui/core'
 import { channelBalanceParser } from '../functions'
 
 export default function SlotsList({ stateChannel, onGameSelectedListener }) {
@@ -19,9 +19,9 @@ export default function SlotsList({ stateChannel, onGameSelectedListener }) {
                         <span>{balance} DBETs</span>
                     </div>
                 </CardHeader>
-                <CardText expandable={true}>
+                <CardContent expandable={true}>
                     <p>ID: {stateChannel.channelId}</p>
-                </CardText>
+                </CardContent>
             </Card>
             <SlotsGameCard
                 imageUrl="backgrounds/slots-mythsmagic.jpg"

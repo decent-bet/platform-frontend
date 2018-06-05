@@ -3,11 +3,11 @@ import {
     Card,
     CardActions,
     CardHeader,
-    CardText,
+    CardContent,
     Checkbox,
-    RaisedButton,
+    Button,
     TextField
-} from 'material-ui'
+} from '@material-ui/core'
 import React, { Component } from 'react'
 
 export default class StateChannelBuilder extends Component {
@@ -48,7 +48,7 @@ export default class StateChannelBuilder extends Component {
                     title="Let's play Slots"
                     subtitle="How many DBETs would you like?"
                 />
-                <CardText>
+                <CardContent>
                     <TextField
                         name="initial-deposit"
                         value={this.state.value}
@@ -61,14 +61,16 @@ export default class StateChannelBuilder extends Component {
                         checked={this.state.acceptanceChecked}
                         onCheck={this.onAcceptanceCheckedListener}
                     />
-                </CardText>
+                </CardContent>
                 <CardActions>
-                    <RaisedButton
+                    <Button
+                        variant="raised"
                         primary={true}
-                        label="Play Slots"
                         onClick={this.commit}
                         disabled={!this.state.acceptanceChecked}
-                    />
+                    >
+                        Play Slots
+                    </Button>
                 </CardActions>
             </Card>
         )

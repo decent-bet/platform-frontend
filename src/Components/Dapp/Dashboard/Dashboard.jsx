@@ -34,6 +34,7 @@ class Dashboard extends Component {
     }
 
     onDrawerButtonPressedListener = open => this.setState({ drawerOpen: open })
+    onDrawerCloseListener = () => this.setState({ drawerOpen: false})
 
     onProviderChangeListener = value => {
         if (value !== this.state.provider) {
@@ -68,7 +69,7 @@ class Dashboard extends Component {
     renderDrawer = () => (
         <DashboardDrawer
             isDrawerOpen={this.state.drawerOpen}
-            onDrawerStatusChangeListener={this.onDrawerButtonPressedListener}
+            onDrawerCloseListener={this.onDrawerCloseListener}
             onViewChangeListener={this.onViewChangeListener}
             selectedView={this.props.location.pathname}
             onFaucetClickedListener={this.onFaucetClickedListener}

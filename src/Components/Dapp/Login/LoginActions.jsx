@@ -1,5 +1,5 @@
 import React from 'react'
-import { CardActions, RaisedButton } from 'material-ui'
+import { CardActions, Button } from '@material-ui/core'
 
 export default function LoginActions({
     isLoginDisabled,
@@ -8,18 +8,22 @@ export default function LoginActions({
 }) {
     return (
         <CardActions className="login-actions">
-            <RaisedButton
-                label="Create New Passphase"
+            <Button
+                variant="raised"
                 onClick={onGenerateMnemonicListener}
                 className="generate"
-            />
-            <RaisedButton
+            >
+                Create New Passphase
+            </Button>
+            <Button
+                variant="raised"
                 className="login-button"
                 primary={true}
                 disabled={isLoginDisabled}
                 onClick={onLoginListener}
-                label="Login"
-            />
+            >
+                Login
+            </Button>
         </CardActions>
     )
 }

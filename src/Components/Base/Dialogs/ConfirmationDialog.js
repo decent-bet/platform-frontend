@@ -1,5 +1,5 @@
 import React from 'react'
-import { Dialog, FlatButton } from 'material-ui'
+import { Dialog, Button } from '@material-ui/core'
 
 export default function ConfirmationDialog({
     title,
@@ -9,7 +9,13 @@ export default function ConfirmationDialog({
     message
 }) {
     const actions = (
-        <FlatButton label="Ok" primary={false} onTouchTap={onClick} />
+        <Button
+            variant="flat"
+            primary={false}
+            onTouchTap={onClick}
+        >
+        OK
+        </Button>
     )
     return (
         <Dialog

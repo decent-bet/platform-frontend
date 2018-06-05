@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { MenuItem } from 'material-ui'
+import { MenuItem } from '@material-ui/core'
 import * as constants from '../../Constants'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import ProviderSelectorItem from './ProviderSelectorItem'

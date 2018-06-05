@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { DropDownMenu, MenuItem, TextField, RaisedButton } from 'material-ui'
+import { MenuItem, TextField, Button, Select } from '@material-ui/core'
 import BettingReturnsCalculator from '../BettingReturnsCalculator'
 import Helper from '../../../Helper'
 
@@ -144,7 +144,7 @@ export default class BetNowButton extends Component {
         }
 
         return (
-            <DropDownMenu
+            <Select
                 className="mx-auto mt-3"
                 autoWidth={false}
                 style={{ width: '100%' }}
@@ -152,7 +152,7 @@ export default class BetNowButton extends Component {
                 onChange={this.onChangeTeamListener}
             >
                 {options}
-            </DropDownMenu>
+            </Select>
         )
     }
 
@@ -175,13 +175,15 @@ export default class BetNowButton extends Component {
                     <p className="text-center">{this.getMaxWin()} DBETs</p>
                 </div>
                 <div className="col-12">
-                    <RaisedButton
+                    <Button
+                        variant="raised"
                         secondary={true}
                         fullWidth={true}
-                        label="Bet Now"
                         disabled={this.isSubmitDisabled()}
                         onClick={this.onSubmitListener}
-                    />
+                    >
+                        Bet Now
+                    </Button>
                 </div>
             </div>
         )

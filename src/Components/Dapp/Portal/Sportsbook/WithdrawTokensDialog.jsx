@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Dialog, FlatButton, TextField } from 'material-ui'
+import { Dialog, Button, TextField } from '@material-ui/core'
 import Helper from '../../../Helper'
 
 const helper = new Helper()
@@ -48,12 +48,14 @@ export default class WithdrawTokensDialog extends Component {
             <Dialog
                 title={title}
                 actions={
-                    <FlatButton
-                        label="Withdraw"
+                    <Button
+                        variant="flat"
                         primary={true}
                         disabled={!isValid}
                         onClick={this.onWithdrawListener}
-                    />
+                    >
+                        Withdraw
+                    </Button>
                 }
                 modal={false}
                 open={this.props.open}

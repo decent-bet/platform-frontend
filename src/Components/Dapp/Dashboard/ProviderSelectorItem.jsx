@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { MenuItem } from 'material-ui'
+import { MenuItem } from '@material-ui/core'
 
 export default class ProviderSelectorItem extends Component {
     onClickListener = () =>

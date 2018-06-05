@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { RaisedButton } from 'material-ui'
+import { Button } from '@material-ui/core'
 
 export default class StateChannelToolbar extends Component {
     onClaimListener = () =>
@@ -8,12 +8,14 @@ export default class StateChannelToolbar extends Component {
     render() {
         const { channel } = this.props
         return (
-            <RaisedButton
-                label="Claim Chips"
+            <Button
+                variant="raised"
                 primary={true}
                 onClick={this.onClaimListener}
                 disabled={!channel.info.finalized || channel.info.claimed}
-            />
+            >
+                Claim Chips
+            </Button>
         )
     }
 }

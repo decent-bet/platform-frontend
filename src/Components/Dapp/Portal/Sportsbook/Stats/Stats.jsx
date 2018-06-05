@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, RaisedButton } from 'material-ui'
+import { Card, Button } from '@material-ui/core'
 import Helper from '../../../../Helper'
 
 const styles = require('../../../../Base/styles').styles()
@@ -38,20 +38,24 @@ export default function Stats({
                     <div className="col-6">
                         <p className="key text-center">Your Session Balance</p>
                         <p>{formattedTokens} DBETs</p>
-                        <RaisedButton
+                        <Button
+                            variant="raised"
                             primary={true}
                             fullWidth={true}
                             onClick={onDepositTokensDialogOpen}
-                            label="Deposit"
                             className="mx-auto pb-2"
-                        />
-                        <RaisedButton
+                        >
+                            Deposit
+                        </Button>
+                        <Button
+                            variant="raised"
                             primary={true}
                             fullWidth={true}
                             onClick={onOpenWithdrawDialog}
-                            label="Withdraw"
                             className="mx-auto"
-                        />
+                        >
+                            Withdraw
+                        </Button>
                     </div>
                     <div className="col-6">
                         <p className="key">Sportsbook balance</p>

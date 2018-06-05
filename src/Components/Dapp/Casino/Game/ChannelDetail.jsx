@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardText } from 'material-ui'
+import { Card, CardHeader, CardContent } from '@material-ui/core'
 import React from 'react'
 import Helper from '../../../Helper'
 import SpinHistory from './SpinHistory'
@@ -18,7 +18,7 @@ export default function channelDetail({
                 showExpandableButton={true}
                 title="Data For Nerds"
             />
-            <CardText expandable={true}>
+            <CardContent expandable={true}>
                 <dl>
                     <dt>Initial Deposit</dt>
                     <dd>{helper.formatEther(initialDeposit)} DBETs</dd>
@@ -31,12 +31,12 @@ export default function channelDetail({
                     <dt>Final Seed Hash</dt>
                     <dd>{hashes.finalSeedHash}</dd>
                 </dl>
-            </CardText>
+            </CardContent>
 
             <CardHeader title="Spin History" expandable={true} />
-            <CardText expandable={true}>
+            <CardContent expandable={true}>
                 <SpinHistory houseSpins={houseSpins} userHashes={userHashes} />
-            </CardText>
+            </CardContent>
         </Card>
     )
 }

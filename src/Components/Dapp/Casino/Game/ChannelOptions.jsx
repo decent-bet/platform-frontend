@@ -2,10 +2,10 @@ import React from 'react'
 import {
     Card,
     CardHeader,
-    CardText,
+    CardContent,
     CardActions,
-    RaisedButton
-} from 'material-ui'
+    Button
+} from '@material-ui/core'
 
 export default function ChannelOptions({
     onClaimListener,
@@ -18,7 +18,7 @@ export default function ChannelOptions({
     return (
         <Card className="card channel-options">
             <CardHeader title="Channel Options" />
-            <CardText className="card-text">
+            <CardContent className="card-text">
                 <p>
                     To finalize a channel allowing you to withdraw your DBETs,
                     click on the 'Close Channel' button below
@@ -29,22 +29,26 @@ export default function ChannelOptions({
                     please click on the Claim DBETs button below to claim your
                     DBETs from the channel
                 </p>
-            </CardText>
+            </CardContent>
 
             <CardActions className="card-actions">
-                <RaisedButton
+                <Button
+                    variant="raised"
                     primary={true}
-                    label="Close Channel"
                     disabled={isFinalized}
                     onClick={onFinalizeListener}
-                />
+                >
+                    Close Channel
+                </Button>
 
-                <RaisedButton
+                <Button
+                    variant="raised"
                     primary={true}
-                    label="Claim DBETs"
                     disabled={isClaimButtonDisabled}
                     onClick={onClaimListener}
-                />
+                >
+                    Claim DBETs
+                </Button>
             </CardActions>
         </Card>
     )
