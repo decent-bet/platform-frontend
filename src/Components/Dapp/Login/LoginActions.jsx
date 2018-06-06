@@ -18,7 +18,7 @@ export default function LoginActions({
             <Button
                 variant="raised"
                 className="login-button"
-                primary={true}
+                color="primary"
                 disabled={isLoginDisabled}
                 onClick={onLoginListener}
             >

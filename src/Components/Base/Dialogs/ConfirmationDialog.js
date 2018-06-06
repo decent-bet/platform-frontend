@@ -1,5 +1,12 @@
 import React from 'react'
-import { Dialog, Button } from '@material-ui/core'
+import {
+    Dialog,
+    Button,
+    DialogTitle,
+    DialogActions,
+    DialogContentText,
+    DialogContent
+} from '@material-ui/core'
 
 export default function ConfirmationDialog({
     title,
@@ -8,25 +15,17 @@ export default function ConfirmationDialog({
     onClose,
     message
 }) {
-    const actions = (
-        <Button
-            variant="flat"
-            primary={false}
-            onTouchTap={onClick}
-        >
-        OK
-        </Button>
-    )
     return (
-        <Dialog
-            title={title}
-            actions={actions}
-            modal={false}
-            open={open}
-            autoScrollBodyContent={false}
-            onRequestClose={onClose}
-        >
-            <p>{message}</p>
+        <Dialog open={open} onClose={onClose}>
+            <DialogTitle>{title}</DialogTitle>
+            <DialogContent>
+                <DialogContentText>{message}</DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button variant="flat" color="primary" onClick={onClick}>
+                    OK
+                </Button>
+            </DialogActions>
         </Dialog>
     )
 }

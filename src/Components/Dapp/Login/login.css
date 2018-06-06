@@ -7,13 +7,12 @@
 }
 
 .login > * {
-    flex: 0;
+    flex: 0 auto;
 }
 
 .login .login-card {
     max-width: 600px;
     margin: auto;
-    height: 100%;
 }
 
 .login .login-card {
@@ -35,7 +34,7 @@
 .login .login-card .login-inner {
     display: grid;
     grid-template-columns: 0fr 1fr;
-    column-gap: 15px;
+    grid-gap: 24px;
 }
 
 .login .login-card .login-inner .input {
@@ -53,16 +52,6 @@
 /* Fixes for the 'Node Type' select box */
 .login .login-card .login-inner .node-types  {
     width: 100% !important;
-}
-
-/* Remove ALLCAPS from the buttons in the dialog */
-.login .login-card .login-actions button span {
-    text-transform: none !important;
-}
-
-/* Force monospace in the input */
-.login .login-card .login-inner textarea {
-    font-family: Inconsolata, monospace !important;
 }
 
 @media (max-width: 767px) {

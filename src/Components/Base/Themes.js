@@ -26,13 +26,18 @@ export const MainTheme = createMuiTheme({
             fontFamily: 'Inconsolata, monospace',
             fontSize: '0.75rem',
             textTransform: 'capitalize'
-        }
+        },
     },
 
     overrides: {
         MuiAppBar: {
             colorPrimary: {
                 backgroundColor: constants.COLOR_PRIMARY_DARK
+            }
+        },
+        MuiInput: {
+            input : {
+                fontFamily: 'Inconsolata, monospace'
             }
         }
     }

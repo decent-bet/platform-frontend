@@ -23,9 +23,9 @@ export default function LoginInner({
             <TextField
                 className="input"
                 type="text"
-                fullWidth={true}
-                multiLine={true}
-                floatingLabelText="Enter Passphrase or Private Key"
+                fullWidth
+                multiline
+                label="Enter Passphrase or Private Key"
                 value={value}
                 onChange={onChange}
                 onKeyPress={onLoginKeypress}
