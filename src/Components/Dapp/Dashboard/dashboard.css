@@ -1,10 +1,3 @@
-.dashboard .appbar {
-    background: linear-gradient(to bottom, #323232 0%, #3F3F3F 40%, #1C1C1C 150%), linear-gradient(to top, rgba(255, 255, 255, 0.40) 0%, rgba(0, 0, 0, 0.25) 200%);
-    background-blend-mode: multiply;
-    position: fixed !important;
-    top: 0;
-}
-
 .dashboard h1,
 .dashboard h2,
 .dashboard h3,
@@ -23,18 +16,12 @@
 }
 
 .dashboard .appbar .logo {
-    width: 110px;
+    height: 24px;
     object-fit: contain;
 }
 
 .dashboard .appbar .toolbar-button {
     align-self: center;
-}
-
-/* Counters on the Appbar */
-.dashboard .appbar button span {
-    font-family: Inconsolata, monospace;
-    font-size: 0.75rem !important;
 }
 
 .menu-item {

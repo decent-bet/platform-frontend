@@ -14,7 +14,7 @@ function DashboardAppBarLogo() {
 
 export default function DashboardAppBar({ children, onToggleDrawerListener }) {
     return (
-        <AppBar className="appbar">
+        <AppBar className="appbar" position="fixed" color="primary">
             <Toolbar>
                 <IconButton
                     color="inherit"
