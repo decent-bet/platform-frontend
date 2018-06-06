@@ -39,16 +39,9 @@
 
 .menu-item {
     font-family: 'GothamLight' !important;
-    font-size: 17px;
-    padding: 10px 0 10px 0 !important;
 }
 
-.menu-item,
-.menu-item svg {
-    color: #EEE;
-}
-
-.menu-item.selected,
+.menu-item.selected span,
 .menu-item.selected svg {
     color: #f2b45c !important;
 }
@@ -97,6 +90,5 @@
     height: 144px;
     width: 100%;
     object-fit: contain;
-    padding: 0px 8px;
-    display: block;
+    padding: 0px 24px;
 }

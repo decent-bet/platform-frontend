@@ -1,5 +1,10 @@
 import React from 'react'
-import { ListItem, ListItemIcon, ListItemText } from '@material-ui/core'
+import {
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    SvgIcon
+} from '@material-ui/core'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import Helper from '../../Helper'
 import { PROVIDER_DBET } from '../../Constants'
@@ -16,10 +21,12 @@ export default function FaucetMenuItem({ onFaucetClickedListener }) {
                 onClick={onFaucetClickedListener}
             >
                 <ListItemIcon>
-                    <FontAwesomeIcon
-                        icon={['fab', 'ethereum']}
-                        className="fa-fw"
-                    />
+                    <SvgIcon>
+                        <FontAwesomeIcon
+                            icon={['fab', 'ethereum']}
+                            className="fa-fw"
+                        />
+                    </SvgIcon>
                 </ListItemIcon>
 
                 <ListItemText>Claim Faucet</ListItemText>
