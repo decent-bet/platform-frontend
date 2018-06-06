@@ -1,26 +1,53 @@
 import React, { Component, Fragment } from 'react'
-import { MenuItem } from '@material-ui/core'
+import {
+    ListItemText,
+    ListItem,
+    SvgIcon,
+    ListItemIcon,
+    Collapse,
+    List
+} from '@material-ui/core'
 import * as constants from '../../Constants'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import ProviderSelectorItem from './ProviderSelectorItem'
 
 export default class ProviderSelector extends Component {
-    onClickListener = item => {
-        this.props.onProviderChangeListener(null, 0, item.dataset.provider)
+    state = {
+        isOpen: false
     }
+
+    onClickListener = () => this.setState({ isOpen: !this.state.isOpen })
+
     render() {
+        const caretIcon = this.state.isOpen ? (
+            <SvgIcon>
+                <FontAwesomeIcon icon="caret-down" />
+            </SvgIcon>
+        ) : (
+            <SvgIcon>
+                <FontAwesomeIcon icon="caret-up" />
+            </SvgIcon>
+        )
         return (
-            <MenuItem
-                className="menu-item"
-                leftIcon={
-                    <FontAwesomeIcon
-                        icon="wrench"
-                        className="menu-icon fa-fw"
-                    />
-                }
-                primaryText="Connected to:"
-                menuItems={
-                    <Fragment>
+            <Fragment>
+                <ListItem
+                    button
+                    className="menu-item"
+                    onClick={this.onClickListener}
+                >
+                    <ListItemIcon>
+                        <SvgIcon>
+                            <FontAwesomeIcon icon="wrench" className="fa-fw" />
+                        </SvgIcon>
+                    </ListItemIcon>
+
+                    <ListItemText primary="Connected to:" />
+
+                    {caretIcon}
+                </ListItem>
+
+                <Collapse in={this.state.isOpen} unmountOnExit>
+                    <List component="div" disablePadding>
                         <ProviderSelectorItem
                             label="DBET Node"
                             selectedProvider={this.props.gethNodeProvider}
@@ -47,9 +74,9 @@ export default class ProviderSelector extends Component {
                                 this.props.onProviderChangeListener
                             }
                         />
-                    </Fragment>
-                }
-            />
+                    </List>
+                </Collapse>
+            </Fragment>
         )
     }
 }

@@ -34,7 +34,7 @@ class Dashboard extends Component {
     }
 
     onDrawerButtonPressedListener = open => this.setState({ drawerOpen: open })
-    onDrawerCloseListener = () => this.setState({ drawerOpen: false})
+    onDrawerCloseListener = () => this.setState({ drawerOpen: false })
 
     onProviderChangeListener = value => {
         if (value !== this.state.provider) {

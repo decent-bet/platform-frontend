@@ -28,6 +28,10 @@
     font-family: 'GothamLight' !important;
 }
 
+.menu-item svg {
+    color: #ffffff;
+}
+
 .menu-item.selected span,
 .menu-item.selected svg {
     color: #f2b45c !important;
