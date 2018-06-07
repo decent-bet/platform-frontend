@@ -22,11 +22,13 @@ export const MainTheme = createMuiTheme({
     },
 
     typography: {
+        fontFamily:
+            '"TradeGothic", "Lato", "Hind", "Oswald", "Arial Narrow", sans-serif',
         button: {
             fontFamily: 'Inconsolata, monospace',
             fontSize: '0.75rem',
             textTransform: 'capitalize'
-        },
+        }
     },
 
     overrides: {
@@ -36,7 +38,7 @@ export const MainTheme = createMuiTheme({
             }
         },
         MuiInput: {
-            input : {
+            input: {
                 fontFamily: 'Inconsolata, monospace'
             }
         }

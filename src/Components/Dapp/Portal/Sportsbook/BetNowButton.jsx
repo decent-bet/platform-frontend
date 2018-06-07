@@ -177,7 +177,7 @@ export default class BetNowButton extends Component {
                 <div className="col-12">
                     <Button
                         variant="raised"
-                        secondary={true}
+                        color="secondary"
                         fullWidth={true}
                         disabled={this.isSubmitDisabled()}
                         onClick={this.onSubmitListener}

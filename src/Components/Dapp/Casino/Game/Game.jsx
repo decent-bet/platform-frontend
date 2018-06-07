@@ -124,12 +124,12 @@ class Game extends Component {
 
     renderHeader = () => (
         <section className="controls">
-            <Button variant="raised" primary={true} onClick={this.back}>
+            <Button variant="raised" color="primary" onClick={this.back}>
                 Switch Game
             </Button>
             <Button
                 variant="raised"
-                primary={true}
+                color="primary"
                 onClick={this.onFinalizeListener}
             >
                 Exit Slots

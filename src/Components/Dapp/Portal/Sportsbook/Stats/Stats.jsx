@@ -40,7 +40,7 @@ export default function Stats({
                         <p>{formattedTokens} DBETs</p>
                         <Button
                             variant="raised"
-                            primary={true}
+                            color="primary"
                             fullWidth={true}
                             onClick={onDepositTokensDialogOpen}
                             className="mx-auto pb-2"
@@ -49,7 +49,7 @@ export default function Stats({
                         </Button>
                         <Button
                             variant="raised"
-                            primary={true}
+                            color="primary"
                             fullWidth={true}
                             onClick={onOpenWithdrawDialog}
                             className="mx-auto"

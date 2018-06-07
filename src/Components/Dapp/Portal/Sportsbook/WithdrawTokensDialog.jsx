@@ -50,7 +50,7 @@ export default class WithdrawTokensDialog extends Component {
                 actions={
                     <Button
                         variant="flat"
-                        primary={true}
+                        color="primary"
                         disabled={!isValid}
                         onClick={this.onWithdrawListener}
                     >

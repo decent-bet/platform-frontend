@@ -36,7 +36,7 @@ export default class PlacedBetsItem extends Component {
                 <td>
                     <Button
                         variant="raised"
-                        secondary={true}
+                        color="secondary"
                         disabled={
                             !isGameOutcomeAvailable(gameItem, oddsObj.period) ||
                             winnings === 0 ||

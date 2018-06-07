@@ -143,10 +143,10 @@ class Slots extends Component {
             channelMap={this.props.channels}
             activeChannels={this.state.activeChannels}
             claimableChannels={this.state.claimableChannels}
-        >
-            {/* Function as a child. Receives `channel` */}
-            {this.renderStateChannelToolbar}
-        </StateChannelTable>
+            
+            /* Function as a child. Receives `channel` */
+            children={this.renderStateChannelToolbar}
+        />
     )
 
     renderStateMachine = () => {

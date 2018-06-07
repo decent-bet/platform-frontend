@@ -34,7 +34,7 @@ export default function ChannelOptions({
             <CardActions className="card-actions">
                 <Button
                     variant="raised"
-                    primary={true}
+                    color="primary"
                     disabled={isFinalized}
                     onClick={onFinalizeListener}
                 >
@@ -43,7 +43,7 @@ export default function ChannelOptions({
 
                 <Button
                     variant="raised"
-                    primary={true}
+                    color="primary"
                     disabled={isClaimButtonDisabled}
                     onClick={onClaimListener}
                 >

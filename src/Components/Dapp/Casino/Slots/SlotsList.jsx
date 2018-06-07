@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 import SlotsGameCard from './SlotsGameCard'
-import { Card, CardHeader, CardContent } from '@material-ui/core'
+import { Card, CardContent } from '@material-ui/core'
 import { channelBalanceParser } from '../functions'
 
 export default function SlotsList({ stateChannel, onGameSelectedListener }) {
@@ -10,18 +10,7 @@ export default function SlotsList({ stateChannel, onGameSelectedListener }) {
     return (
         <Fragment>
             <Card className="channel-description card">
-                <CardHeader
-                    actAsExpander={true}
-                    showExpandableButton={true}
-                    className="header"
-                >
-                    <div className="balance">
-                        <span>{balance} DBETs</span>
-                    </div>
-                </CardHeader>
-                <CardContent expandable={true}>
-                    <p>ID: {stateChannel.channelId}</p>
-                </CardContent>
+                <CardContent component="header">{balance} DBETs</CardContent>
             </Card>
             <SlotsGameCard
                 imageUrl="backgrounds/slots-mythsmagic.jpg"

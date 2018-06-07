@@ -50,7 +50,7 @@ export default class DepositTokensDialog extends Component {
                 actions={
                     <Button
                         variant="flat"
-                        primary={true}
+                        color="primary"
                         disabled={!isValid}
                         onClick={this.onDepositListener}
                     >

@@ -33,21 +33,6 @@ body {
     src: url('../../public/assets/fonts/gotham-rounded-medium.otf')
 }
 
-body,
-.pure-g [class*=pure-u] {
-    font-family: 'Lato', 'Hind', 'Open Sans', sans-serif;
-}
-
-h1, h2, h3, h4, h5, h6 {
-    font-family: 'TradeGothic', 'Lato', 'Hind', 'Oswald', 'Arial Narrow', sans-serif;
-    color: #ffffff;
-}
-
-p, th {
-    font-family: 'TradeGothic', 'Lato', 'Hind', 'Oswald', 'Arial Narrow', sans-serif;
-    color: #ffffff;
-}
-
 .logo-text {
     font-weight: bold;
     color: #e8b863;

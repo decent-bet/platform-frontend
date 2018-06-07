@@ -10,7 +10,7 @@ export default class StateChannelToolbar extends Component {
         return (
             <Button
                 variant="raised"
-                primary={true}
+                color="primary"
                 onClick={this.onClaimListener}
                 disabled={!channel.info.finalized || channel.info.claimed}
             >

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, CardContent, CardHeader } from '@material-ui/core'
+import { Card, CardContent, CardHeader, Typography } from '@material-ui/core'
 import { channelBalanceParser } from '../functions'
 
 export default function StateChannelTable({
@@ -13,10 +13,9 @@ export default function StateChannelTable({
 
         // Parse the balance from the state
         const totalTokens = channelBalanceParser(channel)
-        const text = `You have ${totalTokens} chips`
         return (
             <CardContent key={channelId}>
-                <p>{text}</p>
+                <Typography>You have {totalTokens} chips</Typography>
                 {children(channel)}
             </CardContent>
         )

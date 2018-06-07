@@ -16,41 +16,17 @@
     grid-column: 1 / -1;
 }
 
-.slots .channel-description {
-    font-family: Inconsolata, monospace !important;
-    font-size: 14px;
-}
-
-.slots .channel-description .header {
-    display: flex !important;
-    flex-flow: row nowrap;
-    height: 48px;
-    padding: 0px !important;
-}
-
-/* Hide the empty text space in the card header on the Channel Description header */
-.slots .channel-description .header > div:not(.balance) {
-    display: none !important;
-}
-
-.slots .channel-description .balance {
+.slots .channel-description header{
     flex: 0 30%;
-    display: flex;
     padding: 16px;
 
     color: #303030;
     border: 1px solid #303030;
     background-color: #f2b45c;
+    font-family: Inconsolata, monospace !important;
+    text-align: center;
     align-items: center;
     font-weight: bold;
-    font-family: Inconsolata, monospace !important;
-    text-align: right;
-    border-bottom-left-radius: 16px;
-    border-top-left-radius: 16px;
-}
-
-.slots .channel-description .balance > * {
-    flex: 1 100%;
 }
 
 /* All cards inside the slots component */
@@ -64,8 +40,8 @@
     border-radius: 16px !important;
 }
 
-.slots .game-card img {
-    border-radius: 16px;
+.slots .game-card > * {
+    height: 192px;
 }
 
 .slots .chip-toolbar-container {

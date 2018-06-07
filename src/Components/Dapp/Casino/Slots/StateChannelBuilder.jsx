@@ -6,7 +6,8 @@ import {
     CardContent,
     Checkbox,
     Button,
-    TextField
+    TextField,
+    FormControlLabel
 } from '@material-ui/core'
 import React, { Component } from 'react'
 
@@ -16,7 +17,7 @@ export default class StateChannelBuilder extends Component {
         acceptanceChecked: true
     }
 
-    onValueChanged = (event, value) => this.setState({ value })
+    onValueChanged = event => this.setState({ value: event.target.value })
 
     commit = () => {
         // Do not Commit if value is invalid
@@ -38,10 +39,9 @@ export default class StateChannelBuilder extends Component {
         }))
 
     render() {
-        const errorText =
-            this.isValueValid() || this.state.value === ''
-                ? null
-                : 'Between [100 and 1000]'
+        const currentValue = parseInt(this.state.value, 10) || ''
+        const isValid = this.isValueValid() || currentValue === ''
+        const errorText = isValid ? null : 'Between [100 and 1000]'
         return (
             <Card className="card">
                 <CardHeader
@@ -51,21 +51,27 @@ export default class StateChannelBuilder extends Component {
                 <CardContent>
                     <TextField
                         name="initial-deposit"
-                        value={this.state.value}
+                        value={currentValue}
                         onChange={this.onValueChanged}
-                        fullWidth={true}
-                        errorText={errorText}
+                        error={!isValid}
+                        helperText={errorText}
+                        fullWidth
                     />
-                    <Checkbox
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                color="primary"
+                                checked={this.state.acceptanceChecked}
+                                onChange={this.onAcceptanceCheckedListener}
+                            />
+                        }
                         label="Use XX eth to cover session gas costs"
-                        checked={this.state.acceptanceChecked}
-                        onCheck={this.onAcceptanceCheckedListener}
                     />
                 </CardContent>
                 <CardActions>
                     <Button
                         variant="raised"
-                        primary={true}
+                        color="primary"
                         onClick={this.commit}
                         disabled={!this.state.acceptanceChecked}
                     >
