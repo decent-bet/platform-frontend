@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, CardHeader, CardContent } from '@material-ui/core'
+import { Card, CardHeader, CardContent, Typography } from '@material-ui/core'
 
 const styles = require('../../Base/styles').styles()
 
@@ -15,21 +15,25 @@ export default function LotteryDetails({ lottery }) {
                 <tbody>
                     <tr>
                         <th>Tickets Sold</th>
-                        <td>{lottery.ticketCount} tickets</td>
+                        <Typography component="td">
+                            {lottery.ticketCount} tickets
+                        </Typography>
                     </tr>
                     <tr>
                         <th>Payout</th>
-                        <td>{lottery.payout} DBETs</td>
+                        <Typography component="td">
+                            {lottery.payout} DBETs
+                        </Typography>
                     </tr>
                     <tr>
                         <th>Winner Announced</th>
-                        <td>
+                        <Typography component="td">
                             {lottery.finalized ? (
                                 <span className="text-success">YES</span>
                             ) : (
                                 <span className="text-danger">NO</span>
                             )}
-                        </td>
+                        </Typography>
                     </tr>
                 </tbody>
             </table>

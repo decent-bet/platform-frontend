@@ -3,8 +3,13 @@
  */
 
 import React, { Component, Fragment } from 'react'
-import FontAwesomeIcon from '@fortawesome/react-fontawesome'
-import { Button, Card, CardContent, CardActions } from '@material-ui/core'
+import {
+    Button,
+    Card,
+    CardContent,
+    CardActions,
+    Typography
+} from '@material-ui/core'
 import PurchaseCreditsDialog from './Dialogs/PurchaseCreditsDialog'
 import Helper from '../../Helper'
 import HouseStats from './HouseStats'
@@ -88,14 +93,16 @@ class House extends Component {
                 </header>
 
                 <Card>
-                    <CardContent
-                    >{`House Allowance: ${allowance} DBETs`}</CardContent>
+                    <CardContent>
+                        <Typography component="p">
+                            House Allowance: {allowance} DBETs
+                        </Typography>
+                    </CardContent>
                     <CardActions>
                         <Button
                             variant="raised"
-                            icon={<FontAwesomeIcon icon="money-bill-alt" />}
-                            secondary={true}
-                            fullWidth={true}
+                            color="primary"
+                            fullWidth
                             onClick={this.onOpenPurchaseDialogListener}
                         >
                             Purchase Credits
