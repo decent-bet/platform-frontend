@@ -4,7 +4,8 @@ import {
     CardHeader,
     CardContent,
     CardActions,
-    Button
+    Button,
+    Typography
 } from '@material-ui/core'
 
 export default function ChannelOptions({
@@ -19,16 +20,16 @@ export default function ChannelOptions({
         <Card className="card channel-options">
             <CardHeader title="Channel Options" />
             <CardContent className="card-text">
-                <p>
+                <Typography>
                     To finalize a channel allowing you to withdraw your DBETs,
                     click on the 'Close Channel' button below
-                </p>
+                </Typography>
 
-                <p>
+                <Typography>
                     After finalizing your channel and a time period of 1 minute,
                     please click on the Claim DBETs button below to claim your
                     DBETs from the channel
-                </p>
+                </Typography>
             </CardContent>
 
             <CardActions className="card-actions">

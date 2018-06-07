@@ -1,4 +1,10 @@
-import { Card, CardHeader, CardContent, Button } from '@material-ui/core'
+import {
+    Card,
+    CardHeader,
+    CardContent,
+    Button,
+    Typography
+} from '@material-ui/core'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import {
@@ -77,11 +83,13 @@ class Game extends Component {
                 <Card className="card full-size">
                     <CardHeader title="The channel has been finalized" />
                     <CardContent>
-                        <p>Please wait a minute before claiming your DBETs.</p>
-                        <p>
+                        <Typography>
+                            Please wait a minute before claiming your DBETs.
+                        </Typography>
+                        <Typography>
                             Final Balance:{' '}
                             {helper.formatEther(this.props.userBalance)}
-                        </p>
+                        </Typography>
                     </CardContent>
                 </Card>
             )

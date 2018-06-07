@@ -1,9 +1,10 @@
 import { SHA256 } from 'crypto-js'
 import React from 'react'
 import SpinHistoryItem from './SpinHistoryItem'
+import { Typography } from '@material-ui/core'
 
 export default function spinHistory({ houseSpins, userHashes }) {
-    let spinArray
+    let spinArray = []
     if (houseSpins) {
         spinArray = houseSpins.map(spin => {
             const isValid =
@@ -21,12 +22,24 @@ export default function spinHistory({ houseSpins, userHashes }) {
         <table className="table">
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>User Hash</th>
-                    <th>Reel Hash</th>
-                    <th>Reel Seed Hash</th>
-                    <th>Reel</th>
-                    <th>Valid?</th>
+                    <th>
+                        <Typography>#</Typography>
+                    </th>
+                    <th>
+                        <Typography>User Hash</Typography>
+                    </th>
+                    <th>
+                        <Typography>Reel Hash</Typography>
+                    </th>
+                    <th>
+                        <Typography>Reel Seed Hash</Typography>
+                    </th>
+                    <th>
+                        <Typography>Reel</Typography>
+                    </th>
+                    <th>
+                        <Typography>Valid?</Typography>
+                    </th>
                 </tr>
             </thead>
             <tbody>

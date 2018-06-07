@@ -21,11 +21,11 @@ export default class ProviderSelector extends Component {
     render() {
         const caretIcon = this.state.isOpen ? (
             <SvgIcon>
-                <FontAwesomeIcon icon="caret-down" />
+                <FontAwesomeIcon icon="caret-up" />
             </SvgIcon>
         ) : (
             <SvgIcon>
-                <FontAwesomeIcon icon="caret-up" />
+                <FontAwesomeIcon icon="caret-down" />
             </SvgIcon>
         )
         return (

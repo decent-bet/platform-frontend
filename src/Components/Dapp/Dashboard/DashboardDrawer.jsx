@@ -16,7 +16,6 @@ export default function DashboardDrawer({
     return (
         <Drawer
             className="drawer"
-            docked={false}
             open={isDrawerOpen}
             onClose={onDrawerCloseListener}
         >
