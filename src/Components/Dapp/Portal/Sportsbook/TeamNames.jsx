@@ -1,4 +1,5 @@
 import React from 'react'
+import { Typography } from '@material-ui/core'
 
 function hasTeamNamesInOracle(oracleGame) {
     if (oracleGame) {
@@ -16,8 +17,10 @@ export default function TeamNames({ game }) {
     if (isTeamNamesAvailable) {
         let team1Name = game.oracleInfo.team1
         let team2name = game.oracleInfo.team2
-        return <p className="mb-1 teams">{`${team1Name} vs ${team2name}`}</p>
+        return (
+            <Typography className="mb-1 teams">{`${team1Name} vs ${team2name}`}</Typography>
+        )
     } else {
-        return <p className="mb-1">Loading team names...</p>
+        return <Typography className="mb-1">Loading team names...</Typography>
     }
 }

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, Button } from '@material-ui/core'
+import { Card, Button, Typography } from '@material-ui/core'
 import Helper from '../../../../Helper'
 
 const styles = require('../../../../Base/styles').styles()
@@ -33,17 +33,18 @@ export default function Stats({
                     </div>
                     <div className="col-6">
                         <p className="key">Current Session</p>
-                        <p>{bettingProvider.currentSession.toString()}</p>
+                        <Typography>
+                            {bettingProvider.currentSession.toString()}
+                        </Typography>
                     </div>
                     <div className="col-6">
                         <p className="key text-center">Your Session Balance</p>
-                        <p>{formattedTokens} DBETs</p>
+                        <Typography>{formattedTokens} DBETs</Typography>
                         <Button
                             variant="raised"
                             color="primary"
                             fullWidth={true}
                             onClick={onDepositTokensDialogOpen}
-                            className="mx-auto pb-2"
                         >
                             Deposit
                         </Button>
@@ -52,14 +53,15 @@ export default function Stats({
                             color="primary"
                             fullWidth={true}
                             onClick={onOpenWithdrawDialog}
-                            className="mx-auto"
                         >
                             Withdraw
                         </Button>
                     </div>
                     <div className="col-6">
                         <p className="key">Sportsbook balance</p>
-                        <p>{helper.commafy(bettingProvider.balance)} DBETs</p>
+                        <Typography>
+                            {helper.commafy(bettingProvider.balance)} DBETs
+                        </Typography>
                     </div>
                     {warning}
                 </div>

@@ -1,12 +1,17 @@
 import React, { Component } from 'react'
-import { Dialog, Button, TextField } from '@material-ui/core'
+import {
+    Dialog,
+    Button,
+    TextField,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions
+} from '@material-ui/core'
 
 export default class DepositTokensDialog extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            amount: ''
-        }
+    state = {
+        amount: ''
     }
 
     isValid = () => {
@@ -19,8 +24,8 @@ export default class DepositTokensDialog extends Component {
         )
     }
 
-    onAmountChangedListener = (event, value) => {
-        this.setState({ amount: value })
+    onAmountChangedListener = event => {
+        this.setState({ amount: event.target.value })
     }
 
     onDepositListener = () => {
@@ -33,21 +38,44 @@ export default class DepositTokensDialog extends Component {
     onCloseDialogListener = () => this.props.toggleDialog(false)
 
     render() {
-        let { sessionNumber } = this.props
-        let isValid = this.isValid()
+        const { sessionNumber } = this.props
+        const isValid = this.isValid()
 
-        let title = `Deposit tokens to Sportsbook for session ${sessionNumber}`
+        const title = `Deposit tokens to Sportsbook for session ${sessionNumber}`
         let errorMessage = null
         if (!isValid) {
             errorMessage = this.state.amount
                 ? 'You do not have enough DBETs. Please enter a valid amount and try again.'
                 : 'Please enter a valid amount of DBETs'
         }
-        let balance = this.props.balance || 0
+        const balance = this.props.balance || 0
         return (
-            <Dialog
-                title={title}
-                actions={
+            <Dialog open={this.props.open} onClose={this.onCloseDialogListener}>
+                <DialogTitle>{title}</DialogTitle>
+
+                <DialogContent>
+                    <TextField
+                        label="Amount"
+                        fullWidth
+                        type="number"
+                        value={this.state.amount}
+                        onChange={this.onAmountChangedListener}
+                        error={!isValid}
+                        helperText={errorMessage}
+                    />
+                    <DialogContentText className="color-gold">
+                        Available balance: {balance.toFixed(2)} DBETs
+                    </DialogContentText>
+                    <br />
+                    <DialogContentText>
+                        Please note that if you haven't set an allowance for the
+                        sportsbook to transfer DBETs to it's contract address,
+                        you will be prompted to do so now and will have to send
+                        2 transactions to the network.
+                    </DialogContentText>
+                </DialogContent>
+
+                <DialogActions>
                     <Button
                         variant="flat"
                         color="primary"
@@ -56,27 +84,7 @@ export default class DepositTokensDialog extends Component {
                     >
                         Deposit
                     </Button>
-                }
-                modal={false}
-                open={this.props.open}
-                onRequestClose={this.onCloseDialogListener}
-            >
-                <TextField
-                    floatingLabelText="Amount"
-                    fullWidth={true}
-                    type="number"
-                    value={this.state.amount}
-                    onChange={this.onAmountChangedListener}
-                    errorText={errorMessage}
-                />
-                <p className="color-gold">
-                    Available balance: {balance.toFixed(2)} DBETs
-                </p>
-                <br />
-                Please note that if you haven't set an allowance for the
-                sportsbook to transfer DBETs to it's contract address, you will
-                be prompted to do so now and will have to send 2 transactions to
-                the network.
+                </DialogActions>
             </Dialog>
         )
     }

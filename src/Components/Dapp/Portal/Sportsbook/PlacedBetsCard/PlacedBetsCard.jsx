@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card } from '@material-ui/core'
+import { Card, Typography } from '@material-ui/core'
 import PlacedBetsTable from './PlacedBetsTable'
 
 const styles = require('../../../../Base/styles').styles()
@@ -15,7 +15,7 @@ export default function PlacedBetsCard({
     let innerContent
     if (gamesWithBets.length < 1) {
         // Placeholder for empty array
-        innerContent = <p className="text-center mt-4">No bets placed</p>
+        innerContent = <Typography>No bets placed</Typography>
     } else {
         // If array contains bets, print the rows
         innerContent = gamesWithBets.map(game => (

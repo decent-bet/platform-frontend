@@ -70,7 +70,7 @@
 .portal .sportsbook .stats button {
     display: block;
     padding: 7px 15px;
-    width: 100px;
+    margin: 8px 0px;
 }
 
 .portal .sportsbook table td,

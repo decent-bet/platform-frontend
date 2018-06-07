@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react'
 import GamesCardItem from './GamesCardItem'
+import { Typography } from '@material-ui/core';
 
 export default function GamesCardInner({
     gamesMap,
@@ -8,11 +9,9 @@ export default function GamesCardInner({
 }) {
     if (gamesMap.length < 1) {
         return (
-            <div className="row">
-                <div className="col-12 mt-4">
-                    <p className="text-center">No games available</p>
-                </div>
-            </div>
+            <Typography>
+                No games available
+            </Typography>
         )
     } else {
         return gamesMap.map((game, index) => (

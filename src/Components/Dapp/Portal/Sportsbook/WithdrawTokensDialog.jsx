@@ -1,15 +1,20 @@
 import React, { Component } from 'react'
-import { Dialog, Button, TextField } from '@material-ui/core'
+import {
+    Dialog,
+    Button,
+    TextField,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions
+} from '@material-ui/core'
 import Helper from '../../../Helper'
 
 const helper = new Helper()
 
 export default class WithdrawTokensDialog extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            amount: ''
-        }
+    state = {
+        amount: ''
     }
 
     isValid = () => {
@@ -24,8 +29,8 @@ export default class WithdrawTokensDialog extends Component {
 
     onCloseDialogListener = () => this.props.toggleDialog(false)
 
-    onChangeValueListener = (event, value) => {
-        this.setState({ amount: value })
+    onChangeValueListener = event => {
+        this.setState({ amount: event.target.value })
     }
 
     onWithdrawListener = () => {
@@ -36,8 +41,8 @@ export default class WithdrawTokensDialog extends Component {
     }
 
     render() {
-        let isValid = this.isValid()
-        let title = 'Withdraw Token from Session ' + this.props.sessionNumber
+        const isValid = this.isValid()
+        const title = 'Withdraw Token from Session ' + this.props.sessionNumber
         let errorMessage = ''
         if (!isValid) {
             errorMessage = this.state.amount
@@ -45,34 +50,35 @@ export default class WithdrawTokensDialog extends Component {
                 : 'Please enter a valid amount of DBETs'
         }
         return (
-            <Dialog
-                title={title}
-                actions={
-                    <Button
-                        variant="flat"
-                        color="primary"
-                        disabled={!isValid}
-                        onClick={this.onWithdrawListener}
-                    >
-                        Withdraw
-                    </Button>
-                }
-                modal={false}
-                open={this.props.open}
-                onRequestClose={this.onCloseDialogListener}
-            >
-                <TextField
-                    floatingLabelText="Amount"
-                    fullWidth={true}
-                    type="number"
-                    value={this.state.amount}
-                    onChange={this.onChangeValueListener}
-                    errorText={errorMessage}
-                />
-                <p className="color-gold">
-                    Available balance: {helper.formatEther(this.props.balance)}{' '}
-                    DBETs
-                </p>
+            <Dialog open={this.props.open} onClose={this.onCloseDialogListener}>
+                <DialogTitle>{title}</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        label="Amount"
+                        fullWidth
+                        type="number"
+                        value={this.state.amount}
+                        onChange={this.onChangeValueListener}
+                        error={!isValid}
+                        helperText={errorMessage}
+                    />
+
+                    <DialogContentText>
+                        Available balance:{' '}
+                        {helper.formatEther(this.props.balance)} DBETs
+                    </DialogContentText>
+
+                    <DialogActions>
+                        <Button
+                            variant="raised"
+                            color="primary"
+                            disabled={!isValid}
+                            onClick={this.onWithdrawListener}
+                        >
+                            Withdraw
+                        </Button>
+                    </DialogActions>
+                </DialogContent>
             </Dialog>
         )
     }
