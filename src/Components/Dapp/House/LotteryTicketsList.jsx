@@ -1,6 +1,7 @@
 import React from 'react'
 import Helper from '../../Helper'
 import LotteryTicketsListItem from './LotteryTicketsListItem'
+import { Typography } from '@material-ui/core'
 
 const helper = new Helper()
 
@@ -27,8 +28,12 @@ export default function LotteryTicketsList({ lottery }) {
         <table className="table">
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Ticket Number</th>
+                    <th>
+                        <Typography>#</Typography>
+                    </th>
+                    <th>
+                        <Typography>Ticket Number</Typography>
+                    </th>
                 </tr>
             </thead>
 

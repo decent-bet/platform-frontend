@@ -14,19 +14,25 @@ export default function LotteryDetails({ lottery }) {
             <table className="card-table">
                 <tbody>
                     <tr>
-                        <th>Tickets Sold</th>
+                        <th>
+                            <Typography>Tickets Sold</Typography>
+                        </th>
                         <Typography component="td">
                             {lottery.ticketCount} tickets
                         </Typography>
                     </tr>
                     <tr>
-                        <th>Payout</th>
+                        <th>
+                            <Typography>Payout</Typography>
+                        </th>
                         <Typography component="td">
                             {lottery.payout} DBETs
                         </Typography>
                     </tr>
                     <tr>
-                        <th>Winner Announced</th>
+                        <th>
+                            <Typography>Winner Announced</Typography>
+                        </th>
                         <Typography component="td">
                             {lottery.finalized ? (
                                 <span className="text-success">YES</span>
