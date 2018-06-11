@@ -34,6 +34,7 @@ To work with the platform, you'll have to deploy the contract to a locally runni
     MNEMONIC='<MNEMONIC TO DEPLOY CONTRACTS AND CONTROL THE PLATFORM>'
     INFURA_KEY='<REGISTERED INFURA KEY>'
     DEFAULT_ACCOUNT='<DEFAULT ACCOUNT LINKED TO YOUR MNEMONIC>'
+    GETH_PROVIDER='WSS Geth Provider Hostname'
     ```
     
 4. Migrate contracts to ganache-cli
