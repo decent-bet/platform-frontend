@@ -19,9 +19,7 @@ export default class Helper {
 
     getGethProvider = () => {
         let provider = localStorage.getItem(constants.KEY_GETH_PROVIDER)
-        let defaultProvider = this.isDev()
-            ? constants.PROVIDER_LOCAL
-            : constants.PROVIDER_DBET
+        let defaultProvider = constants.PROVIDER_DBET
         return provider == null ? defaultProvider : provider
     }
 
