@@ -95,7 +95,7 @@ class Game extends Component {
             )
         } else if (this.props.lastSpinLoaded) {
             const game = this.props.match.params.gameName || 'game'
-            const path = `${process.env.PUBLIC_URL}/slots-${game}/game`
+            const path = `${process.env.PUBLIC_URL}/slots-${game}/game/index.html`
             return (
                 <Iframe
                     className="full-size"
