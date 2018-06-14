@@ -190,10 +190,12 @@ async function getChannels() {
     for (const iterator of list) {
         // Query every channel and accumulate it
         const id = iterator.args.id
-        const result = await getChannel(id)
-        accumulator[id] = result
+        // Add promise itself into the array.
+        const resultPromise = getChannel(id)
+        accumulator[id] = resultPromise
     }
-    return accumulator
+    // Execute all promises simultaneously.
+    return Bluebird.props(accumulator)
 }
 
 export default createActions({
