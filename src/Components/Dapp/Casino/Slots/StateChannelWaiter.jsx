@@ -1,11 +1,6 @@
 import React from 'react'
-import {
-    Card,
-    CardHeader,
-    CardContent,
-    Typography
-} from '@material-ui/core'
-import FontAwesomeIcon from '@fortawesome/react-fontawesome'
+import { Card, CardHeader, CardContent, Typography } from '@material-ui/core'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export default function StateChannelWaiter({ builtChannelId, message = null }) {
     return (

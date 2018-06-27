@@ -8,7 +8,7 @@ import {
     List
 } from '@material-ui/core'
 import * as constants from '../../Constants'
-import FontAwesomeIcon from '@fortawesome/react-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ProviderSelectorItem from './ProviderSelectorItem'
 
 export default class ProviderSelector extends Component {

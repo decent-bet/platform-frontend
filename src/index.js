@@ -10,10 +10,10 @@ import './css/bootstrap.min.css'
 import './css/main.css'
 
 // Load Fontawesome
-import fontawesome from '@fortawesome/fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core'
 import faSolid from '@fortawesome/fontawesome-free-solid'
 import { faEthereum } from '@fortawesome/fontawesome-free-brands'
-fontawesome.library.add(faSolid, faEthereum)
+library.add(faSolid, faEthereum)
 
 // Inject tap event plugin
 injectTapEventPlugin()

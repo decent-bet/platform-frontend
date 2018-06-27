@@ -5,7 +5,7 @@ import {
     ListItemText,
     SvgIcon
 } from '@material-ui/core'
-import FontAwesomeIcon from '@fortawesome/react-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export default class DashboardDrawerItem extends Component {
     onClick = event => this.props.onViewChangeListener(this.props.viewToSelect)

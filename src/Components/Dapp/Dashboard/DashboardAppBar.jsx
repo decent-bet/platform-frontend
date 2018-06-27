@@ -1,6 +1,6 @@
 import React from 'react'
 import { AppBar, Toolbar, IconButton } from '@material-ui/core'
-import FontAwesomeIcon from '@fortawesome/react-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Link } from 'react-router-dom'
 
 function DashboardAppBarLogo() {
