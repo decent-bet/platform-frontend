@@ -6,6 +6,7 @@ import DashboardAppBarToolbar from './DashboardAppBarToolbar'
 import DashboardRouter from './DashboardRouter'
 import DashboardDrawer from './DashboardDrawer'
 import ProviderSelector from './ProviderSelector'
+import NoTokensWarning from './NoTokensWarning'
 import Helper from '../../Helper'
 import { Actions, initWatchers } from '../../../Model/balance'
 
@@ -82,10 +83,13 @@ class Dashboard extends Component {
     )
 
     render() {
+        // Print the rest of the content only if the user has DBETs
+        const inner =
+            this.props.balance > 0 ? <DashboardRouter /> : <NoTokensWarning />
         return (
             <div className="dashboard">
                 {this.renderAppbar()}
-                <DashboardRouter />
+                {inner}
                 {this.renderDrawer()}
             </div>
         )

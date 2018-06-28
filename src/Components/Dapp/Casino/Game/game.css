@@ -1,12 +1,7 @@
 .slots-game {
-    margin: 25px 0px;
     display: grid;
     grid-template-columns: 1fr;
     grid-gap: 32px;
-}
-
-.slots-game .card {
-    border-radius: 16px !important;
 }
 
 .slots-game .controls {

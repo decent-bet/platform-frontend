@@ -3,7 +3,6 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-gap: 30px;
-    margin: 20px 0px;
 }
 
 @media (max-width: 714px) {
@@ -27,11 +26,6 @@
     text-align: center;
     align-items: center;
     font-weight: bold;
-}
-
-/* All cards inside the slots component */
-.slots .card {
-    border-radius: 16px !important;
 }
 
 /* Game Card */

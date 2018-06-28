@@ -38,8 +38,14 @@
 }
 
 .dashboard main {
-    padding-top: 60px;
+    padding-top: 80px;
+    padding-bottom: 16px;
     height: 100%;
+}
+
+/** All Cards */
+.dashboard main .card {
+    border-radius: 16px !important;
 }
 
 .dashboard .details .logo {
