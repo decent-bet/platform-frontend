@@ -1,22 +1,16 @@
 import React from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom'
 
-import Balances from '../Balances'
-import House from '../House'
 import Game from '../Casino/Game'
 import Slots from '../Casino/Slots'
-import Portal from '../Portal'
-import * as constants from '../../Constants'
+import { VIEW_CASINO, VIEW_SLOTS, VIEW_SLOTS_GAME } from '../../Constants'
 
 // Renders the page inside the Dashboard
 const DashboardRouter = () => (
     <Switch>
-        <Redirect exact from={constants.VIEW_CASINO} to={constants.VIEW_SLOTS} />
-        <Route path={constants.VIEW_HOUSE} component={House} />
-        <Route path={constants.VIEW_BALANCES} component={Balances} />
-        <Route path={constants.VIEW_PORTAL} component={Portal} />
-        <Route exact path={constants.VIEW_SLOTS} component={Slots} />
-        <Route path={constants.VIEW_SLOTS_GAME} component={Game} />
+        <Redirect exact from={VIEW_CASINO} to={VIEW_SLOTS} />
+        <Route exact path={VIEW_SLOTS} component={Slots} />
+        <Route path={VIEW_SLOTS_GAME} component={Game} />
     </Switch>
 )
 
