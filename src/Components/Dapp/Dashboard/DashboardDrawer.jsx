@@ -2,7 +2,12 @@ import React from 'react'
 import { Drawer, Divider, List } from '@material-ui/core'
 import DashboardDrawerItem from './DashboardDrawerItem'
 import FaucetMenuItem from './FaucetMenuItem'
-import {VIEW_CASINO, VIEW_SLOTS, VIEW_SLOTS_GAME, VIEW_LOGIN } from '../../Constants'
+import {
+    VIEW_CASINO,
+    VIEW_SLOTS,
+    VIEW_SLOTS_GAME,
+    VIEW_LOGIN
+} from '../../Constants'
 
 export default function DashboardDrawer({
     isDrawerOpen,
@@ -19,7 +24,7 @@ export default function DashboardDrawer({
             open={isDrawerOpen}
             onClose={onDrawerCloseListener}
         >
-            <div className="drawerInner" >
+            <div className="drawerInner">
                 <img className="logo" src={imgSrc} alt="Decent Bet Logo" />
                 <List component="nav">
                     <DashboardDrawerItem

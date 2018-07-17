@@ -19,8 +19,9 @@ export default class Helper {
 
     getGethProvider = () => {
         let provider = localStorage.getItem(KEY_GETH_PROVIDER)
-        if ( !provider || provider === 'undefined' ) { //in safary the localStorage returns the text 'undefined' as is
-            return  this.isDev() ? PROVIDER_LOCAL : PROVIDER_DBET
+        if (!provider || provider === 'undefined') {
+            // In Safari the localStorage returns the text 'undefined' as is
+            return this.isDev() ? PROVIDER_LOCAL : PROVIDER_DBET
         }
 
         return provider
