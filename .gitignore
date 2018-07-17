@@ -23,4 +23,4 @@ truffle-readme.md
 .env
 npm-debug.log
 .truffle-solidity-loader
-yarn-error.log
+yarn-error.log.vscode
