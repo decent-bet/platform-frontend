@@ -21,7 +21,6 @@ truffle-readme.md
 # misc
 .DS_Store
 .env
-.vscode
 npm-debug.log
 .truffle-solidity-loader
-yarn-error.log.vscode
+yarn-error.log
