@@ -3,21 +3,21 @@
  */
 
 import { createMuiTheme } from '@material-ui/core/styles'
-import * as constants from './../Constants'
+import { COLOR_GOLD, COLOR_GOLD_DARK, COLOR_PRIMARY_DARK, COLOR_ACCENT } from './../Constants'
 
 // Main Theme for all the Application
 export const MainTheme = createMuiTheme({
     palette: {
         type: 'dark',
         primary: {
-            light: constants.COLOR_GOLD,
-            main: constants.COLOR_GOLD_DARK
+            light: COLOR_GOLD,
+            main: COLOR_GOLD_DARK
         },
         secondary: {
-            main: constants.COLOR_ACCENT
+            main: COLOR_ACCENT
         },
         background: {
-            paper: constants.COLOR_PRIMARY_DARK
+            paper: COLOR_PRIMARY_DARK
         }
     },
 
@@ -34,7 +34,7 @@ export const MainTheme = createMuiTheme({
     overrides: {
         MuiAppBar: {
             colorPrimary: {
-                backgroundColor: constants.COLOR_PRIMARY_DARK
+                backgroundColor: COLOR_PRIMARY_DARK
             }
         },
         MuiInput: {

@@ -2,7 +2,7 @@ import React from 'react'
 import EventBus from 'eventing-bus'
 import ethUnits from 'ethereum-units'
 import BigNumber from 'bignumber.js'
-import * as constants from './Constants'
+import { KEY_GETH_PROVIDER, PROVIDER_LOCAL, PROVIDER_DBET } from './Constants'
 
 export default class Helper {
     isDev = () => {
@@ -18,15 +18,16 @@ export default class Helper {
     }
 
     getGethProvider = () => {
-        let provider = localStorage.getItem(constants.KEY_GETH_PROVIDER)
-        let defaultProvider = this.isDev()
-            ? constants.PROVIDER_LOCAL
-            : constants.PROVIDER_DBET
-        return provider == null ? defaultProvider : provider
+        let provider = localStorage.getItem(KEY_GETH_PROVIDER)
+        if ( !provider || provider === 'undefined' ) {
+            return  this.isDev() ? PROVIDER_LOCAL : PROVIDER_DBET
+        }
+
+        return provider
     }
 
     setGethProvider = provider => {
-        localStorage.setItem(constants.KEY_GETH_PROVIDER, provider)
+        localStorage.setItem(KEY_GETH_PROVIDER, provider)
     }
 
     getTimestamp = () => {

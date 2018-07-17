@@ -1,14 +1,22 @@
-import * as constants from '../Constants'
+import {
+    COLOR_PRIMARY_DARK_TRANSLUCENT,
+    COLOR_WHITE,
+    COLOR_WHITE_DARK,
+    COLOR_ACCENT_DARK,
+    COLOR_GOLD,
+    COLOR_TRANSPARENT,
+    COLOR_GREY
+} from '../Constants'
 
 export const styles = () => {
     return {
         card: {
-            background: constants.COLOR_PRIMARY_DARK_TRANSLUCENT,
+            background: COLOR_PRIMARY_DARK_TRANSLUCENT,
             borderRadius: 15,
             padding: 20
         },
         buttonLabel: {
-            color: constants.COLOR_WHITE,
+            color: COLOR_WHITE,
             fontFamily: 'TradeGothic'
         },
         appbarButton: {
@@ -16,7 +24,7 @@ export const styles = () => {
             marginTop: 5,
             marginRight: 10,
             fontFamily: 'Lato',
-            color: constants.COLOR_WHITE
+            color: COLOR_WHITE
         },
         keyboard: {
             key: {
@@ -44,40 +52,40 @@ export const styles = () => {
         },
         textField: {
             hintStyle: {
-                color: constants.COLOR_WHITE_DARK,
+                color: COLOR_WHITE_DARK,
             },
             inputStyle: {
-                color: constants.COLOR_GREY,
+                color: COLOR_GREY,
                 fontSize: '1.25rem',
                 fontFamily: 'Lato'
             },
             errorStyle: {
-                color: constants.COLOR_ACCENT_DARK,
+                color: COLOR_ACCENT_DARK,
             },
             underlineStyle: {
-                borderColor: constants.COLOR_GOLD,
+                borderColor: COLOR_GOLD,
             },
             floatingLabelStyle: {
-                color: constants.COLOR_GOLD,
+                color: COLOR_GOLD,
             },
             floatingLabelFocusStyle: {
-                color: constants.COLOR_GOLD,
+                color: COLOR_GOLD,
             }
         },
         dropdown: {
             underlineStyle: {
-                borderColor: constants.COLOR_TRANSPARENT
+                borderColor: COLOR_TRANSPARENT
             },
             labelStyle: {
-                color: constants.COLOR_GREY,
+                color: COLOR_GREY,
                 fontFamily: 'Lato',
                 fontSize: 17
             },
             selectedMenuItemStyle: {
-                color: constants.COLOR_WHITE
+                color: COLOR_WHITE
             },
             menuItemStyle: {
-                color: constants.COLOR_WHITE_DARK
+                color: COLOR_WHITE_DARK
             },
             listStyle: {
                 backgroundColor: 'rgba(29, 32, 39, 0.85)'
@@ -85,23 +93,22 @@ export const styles = () => {
         },
         button: {
             label: {
-                color: constants.COLOR_WHITE,
+                color: COLOR_WHITE,
                 whiteSpace: 'nowrap',
                 overflow: 'hidden'
             }
         },
         menuItem: {
-            color: constants.COLOR_GREY,
+            color: COLOR_GREY,
             fontFamily: 'TradeGothicLt',
             fontSize: 16,
             padding: '5px'
         },
         selectedMenuItem: {
-            color: constants.COLOR_GOLD,
+            color: COLOR_GOLD,
             fontFamily: 'TradeGothicLt',
             fontSize: 16,
             padding: '5px'
         }
     }
 }
-

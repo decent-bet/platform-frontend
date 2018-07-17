@@ -1,6 +1,6 @@
 import React from 'react'
 import { MenuItem, Select, FormControl, InputLabel } from '@material-ui/core'
-import * as constants from '../../Constants'
+import { PROVIDER_DBET, PROVIDER_LOCAL, PROVIDER_INFURA } from '../../Constants'
 
 export default function LoginNodeTypes({
     provider,
@@ -14,11 +14,11 @@ export default function LoginNodeTypes({
                 value={provider}
                 onChange={onProviderChangedListener}
             >
-                <MenuItem value={constants.PROVIDER_DBET}>DBET Node</MenuItem>
-                <MenuItem value={constants.PROVIDER_LOCAL}>
+                <MenuItem value={PROVIDER_DBET}>DBET Node</MenuItem>
+                <MenuItem value={PROVIDER_LOCAL}>
                     Local Node
                 </MenuItem>
-                <MenuItem value={constants.PROVIDER_INFURA}>Infura</MenuItem>
+                <MenuItem value={PROVIDER_INFURA}>Infura</MenuItem>
             </Select>
         </FormControl>
     )

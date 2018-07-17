@@ -7,7 +7,7 @@ import {
     Collapse,
     List
 } from '@material-ui/core'
-import * as constants from '../../Constants'
+import { PROVIDER_DBET, PROVIDER_LOCAL, PROVIDER_INFURA } from '../../Constants'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ProviderSelectorItem from './ProviderSelectorItem'
 
@@ -51,7 +51,7 @@ export default class ProviderSelector extends Component {
                         <ProviderSelectorItem
                             label="DBET Node"
                             selectedProvider={this.props.gethNodeProvider}
-                            providerUrl={constants.PROVIDER_DBET}
+                            providerUrl={PROVIDER_DBET}
                             onProviderChangeListener={
                                 this.props.onProviderChangeListener
                             }
@@ -59,7 +59,7 @@ export default class ProviderSelector extends Component {
 
                         <ProviderSelectorItem
                             label="Local Node"
-                            providerUrl={constants.PROVIDER_LOCAL}
+                            providerUrl={PROVIDER_LOCAL}
                             selectedProvider={this.props.gethNodeProvider}
                             onProviderChangeListener={
                                 this.props.onProviderChangeListener
@@ -68,7 +68,7 @@ export default class ProviderSelector extends Component {
 
                         <ProviderSelectorItem
                             label="Infura"
-                            providerUrl={constants.PROVIDER_INFURA}
+                            providerUrl={PROVIDER_INFURA}
                             selectedProvider={this.props.gethNodeProvider}
                             onProviderChangeListener={
                                 this.props.onProviderChangeListener
