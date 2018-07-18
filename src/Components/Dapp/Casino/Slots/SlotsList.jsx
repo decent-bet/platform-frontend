@@ -43,6 +43,11 @@ export default function SlotsList({ stateChannel, onGameSelectedListener }) {
                 gameName="spaceman"
             />
             <SlotsGameCard
+                imageUrl="backgrounds/slots-egyptian-treasures.jpg"
+                onGameSelectedListener={onGameSelectedListener}
+                gameName="egyptian-treasures"
+            />
+            <SlotsGameCard
                 imageUrl="backgrounds/slots-crypto-chaos.png"
                 onGameSelectedListener={onGameSelectedListener}
                 gameName="crypto-chaos"

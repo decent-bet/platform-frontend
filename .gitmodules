@@ -19,3 +19,6 @@
 [submodule "public/slots-crypto-chaos"]
 	path = public/slots-crypto-chaos
 	url = git@gitlab.dcntbt.com:slots/crypto-chaos.git
+[submodule "public/slots-egyptian-treasures"]
+	path = public/slots-egyptian-treasures
+	url = git@gitlab.dcntbt.com:slots/egyptian-treasures.git
