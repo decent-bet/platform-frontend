@@ -21,17 +21,20 @@ export default class AbstractContract {
     constructor(web3, jsonAbi) {
         this.web3 = web3
         this.contract = Contract(jsonAbi)
-        this.contract.setProvider(web3.currentProvider)
-
+        this.contract.setProvider(this.web3.currentProvider)
         // Dirty hack for web3@1.0.0 support for localhost testrpc,
         // see https://github.com/trufflesuite/truffle-contract/issues/56#issuecomment-331084530
         if (typeof this.contract.currentProvider.sendAsync !== 'function') {
-            this.contract.currentProvider.sendAsync = function() {
-                return this.contract.currentProvider.send.apply(
-                    this.contract.currentProvider,
-                    arguments
-                )
-            }
+            this.contract.currentProvider.sendAsync = this.setupCurrentProvider(this.contract)
+        }
+    }
+
+    setupCurrentProvider(contract) {
+        return function() {
+            return contract.currentProvider.send.apply(
+                contract.currentProvider,
+                arguments
+            )
         }
     }
 

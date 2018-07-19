@@ -38,7 +38,7 @@ export default class Web3Loader {
                 )
             }
         } catch (err) {
-            console.log('Not connected to provider..', err.message)
+            console.log('Not connected to provider..', err)
             EventBus.publish('web3NotLoaded')
             this.loopCheckConnection = setTimeout(this.checkConnection, 10000)
         }
