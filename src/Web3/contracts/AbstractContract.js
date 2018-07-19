@@ -42,10 +42,9 @@ export default class AbstractContract {
      * Initializes an instance of the contract 
      * @return {Promise<any>}
     */
-    deployed = async () => {
-        return this.contract
-            .deployed()
-            .then(_instance => (this.instance = _instance))
+   async deployed() {
+        this.instance = await this.contract.deployed()
+        return this.instance
     }
 
     /**

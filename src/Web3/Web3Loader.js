@@ -26,7 +26,7 @@ export default class Web3Loader {
             let ret = await window.web3Object.eth.net.isListening()
             if (ret && !connected) {
                 console.log('Connected to provider..', helper.getGethProvider())
-                this.proceedIfConnected()
+                await this.proceedIfConnected()
                 connected = true
                 clearTimeout(this.loopCheckConnection)
             } else {
@@ -44,17 +44,15 @@ export default class Web3Loader {
         }
     }
 
-    proceedIfConnected = () => {
+    async proceedIfConnected() {
         if (keyHandler.isLoggedIn())
-            window.web3Object.eth.defaultAccount = keyHandler
-                .getAddress()
-                .toLowerCase()
+            window.web3Object.eth.defaultAccount = keyHandler.getAddress()
+                                                             .toLowerCase()
 
         const contractHelper = new ContractHelper(window.web3Object)
-        contractHelper.getAllContracts((err, res) => {
-            window.contractHelper = contractHelper
-            window.web3Loaded = true
-            EventBus.publish('web3Loaded')
-        })
+        await contractHelper.getAllContracts()
+        window.contractHelper = contractHelper
+        window.web3Loaded = true
+        EventBus.publish('web3Loaded')
     }
 }

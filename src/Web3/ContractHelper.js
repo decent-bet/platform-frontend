@@ -1,4 +1,3 @@
-import async from 'async'
 import ethUtil from 'ethereumjs-util'
 
 // New Contract Objects
@@ -28,78 +27,34 @@ export default class ContractHelper {
         this.houseAuthorizedContract = new HouseAuthorizedContract(this.web3)
         this.houseContract = new HouseContract(this.web3)
         this.houseFundsContract = new HouseFundsContract(this.web3)
-        this.houseLotteryContract =  new HouseLotteryContract(this.web3)
-        this.houseSessionsContract =  new HouseSessionsContract(this.web3)
-        this.slotsChannelFinalizerContract =  new SlotsChannelFinalizerContract(this.web3)
+        this.houseLotteryContract = new HouseLotteryContract(this.web3)
+        this.houseSessionsContract = new HouseSessionsContract(this.web3)
+        this.slotsChannelFinalizerContract = new SlotsChannelFinalizerContract(this.web3)
         this.SlotsChannelManager = new SlotsChannelManagerContract(this.web3)
-        this.sportsOracleContract =  new SportsOracleContract(this.web3, this.decentBetTokenContract)
-        
-        this.houseController =  new HouseController(this.web3,
-                                               this.houseContract,
-                                               this.houseSessionsContract,
-                                               this.houseFundsContract,
-                                               this.houseAuthorizedContract,
-                                               this.houseLotteryContract)
+        this.sportsOracleContract = new SportsOracleContract(this.web3, this.decentBetTokenContract)
+
+        this.houseController = new HouseController(this.web3,
+            this.houseContract,
+            this.houseSessionsContract,
+            this.houseFundsContract,
+            this.houseAuthorizedContract,
+            this.houseLotteryContract)
     }
 
-    getAllContracts = callback => {
-        async.parallel(
-            {
-                token: callback => {
-                    this.decentBetTokenContract.deployed().then(_instance =>
-                        callback(null, _instance)
-                    )
-                },
-                house: callback => {
-                    this.houseContract.deployed().then(_instance =>
-                        callback(null, _instance)
-                    )
-                },
-                houseAuthorizedController: callback => {
-                    this.houseAuthorizedContract.deployed().then(_instance =>
-                        callback(null, _instance)
-                    )
-                },
-                houseFundsController: callback => {
-                    this.houseFundsContract.deployed().then(_instance =>
-                        callback(null, _instance)
-                    )
-                },
-                houseLotteryController: callback => {
-                    this.houseLotteryContract.deployed().then(_instance =>
-                        callback(null, _instance)
-                    )
-                },
-                houseSessionsController: callback => {
-                    this.houseSessionsContract.deployed().then(_instance =>
-                        callback(null, _instance)
-                    )
-                },
-                bettingProvider: callback => {
-                    this.bettingProviderContract.deployed().then(_instance =>
-                        callback(null, _instance)
-                    )
-                },
-                slotsChannelManager: callback => {
-                    this.SlotsChannelManager.deployed().then(_instance =>
-                        callback(null, _instance)
-                    )
-                },
-                slotsChannelFinalizer: callback => {
-                    this.slotsChannelFinalizerContract.deployed().then(_instance =>
-                        callback(null, _instance)
-                    )
-                },
-                sportsOracle: callback => {
-                    this.sportsOracleContract.deployed().then(_instance =>
-                        callback(null, _instance)
-                    )
-                }
-            },
-            (err, results) => {
-                callback(false, results)
-            }
-        )
+    async getAllContracts() {
+        const promises = [this.decentBetTokenContract.deployed(),
+            this.houseContract.deployed(),
+            this.houseAuthorizedContract.deployed(),
+            this.houseFundsContract.deployed(),
+            this.houseLotteryContract.deployed(),
+            this.houseSessionsContract.deployed(),
+            this.bettingProviderContract.deployed(),
+            this.SlotsChannelManager.deployed(),
+            this.slotsChannelFinalizerContract.deployed(),
+            this.sportsOracleContract.deployed()
+        ]
+
+        return await Promise.all(promises)
     }
 
     /** Contract wrappers */
