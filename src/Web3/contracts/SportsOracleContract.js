@@ -11,7 +11,7 @@ export default class SportsOracleContract extends AbstractContract {
         super(web3, SportsOracleContractJson)
         this.decentBetTokenContract = decentBetTokenContract
     }
-
+    
     /**
      * Getters
      */

@@ -42,10 +42,11 @@ export default class AbstractContract {
      * Initializes an instance of the contract 
      * @return {Promise<any>}
     */
-   async deployed() {
-        this.instance = await this.contract.deployed()
-        return this.instance
+    async deployed() {
+       this.instance = await this.contract.deployed()
+       return this.instance
     }
+
 
     /**
      * Takes the enconded function, signs it and sends it to

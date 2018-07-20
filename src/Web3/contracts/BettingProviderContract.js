@@ -1,4 +1,4 @@
-import HouseContractJson from '../../../build/contracts/BettingProvider.json'
+import BettingProviderJson from '../../../build/contracts/BettingProvider.json'
 import KeyHandler from '../KeyHandler'
 import ethAbi from 'web3-eth-abi'
 import AbstractContract from './AbstractContract'
@@ -8,13 +8,13 @@ import Web3 from 'web3' // eslint-disable-line no-unused-vars
 
 const keyHandler = new KeyHandler()
 
-export default class HouseContract extends AbstractContract {
+export default class BettingProviderContract extends AbstractContract {
     /**
      * Builds the contract
      * @param {Web3} web3
      */
     constructor(web3) {
-        super(web3, HouseContractJson)
+        super(web3, BettingProviderJson)
     }
 
     /**
@@ -29,10 +29,7 @@ export default class HouseContract extends AbstractContract {
     }
 
     getGamePeriodBetLimits(id, period) {
-        return this.instance.getGamePeriodBetLimits(
-            id,
-            period
-        )
+        return this.instance.getGamePeriodBetLimits(id, period)
     }
 
     getGameMaxBetLimit(id) {

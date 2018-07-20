@@ -34,24 +34,24 @@ export default class ContractHelper {
         this.sportsOracleContract = new SportsOracleContract(this.web3, this.decentBetTokenContract)
 
         this.houseController = new HouseController(this.web3,
-            this.houseContract,
-            this.houseSessionsContract,
-            this.houseFundsContract,
-            this.houseAuthorizedContract,
-            this.houseLotteryContract)
+                                                  this.houseContract,
+                                                  this.houseSessionsContract,
+                                                  this.houseFundsContract,
+                                                  this.houseAuthorizedContract,
+                                                  this.houseLotteryContract)
     }
 
     async getAllContracts() {
         const promises = [this.decentBetTokenContract.deployed(),
-            this.houseContract.deployed(),
-            this.houseAuthorizedContract.deployed(),
-            this.houseFundsContract.deployed(),
-            this.houseLotteryContract.deployed(),
-            this.houseSessionsContract.deployed(),
-            this.bettingProviderContract.deployed(),
-            this.SlotsChannelManager.deployed(),
-            this.slotsChannelFinalizerContract.deployed(),
-            this.sportsOracleContract.deployed()
+                          this.houseContract.deployed(),
+                          this.houseAuthorizedContract.deployed(),
+                          this.houseFundsContract.deployed(),
+                          this.houseLotteryContract.deployed(),
+                          this.houseSessionsContract.deployed(),
+                          this.bettingProviderContract.deployed(),
+                          this.SlotsChannelManager.deployed(),
+                          this.slotsChannelFinalizerContract.deployed(),
+                          this.sportsOracleContract.deployed()
         ]
 
         return await Promise.all(promises)
@@ -59,25 +59,24 @@ export default class ContractHelper {
 
     /** Contract wrappers */
     getWrappers = () => {
-        const self = this
         return {
             token: () => {
-                return self.decentBetTokenContract
+                return this.decentBetTokenContract
             },
             house: () => {
-                return self.houseController
+                return this.houseController
             },
             bettingProvider: () => {
-                return self.bettingProviderContract
+                return this.bettingProviderContract
             },
             sportsOracle: () => {
-                return self.sportsOracleContract
+                return this.sportsOracleContract
             },
             slotsChannelFinalizer: () => {
-                return self.slotsChannelFinalizerContract
+                return this.slotsChannelFinalizerContract
             },
             slotsChannelManager: () => {
-                return self.SlotsChannelManager
+                return this.SlotsChannelManager
             }
         }
     }

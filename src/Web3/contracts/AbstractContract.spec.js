@@ -1,41 +1,10 @@
 import EthAccounts from 'web3-eth-accounts'
-import AbstractContract from '../../src/Web3/contracts/AbstractContract'
+import AbstractContract from '../../../src/Web3/contracts/AbstractContract'
 import Web3 from 'web3'
-import Helper from '../../src/Components/Helper'
+import Helper from '../../../src/Components/Helper'
 import TruffleContract from 'truffle-contract'
-import { mockTruffleContract } from '../mocks/truffleContract'
-import { mockWeb3 } from '../mocks/web3'
 
-jest.mock('web3-eth-accounts', () => {
-    return jest.fn().mockImplementation(() => {
-        return {
-            signTransaction: async function() {
-                return {
-                    rawTransaction: ''
-                }
-            }
-        }
-    })
-})
-jest.mock('truffle-contract', () => {
-    return jest.fn().mockImplementation(() => {
-        return mockTruffleContract
-    })
-})
-jest.mock('web3', () => {
-    return jest.fn().mockImplementation(() => {
-        return mockWeb3
-    })
-})
-jest.mock('../../src/Components/Helper', () => {
-    return jest.fn().mockImplementation(() => {
-        return {
-            getGethProvider: () => {
-                return ''
-            }
-        }
-    })
-})
+jest.mock('../../../src/Components/Helper')
 
 beforeEach(() => {
     EthAccounts.mockClear()
