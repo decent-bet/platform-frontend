@@ -20,84 +20,92 @@ export default class BettingProviderContract extends AbstractContract {
     /**
      * Getters
      */
+
+    /**
+     * 
+     */
     getGamesCount() {
-        return this.instance.gamesCount()
+        return this.contract.methods.gamesCount().call()
     }
 
+    /**
+     * 
+     * @param {string} id 
+     */
     getGame(id) {
-        return this.instance.getGame.call(id)
+        return this.contract.methods.getGame(id).call()
     }
 
     getGamePeriodBetLimits(id, period) {
-        return this.instance.getGamePeriodBetLimits(id, period)
+        return this.contract.methods.getGamePeriodBetLimits(id, period).call()
     }
 
     getGameMaxBetLimit(id) {
-        return this.instance.getGameMaxBetLimit(id)
+        return this.contract.methods.getGameMaxBetLimit(id).call()
     }
 
     getGameBettor(id, index) {
-        return this.instance.getGameBettor(id, index)
+        return this.contract.methods.getGameBettor(id, index).call()
     }
 
     getGameBettorBet(id, address, betId) {
-        return this.instance.getGameBettorBet(id, address, betId)
+        return this.contract.methods.getGameBettorBet(id, address, betId).call()
     }
 
     getGameBettorBetOdds(id, address, betId) {
-        return this.instance.getGameBettorBetOdds(id, address, betId)
+        return this.contract.methods.getGameBettorBetOdds(id, address, betId).call()
     }
 
     getGameBettorBetOddsDetails(id, address, betId) {
-        return this.instance.getGameBettorBetOddsDetails(id, address, betId)
+        return this.contract.methods.getGameBettorBetOddsDetails(id, address, betId)
     }
 
     getGameOddsCount(id) {
-        return this.instance.getGameOddsCount(id)
+        return this.contract.methods.getGameOddsCount(id)
     }
 
     getGameOdds(id, oddsId) {
-        return this.instance.getGameOdds(id, oddsId)
+        return this.contract.methods.getGameOdds(id, oddsId)
     }
 
     getGameOddsDetails(id, oddsId) {
-        return this.instance.getGameOddsDetails(id, oddsId)
+        return this.contract.methods.getGameOddsDetails(id, oddsId)
     }
 
     getGameOutcome(id, period) {
-        return this.instance.getGameOutcome(id, period)
+        return this.contract.methods.getGameOutcome(id, period)
     }
 
     getDepositedTokens(address, sessionNumber) {
-        return this.instance.depositedTokens(address, sessionNumber)
+        return this.contract.methods.depositedTokens(address, sessionNumber)
     }
 
     getSessionStats(sessionNumber) {
-        return this.instance.sessionStats(sessionNumber)
+        return this.contract.methods.sessionStats(sessionNumber)
     }
 
     getSportsOracleAddress() {
-        return this.instance.sportsOracleAddress()
+        return this.contract.methods.sportsOracleAddress()
     }
 
     getHouseAddress() {
-        return this.instance.houseAddress()
+        return this.contract.methods.houseAddress()
     }
 
     getCurrentSession() {
-        return this.instance.currentSession()
+        return this.contract.methods.currentSession().call()
     }
 
     getTime() {
-        return this.instance.getTime()
+        return this.contract.methods.getTime().call()
     }
 
     getUserBets(address, index) {
-        return this.instance.getUserBets(address, index)
+        return this.contract.methods.getUserBets(address, index).call()
     }
 
     getBetReturns(gameId, betId, bettor) {
-        return this.instance.getBetReturns(gameId, betId, bettor)
+        return this.contract.methods.getBetReturns(gameId, betId, bettor).call()
     }
     
     balanceOf(address, session) {
@@ -106,7 +114,7 @@ export default class BettingProviderContract extends AbstractContract {
             address,
             session
         )
-        return this.instance.balanceOf(address, session)
+        return this.contract.methods.balanceOf(address, session).call()
     }
 
     /**
@@ -131,7 +139,7 @@ export default class BettingProviderContract extends AbstractContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.instance.address,
+            this.contract.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -162,7 +170,7 @@ export default class BettingProviderContract extends AbstractContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.instance.address,
+            this.contract.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -181,7 +189,7 @@ export default class BettingProviderContract extends AbstractContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.instance.address,
+            this.contract.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -200,7 +208,7 @@ export default class BettingProviderContract extends AbstractContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.instance.address,
+            this.contract.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -228,7 +236,7 @@ export default class BettingProviderContract extends AbstractContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.instance.address,
+            this.contract.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -263,7 +271,7 @@ export default class BettingProviderContract extends AbstractContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.instance.address,
+            this.contract.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -369,7 +377,7 @@ export default class BettingProviderContract extends AbstractContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.instance.address,
+            this.contract.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -447,7 +455,7 @@ export default class BettingProviderContract extends AbstractContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.instance.address,
+            this.contract.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -489,7 +497,7 @@ export default class BettingProviderContract extends AbstractContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.instance.address,
+            this.contract.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -534,7 +542,7 @@ export default class BettingProviderContract extends AbstractContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.instance.address,
+            this.contract.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -562,7 +570,7 @@ export default class BettingProviderContract extends AbstractContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.instance.address,
+            this.contract.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -573,42 +581,42 @@ export default class BettingProviderContract extends AbstractContract {
      * Events
      */
     logNewGame(fromBlock, toBlock) {
-        return this.instance.LogNewGame({}, {
+        return this.contract.events.LogNewGame({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logNewGameOdds(fromBlock, toBlock) {
-        return this.instance.LogNewGameOdds({}, {
+        return this.contract.events.LogNewGameOdds({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logUpdatedGameOdds(fromBlock, toBlock) {
-        return this.instance.LogUpdatedGameOdds({}, {
+        return this.contract.events.LogUpdatedGameOdds({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logUpdatedMaxBet(fromBlock, toBlock) {
-        return this.instance.LogUpdatedMaxBet({}, {
+        return this.contract.events.LogUpdatedMaxBet({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logUpdatedBetLimits(fromBlock, toBlock) {
-        return this.instance.LogUpdatedBetLimits({}, {
+        return this.contract.events.LogUpdatedBetLimits({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logNewBet(fromBlock, toBlock) {
-        return this.instance.LogNewBet({}, {
+        return this.contract.events.LogNewBet({}, {
             bettor: this.web3.eth.defaultAccount,
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
@@ -616,7 +624,7 @@ export default class BettingProviderContract extends AbstractContract {
     }
 
     logClaimedBet(fromBlock, toBlock) {
-        return this.instance.LogClaimedBet({}, {
+        return this.contract.events.LogClaimedBet({}, {
             bettor: this.web3.eth.defaultAccount,
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
@@ -624,7 +632,7 @@ export default class BettingProviderContract extends AbstractContract {
     }
 
     logDeposit(fromBlock, toBlock) {
-        return this.instance.LogDeposit({}, {
+        return this.contract.events.LogDeposit({}, {
             _address: this.web3.eth.defaultAccount,
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
@@ -632,14 +640,14 @@ export default class BettingProviderContract extends AbstractContract {
     }
 
     logWithdraw(fromBlock, toBlock) {
-        return this.instance.LogWithdraw({}, {
+        return this.contract.events.LogWithdraw({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logUpdatedTime(fromBlock, toBlock) {
-        return this.instance.LogUpdatedTime({}, {
+        return this.contract.events.LogUpdatedTime({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })

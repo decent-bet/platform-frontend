@@ -19,7 +19,7 @@ export async function initWatchers(dispatch) {
     let sessionNumber = await fetchCurrentSessionId()
     contract
         .logPurchasedCredits(sessionNumber, 'latest')
-        .watch((err, event) => {
+        .on('data', (err, event) => {
             if (err) {
                 console.log('Purchased credits event error: ' + err)
             } else {

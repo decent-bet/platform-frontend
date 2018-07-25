@@ -1,12 +1,6 @@
 import NonceHandler from '../NonceHandler'
-import Contract from 'truffle-contract'
 import EthAccounts from 'web3-eth-accounts'
 import Helper from '../../Components/Helper'
-
-// Used for VSCode Type Checking
-/* eslint-disable no-unused-vars */
-import Web3 from 'web3'
-/* eslint-enable no-unused-vars */
 
 const helper = new Helper()
 const nonceHandler = new NonceHandler()
@@ -19,8 +13,11 @@ export default class AbstractContract {
      * @param {JSON} jsonAbi
      */
     constructor(web3, jsonAbi) {
+        this.json = jsonAbi
         this.web3 = web3
-        this.contract = Contract(jsonAbi)
+        this.contract = new this.web3.eth.Contract(this.json.abi)
+        let network = this.getJsonNetwork(this.json)
+        this.contract.options.address = network.address
         this.contract.setProvider(this.web3.currentProvider)
         // Dirty hack for web3@1.0.0 support for localhost testrpc,
         // see https://github.com/trufflesuite/truffle-contract/issues/56#issuecomment-331084530
@@ -37,17 +34,22 @@ export default class AbstractContract {
             )
         }
     }
-
-    /** 
-     * Initializes an instance of the contract 
-     * @return {Promise<any>}
-    */
-    async deployed() {
-       this.instance = await this.contract.deployed()
-       return this.instance
+    
+    getJsonNetwork(json) {
+        return json.networks[[Object.keys(json.networks)[0]]] 
     }
 
+    async deployed() {
 
+        let networkId = await this.web3.eth.net.getId()        
+        let network = this.json.networks[networkId]
+        let jsonNetwork = this.getJsonNetwork(this.json)
+        if(network && jsonNetwork.address === network.address) {
+            return Promise.resolve(this.contract)
+        }
+        
+        return Promise.reject(null)
+    }
     /**
      * Takes the enconded function, signs it and sends it to
      * the ethereum network
@@ -65,23 +67,24 @@ export default class AbstractContract {
         data
     ) => {
         // Get the nonce
-        const from = this.web3.eth.defaultAccount
-        const count = await this.web3.eth.getTransactionCount(from, 'latest')
+        const count = await this.web3.eth.getTransactionCount(this.web3.eth.defaultAccount, 'latest')
         const nonce = nonceHandler.get(count)
-
+        const chainId = await this.web3.eth.net.getId()
+        
+        console.log('data', data)
         //Sign transaction
         const { rawTransaction } = await ethAccounts.signTransaction(
             {
-                from,
-                to,
-                gas,
-                data,
+                chainId,
                 nonce,
+                to,
+                data,
+                gas,
                 gasPrice
             },
             privateKey
         )
-
+        
         // Start sending
         const promiEvent = this.web3.eth.sendSignedTransaction(rawTransaction)
 

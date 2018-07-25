@@ -186,6 +186,7 @@ async function getChannels() {
 
     //Query a list of all channel ids
     const list = await contract.getChannels()
+    console.warn('contract.getChannels()', list)
     const accumulator = {}
     for (const iterator of list) {
         // Query every channel and accumulate it

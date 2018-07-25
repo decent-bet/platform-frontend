@@ -11,14 +11,14 @@ export default class HouseLotteryContract extends AbstractContract {
     }
 
     lotteries(session) {
-        return this.instance.lotteries(session)
+        return this.contract.methods.lotteries(session).call()
     }
 
     lotteryTicketHolders(session, ticketNumber) {
-        return this.instance.lotteryTicketHolders(session, ticketNumber)
+        return this.contract.methods.lotteryTicketHolders(session, ticketNumber).call()
     }
 
     lotteryUserTickets(session, address, index) {
-        return this.instance.lotteryUserTickets(session, address, index)
+        return this.contract.methods.lotteryUserTickets(session, address, index).call()
     }
 }

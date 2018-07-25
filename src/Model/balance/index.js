@@ -15,12 +15,13 @@ export function initWatchers(dispatch) {
     let address = helper.getWeb3().eth.defaultAccount
 
     // Transfer from
-    tokenContract.logTransfer(address, true).watch((err, event) => {
-        if (!err) dispatch(Actions.getTokens())
+    tokenContract.logTransfer(address, true)
+    .on('data', (event) => {
+        dispatch(Actions.getTokens())
     })
 
     //Transfer To
-    tokenContract.logTransfer(address, false).watch((err, event) => {
-        if (!err) dispatch(Actions.getTokens())
+    tokenContract.logTransfer(address, false).on('data', (event) => {
+        dispatch(Actions.getTokens())
     })
 }

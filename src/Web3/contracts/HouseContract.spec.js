@@ -13,12 +13,12 @@ jest.mock('truffle-contract', () => {
       deployed: jest.fn(async () => {
         return Promise.resolve({
           purchaseCredits: {
-            sendTransaction: jest.fn()
+            sendTransaction: jest.fn(async () => true)
           },
-          LogPurchasedCredits: jest.fn(),
-          LogLiquidateCredits: jest.fn(),
-          SendTransaction: jest.fn(),
-          currentSession: jest.fn()
+          LogPurchasedCredits: jest.fn(async () => true),
+          LogLiquidateCredits: jest.fn(async () => true),
+          SendTransaction: jest.fn(async () => true),
+          currentSession: jest.fn(async () => true)
         })
       })
     }

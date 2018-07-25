@@ -40,12 +40,7 @@ export default class HouseController {
     }
 
     getUserCreditsForSession(sessionNumber, address) {
-        return this.houseFundsContract.getUserCreditsForSession.call(
-            sessionNumber,
-            address, {
-                from: this.web3.eth.defaultAccount
-            }
-        )
+        return this.houseFundsContract.getUserCreditsForSession(sessionNumber, address)
     }
 
     getAuthorizedAddresses(index) {
@@ -76,34 +71,17 @@ export default class HouseController {
      * Setters
      */
     purchaseCredits(amount) {
-        return this.houseContract.purchaseCredits.sendTransaction(
-            amount, {
-                from: this.web3.eth.defaultAccount,
-                gas: 5000000
-            }
-        )
+        return this.houseContract.purchaseCredits(amount)
     }
 
     /**
      * Events
      */
     logPurchasedCredits(sessionNumber, fromBlock, toBlock) {
-        return this.houseContract.logPurchasedCredits({
-            creditHolder: this.web3.eth.defaultAccount,
-            session: sessionNumber
-        }, {
-            fromBlock: fromBlock ? fromBlock : 0,
-            toBlock: toBlock ? toBlock : 'latest'
-        })
+        return this.houseContract.logPurchasedCredits(sessionNumber, fromBlock, toBlock)
     }
 
     logLiquidateCredits(sessionNumber, fromBlock, toBlock) {
-        return this.houseContract.logLiquidateCredits({
-            creditHolder: this.web3.eth.defaultAccount,
-            session: sessionNumber
-        }, {
-            fromBlock: fromBlock ? fromBlock : 0,
-            toBlock: toBlock ? toBlock : 'latest'
-        })
+        return this.houseContract.logLiquidateCredits(sessionNumber, fromBlock, toBlock)
     }
 }

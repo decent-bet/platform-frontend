@@ -22,69 +22,57 @@ export default class SlotsChannelManager extends AbstractContract {
      * Getters
      */
     getChannelInfo(id) {
-        return this.instance.getChannelInfo.call(id, {
+        return this.contract.methods.getChannelInfo(id).call({
             from: this.web3.eth.defaultAccount
         })
     }
 
     getChannelHashes(id) {
-        return this.instance.getChannelHashes.call(id, {
+        return this.contract.methods.getChannelHashes(id).call({
             from: this.web3.eth.defaultAccount
         })
     }
 
     checkSig = (id, msgHash, sign, turn) => {
-        return this.instance.checkSig.call(id, msgHash, sign, turn, {
+        return this.contract.methods.checkSig(id, msgHash, sign, turn)
+            .call({
             from: this.web3.eth.defaultAccount
         })
     }
 
     balanceOf(address, session) {
-        return this.instance.balanceOf.call(address, session, {
-            from: this.web3.eth.defaultAccount
-        })
+        return this.contract.methods.balanceOf(address, session).call()
     }
 
     currentSession() {
-        return this.instance.currentSession.call({
-            from: this.web3.eth.defaultAccount
-        })
+        return this.contract.methods.currentSession().call()
     }
 
     getPlayer(id, isHouse) {
-        return this.instance.getPlayer.call(id, isHouse, {
-            from: this.web3.eth.defaultAccount
-        })
+        return this.contract.methods.getPlayer(id, isHouse).call()
     }
 
     isChannelClosed(id) {
-        return this.instance.isChannelClosed.call(id, {
-            from: this.web3.eth.defaultAccount
-        })
+        return this.contract.methods.isChannelClosed(id).call()
     }
 
     finalBalances(id, isHouse) {
-        return this.instance.finalBalances.call(id, isHouse, {
-            from: this.web3.eth.defaultAccount
-        })
+        return this.contract.methods.finalBalances(id, isHouse).call()
     }
 
     channelDeposits(id, isHouse) {
-        return this.instance.channelDeposits.call(id, isHouse, {
-            from: this.web3.eth.defaultAccount
-        })
+        return this.contract.methods.channelDeposits(id, isHouse).call()
     }
 
     getChannels() {
         return Bluebird.fromCallback(cb =>
-            this.instance
+            this.contract.events
             .LogNewChannel({
-                user: this.web3.eth.defaultAccount
-            }, {
-                fromBlock: 0,
-                toBlock: 'latest'
-            })
-            .get(cb)
+                filter: {
+                    user: this.web3.eth.defaultAccount
+                },
+                fromBlock: 0
+            }, cb)
         )
     }
 
@@ -103,7 +91,7 @@ export default class SlotsChannelManager extends AbstractContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.instance.address,
+            this.contract.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -122,7 +110,7 @@ export default class SlotsChannelManager extends AbstractContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.instance.address,
+            this.contract.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -146,7 +134,7 @@ export default class SlotsChannelManager extends AbstractContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.instance.address,
+            this.contract.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -174,7 +162,7 @@ export default class SlotsChannelManager extends AbstractContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.instance.address,
+            this.contract.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -193,7 +181,7 @@ export default class SlotsChannelManager extends AbstractContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.instance.address,
+            this.contract.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -204,7 +192,7 @@ export default class SlotsChannelManager extends AbstractContract {
      * Events
      */
     logNewChannel(fromBlock, toBlock) {
-        return this.instance.LogNewChannel({
+        return this.contract.events.LogNewChannel({
             user: this.web3.eth.defaultAccount
         }, {
             fromBlock: fromBlock ? fromBlock : 0,
@@ -212,7 +200,7 @@ export default class SlotsChannelManager extends AbstractContract {
         })
     }
     logChannelDeposit(id, fromBlock, toBlock) {
-        return this.instance.LogChannelDeposit({
+        return this.contract.events.LogChannelDeposit({
             user: this.web3.eth.defaultAccount,
             id: id
         }, {
@@ -221,7 +209,7 @@ export default class SlotsChannelManager extends AbstractContract {
         })
     }
     logChannelActivate(id, fromBlock, toBlock) {
-        return this.instance.LogChannelActivate({
+        return this.contract.events.LogChannelActivate({
             user: this.web3.eth.defaultAccount,
             id: id
         }, {
@@ -231,7 +219,7 @@ export default class SlotsChannelManager extends AbstractContract {
     }
 
     logChannelFinalized(id, fromBlock, toBlock) {
-        return this.instance.LogChannelFinalized({
+        return this.contract.events.LogChannelFinalized({
             id: id
         }, {
             fromBlock: fromBlock ? fromBlock : 0,
@@ -243,14 +231,14 @@ export default class SlotsChannelManager extends AbstractContract {
         const filter = id ? {
             id: id
         } : {}
-        return this.instance.LogClaimChannelTokens(filter, {
+        return this.contract.events.LogClaimChannelTokens(filter, {
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logDeposit(fromBlock, toBlock) {
-        return this.instance.LogDeposit({
+        return this.contract.events.LogDeposit({
             _address: this.web3.eth.defaultAccount
         }, {
             fromBlock: fromBlock ? fromBlock : 0,
@@ -258,7 +246,7 @@ export default class SlotsChannelManager extends AbstractContract {
         })
     }
     logWithdraw(fromBlock, toBlock) {
-        return this.instance.LogWithdraw({
+        return this.contract.events.LogWithdraw({
             _address: this.web3.eth.defaultAccount
         }, {
             fromBlock: fromBlock ? fromBlock : 0,

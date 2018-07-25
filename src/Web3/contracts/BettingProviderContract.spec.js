@@ -12,7 +12,8 @@ jest.mock('truffle-contract', () => {
             setProvider: jest.fn(),
             deployed: jest.fn(async () => {
                 return Promise.resolve({
-                    gamesCount: jest.fn().mockReturnValue(1)
+                    gamesCount: jest.fn().mockReturnValue(1),
+                    getGame: jest.fn().mockReturnValue({})
                 })
             })
         }
@@ -44,9 +45,15 @@ describe('BettingProviderContract', () => {
         expect(instance).toEqual(contract.instance)
     })
 
-    test('should call the instance method ', async () => {
+    test('should call the gamesCount instance method ', async () => {
         let count = contract.getGamesCount()
         expect(contract.instance.gamesCount).toHaveBeenCalledTimes(1)
         expect(count).toEqual(1)
+    })
+    
+    test('should call the getGame instance method ', async () => {
+       let game = contract.getGame(1)
+        expect(contract.instance.getGame).toHaveBeenCalledTimes(1)
+        expect(game).not.toBeNull()
     })
 })

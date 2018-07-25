@@ -9,13 +9,14 @@ const helper = new Helper()
 async function fetchAllowance() {
     const contractHelper = helper.getContractHelper()
     const defaultAccount = helper.getWeb3().eth.defaultAccount
-    const slotsAddress = contractHelper.SlotsChannelManager.instance.address
+    const slotsAddress = contractHelper.SlotsChannelManager.contract.address
     try {
         const allowance = await contractHelper
             .getWrappers()
             .token()
             .allowance(defaultAccount, slotsAddress)
-        return allowance.toFixed()
+
+        return parseFloat(allowance).toFixed()
     } catch (err) {
         console.log(
             'Error retrieving slots channel manager allowance',
@@ -29,9 +30,9 @@ async function fetchSessionId() {
     try {
         const instance = helper.getContractHelper().SlotsChannelManager
         const session = await instance.currentSession()
-        return session.toNumber()
+        return Number(session)
     } catch (err) {
-        console.log('Error retrieving current session', err.message)
+        console.log('Error retrieving current session', err)
     }
 }
 
@@ -39,12 +40,11 @@ async function fetchSessionId() {
 async function fetchSessionBalance() {
     try {
         const sessionId = await fetchSessionId()
-        const instance = helper.getContractHelper().SlotsChannelManager
-        const balance = await instance.balanceOf(
+        const balance = await helper.getContractHelper().SlotsChannelManager.balanceOf(
             helper.getWeb3().eth.defaultAccount,
             sessionId
         )
-        return balance.toFixed()
+        return parseFloat(balance).toFixed()
     } catch (err) {
         console.log('Error retrieving balance', err.message)
     }
@@ -94,7 +94,7 @@ async function depositToChannel(id) {
 // Increase allowance and then deposit new Chips
 async function approveAndDepositChips(amount) {
     const contractHelper = helper.getContractHelper()
-    const contractAddress = contractHelper.SlotsChannelManager.instance.address
+    const contractAddress = contractHelper.SlotsChannelManager.contract.address
     try {
         const tx1 = await contractHelper
             .getWrappers()

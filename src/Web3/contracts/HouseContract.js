@@ -13,26 +13,26 @@ export default class HouseContract extends AbstractContract {
      * Getters
      */
     getCurrentSession() {
-        return this.instance.currentSession()
+        return this.contract.methods.currentSession().call()
     }
 
     /**
      * Setters
      */
     purchaseCredits(amount) {
-        return this.instance.purchaseCredits.sendTransaction(
-            amount, {
-                from: this.web3.eth.defaultAccount,
-                gas: 5000000
-            }
-        )
+        return this.contract.methods.purchaseCredits(
+            amount
+        ).send({
+            from: this.web3.eth.defaultAccount,
+            gas: 5000000
+        })
     }
     
     /**
      * Events
      */
     logPurchasedCredits(sessionNumber, fromBlock, toBlock) {
-        return this.instance.LogPurchasedCredits({
+        return this.contract.events.LogPurchasedCredits({
             creditHolder: this.web3.eth.defaultAccount,
             session: sessionNumber
         }, {
@@ -42,7 +42,7 @@ export default class HouseContract extends AbstractContract {
     }
 
     logLiquidateCredits(sessionNumber, fromBlock, toBlock) {
-        return this.instance.LogLiquidateCredits({
+        return this.contract.events.LogLiquidateCredits({
             creditHolder: this.web3.eth.defaultAccount,
             session: sessionNumber
         }, {

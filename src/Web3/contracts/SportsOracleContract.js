@@ -16,133 +16,133 @@ export default class SportsOracleContract extends AbstractContract {
      * Getters
      */
     getOwner() {
-        return this.instance.owner()
+        return this.contract.methods.owner().call()
     }
 
     getBalance() {
-        return this.decentBetTokenContract.balanceOf(this.instance.address)
+        return this.decentBetTokenContract.balanceOf(this.contract.options.address)
     }
 
     getGameUpdateCost() {
-        return this.instance.gameUpdateCost()
+        return this.contract.methods.gameUpdateCost().call()
     }
 
     getProviderAcceptanceCost() {
-        return this.instance.providerAcceptanceCost()
+        return this.contract.methods.providerAcceptanceCost().call()
     }
 
     getPayForProviderAcceptance() {
-        return this.instance.payForProviderAcceptance()
+        return this.contract.methods.payForProviderAcceptance().call()
     }
 
     getAuthorizedAddresses(index) {
-        return this.instance.authorizedAddresses(index)
+        return this.contract.methods.authorizedAddresses(index).call()
     }
 
     getRequestedProviderAddresses(index) {
-        return this.instance.requestedProviderAddresses(index)
+        return this.contract.methods.requestedProviderAddresses(index).call()
     }
 
     getAcceptedProviderAddresses(index) {
-        return this.instance.acceptedProviderAddresses(index)
+        return this.contract.methods.acceptedProviderAddresses(index).call()
     }
 
     getGamesCount() {
-        return this.instance.gamesCount()
+        return this.contract.methods.gamesCount().call()
     }
 
     getGame(gameId) {
-        return this.instance.games(gameId)
+        return this.contract.methods.games(gameId).call()
     }
 
     getAvailableGamePeriods(gameId, index) {
-        return this.instance.availableGamePeriods(gameId, index)
+        return this.contract.availableGamePeriods(gameId, index).call()
     }
 
     getGameProvidersUpdateList(gameId, index) {
-        return this.instance.gameProvidersUpdateList(gameId, index)
+        return this.contract.methods.gameProvidersUpdateList(gameId, index).call()
     }
 
     getProviderGameToUpdate(gameId, providerAddress) {
-        return this.instance.providerGamesToUpdate(gameId, providerAddress)
+        return this.contract.methods.providerGamesToUpdate(gameId, providerAddress).call()
     }
 
     getGamePeriods(gameId, periodNumber) {
-        return this.instance.gamePeriods(gameId, periodNumber)
+        return this.contract.methods.gamePeriods(gameId, periodNumber).call()
     }
 
     getTime() {
-        return this.instance.getTime()
+        return this.contract.methods.getTime().call()
     }
 
     /**
      * Events
      */
     logNewAuthorizedAddress(fromBlock, toBlock) {
-        return this.instance.LogNewAuthorizedAddress({}, {
+        return this.contract.events.LogNewAuthorizedAddress({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logNewAcceptedProvider(fromBlock, toBlock) {
-        return this.instance.LogNewAcceptedProvider({}, {
+        return this.contract.events.LogNewAcceptedProvider({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logGameAdded(fromBlock, toBlock) {
-        return this.instance.LogGameAdded({}, {
+        return this.contract.events.LogGameAdded({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logGameDetailsUpdate(fromBlock, toBlock) {
-        return this.instance.LogGameDetailsUpdate({}, {
+        return this.contract.events.LogGameDetailsUpdate({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logGameResult(fromBlock, toBlock) {
-        return this.instance.LogGameResult({}, {
+        return this.contract.events.LogGameResult({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logUpdatedProviderOutcome(fromBlock, toBlock) {
-        return this.instance.LogUpdatedProviderOutcome({}, {
+        return this.contract.events.LogUpdatedProviderOutcome({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logWithdrawal(fromBlock, toBlock) {
-        return this.instance.LogWithdrawal({}, {
+        return this.contract.events.LogWithdrawal({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logNewGameUpdateCost(fromBlock, toBlock) {
-        return this.instance.LogNewGameUpdateCost({}, {
+        return this.contract.events.LogNewGameUpdateCost({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logNewProviderAcceptanceCost(fromBlock, toBlock) {
-        return this.instance.LogNewProviderAcceptanceCost({}, {
+        return this.contract.events.LogNewProviderAcceptanceCost({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logUpdatedTime(fromBlock, toBlock) {
-        return this.instance.LogUpdatedTime({}, {
+        return this.contract.events.LogUpdatedTime({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })

@@ -15,19 +15,12 @@ export default class DecentBetTokenContract extends AbstractContract {
     }
 
     /** Getters */
-    allowance = (owner, spender) => {
-        return this.instance.allowance.call(
-            owner,
-            spender, {
-                from: this.web3.eth.defaultAccount
-            }
-        )
+    allowance(owner, spender) {
+        return this.contract.methods.allowance(owner, spender).call({from: this.web3.eth.defaultAccount})
     }
 
-    balanceOf = address => {
-        return this.instance.balanceOf.call(address, {
-            from: this.web3.eth.defaultAccount
-        })
+    balanceOf(address) {
+        return this.contract.methods.balanceOf(address).call({from: this.web3.eth.defaultAccount})
     }
 
     /** Setters */
@@ -48,29 +41,16 @@ export default class DecentBetTokenContract extends AbstractContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.instance.address,
+            this.contract.options.address,
             null,
             5000000,
             encodedFunctionCall
         )
     }
 
-    faucet = () => {
+    faucet() {
         console.log('Sending faucet tx')
-
-        let encodedFunctionCall = ethAbi.encodeFunctionCall({
-            name: 'faucet',
-            type: 'function',
-            inputs: []
-        }, [])
-
-        return this.signAndSendRawTransaction(
-            keyHandler.get(),
-            this.instance.address,
-            null,
-            5000000,
-            encodedFunctionCall
-        )
+        return this.contract.methods.faucet().send({from: this.web3.eth.defaultAccount })
     }
 
     /**
@@ -80,7 +60,7 @@ export default class DecentBetTokenContract extends AbstractContract {
         let options = {}
         options[isFrom ? 'from' : 'to'] = address
 
-        return this.instance.Transfer(options, {
+        return this.contract.events.Transfer(options, {
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         })

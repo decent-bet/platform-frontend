@@ -11,14 +11,14 @@ export default class HouseAuthorizedContract extends AbstractContract {
     }
 
     getAuthorizedAddresses (index) {
-        return this.instance.authorizedAddresses(index)
+        return this.contract.methods.authorizedAddresses(index).call()
     }
 
     addToAuthorizedAddresses (address) {
-        return this.instance.addToAuthorizedAddresses(address)
+        return this.contract.methods.addToAuthorizedAddresses(address).call()
     }
 
     removeFromAuthorizedAddresses(address) {
-        return this.instance.removeFromAuthorizedAddresses(address)
+        return this.contract.methods.removeFromAuthorizedAddresses(address).call()
     }
 }

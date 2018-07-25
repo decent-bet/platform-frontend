@@ -17,17 +17,18 @@ export function initWatchers(dispatch) {
         .sportsOracle()
 
     // Game Added
-    contract.logGameAdded().watch((err, event) => {
-        console.log('Game added event', err, JSON.stringify(event))
+    contract.logGameAdded().on('data', (event) => {
+        console.log('Game added event', JSON.stringify(event))
         let id = event.args.id.toNumber()
         dispatch(Actions.getGameItem(id))
+    }).on('error', (error) => {
+        console.error('Game added event error', error)
     })
 
     // Updated provider outcome
-    contract.logUpdatedProviderOutcome().watch((err, event) => {
+    contract.logUpdatedProviderOutcome().on('data', (event) => {
         console.log(
             'Updated provider outcome event',
-            err,
             JSON.stringify(event)
         )
         let providerGameId = event.args.providerGameId.toNumber()
@@ -40,13 +41,17 @@ export function initWatchers(dispatch) {
             period
         )
         dispatch(action)
+    }).on('error', (error) => {
+        console.error('Updated provider outcome event error', error)
     })
 
     // Updated Time
-    contract.logUpdatedTime().watch((err, event) => {
-        console.log('Updated oracle time event', err, event)
+    contract.logUpdatedTime().on('data', (event) => {
+        console.log('Updated oracle time event', event)
         let time = event.args.time.toNumber()
         dispatch(Actions.setTime(time))
+    }).on('error', (error) => {
+        console.error('Updated oracle time event error', error)
     })
 }
 

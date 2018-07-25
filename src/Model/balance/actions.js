@@ -16,7 +16,7 @@ async function fetchTokens() {
             .balanceOf(address)
         return new BigNumber(rawResult).dividedBy(units.ether).toNumber()
     } catch (err) {
-        console.log('Error retrieving token balance', err.message)
+        console.log('Error retrieving token balance', err)
     }
 }
 
@@ -88,7 +88,7 @@ async function faucet() {
         return tx
     } catch (err) {
         helper.toggleSnackbar('Error sending faucet transaction')
-        console.log('Error sending faucet tx', err.message)
+        console.log('Error sending faucet tx', err)
     }
 }
 

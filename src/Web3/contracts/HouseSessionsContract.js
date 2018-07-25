@@ -12,6 +12,6 @@ export default class HouseSessionsContract extends AbstractContract {
 
     // Mapping (uint => Session)
     getSession(sessionNumber) {
-        return this.instance.sessions(sessionNumber)
+        return this.contract.methods.sessions(sessionNumber).call()
     }
 }

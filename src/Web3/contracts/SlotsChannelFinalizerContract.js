@@ -103,7 +103,7 @@ export default class SlotsChannelFinalizerContract extends AbstractContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.instance.address,
+            this.contract.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -192,7 +192,7 @@ export default class SlotsChannelFinalizerContract extends AbstractContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.instance.address,
+            this.contract.options.address,
             null,
             5000000,
             encodedFunctionCall
