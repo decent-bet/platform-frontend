@@ -1,7 +1,7 @@
 import HouseFundsContractJson from '../../../build/contracts/HouseFundsController.json'
-import AbstractContract from './AbstractContract'
+import ThorifyContract from './ThorifyContract'
 
-export default class HouseFundsContract extends AbstractContract {
+export default class HouseFundsContract extends ThorifyContract {
     /**
      * Builds the contract
      * @param {Web3} web3

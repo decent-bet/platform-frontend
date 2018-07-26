@@ -18,8 +18,8 @@ export default class ContractHelper {
      *
      * @param {Web3} web3Param
      */
-    constructor(web3Param) {
-        this.web3 = web3Param
+    constructor(web3Param, thor) {
+        this.web3 = thor
 
         // Initialize new Contracts
         this.bettingProviderContract = new BettingProviderContract(this.web3)

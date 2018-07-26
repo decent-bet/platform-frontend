@@ -2,11 +2,11 @@ import SlotsChannelFinalizerContractJson from '../../../build/contracts/SlotsCha
 import ethUtil from 'ethereumjs-util'
 import KeyHandler from '../KeyHandler'
 import ethAbi from 'web3-eth-abi'
-import AbstractContract from './AbstractContract'
+import ThorifyContract from './ThorifyContract'
 
 const keyHandler = new KeyHandler()
 
-export default class SlotsChannelFinalizerContract extends AbstractContract {
+export default class SlotsChannelFinalizerContract extends ThorifyContract {
     /**
      * Builds the contract
      * @param {Web3} web3

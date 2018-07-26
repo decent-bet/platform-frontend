@@ -104,6 +104,7 @@
     "sketch": "^0.2.0",
     "solidity-sha3": "^0.4.1",
     "swarm-js": "^0.1.37",
+    "thorify": "^0.3.3",
     "truffle-hdwallet-provider": "^0.0.5",
     "web3": "^1.0.0-beta.34",
     "wowjs": "^1.1.3"

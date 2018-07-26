@@ -1526,7 +1526,7 @@ bignumber.js@^2.1.4:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-2.4.0.tgz#838a992da9f9d737e0f4b2db0be62bb09dd0c5e8"
 
-bignumber.js@^7.0.0:
+bignumber.js@^7.0.0, bignumber.js@^7.2.1:
   version "7.2.1"
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-7.2.1.tgz#80c048759d826800807c4bfd521e50edbba57a5f"
 
@@ -1572,6 +1572,10 @@ bl@^1.0.0:
   dependencies:
     readable-stream "^2.3.5"
     safe-buffer "^5.1.1"
+
+blakejs@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/blakejs/-/blakejs-1.1.0.tgz#69df92ef953aa88ca51a32df6ab1c54a155fc7a5"
 
 block-stream@*:
   version "0.0.9"
@@ -3632,6 +3636,14 @@ eth-lib@0.1.27, eth-lib@^0.1.26:
 eth-lib@0.2.7:
   version "0.2.7"
   resolved "https://registry.yarnpkg.com/eth-lib/-/eth-lib-0.2.7.tgz#2f93f17b1e23aec3759cd4a3fe20c1286a3fc1ca"
+  dependencies:
+    bn.js "^4.11.6"
+    elliptic "^6.4.0"
+    xhr-request-promise "^0.1.2"
+
+eth-lib@^0.2.8:
+  version "0.2.8"
+  resolved "https://registry.yarnpkg.com/eth-lib/-/eth-lib-0.2.8.tgz#b194058bef4b220ad12ea497431d6cb6aa0623c8"
   dependencies:
     bn.js "^4.11.6"
     elliptic "^6.4.0"
@@ -6100,7 +6112,7 @@ jsx-ast-utils@^2.0.0, jsx-ast-utils@^2.0.1:
   dependencies:
     array-includes "^3.0.3"
 
-keccak@1.4.0, keccak@^1.0.2:
+keccak@1.4.0, keccak@^1.0.2, keccak@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/keccak/-/keccak-1.4.0.tgz#572f8a6dbee8e7b3aa421550f9e6408ca2186f80"
   dependencies:
@@ -8753,7 +8765,7 @@ scss-tokenizer@^0.2.3:
     js-base64 "^2.1.8"
     source-map "^0.4.2"
 
-secp256k1@3.5.0, secp256k1@^3.0.1:
+secp256k1@3.5.0, secp256k1@^3.0.1, secp256k1@^3.5.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/secp256k1/-/secp256k1-3.5.0.tgz#677d3b8a8e04e1a5fa381a1ae437c54207b738d0"
   dependencies:
@@ -9583,6 +9595,28 @@ thenify-all@^1.0.0, thenify-all@^1.6.0:
   resolved "https://registry.yarnpkg.com/thenify/-/thenify-3.3.0.tgz#e69e38a1babe969b0108207978b9f62b88604839"
   dependencies:
     any-promise "^1.0.0"
+
+thor-model-kit@^0.2.0:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/thor-model-kit/-/thor-model-kit-0.2.2.tgz#24d310e41d8c2dfc7e3f97d3230b6e1a1d4bede0"
+  dependencies:
+    bignumber.js "^7.2.1"
+    blakejs "^1.1.0"
+    keccak "^1.4.0"
+    rlp "^2.0.0"
+    secp256k1 "^3.5.0"
+
+thorify@^0.3.3:
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/thorify/-/thorify-0.3.3.tgz#05bbb623fec7d1af2ea8cdfd3b10af00cdfccdd3"
+  dependencies:
+    blakejs "^1.1.0"
+    debug "^3.1.0"
+    elliptic "^6.4.0"
+    eth-lib "^0.2.8"
+    thor-model-kit "^0.2.0"
+    web3-utils "1.0.0-beta.34"
+    xhr2 "0.1.4"
 
 throat@^4.0.0:
   version "4.1.0"

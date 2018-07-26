@@ -1,11 +1,11 @@
 import DecentBetTokenJson from '../../../build/contracts/TestDecentBetToken.json'
 import KeyHandler from '../KeyHandler'
 import ethAbi from 'web3-eth-abi'
-import AbstractContract from './AbstractContract'
+import ThorifyContract from './ThorifyContract'
 
 const keyHandler = new KeyHandler()
 
-export default class DecentBetTokenContract extends AbstractContract {
+export default class DecentBetTokenContract extends ThorifyContract {
     /**
      * Builds the contract
      * @param {Web3} web3

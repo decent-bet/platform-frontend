@@ -1,7 +1,7 @@
 import SportsOracleContractJson from '../../../build/contracts/SportsOracle.json'
-import AbstractContract from './AbstractContract'
+import ThorifyContract from './ThorifyContract'
 
-export default class SportsOracleContract extends AbstractContract {
+export default class SportsOracleContract extends ThorifyContract {
     /**
      * Builds the contract
      * @param {Web3} web3

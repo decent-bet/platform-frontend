@@ -1,7 +1,7 @@
 import SlotsChannelManagerJson from '../../../build/contracts/SlotsChannelManager.json'
 import KeyHandler from '../KeyHandler'
 import ethAbi from 'web3-eth-abi'
-import AbstractContract from './AbstractContract'
+import ThorifyContract from './ThorifyContract'
 import Bluebird from 'bluebird'
 
 // Used for VSCode Type Checking
@@ -9,7 +9,7 @@ import Web3 from 'web3' // eslint-disable-line no-unused-vars
 
 const keyHandler = new KeyHandler()
 
-export default class SlotsChannelManager extends AbstractContract {
+export default class SlotsChannelManager extends ThorifyContract {
     /**
      * Builds the contract
      * @param {Web3} web3

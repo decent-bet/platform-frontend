@@ -1,7 +1,7 @@
 import HouseSessionsContractJson from '../../../build/contracts/HouseSessionsController.json'
-import AbstractContract from './AbstractContract'
+import ThorifyContract from './ThorifyContract'
 
-export default class HouseSessionsContract extends AbstractContract {
+export default class HouseSessionsContract extends ThorifyContract {
     /**
      * Builds the contract
      * @param {Web3} web3

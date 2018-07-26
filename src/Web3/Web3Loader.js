@@ -1,3 +1,5 @@
+import { thorify } from 'thorify'
+
 import EventBus from 'eventing-bus'
 import Web3 from 'web3'
 import KeyHandler from './KeyHandler'
@@ -46,10 +48,12 @@ export default class Web3Loader {
 
     async proceedIfConnected() {
         if (keyHandler.isLoggedIn())
-            window.web3Object.eth.defaultAccount = keyHandler.getAddress()
-                                                             .toLowerCase()
+            window.web3Object.eth.defaultAccount = keyHandler
+                .getAddress()
+                .toLowerCase()
 
-        const contractHelper = new ContractHelper(window.web3Object)
+        const thor = thorify(new Web3()) // TODO: Read url from config
+        const contractHelper = new ContractHelper(window.web3Object, thor)
         await contractHelper.getAllContracts()
         window.contractHelper = contractHelper
         window.web3Loaded = true
