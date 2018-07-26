@@ -2,6 +2,9 @@ import SlotsChannelManagerJson from '../../../build/contracts/SlotsChannelManage
 import KeyHandler from '../KeyHandler'
 import ethAbi from 'web3-eth-abi'
 import AbstractContract from './AbstractContract'
+import { Observable, Subject, ReplaySubject, from, of, range } from 'rxjs';
+
+
 
 // Used for VSCode Type Checking
 import Web3 from 'web3' // eslint-disable-line no-unused-vars

@@ -99,6 +99,7 @@
     "redux-promise-middleware": "^5.1.0",
     "redux-thunk": "^2.2.0",
     "request": "^2.86.0",
+    "rxjs": "^6.2.2",
     "scroll-to-element": "^2 .0.0",
     "sketch": "^0.2.0",
     "solidity-sha3": "^0.4.1",
