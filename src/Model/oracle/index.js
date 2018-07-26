@@ -19,20 +19,21 @@ export function initWatchers(dispatch) {
     // Game Added
     contract.logGameAdded().on('data', (event) => {
         console.log('Game added event', JSON.stringify(event))
-        let id = event.args.id.toNumber()
+        let id = event.returnValues.id.toNumber()
         dispatch(Actions.getGameItem(id))
     }).on('error', (error) => {
         console.error('Game added event error', error)
     })
 
     // Updated provider outcome
-    contract.logUpdatedProviderOutcome().on('data', (event) => {
+    contract.logUpdatedProviderOutcome()
+    .on('data', (event) => {
         console.log(
             'Updated provider outcome event',
             JSON.stringify(event)
         )
-        let providerGameId = event.args.providerGameId.toNumber()
-        let period = event.args.period.toNumber()
+        let providerGameId = event.returnValues.providerGameId.toNumber()
+        let period = event.returnValues.period.toNumber()
 
         helper.toggleSnackbar(`Results pushed for game - ID ${providerGameId}`)
 
@@ -48,7 +49,7 @@ export function initWatchers(dispatch) {
     // Updated Time
     contract.logUpdatedTime().on('data', (event) => {
         console.log('Updated oracle time event', event)
-        let time = event.args.time.toNumber()
+        let time = event.returnValues.time.toNumber()
         dispatch(Actions.setTime(time))
     }).on('error', (error) => {
         console.error('Updated oracle time event error', error)

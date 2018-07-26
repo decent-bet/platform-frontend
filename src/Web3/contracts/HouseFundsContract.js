@@ -17,8 +17,8 @@ export default class HouseFundsContract extends AbstractContract {
     getUserCreditsForSession(sessionNumber, address) {
         return this.contract.methods.getUserCreditsForSession(
             sessionNumber, 
-            address, {
-            from: this.web3.eth.defaultAccount
-        }).call()
+            address).call({
+                from: this.web3.eth.defaultAccount
+            })
     }
 }

@@ -97,73 +97,101 @@ export default class SportsOracleContract extends AbstractContract {
     }
 
     logGameAdded(fromBlock, toBlock) {
-        return this.contract.events.LogGameAdded({}, {
+
+        let options = {
+            filter: {
+            },
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
-        }, (error, event) => {
+        }
+
+        return this.contract.events.LogGameAdded(options, 
+            (error, event) => {
             console.warn('logGameAdded', error, event)
         })
     }
 
     logGameDetailsUpdate(fromBlock, toBlock) {
-        return this.contract.events.LogGameDetailsUpdate({}, {
+        let options = {
+            filter: {
+            },
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
-        }, (error, event) => {
+        }
+        return this.contract.events.LogGameDetailsUpdate(options, (error, event) => {
             console.warn('logGameDetailsUpdate', error, event)
         })
     }
 
     logGameResult(fromBlock, toBlock) {
-        return this.contract.events.LogGameResult({}, {
+        let options = {
+            filter: {
+            },
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
-        }, (error, event) => {
+        }
+
+        return this.contract.events.LogGameResult(options, (error, event) => {
             console.warn('logGameResult', error, event)
         })
     }
 
     logUpdatedProviderOutcome(fromBlock, toBlock) {
-        return this.contract.events.LogUpdatedProviderOutcome({}, {
+        let options = {
+            filter: {
+            },
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
-        }, (error, event) => {
+        }
+        return this.contract.events.LogUpdatedProviderOutcome(options, (error, event) => {
             console.warn('logUpdatedProviderOutcome', error, event)
         })
     }
 
     logWithdrawal(fromBlock, toBlock) {
-        return this.contract.events.LogWithdrawal({}, {
+        let options = {
+            filter: {
+            },
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
-        }, (error, event) => {
+        }
+        return this.contract.events.LogWithdrawal(options, (error, event) => {
             console.warn('logWithdrawal', error, event)
         })
     }
 
     logNewGameUpdateCost(fromBlock, toBlock) {
-        return this.contract.events.LogNewGameUpdateCost({}, {
+        let options = {
+            filter: {
+            },
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
-        }, (error, event) => {
+        }
+        return this.contract.events.LogNewGameUpdateCost(options, (error, event) => {
             console.warn('logWithdrawal', error, event)
         })
     }
 
     logNewProviderAcceptanceCost(fromBlock, toBlock) {
-        return this.contract.events.LogNewProviderAcceptanceCost({}, {
+        let options = {
+            filter: {
+            },
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
-        }, (error, event) => {
+        }
+        return this.contract.events.LogNewProviderAcceptanceCost(options, (error, event) => {
             console.warn('logNewProviderAcceptanceCost', error, event)
         })
     }
 
     logUpdatedTime(fromBlock, toBlock) {
-        return this.contract.events.LogUpdatedTime({}, {
+        let options = {
+            filter: {
+            },
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
-        }, (error, event) => {
+        }
+        return this.contract.events.LogUpdatedTime(options, (error, event) => {
             console.warn('logUpdatedTime', error, event)
         })
     }

@@ -2,7 +2,6 @@ import SlotsChannelManagerJson from '../../../build/contracts/SlotsChannelManage
 import KeyHandler from '../KeyHandler'
 import ethAbi from 'web3-eth-abi'
 import AbstractContract from './AbstractContract'
-import { Observable, Subject, ReplaySubject, from, of, range } from 'rxjs';
 
 
 
@@ -67,24 +66,25 @@ export default class SlotsChannelManager extends AbstractContract {
     }
 
     async getChannelCount() {
-        return await this.contract.methods.channelCount().call()
+        let count = await this.contract.methods.channelCount().call()
+        try {
+            return parseInt(count)
+        } catch (error) {
+            console.log(error)
+            return 0
+        }
     }
     
-    async getChannels() {
-        return new Promise( (resolve, reject) => {
-            this.contract.once('LogNewChannel', {
-                filter: {
-                    user: this.web3.eth.defaultAccount
-                },
-                fromBlock: 0 
-            }, (error, event) => {
-                if(error) {
-                    reject(error)
-                } else {
-                    resolve(event.returnValues)
-                } 
-            })
-        })
+    getChannels() {
+        let options = {
+            filter: {
+                user: this.web3.eth.defaultAccount
+            },
+            fromBlock: 0,
+            toBlock: 'latest'
+        }
+
+        return this.contract.events.LogNewChannel(options)
     }
 
     /**
@@ -203,36 +203,37 @@ export default class SlotsChannelManager extends AbstractContract {
      * Events
      */
     logNewChannel(fromBlock, toBlock) {
-        return this.contract.events.LogNewChannel({
+        return this.contract.events.LogNewChannel({ filter: {
             user: this.web3.eth.defaultAccount
-        }, {
+        },
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
+    
     logChannelDeposit(id, fromBlock, toBlock) {
-        return this.contract.events.LogChannelDeposit({
+        return this.contract.events.LogChannelDeposit({ filter: {
             user: this.web3.eth.defaultAccount,
             id: id
-        }, {
+        },
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
     logChannelActivate(id, fromBlock, toBlock) {
-        return this.contract.events.LogChannelActivate({
+        return this.contract.events.LogChannelActivate({ filter: {
             user: this.web3.eth.defaultAccount,
             id: id
-        }, {
+        },
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logChannelFinalized(id, fromBlock, toBlock) {
-        return this.contract.events.LogChannelFinalized({
+        return this.contract.events.LogChannelFinalized({ filter: {
             id: id
-        }, {
+        },
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         })
@@ -249,17 +250,17 @@ export default class SlotsChannelManager extends AbstractContract {
     }
 
     logDeposit(fromBlock, toBlock) {
-        return this.contract.events.LogDeposit({
+        return this.contract.events.LogDeposit({ filter: {
             _address: this.web3.eth.defaultAccount
-        }, {
+        },
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
     logWithdraw(fromBlock, toBlock) {
-        return this.contract.events.LogWithdraw({
+        return this.contract.events.LogWithdraw({ filter: {
             _address: this.web3.eth.defaultAccount
-        }, {
+        }, 
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         })

@@ -60,7 +60,7 @@ export default class DecentBetTokenContract extends AbstractContract {
         let options = {}
         options[isFrom ? 'from' : 'to'] = address
 
-        return this.contract.events.Transfer(options, {
+        return this.contract.events.Transfer({ filter: options,
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         })

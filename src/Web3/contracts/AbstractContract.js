@@ -18,12 +18,7 @@ export default class AbstractContract {
         this.contract = new this.web3.eth.Contract(this.json.abi)
         let network = this.getJsonNetwork(this.json)
         this.contract.options.address = network.address
-        this.contract.setProvider(this.web3.currentProvider)
-        // Dirty hack for web3@1.0.0 support for localhost testrpc,
-        // see https://github.com/trufflesuite/truffle-contract/issues/56#issuecomment-331084530
-        if (typeof this.contract.currentProvider.sendAsync !== 'function') {
-            this.contract.currentProvider.sendAsync = this.setupCurrentProvider(this.contract)
-        }
+        
     }
 
     setupCurrentProvider(contract) {

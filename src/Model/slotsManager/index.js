@@ -18,7 +18,7 @@ export function watcherChannelFinalized(id, dispatch) {
     const instance = helper.getContractHelper().SlotsChannelManager
     instance.logChannelFinalized(id)
     .on('data', (event) => {
-        let _id = event.args.id.toString()
+        let _id = event.returnValues.id.toString()
         dispatch(Actions.setChannelFinalized(_id))
     }).on('error', (error) => {
         console.error('Finalized channel event', error)
@@ -32,8 +32,8 @@ export function watcherChannelClaimed(id, dispatch) {
     instance.logClaimChannelTokens(id)
     .on('data', (event) => {
 
-        let _id = event.args.id.toString()
-        let isHouse = event.args.isHouse
+        let _id = event.returnValues.id.toString()
+        let isHouse = event.returnValues.isHouse
         dispatch(Actions.setChannelClaimed(_id, isHouse))
     })
     .on('error', (error) => {

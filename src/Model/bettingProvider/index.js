@@ -50,8 +50,8 @@ export function initWatchers(dispatch) {
     contract.logDeposit()
     .on('data', (event) => {
         console.log('Deposit event', event)
-        const amount = event.args.amount.toString()
-        const session = event.args.session.toNumber()
+        const amount = event.returnValues.amount.toString()
+        const session = event.returnValues.session.toNumber()
 
         helper.toggleSnackbar(
             'DBETs deposited into sportsbook contract - ' +
@@ -71,8 +71,8 @@ export function initWatchers(dispatch) {
     contract.logWithdraw()
     .on('data', (event) => {
         console.log('Withdraw event', event)
-        const amount = event.args.amount.toString()
-        const session = event.args.session.toNumber()
+        const amount = event.returnValues.amount.toString()
+        const session = event.returnValues.session.toNumber()
 
         helper.toggleSnackbar(
             'DBETs withdrawn from sportsbook contract - ' +
@@ -92,7 +92,7 @@ export function initWatchers(dispatch) {
     contract.logNewBet()
     .on('data', (event) => {
         console.log('New bet event', JSON.stringify(event))
-        let gameId = event.args.gameId.toNumber()
+        let gameId = event.returnValues.gameId.toNumber()
         helper.toggleSnackbar('New bet placed for game ID - ' + gameId)
 
         dispatch(Actions.getGameItem(gameId))
@@ -111,7 +111,7 @@ export function initWatchers(dispatch) {
 
         helper.toggleSnackbar('New game available for betting')
 
-        let id = event.args.id.toNumber()
+        let id = event.returnValues.id.toNumber()
         dispatch(Actions.getGameItem(id))
     }).on('error', (error) => {
         console.error(console.log('New game event', error))
@@ -121,7 +121,7 @@ export function initWatchers(dispatch) {
     contract.logNewGameOdds
     .on('data', (event) => {
         console.log('New game odds event', JSON.stringify(event))
-        let gameId = event.args.id.toNumber()
+        let gameId = event.returnValues.id.toNumber()
         helper.toggleSnackbar(`New odds available for Game ID ${gameId} `)
         dispatch(Actions.getGameOdds(gameId))
     }).on('error', (error) => {
@@ -133,7 +133,7 @@ export function initWatchers(dispatch) {
     contract.logUpdatedGameOdds()
     .on('data', ( event) => {
         console.log('Updated game odds event', JSON.stringify(event))
-        let gameId = event.args.id.toNumber()
+        let gameId = event.returnValues.id.toNumber()
         helper.toggleSnackbar(`Odds updated for game ID ${gameId}`)
         dispatch(Actions.getGameOdds(gameId))
     }).on('error', (error) => {
@@ -144,7 +144,7 @@ export function initWatchers(dispatch) {
     contract.logUpdatedMaxBet()
     .on('data', (event) => {
         console.log('Updated max bet event', JSON.stringify(event))
-        let gameId = event.args.id.toNumber()
+        let gameId = event.returnValues.id.toNumber()
         helper.toggleSnackbar(`Updated max bet for game - game ID ${gameId}`)
 
         dispatch(Actions.getGameBetLimit(gameId))
@@ -156,8 +156,8 @@ export function initWatchers(dispatch) {
     contract.logUpdatedBetLimits()
     .on('data', (event) => {
         console.log('Updated bet limits event', JSON.stringify(event))
-        let gameId = event.args.id.toNumber()
-        let period = event.args.period.toNumber()
+        let gameId = event.returnValues.id.toNumber()
+        let period = event.returnValues.period.toNumber()
 
         helper.toggleSnackbar(`Updated bet limits for game - ID ${gameId}`)
 
@@ -170,7 +170,7 @@ export function initWatchers(dispatch) {
     // Claimed Bet
     contract.logClaimedBet()
     .on('data', (event) => {
-        let gameId = event.args.gameId.toNumber()
+        let gameId = event.returnValues.gameId.toNumber()
 
         helper.toggleSnackbar(`Claimed bet for game ID ${gameId}`)
 
@@ -186,7 +186,7 @@ export function initWatchers(dispatch) {
     contract.logUpdatedTime()
     .on('data', (event) => {
         console.log('Updated provider time event', event)
-        let time = event.args.time.toNumber()
+        let time = event.returnValues.time.toNumber()
         dispatch(Actions.setTime(time))
     })
     .on('error', (error) => {

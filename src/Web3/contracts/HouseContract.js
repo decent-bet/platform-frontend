@@ -32,22 +32,30 @@ export default class HouseContract extends AbstractContract {
      * Events
      */
     logPurchasedCredits(sessionNumber, fromBlock, toBlock) {
-        return this.contract.events.LogPurchasedCredits({
-            creditHolder: this.web3.eth.defaultAccount,
-            session: sessionNumber
-        }, {
+
+        let options = {
+            filter: {
+                creditHolder: this.web3.eth.defaultAccount,
+                session: sessionNumber
+            },
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
-        })
+        }
+
+        return this.contract.events.LogPurchasedCredits(options)
     }
 
     logLiquidateCredits(sessionNumber, fromBlock, toBlock) {
-        return this.contract.events.LogLiquidateCredits({
-            creditHolder: this.web3.eth.defaultAccount,
-            session: sessionNumber
-        }, {
+
+        let options = {
+            filter: {
+                creditHolder: this.web3.eth.defaultAccount,
+                session: sessionNumber
+            },
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
-        })
+        }
+
+        return this.contract.events.LogLiquidateCredits(options)
     }
 }

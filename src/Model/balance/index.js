@@ -21,7 +21,9 @@ export function initWatchers(dispatch) {
     })
 
     //Transfer To
-    tokenContract.logTransfer(address, false).on('data', (event) => {
+    tokenContract.logTransfer(address, false)
+    .on('data', (event) => {
+        
         dispatch(Actions.getTokens())
     })
 }

@@ -581,42 +581,42 @@ export default class BettingProviderContract extends AbstractContract {
      * Events
      */
     logNewGame(fromBlock, toBlock) {
-        return this.contract.events.LogNewGame({}, {
+        return this.contract.events.LogNewGame({filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logNewGameOdds(fromBlock, toBlock) {
-        return this.contract.events.LogNewGameOdds({}, {
+        return this.contract.events.LogNewGameOdds({filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logUpdatedGameOdds(fromBlock, toBlock) {
-        return this.contract.events.LogUpdatedGameOdds({}, {
+        return this.contract.events.LogUpdatedGameOdds({filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logUpdatedMaxBet(fromBlock, toBlock) {
-        return this.contract.events.LogUpdatedMaxBet({}, {
+        return this.contract.events.LogUpdatedMaxBet({filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logUpdatedBetLimits(fromBlock, toBlock) {
-        return this.contract.events.LogUpdatedBetLimits({}, {
+        return this.contract.events.LogUpdatedBetLimits({filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logNewBet(fromBlock, toBlock) {
-        return this.contract.events.LogNewBet({}, {
+        return this.contract.events.LogNewBet({filter: {},
             bettor: this.web3.eth.defaultAccount,
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
@@ -624,7 +624,7 @@ export default class BettingProviderContract extends AbstractContract {
     }
 
     logClaimedBet(fromBlock, toBlock) {
-        return this.contract.events.LogClaimedBet({}, {
+        return this.contract.events.LogClaimedBet({filter: {},
             bettor: this.web3.eth.defaultAccount,
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
@@ -632,7 +632,7 @@ export default class BettingProviderContract extends AbstractContract {
     }
 
     logDeposit(fromBlock, toBlock) {
-        return this.contract.events.LogDeposit({}, {
+        return this.contract.events.LogDeposit({filter: {},
             _address: this.web3.eth.defaultAccount,
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
@@ -640,14 +640,14 @@ export default class BettingProviderContract extends AbstractContract {
     }
 
     logWithdraw(fromBlock, toBlock) {
-        return this.contract.events.LogWithdraw({}, {
+        return this.contract.events.LogWithdraw({filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logUpdatedTime(fromBlock, toBlock) {
-        return this.contract.events.LogUpdatedTime({}, {
+        return this.contract.events.LogUpdatedTime({filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })

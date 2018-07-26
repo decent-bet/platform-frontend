@@ -23,7 +23,7 @@ export async function initWatchers(dispatch) {
             if (err) {
                 console.log('Purchased credits event error: ' + err)
             } else {
-                let balance = event.args.balance
+                let balance = event.returnValues.balance
                 dispatch(
                     Actions.setHousePurchasedCredits(
                         sessionNumber,

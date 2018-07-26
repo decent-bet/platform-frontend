@@ -1,6 +1,6 @@
-const request = require('request')
-
 import Helper from '../Helper'
+
+const request = require('request')
 const helper = new Helper()
 
 const PUBLIC_URL = ''
