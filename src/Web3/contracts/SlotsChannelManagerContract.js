@@ -2,9 +2,7 @@ import SlotsChannelManagerJson from '../../../build/contracts/SlotsChannelManage
 import KeyHandler from '../KeyHandler'
 import ethAbi from 'web3-eth-abi'
 import AbstractContract from './AbstractContract'
-import { Observable, Subject, ReplaySubject, from, of, range } from 'rxjs';
-
-
+import { Observable, Subject, ReplaySubject, from, of, range } from 'rxjs'
 
 // Used for VSCode Type Checking
 import Web3 from 'web3' // eslint-disable-line no-unused-vars
@@ -36,8 +34,7 @@ export default class SlotsChannelManager extends AbstractContract {
     }
 
     checkSig = (id, msgHash, sign, turn) => {
-        return this.contract.methods.checkSig(id, msgHash, sign, turn)
-            .call({
+        return this.contract.methods.checkSig(id, msgHash, sign, turn).call({
             from: this.web3.eth.defaultAccount
         })
     }
@@ -69,36 +66,69 @@ export default class SlotsChannelManager extends AbstractContract {
     async getChannelCount() {
         return await this.contract.methods.channelCount().call()
     }
-    
-    async getChannels() {
-        return new Promise( (resolve, reject) => {
-            this.contract.once('LogNewChannel', {
-                filter: {
-                    user: this.web3.eth.defaultAccount
-                },
-                fromBlock: 0 
-            }, (error, event) => {
-                if(error) {
-                    reject(error)
-                } else {
-                    resolve(event.returnValues)
-                } 
-            })
+
+    async getChannels(fromBlock, toBlock, fun) {
+        const event = this.contract.events.LogNewChannel({
+            filter: {
+                user: this.web3.eth.defaultAccount
+            },
+            fromBlock: fromBlock ? fromBlock : 0,
+            toBlock: toBlock ? toBlock : 'latest'
         })
+        const data$ = Observable.fromEvent(event, 'data')
+            .flatMap(item => {
+                if (item.returnValues && item.returnValues.id) {
+                    return [item.returnValues.id]
+                }
+
+                return item.returnValues.map(i => i.id)
+            })
+            .switchMap(channelId => {
+                return fun(channelId)
+            })
+
+        return data$.toPromise()
+
+        //     //Query a list of all channel ids
+        //     contract.getChannels()
+        //     .on('data', (data) => {
+        //         let list = []
+        //         if (Array.isArray(data.returnValues)) {
+        //             list = data.returnValues.map(item => item.id)
+        //         } else {
+        //             list.push(data.returnValues.id)
+        //         }
+
+        //         list.forEach(async (id) => {
+        //             const resultPromise = await getChannel(id)
+        //             accumulator[id] = resultPromise
+        //         })
+        //     })
+        //     .on('error', (error) => {
+        //         return Promise.reject(error)
+        //     })
+
+        // // Execute all promises simultaneously.
+        // return Bluebird.props(accumulator)
     }
 
     /**
      * Setters
      */
     createChannel(deposit) {
-        let encodedFunctionCall = ethAbi.encodeFunctionCall({
-            name: 'createChannel',
-            type: 'function',
-            inputs: [{
-                name: 'initialDeposit',
-                type: 'uint256'
-            }]
-        }, [deposit])
+        let encodedFunctionCall = ethAbi.encodeFunctionCall(
+            {
+                name: 'createChannel',
+                type: 'function',
+                inputs: [
+                    {
+                        name: 'initialDeposit',
+                        type: 'uint256'
+                    }
+                ]
+            },
+            [deposit]
+        )
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
@@ -110,14 +140,19 @@ export default class SlotsChannelManager extends AbstractContract {
     }
 
     deposit(amount) {
-        let encodedFunctionCall = ethAbi.encodeFunctionCall({
-            name: 'deposit',
-            type: 'function',
-            inputs: [{
-                name: 'amount',
-                type: 'uint256'
-            }]
-        }, [amount])
+        let encodedFunctionCall = ethAbi.encodeFunctionCall(
+            {
+                name: 'deposit',
+                type: 'function',
+                inputs: [
+                    {
+                        name: 'amount',
+                        type: 'uint256'
+                    }
+                ]
+            },
+            [amount]
+        )
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
@@ -129,19 +164,23 @@ export default class SlotsChannelManager extends AbstractContract {
     }
 
     withdraw(amount, session) {
-        let encodedFunctionCall = ethAbi.encodeFunctionCall({
-            name: 'withdraw',
-            type: 'function',
-            inputs: [{
-                    name: 'amount',
-                    type: 'uint256'
-                },
-                {
-                    name: 'session',
-                    type: 'uint256'
-                }
-            ]
-        }, [amount, session])
+        let encodedFunctionCall = ethAbi.encodeFunctionCall(
+            {
+                name: 'withdraw',
+                type: 'function',
+                inputs: [
+                    {
+                        name: 'amount',
+                        type: 'uint256'
+                    },
+                    {
+                        name: 'session',
+                        type: 'uint256'
+                    }
+                ]
+            },
+            [amount, session]
+        )
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
@@ -153,23 +192,27 @@ export default class SlotsChannelManager extends AbstractContract {
     }
 
     depositToChannel(id, initialUserNumber, finalUserHash) {
-        let encodedFunctionCall = ethAbi.encodeFunctionCall({
-            name: 'depositChannel',
-            type: 'function',
-            inputs: [{
-                    name: 'id',
-                    type: 'bytes32'
-                },
-                {
-                    name: '_initialUserNumber',
-                    type: 'string'
-                },
-                {
-                    name: '_finalUserHash',
-                    type: 'string'
-                }
-            ]
-        }, [id, initialUserNumber, finalUserHash])
+        let encodedFunctionCall = ethAbi.encodeFunctionCall(
+            {
+                name: 'depositChannel',
+                type: 'function',
+                inputs: [
+                    {
+                        name: 'id',
+                        type: 'bytes32'
+                    },
+                    {
+                        name: '_initialUserNumber',
+                        type: 'string'
+                    },
+                    {
+                        name: '_finalUserHash',
+                        type: 'string'
+                    }
+                ]
+            },
+            [id, initialUserNumber, finalUserHash]
+        )
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
@@ -181,14 +224,19 @@ export default class SlotsChannelManager extends AbstractContract {
     }
 
     claim(id) {
-        let encodedFunctionCall = ethAbi.encodeFunctionCall({
-            name: 'claim',
-            type: 'function',
-            inputs: [{
-                name: 'id',
-                type: 'bytes32'
-            }]
-        }, [id])
+        let encodedFunctionCall = ethAbi.encodeFunctionCall(
+            {
+                name: 'claim',
+                type: 'function',
+                inputs: [
+                    {
+                        name: 'id',
+                        type: 'bytes32'
+                    }
+                ]
+            },
+            [id]
+        )
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
@@ -203,45 +251,59 @@ export default class SlotsChannelManager extends AbstractContract {
      * Events
      */
     logNewChannel(fromBlock, toBlock) {
-        return this.contract.events.LogNewChannel({
-            user: this.web3.eth.defaultAccount
-        }, {
-            fromBlock: fromBlock ? fromBlock : 0,
-            toBlock: toBlock ? toBlock : 'latest'
-        })
+        return this.contract.events.LogNewChannel(
+            {
+                user: this.web3.eth.defaultAccount
+            },
+            {
+                fromBlock: fromBlock ? fromBlock : 0,
+                toBlock: toBlock ? toBlock : 'latest'
+            }
+        )
     }
     logChannelDeposit(id, fromBlock, toBlock) {
-        return this.contract.events.LogChannelDeposit({
-            user: this.web3.eth.defaultAccount,
-            id: id
-        }, {
-            fromBlock: fromBlock ? fromBlock : 0,
-            toBlock: toBlock ? toBlock : 'latest'
-        })
+        return this.contract.events.LogChannelDeposit(
+            {
+                user: this.web3.eth.defaultAccount,
+                id: id
+            },
+            {
+                fromBlock: fromBlock ? fromBlock : 0,
+                toBlock: toBlock ? toBlock : 'latest'
+            }
+        )
     }
     logChannelActivate(id, fromBlock, toBlock) {
-        return this.contract.events.LogChannelActivate({
-            user: this.web3.eth.defaultAccount,
-            id: id
-        }, {
-            fromBlock: fromBlock ? fromBlock : 0,
-            toBlock: toBlock ? toBlock : 'latest'
-        })
+        return this.contract.events.LogChannelActivate(
+            {
+                user: this.web3.eth.defaultAccount,
+                id: id
+            },
+            {
+                fromBlock: fromBlock ? fromBlock : 0,
+                toBlock: toBlock ? toBlock : 'latest'
+            }
+        )
     }
 
     logChannelFinalized(id, fromBlock, toBlock) {
-        return this.contract.events.LogChannelFinalized({
-            id: id
-        }, {
-            fromBlock: fromBlock ? fromBlock : 0,
-            toBlock: toBlock ? toBlock : 'latest'
-        })
+        return this.contract.events.LogChannelFinalized(
+            {
+                id: id
+            },
+            {
+                fromBlock: fromBlock ? fromBlock : 0,
+                toBlock: toBlock ? toBlock : 'latest'
+            }
+        )
     }
 
     logClaimChannelTokens(id, fromBlock, toBlock) {
-        const filter = id ? {
-            id: id
-        } : {}
+        const filter = id
+            ? {
+                  id: id
+              }
+            : {}
         return this.contract.events.LogClaimChannelTokens(filter, {
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
@@ -249,27 +311,34 @@ export default class SlotsChannelManager extends AbstractContract {
     }
 
     logDeposit(fromBlock, toBlock) {
-        return this.contract.events.LogDeposit({
-            _address: this.web3.eth.defaultAccount
-        }, {
-            fromBlock: fromBlock ? fromBlock : 0,
-            toBlock: toBlock ? toBlock : 'latest'
-        })
+        return this.contract.events.LogDeposit(
+            {
+                _address: this.web3.eth.defaultAccount
+            },
+            {
+                fromBlock: fromBlock ? fromBlock : 0,
+                toBlock: toBlock ? toBlock : 'latest'
+            }
+        )
     }
     logWithdraw(fromBlock, toBlock) {
-        return this.contract.events.LogWithdraw({
-            _address: this.web3.eth.defaultAccount
-        }, {
-            fromBlock: fromBlock ? fromBlock : 0,
-            toBlock: toBlock ? toBlock : 'latest'
-        })
+        return this.contract.events.LogWithdraw(
+            {
+                _address: this.web3.eth.defaultAccount
+            },
+            {
+                fromBlock: fromBlock ? fromBlock : 0,
+                toBlock: toBlock ? toBlock : 'latest'
+            }
+        )
     }
 
     /**
      * Event Decoders
      */
     logNewChannelDecode(log, topics) {
-        const params = [{
+        const params = [
+            {
                 indexed: false,
                 name: 'id',
                 type: 'bytes32'
