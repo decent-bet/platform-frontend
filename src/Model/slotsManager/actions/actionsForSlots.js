@@ -183,33 +183,13 @@ async function getChannel(channelId) {
  */
 async function getChannels() {
     const contract = helper.getContractHelper().SlotsChannelManager
-
+    
     let channelCount = await contract.getChannelCount()
 
     if (channelCount > 0) {
-
-        const accumulator = {}
         //Query a list of all channel ids
-        contract.getChannels()
-            .on('data', (data) => {
-                let list = []
-                if (Array.isArray(data.returnValues)) {
-                    list = data.returnValues.map(item => item.id)
-                } else {
-                    list.push(data.returnValues.id)
-                }
-
-                list.forEach(async (id) => {
-                    const resultPromise = await getChannel(id)
-                    accumulator[id] = resultPromise
-                })
-            })
-            .on('error', (error) => {
-                return Promise.reject(error)
-            })
-
-        // Execute all promises simultaneously.
-        return Bluebird.props(accumulator)
+        const channels = contract.getChannels(0, 'latest', getChannel)
+        return channels.toPromise()
 
     } else {
         return {}
