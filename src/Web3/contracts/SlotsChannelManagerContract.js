@@ -2,7 +2,7 @@ import SlotsChannelManagerJson from '../../../build/contracts/SlotsChannelManage
 import KeyHandler from '../KeyHandler'
 import ethAbi from 'web3-eth-abi'
 import AbstractContract from './AbstractContract'
-import { Observable } from 'rxjs'
+import Bluebird from 'bluebird'
 
 // Used for VSCode Type Checking
 import Web3 from 'web3' // eslint-disable-line no-unused-vars
@@ -73,51 +73,16 @@ export default class SlotsChannelManager extends AbstractContract {
         }
     }
 
-    getChannels(fromBlock, toBlock, fun) {
-        const event = this.contract.events.LogNewChannel({
-            filter: {
-                user: this.web3.eth.defaultAccount
-            },
-            fromBlock: fromBlock ? fromBlock : 0,
-            toBlock: toBlock ? toBlock : 'latest'
-        })
-        
-        const data$ = Observable.fromEvent(event, 'data')
-            .flatMap(item => {
-                if (item.returnValues && item.returnValues.id) {
-                    return [item.returnValues.id]
-                }
-
-                return item.returnValues.map(i => i.id)
-            })
-            .switchMap( channelId => {
-                return fun(channelId)
-            })
-
-        return data$
-
-        //     //Query a list of all channel ids
-        //     contract.getChannels()
-        //     .on('data', (data) => {
-        //         let list = []
-        //         if (Array.isArray(data.returnValues)) {
-        //             list = data.returnValues.map(item => item.id)
-        //         } else {
-        //             list.push(data.returnValues.id)
-        //         }
-
-        //         list.forEach(async (id) => {
-        //             const resultPromise = await getChannel(id)
-        //             accumulator[id] = resultPromise
-        //         })
-        //     })
-        //     .on('error', (error) => {
-        //         return Promise.reject(error)
-        //     })
-
-        // // Execute all promises simultaneously.
-        // return Bluebird.props(accumulator)
-
+    getChannels() {
+        return Bluebird.fromCallback(cb =>
+            this.contract.getPastEvents('LogNewChannel', {
+                filter: {
+                    user: this.web3.eth.defaultAccount
+                },
+                fromBlock:  0,
+                toBlock: 'latest'
+            }, cb)
+        )
     }
 
     /**
