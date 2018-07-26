@@ -82,6 +82,8 @@ export default class SportsOracleContract extends AbstractContract {
         return this.contract.events.LogNewAuthorizedAddress({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
+        }, (error, event) => {
+            console.warn('logNewAuthorizedAddress', error, event)
         })
     }
 
@@ -89,6 +91,8 @@ export default class SportsOracleContract extends AbstractContract {
         return this.contract.events.LogNewAcceptedProvider({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
+        }, (error, event) => {
+            console.warn('logNewAcceptedProvider', error, event)
         })
     }
 
@@ -96,6 +100,8 @@ export default class SportsOracleContract extends AbstractContract {
         return this.contract.events.LogGameAdded({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
+        }, (error, event) => {
+            console.warn('logGameAdded', error, event)
         })
     }
 
@@ -103,6 +109,8 @@ export default class SportsOracleContract extends AbstractContract {
         return this.contract.events.LogGameDetailsUpdate({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
+        }, (error, event) => {
+            console.warn('logGameDetailsUpdate', error, event)
         })
     }
 
@@ -110,6 +118,8 @@ export default class SportsOracleContract extends AbstractContract {
         return this.contract.events.LogGameResult({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
+        }, (error, event) => {
+            console.warn('logGameResult', error, event)
         })
     }
 
@@ -117,6 +127,8 @@ export default class SportsOracleContract extends AbstractContract {
         return this.contract.events.LogUpdatedProviderOutcome({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
+        }, (error, event) => {
+            console.warn('logUpdatedProviderOutcome', error, event)
         })
     }
 
@@ -124,6 +136,8 @@ export default class SportsOracleContract extends AbstractContract {
         return this.contract.events.LogWithdrawal({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
+        }, (error, event) => {
+            console.warn('logWithdrawal', error, event)
         })
     }
 
@@ -131,6 +145,8 @@ export default class SportsOracleContract extends AbstractContract {
         return this.contract.events.LogNewGameUpdateCost({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
+        }, (error, event) => {
+            console.warn('logWithdrawal', error, event)
         })
     }
 
@@ -138,6 +154,8 @@ export default class SportsOracleContract extends AbstractContract {
         return this.contract.events.LogNewProviderAcceptanceCost({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
+        }, (error, event) => {
+            console.warn('logNewProviderAcceptanceCost', error, event)
         })
     }
 
@@ -145,6 +163,8 @@ export default class SportsOracleContract extends AbstractContract {
         return this.contract.events.LogUpdatedTime({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
+        }, (error, event) => {
+            console.warn('logUpdatedTime', error, event)
         })
     }
 }

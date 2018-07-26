@@ -23,16 +23,16 @@ export function stopWatchers(_dispatch) {
 
     // TODO: As of Web3 1.beta33 this is broken.
     try {
-        contract.logDeposit().stopWatching()
-        contract.logWithdraw().stopWatching()
-        contract.logNewBet().stopWatching()
-        contract.logNewGame().stopWatching()
-        contract.logNewGameOdds().stopWatching()
-        contract.logUpdatedGameOdds().stopWatching()
-        contract.logUpdatedMaxBet().stopWatching()
-        contract.logUpdatedBetLimits().stopWatching()
-        contract.logClaimedBet().stopWatching()
-        contract.logUpdatedTime().stopWatching()
+        contract.once().logDeposit().unsubscribe()
+        contract.logWithdraw().unsubscribe()
+        contract.logNewBet().unsubscribe()
+        contract.logNewGame().unsubscribe()
+        contract.logNewGameOdds().unsubscribe()
+        contract.logUpdatedGameOdds().unsubscribe()
+        contract.logUpdatedMaxBet().unsubscribe()
+        contract.logUpdatedBetLimits().unsubscribe()
+        contract.logClaimedBet().unsubscribe()
+        contract.logUpdatedTime().unsubscribe()
         
     } catch (error) {
         console.warn('Web 3 Event deregistration broken')

@@ -9,7 +9,7 @@ const helper = new Helper()
 async function fetchAllowance() {
     const contractHelper = helper.getContractHelper()
     const defaultAccount = helper.getWeb3().eth.defaultAccount
-    const slotsAddress = contractHelper.SlotsChannelManager.contract.address
+    const slotsAddress = contractHelper.SlotsChannelManager.contract.options.address
     try {
         const allowance = await contractHelper
             .getWrappers()
@@ -94,7 +94,7 @@ async function depositToChannel(id) {
 // Increase allowance and then deposit new Chips
 async function approveAndDepositChips(amount) {
     const contractHelper = helper.getContractHelper()
-    const contractAddress = contractHelper.SlotsChannelManager.contract.address
+    const contractAddress = contractHelper.SlotsChannelManager.contract.options.address
     try {
         const tx1 = await contractHelper
             .getWrappers()

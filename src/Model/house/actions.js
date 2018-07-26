@@ -191,7 +191,7 @@ async function fetchHouseAllowance() {
             .token()
             .allowance(
                 helper.getWeb3().eth.defaultAccount,
-                helper.getContractHelper().getHouseInstance().address
+                helper.getContractHelper().getHouseInstance().options.address
             )
     } catch (err) {
         console.log('Error retrieving house allowance', err.message)
@@ -220,7 +220,7 @@ async function executePurchaseCredits(amount) {
  * @param amount
  */
 async function executeApproveAndPurchaseCredits(amount) {
-    let house = helper.getContractHelper().getHouseInstance().address
+    let house = helper.getContractHelper().getHouseInstance().options.address
 
     try {
         let tx = await helper

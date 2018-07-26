@@ -57,39 +57,39 @@ export default class BettingProviderContract extends AbstractContract {
     }
 
     getGameBettorBetOddsDetails(id, address, betId) {
-        return this.contract.methods.getGameBettorBetOddsDetails(id, address, betId)
+        return this.contract.methods.getGameBettorBetOddsDetails(id, address, betId).call()
     }
 
     getGameOddsCount(id) {
-        return this.contract.methods.getGameOddsCount(id)
+        return this.contract.methods.getGameOddsCount(id).call()
     }
 
     getGameOdds(id, oddsId) {
-        return this.contract.methods.getGameOdds(id, oddsId)
+        return this.contract.methods.getGameOdds(id, oddsId).call()
     }
 
     getGameOddsDetails(id, oddsId) {
-        return this.contract.methods.getGameOddsDetails(id, oddsId)
+        return this.contract.methods.getGameOddsDetails(id, oddsId).call()
     }
 
     getGameOutcome(id, period) {
-        return this.contract.methods.getGameOutcome(id, period)
+        return this.contract.methods.getGameOutcome(id, period).call()
     }
 
     getDepositedTokens(address, sessionNumber) {
-        return this.contract.methods.depositedTokens(address, sessionNumber)
+        return this.contract.methods.depositedTokens(address, sessionNumber).call()
     }
 
     getSessionStats(sessionNumber) {
-        return this.contract.methods.sessionStats(sessionNumber)
+        return this.contract.methods.sessionStats(sessionNumber).call()
     }
 
     getSportsOracleAddress() {
-        return this.contract.methods.sportsOracleAddress()
+        return this.contract.methods.sportsOracleAddress().call()
     }
 
     getHouseAddress() {
-        return this.contract.methods.houseAddress()
+        return this.contract.methods.houseAddress().call()
     }
 
     getCurrentSession() {

@@ -43,7 +43,7 @@ export function stopWatchers(dispatch) {
             .getWrappers()
             .house()
             .logPurchasedCredits()
-            .stopWatching()
+            .unsubscribe()
     } catch (error) {
         console.warn('Web3 deregistration broken')
     }

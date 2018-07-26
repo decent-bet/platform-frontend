@@ -2,7 +2,6 @@ import SlotsChannelManagerJson from '../../../build/contracts/SlotsChannelManage
 import KeyHandler from '../KeyHandler'
 import ethAbi from 'web3-eth-abi'
 import AbstractContract from './AbstractContract'
-import Bluebird from 'bluebird'
 
 // Used for VSCode Type Checking
 import Web3 from 'web3' // eslint-disable-line no-unused-vars
@@ -64,16 +63,25 @@ export default class SlotsChannelManager extends AbstractContract {
         return this.contract.methods.channelDeposits(id, isHouse).call()
     }
 
-    getChannels() {
-        return Bluebird.fromCallback(cb =>
-            this.contract.events
-            .LogNewChannel({
+    async getChannelCount() {
+        return await this.contract.methods.channelCount().call()
+    }
+    
+    async getChannels() {
+        return new Promise( (resolve, reject) => {
+            this.contract.once('LogNewChannel', {
                 filter: {
                     user: this.web3.eth.defaultAccount
                 },
-                fromBlock: 0
-            }, cb)
-        )
+                fromBlock: 0 
+            }, (error, event) => {
+                if(error) {
+                    reject(error)
+                } else {
+                    resolve(event.returnValues)
+                } 
+            })
+        })
     }
 
     /**

@@ -48,8 +48,7 @@ async function fetchDepositedTokens() {
 
 async function fetchTokenBalance() {
     try {
-        let address = helper.getContractHelper().getBettingProviderInstance()
-            .address
+        let address = helper.getContractHelper().getBettingProviderInstance().options.address
         let result = await helper
             .getContractHelper()
             .getWrappers()
@@ -66,7 +65,7 @@ async function fetchAllowance() {
         const address = helper.getWeb3().eth.defaultAccount
         const bettingProvider = helper
             .getContractHelper()
-            .getBettingProviderInstance().address
+            .getBettingProviderInstance().options.address
         let result = await helper
             .getContractHelper()
             .getWrappers()
@@ -125,7 +124,7 @@ async function fetchTime() {
 
 async function fetchAddress() {
     return Promise.resolve(
-        helper.getContractHelper().getBettingProviderInstance().address
+        helper.getContractHelper().getBettingProviderInstance().options.address
     )
 }
 

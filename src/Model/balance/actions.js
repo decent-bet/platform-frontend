@@ -55,7 +55,7 @@ async function executeWithdrawTokens(amount, session) {
 async function executeApproveAndDepositTokens(amount) {
     let bettingProvider = helper
         .getContractHelper()
-        .getBettingProviderInstance().address
+        .getBettingProviderInstance().options.address
     try {
         let txHash = await helper
             .getContractHelper()

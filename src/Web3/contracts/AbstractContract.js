@@ -70,8 +70,9 @@ export default class AbstractContract {
         const count = await this.web3.eth.getTransactionCount(this.web3.eth.defaultAccount, 'latest')
         const nonce = nonceHandler.get(count)
         const chainId = await this.web3.eth.net.getId()
-        
-        console.log('data', data)
+
+        if(!gasPrice)
+        gasPrice = 10000000
         //Sign transaction
         const { rawTransaction } = await ethAccounts.signTransaction(
             {
