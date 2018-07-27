@@ -12,7 +12,7 @@ export function initWatchers(dispatch) {
         .getWrappers()
         .token()
 
-    let address = helper.getWeb3().eth.defaultAccount
+    let address = helper.getContractHelper().web3.eth.defaultAccount
 
     // Transfer from
     tokenContract.logTransfer(address, true)

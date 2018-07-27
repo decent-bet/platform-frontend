@@ -16,7 +16,7 @@ const helper = new Helper()
 
 class Dashboard extends Component {
     state = {
-        provider: helper.getGethProvider(),
+        provider: '',
         drawerOpen: false
     }
 

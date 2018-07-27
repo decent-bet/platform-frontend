@@ -40,10 +40,11 @@ async function fetchSessionId() {
 async function fetchSessionBalance() {
     try {
         const sessionId = await fetchSessionId()
-        const balance = await helper.getContractHelper().SlotsChannelManager.balanceOf(
+        let balance = await helper.getContractHelper().SlotsChannelManager.balanceOf(
             helper.getWeb3().eth.defaultAccount,
             sessionId
         )
+        balance = balance || 0
         return parseFloat(balance).toFixed()
     } catch (err) {
         console.log('Error retrieving balance', err.message)

@@ -1,10 +1,6 @@
 import NonceHandler from '../NonceHandler'
-import EthAccounts from 'web3-eth-accounts'
-import Helper from '../../Components/Helper'
 
-const helper = new Helper()
 const nonceHandler = new NonceHandler()
-const ethAccounts = new EthAccounts(helper.getGethProvider())
 const thorify = require('thorify').thorify
 
 export default class ThorifyContract {
