@@ -23,7 +23,6 @@ export default class ContractHelper {
 
         // Initialize new Contracts
         this.bettingProviderContract = new BettingProviderContract(this.web3)
-        this.decentBetTokenContract = new DecentBetTokenContract(this.web3)
         this.houseAuthorizedContract = new HouseAuthorizedContract(this.web3)
         this.houseContract = new HouseContract(this.web3)
         this.houseFundsContract = new HouseFundsContract(this.web3)
@@ -31,6 +30,7 @@ export default class ContractHelper {
         this.houseSessionsContract = new HouseSessionsContract(this.web3)
         this.slotsChannelFinalizerContract = new SlotsChannelFinalizerContract(this.web3)
         this.SlotsChannelManager = new SlotsChannelManagerContract(this.web3)
+        this.decentBetTokenContract = new DecentBetTokenContract(this.web3)
         this.sportsOracleContract = new SportsOracleContract(this.web3, this.decentBetTokenContract)
 
         this.houseController = new HouseController(this.web3,

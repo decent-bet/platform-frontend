@@ -19,7 +19,6 @@ export default class ThorifyContract {
         this.contract = new this.web3.eth.Contract(this.json.abi)
         // let network = this.getJsonNetwork(this.json)
         // this.contract.options.address = network.address
-        
     }
 
     setupCurrentProvider(contract) {
@@ -30,15 +29,26 @@ export default class ThorifyContract {
             )
         }
     }
-    
+
     getJsonNetwork(json) {
-        return json.networks[[Object.keys(json.networks)[0]]] 
+        return json.networks[[Object.keys(json.networks)[0]]]
     }
 
     async deployed() {
-
-        
         return Promise.resolve(true)
+    }
+
+    getEvents(eventName, options) {
+            return this.contract.getPastEvents(eventName, options)
+    }
+    getBalance(address) {
+        if (typeof this.web3.eth.getBalance === 'function') {
+            // thorify
+            return this.web3.eth.getBalance(address)
+        }
+        return this.contract.methods
+            .balanceOf(address)
+            .call({ from: this.web3.eth.defaultAccount })
     }
     /**
      * Takes the enconded function, signs it and sends it to
@@ -57,12 +67,14 @@ export default class ThorifyContract {
         data
     ) => {
         // Get the nonce
-        const count = await this.web3.eth.getTransactionCount(this.web3.eth.defaultAccount, 'latest')
+        const count = await this.web3.eth.getTransactionCount(
+            this.web3.eth.defaultAccount,
+            'latest'
+        )
         const nonce = nonceHandler.get(count)
         const chainId = await this.web3.eth.net.getId()
 
-        if(!gasPrice)
-        gasPrice = 10000000
+        if (!gasPrice) gasPrice = 10000000
         //Sign transaction
         // const { rawTransaction } = await ethAccounts.signTransaction(
         //     {
@@ -75,7 +87,7 @@ export default class ThorifyContract {
         //     },
         //     privateKey
         // )
-        
+
         // // Start sending
         // const promiEvent = this.web3.eth.sendSignedTransaction(rawTransaction)
 

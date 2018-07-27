@@ -53,6 +53,7 @@ export default class Web3Loader {
                 .toLowerCase()
 
         const thor = thorify(new Web3()) // TODO: Read url from config
+        thor.eth.defaultAccount = window.web3Object.eth.defaultAccount
         const contractHelper = new ContractHelper(window.web3Object, thor)
         await contractHelper.getAllContracts()
         window.contractHelper = contractHelper

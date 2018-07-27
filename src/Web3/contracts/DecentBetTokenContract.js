@@ -16,28 +16,34 @@ export default class DecentBetTokenContract extends ThorifyContract {
 
     /** Getters */
     allowance(owner, spender) {
-        return this.contract.methods.allowance(owner, spender).call({from: this.web3.eth.defaultAccount})
+        return this.contract.methods
+            .allowance(owner, spender)
+            .call({ from: this.web3.eth.defaultAccount })
     }
 
     balanceOf(address) {
-        return this.contract.methods.balanceOf(address).call({from: this.web3.eth.defaultAccount})
+        return this.getBalance(address)
     }
 
     /** Setters */
     approve = (address, value) => {
-        let encodedFunctionCall = ethAbi.encodeFunctionCall({
-            name: 'approve',
-            type: 'function',
-            inputs: [{
-                    name: 'spender',
-                    type: 'address'
-                },
-                {
-                    name: 'value',
-                    type: 'uint256'
-                }
-            ]
-        }, [address, value])
+        let encodedFunctionCall = ethAbi.encodeFunctionCall(
+            {
+                name: 'approve',
+                type: 'function',
+                inputs: [
+                    {
+                        name: 'spender',
+                        type: 'address'
+                    },
+                    {
+                        name: 'value',
+                        type: 'uint256'
+                    }
+                ]
+            },
+            [address, value]
+        )
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
@@ -50,7 +56,9 @@ export default class DecentBetTokenContract extends ThorifyContract {
 
     faucet() {
         console.log('Sending faucet tx')
-        return this.contract.methods.faucet().send({from: this.web3.eth.defaultAccount })
+        return this.contract.methods
+            .faucet()
+            .send({ from: this.web3.eth.defaultAccount })
     }
 
     /**
@@ -59,10 +67,16 @@ export default class DecentBetTokenContract extends ThorifyContract {
     logTransfer = (address, isFrom, fromBlock, toBlock) => {
         let options = {}
         options[isFrom ? 'from' : 'to'] = address
-
-        return this.contract.events.Transfer({ filter: options,
+        const eventOptions = {
+            filter: options,
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
-        })
+        }
+        debugger
+        // return this.contract.events.Transfer({ filter: options,
+        //     fromBlock: fromBlock ? fromBlock : 0,
+        //     toBlock: toBlock ? toBlock : 'latest'
+        // })
+        return this.getEvents('Transfer', eventOptions)
     }
 }
