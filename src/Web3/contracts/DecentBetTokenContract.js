@@ -11,6 +11,7 @@ export default class DecentBetTokenContract extends ThorifyContract {
      */
     constructor(web3) {
         super(web3, DecentBetTokenJson)
+        this.web3.eth.accounts.wallet.add(keyHandler.get())
     }
 
     /** Getters */
