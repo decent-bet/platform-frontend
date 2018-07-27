@@ -1,3 +1,3 @@
-import Web3Loader from './Web3Loader'
+import ThorConnection from './ThorConnection'
 import KeyHandler from './KeyHandler'
-export { Web3Loader, KeyHandler }
+export { ThorConnection, KeyHandler }

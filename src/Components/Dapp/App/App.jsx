@@ -26,22 +26,7 @@ export default class App extends Component {
                 snackbarMessage: message
             })
         })
-
-        if (window.web3Loaded) {
-            this.initWeb3Data()
-        } else {
-            let web3Loaded = EventBus.on('web3Loaded', () => {
-                this.setState({ stateMachine: 'loaded' })
-                // Unregister callback
-                web3Loaded()
-            })
-
-            // Listen for error state
-            let web3NotLoaded = EventBus.on('web3NotLoaded', () => {
-                this.setState({ stateMachine: 'error' })
-                web3NotLoaded()
-            })
-        }
+        this.setState({ stateMachine: 'loaded' })
     }
 
     renderSnackBar = () => {

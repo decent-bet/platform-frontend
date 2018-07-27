@@ -40,13 +40,16 @@ export default class SlotsChannelManager extends ThorifyContract {
     }
 
     balanceOf(address, session) {
-        // undefined
         return this.contract.methods.balanceOf(address, session).call()
     }
 
     currentSession() {
-        // ABI uint256
-        return this.contract.methods.currentSession().call()
+        debugger
+        const a= this.contract.methods.currentSession().call()
+        a.then(a => {
+            console.log(a)
+        },console.log)
+        return a
     }
 
     getPlayer(id, isHouse) {
