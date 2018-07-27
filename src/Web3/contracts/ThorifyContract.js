@@ -17,8 +17,8 @@ export default class ThorifyContract {
         this.json = jsonAbi
         this.web3 = thorify(web3)
         this.contract = new this.web3.eth.Contract(this.json.abi)
-        // let network = this.getJsonNetwork(this.json)
-        // this.contract.options.address = network.address
+        let network = this.getJsonNetwork(this.json)
+        this.contract.options.address = network.address
     }
 
     setupCurrentProvider(contract) {
@@ -34,14 +34,9 @@ export default class ThorifyContract {
         return json.networks[[Object.keys(json.networks)[0]]]
     }
 
-    async deployed() {
-        return Promise.resolve(true)
-    }
-
-    getEvents(eventName, options) {
-            return this.contract.getPastEvents(eventName, options)
-    }
-    
+    // async getEvents(eventName, options) {
+    //     return await this.contract.getPastEvents(eventName, options)
+    // }
     getBalance(address) {
         if (typeof this.web3.eth.getBalance === 'function') {
             // thorify
