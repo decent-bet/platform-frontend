@@ -41,6 +41,7 @@ export default class ThorifyContract {
     getEvents(eventName, options) {
             return this.contract.getPastEvents(eventName, options)
     }
+    
     getBalance(address) {
         if (typeof this.web3.eth.getBalance === 'function') {
             // thorify

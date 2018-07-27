@@ -72,7 +72,7 @@ export default class DecentBetTokenContract extends ThorifyContract {
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         }
-        debugger
+
         // return this.contract.events.Transfer({ filter: options,
         //     fromBlock: fromBlock ? fromBlock : 0,
         //     toBlock: toBlock ? toBlock : 'latest'

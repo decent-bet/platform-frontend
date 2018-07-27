@@ -3,17 +3,10 @@
     "configurations": [
         {
             "type": "chrome",
-            "request": "launch",
-            "name": "Launch Chrome",
-            "url": "http://localhost:8080",
-            "webRoot": "${workspaceFolder}"
-        },
-        {
-            "type": "chrome",
-            "request": "launch",
-            "name": "Launch Chrome against localhost",
-            "url": "http://localhost:3000",
-            "webRoot": "${workspaceRoot}/src"
+            "request": "attach",
+            "name": "Attach to Chrome",
+            "port": 9222,
+            "webRoot": "${workspaceFolder}/src",
         }
     ]
 }
