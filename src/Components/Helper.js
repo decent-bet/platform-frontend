@@ -2,7 +2,6 @@ import React from 'react'
 import EventBus from 'eventing-bus'
 import ethUnits from 'ethereum-units'
 import BigNumber from 'bignumber.js'
-import { KEY_GETH_PROVIDER, PROVIDER_LOCAL, PROVIDER_DBET } from './Constants'
 
 export default class Helper {
     isDev = () => {

@@ -1,22 +1,21 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import { Card } from '@material-ui/core'
 import LoginActions from './LoginActions'
 import LoginInner from './LoginInner'
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
-import Helper from '../../Helper'
-import { KeyHandler } from '../../../Web3'
+import { ThorConnection } from '../../../Web3/ThorConnection'
 import bip39 from 'bip39'
 import { Wallet } from 'ethers'
+import { Actions, initWatchers } from '../../../Model/balance'
 
 import './login.css'
 
-const helper = new Helper()
-const keyHandler = new KeyHandler()
-
-export default class Login extends Component {
+class Login extends Component {
+    
     state = {
         value: '',
-        provider: helper.getGethProvider(),
+        provider: ThorConnection.getProviderUrl(),
         isErrorDialogOpen: false
     }
 
@@ -36,11 +35,16 @@ export default class Login extends Component {
 
                 wallet = new Wallet(login)
             }
-            keyHandler.set(wallet.privateKey, wallet.address)
+            
+            ThorConnection.setCredentials(wallet.privateKey, wallet.address)
+            ThorConnection.buildThor()
+            ThorConnection.buildContracts()
 
-            // Reload Web3 Address.
-            window.web3Object.eth.defaultAccount = wallet.address
-
+             // Initialize the datastore
+            this.props.dispatch(Actions.getPublicAddress())
+            this.props.dispatch(Actions.getTokens())
+            this.props.dispatch(Actions.getEtherBalance())
+            this.props.dispatch(initWatchers)
             // Go to the Root
             this.props.history.push('/')
         } catch (e) {
@@ -78,7 +82,7 @@ export default class Login extends Component {
         this.setState({ value: event.target.value })
 
     onProviderChangedListener = (event, index, value) => {
-        helper.setGethProvider(value)
+        ThorConnection.setProviderUrl(value)
         this.setState({ provider: value })
 
         // Wait for dropdown animation
@@ -125,3 +129,8 @@ export default class Login extends Component {
         )
     }
 }
+
+
+
+// Connect this component to Redux
+export default connect(state => state)(Login)

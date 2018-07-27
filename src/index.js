@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom'
 
 import injectTapEventPlugin from 'react-tap-event-plugin'
 import App from './Components/Dapp'
-import { ThorConnection } from './Web3'
 
 import './index.css'
 import './css/bootstrap.min.css'
@@ -17,9 +16,6 @@ library.add(faSolid, faEthereum)
 
 // Inject tap event plugin
 injectTapEventPlugin()
-
-// Init Web3
-new ThorConnection()
 
 let landingApp = React.createElement(App)
 ReactDOM.render(landingApp, document.getElementById('root'))

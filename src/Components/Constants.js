@@ -26,7 +26,7 @@ export const /** Colors */
     VIEW_DEFAULT = VIEW_CASINO,
     PROVIDER_INFURA = 'wss://rinkeby.infura.io/_ws',
     PROVIDER_DBET = 'wss://ws-rinkeby.decent.bet',
-    PROVIDER_LOCAL = 'ws://localhost:8545',
+    PROVIDER_LOCAL = 'http://localhost:8669"',
     KEY_GETH_PROVIDER = 'gethProvider',
     PORTAL_PAGE_DISCOVER = 'discover',
     PORTAL_PAGE_SPORTSBOOK = 'sportsbook',

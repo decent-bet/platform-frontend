@@ -21,24 +21,27 @@ export default class ContractHelper {
     constructor(web3Param, thor) {
         this.web3 = thor
 
-        // Initialize new Contracts
-        this.bettingProviderContract = new BettingProviderContract(this.web3)
-        this.houseAuthorizedContract = new HouseAuthorizedContract(this.web3)
-        this.houseContract = new HouseContract(this.web3)
-        this.houseFundsContract = new HouseFundsContract(this.web3)
-        this.houseLotteryContract = new HouseLotteryContract(this.web3)
-        this.houseSessionsContract = new HouseSessionsContract(this.web3)
-        this.slotsChannelFinalizerContract = new SlotsChannelFinalizerContract(this.web3)
-        this.SlotsChannelManager = new SlotsChannelManagerContract(this.web3)
-        this.decentBetTokenContract = new DecentBetTokenContract(this.web3)
-        this.sportsOracleContract = new SportsOracleContract(this.web3, this.decentBetTokenContract)
+    }
 
-        this.houseController = new HouseController(this.web3,
-                                                  this.houseContract,
-                                                  this.houseSessionsContract,
-                                                  this.houseFundsContract,
-                                                  this.houseAuthorizedContract,
-                                                  this.houseLotteryContract)
+    buildContracts() {
+         // Initialize new Contracts
+         this.bettingProviderContract = new BettingProviderContract(this.web3)
+         this.houseAuthorizedContract = new HouseAuthorizedContract(this.web3)
+         this.houseContract = new HouseContract(this.web3)
+         this.houseFundsContract = new HouseFundsContract(this.web3)
+         this.houseLotteryContract = new HouseLotteryContract(this.web3)
+         this.houseSessionsContract = new HouseSessionsContract(this.web3)
+         this.slotsChannelFinalizerContract = new SlotsChannelFinalizerContract(this.web3)
+         this.SlotsChannelManager = new SlotsChannelManagerContract(this.web3)
+         this.decentBetTokenContract = new DecentBetTokenContract(this.web3)
+         this.sportsOracleContract = new SportsOracleContract(this.web3, this.decentBetTokenContract)
+ 
+         this.houseController = new HouseController(this.web3,
+                                                   this.houseContract,
+                                                   this.houseSessionsContract,
+                                                   this.houseFundsContract,
+                                                   this.houseAuthorizedContract,
+                                                   this.houseLotteryContract)
     }
 
     async getAllContracts() {
