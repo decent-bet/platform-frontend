@@ -2,7 +2,6 @@ import DecentBetTokenJson from '../../../build/contracts/TestDecentBetToken.json
 import KeyHandler from '../KeyHandler'
 import ethAbi from 'web3-eth-abi'
 import ThorifyContract from './ThorifyContract'
-
 const keyHandler = new KeyHandler()
 
 export default class DecentBetTokenContract extends ThorifyContract {
@@ -65,18 +64,18 @@ export default class DecentBetTokenContract extends ThorifyContract {
      * Events
      * */
     logTransfer = (address, isFrom, fromBlock, toBlock) => {
+        if (fromBlock === undefined) {
+            fromBlock = false
+        }
+        if (toBlock === undefined) {
+            toBlock = false
+        }        
         let options = {}
         options[isFrom ? 'from' : 'to'] = address
-        const eventOptions = {
-            filter: options,
+
+        return this.contract.events.Transfer({ filter: options,
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
-        }
-        debugger
-        // return this.contract.events.Transfer({ filter: options,
-        //     fromBlock: fromBlock ? fromBlock : 0,
-        //     toBlock: toBlock ? toBlock : 'latest'
-        // })
-        return this.getEvents('Transfer', eventOptions)
+        })
     }
 }
