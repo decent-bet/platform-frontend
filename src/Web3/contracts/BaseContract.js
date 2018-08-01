@@ -1,33 +1,16 @@
 import NonceHandler from '../NonceHandler'
 
 const nonceHandler = new NonceHandler()
-const thorify = require('thorify').thorify
 
 export default class ThorifyContract {
+    
     /**
-     * Builds the contract
      * @param {Web3} web3
-     * @param {JSON} jsonAbi
+     * @param {Object} instance
      */
-    constructor(web3, jsonAbi) {
-        this.json = jsonAbi
-        this.web3 = thorify(web3)
-        this.contract = new this.web3.eth.Contract(this.json.abi)
-        let network = this.getJsonNetwork(this.json)
-        this.contract.options.address = network.address
-    }
-
-    setupCurrentProvider(contract) {
-        return function() {
-            return contract.currentProvider.send.apply(
-                contract.currentProvider,
-                arguments
-            )
-        }
-    }
-
-    getJsonNetwork(json) {
-        return json.networks[[Object.keys(json.networks)[0]]]
+    constructor(web3, instance) {
+        this.web3 = web3
+        this.instance = instance
     }
 
     // async getEvents(eventName, options) {
@@ -38,6 +21,7 @@ export default class ThorifyContract {
             // thorify
             return this.web3.eth.getBalance(address)
         }
+        
         return this.contract.methods
             .balanceOf(address)
             .call({ from: this.web3.eth.defaultAccount })
@@ -67,22 +51,7 @@ export default class ThorifyContract {
         const chainId = await this.web3.eth.net.getId()
 
         if (!gasPrice) gasPrice = 10000000
-        //Sign transaction
-        // const { rawTransaction } = await ethAccounts.signTransaction(
-        //     {
-        //         chainId,
-        //         nonce,
-        //         to,
-        //         data,
-        //         gas,
-        //         gasPrice
-        //     },
-        //     privateKey
-        // )
-
-        // // Start sending
-        // const promiEvent = this.web3.eth.sendSignedTransaction(rawTransaction)
-
+       
         this.web3.eth.accounts.wallet.add(privateKey)
         const promiEvent = this.web3.eth.sendTransaction({
             chainId,

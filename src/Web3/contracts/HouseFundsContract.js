@@ -1,22 +1,14 @@
-import HouseFundsContractJson from '../../../build/contracts/HouseFundsController.json'
-import ThorifyContract from './ThorifyContract'
+import BaseContract from './BaseContract'
 
-export default class HouseFundsContract extends ThorifyContract {
-    /**
-     * Builds the contract
-     * @param {Web3} web3
-     */
-    constructor(web3) {
-        super(web3, HouseFundsContractJson)
-    }
+export default class HouseFundsContract extends BaseContract {
 
     getHouseFunds(sessionNumber) {
-        return this.contract.methods.houseFunds(sessionNumber).call()
+        return this.instance.methods.houseFunds(sessionNumber).call()
     }
 
     getUserCreditsForSession(sessionNumber, address) {
-        return this.contract.methods.getUserCreditsForSession(
-            sessionNumber, 
+        return this.instance.methods.getUserCreditsForSession(
+            sessionNumber,
             address).call({
                 from: this.web3.eth.defaultAccount
             })

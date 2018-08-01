@@ -8,7 +8,8 @@ import DashboardDrawer from './DashboardDrawer'
 import ProviderSelector from './ProviderSelector'
 import NoTokensWarning from './NoTokensWarning'
 import Helper from '../../Helper'
-import { Actions } from '../../../Model/balance'
+import { Actions, initWatchers } from '../../../Model/balance'
+import { ThorConnection } from '../../../Web3/ThorConnection'
 
 import './dashboard.css'
 
@@ -21,7 +22,12 @@ class Dashboard extends Component {
     }
 
     componentDidMount = () => {
-       
+        ThorConnection.make()
+          // Initialize the datastore
+          this.props.dispatch(Actions.getPublicAddress())
+          this.props.dispatch(Actions.getTokens())
+          this.props.dispatch(Actions.getEtherBalance())
+          this.props.dispatch(initWatchers)
     }
 
     // Faucet Button Clicked. Execute Faucet
@@ -35,7 +41,7 @@ class Dashboard extends Component {
 
     onProviderChangeListener = value => {
         if (value !== this.state.provider) {
-            helper.setGethProvider(value)
+            ThorConnection.setProviderUrl(value)
             this.setState({ provider: value })
             // Wait for dropdown animation
             setTimeout(() => {

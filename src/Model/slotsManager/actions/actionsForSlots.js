@@ -2,13 +2,12 @@ import Bluebird from 'bluebird'
 import cryptoJs, { AES } from 'crypto-js'
 import { createActions } from 'redux-actions'
 import DecentAPI from '../../../Components/Base/DecentAPI'
-import Helper from '../../../Components/Helper'
 import Actions, { PREFIX } from './actionTypes'
 import { getAesKey, getUserHashes } from '../functions'
 import BigNumber from 'bignumber.js'
 import moment from 'moment'
+import { ThorConnection } from '../../../Web3/ThorConnection'
 
-const helper = new Helper()
 const decentApi = new DecentAPI()
 
 async function fetchAesKey(channelId) {
@@ -22,8 +21,8 @@ async function fetchAesKey(channelId) {
  */
 async function getChannelInfo(channelId) {
     try {
-        const instance = helper.getContractHelper().SlotsChannelManager
-        const info = await instance.getChannelInfo(channelId)
+        const contract = ThorConnection.contractFactory().slotsChannelManagerContract()
+        const info = await contract.getChannelInfo(channelId)
         const playerAddress = info[0]
         return {
             playerAddress,
@@ -46,8 +45,8 @@ async function getChannelInfo(channelId) {
  */
 async function getAuthorizedAddress(channelId) {
     try {
-        const instance = helper.getContractHelper().SlotsChannelManager
-        return instance.getPlayer(channelId, true)
+        const contract = ThorConnection.contractFactory().slotsChannelManagerContract()
+        return contract.getPlayer(channelId, true)
     } catch (error) {
         console.log('Error retrieving house authorized address', error.message)
     }
@@ -59,8 +58,8 @@ async function getAuthorizedAddress(channelId) {
  */
 async function isChannelClosed(channelId) {
     try {
-        const instance = helper.getContractHelper().SlotsChannelManager
-        return instance.isChannelClosed(channelId)
+        const contract = ThorConnection.contractFactory().slotsChannelManagerContract
+        return contract.isChannelClosed(channelId)
     } catch (err) {
         console.log('Error retrieving is channel closed', err.message)
     }
@@ -72,8 +71,8 @@ async function isChannelClosed(channelId) {
  */
 async function getChannelHashes(id) {
     try {
-        const instance = helper.getContractHelper().SlotsChannelManager
-        const hashes = await instance.getChannelHashes(id)
+        const contract = ThorConnection.contractFactory().slotsChannelManagerContract()
+        const hashes = await contract.getChannelHashes(id)
         return {
             finalUserHash: hashes[0],
             initialUserNumber: hashes[1],
@@ -86,8 +85,8 @@ async function getChannelHashes(id) {
 }
 
 async function getDeposited(channelId, isHouse = false) {
-    const instance = helper.getContractHelper().SlotsChannelManager
-    const rawBalance = await instance.channelDeposits(channelId, isHouse)
+    const contract = ThorConnection.contractFactory().slotsChannelManagerContract()
+    const rawBalance = await contract.channelDeposits(channelId, isHouse)
     return new BigNumber(rawBalance)
 }
 
@@ -182,8 +181,7 @@ async function getChannel(channelId) {
  * Get all channels for a user
  */
 async function getChannels() {
-    const contract = helper.getContractHelper().SlotsChannelManager
-    
+    const contract = await ThorConnection.contractFactory().slotsChannelManagerContract()
     let channelCount = await contract.getChannelCount()
     const accumulator = {}
 
@@ -196,9 +194,7 @@ async function getChannels() {
             const resultPromise = getChannel(id)
             accumulator[id] = resultPromise
         }
-
     } 
-
     // Execute all promises simultaneously.
     return Bluebird.props(accumulator)
 }

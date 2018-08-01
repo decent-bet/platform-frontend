@@ -1,85 +1,75 @@
-import SportsOracleContractJson from '../../../build/contracts/SportsOracle.json'
-import ThorifyContract from './ThorifyContract'
 
-export default class SportsOracleContract extends ThorifyContract {
-    /**
-     * Builds the contract
-     * @param {Web3} web3
-     * @param {DecentBetTokenContract} decentBetTokenContract
-     */
-    constructor(web3, decentBetTokenContract) {
-        super(web3, SportsOracleContractJson)
-        this.decentBetTokenContract = decentBetTokenContract
-    }
-    
+import BaseContract from './BaseContract'
+
+export default class SportsOracleContract extends BaseContract {
     /**
      * Getters
      */
     getOwner() {
-        return this.contract.methods.owner().call()
+        return this.instance.methods.owner().call()
     }
 
     getBalance() {
-        return this.decentBetTokenContract.balanceOf(this.contract.options.address)
+        return this.getBalance(this.instance.options.address)
     }
 
     getGameUpdateCost() {
-        return this.contract.methods.gameUpdateCost().call()
+        return this.instance.methods.gameUpdateCost().call()
     }
 
     getProviderAcceptanceCost() {
-        return this.contract.methods.providerAcceptanceCost().call()
+        return this.instance.methods.providerAcceptanceCost().call()
     }
 
     getPayForProviderAcceptance() {
-        return this.contract.methods.payForProviderAcceptance().call()
+        return this.instance.methods.payForProviderAcceptance().call()
     }
 
     getAuthorizedAddresses(index) {
-        return this.contract.methods.authorizedAddresses(index).call()
+        return this.instance.methods.authorizedAddresses(index).call()
     }
 
     getRequestedProviderAddresses(index) {
-        return this.contract.methods.requestedProviderAddresses(index).call()
+        return this.instance.methods.requestedProviderAddresses(index).call()
     }
 
     getAcceptedProviderAddresses(index) {
-        return this.contract.methods.acceptedProviderAddresses(index).call()
+        return this.instance.methods.acceptedProviderAddresses(index).call()
     }
 
     getGamesCount() {
-        return this.contract.methods.gamesCount().call()
+        return this.instance.methods.gamesCount().call()
     }
 
     getGame(gameId) {
-        return this.contract.methods.games(gameId).call()
+        return this.instance.methods.games(gameId).call()
     }
 
     getAvailableGamePeriods(gameId, index) {
-        return this.contract.availableGamePeriods(gameId, index).call()
+        return this.instance.availableGamePeriods(gameId, index).call()
     }
 
     getGameProvidersUpdateList(gameId, index) {
-        return this.contract.methods.gameProvidersUpdateList(gameId, index).call()
+        return this.instance.methods.gameProvidersUpdateList(gameId, index).call()
     }
 
     getProviderGameToUpdate(gameId, providerAddress) {
-        return this.contract.methods.providerGamesToUpdate(gameId, providerAddress).call()
+        return this.instance.methods.providerGamesToUpdate(gameId, providerAddress).call()
     }
 
     getGamePeriods(gameId, periodNumber) {
-        return this.contract.methods.gamePeriods(gameId, periodNumber).call()
+        return this.instance.methods.gamePeriods(gameId, periodNumber).call()
     }
 
     getTime() {
-        return this.contract.methods.getTime().call()
+        return this.instance.methods.getTime().call()
     }
 
     /**
      * Events
      */
     logNewAuthorizedAddress(fromBlock, toBlock) {
-        return this.contract.events.LogNewAuthorizedAddress({}, {
+        return this.instance.events.LogNewAuthorizedAddress({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }, (error, event) => {
@@ -88,7 +78,7 @@ export default class SportsOracleContract extends ThorifyContract {
     }
 
     logNewAcceptedProvider(fromBlock, toBlock) {
-        return this.contract.events.LogNewAcceptedProvider({}, {
+        return this.instance.events.LogNewAcceptedProvider({}, {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }, (error, event) => {
@@ -105,10 +95,10 @@ export default class SportsOracleContract extends ThorifyContract {
             toBlock: toBlock ? toBlock : 'latest'
         }
 
-        return this.contract.events.LogGameAdded(options, 
+        return this.instance.events.LogGameAdded(options,
             (error, event) => {
-            console.warn('logGameAdded', error, event)
-        })
+                console.warn('logGameAdded', error, event)
+            })
     }
 
     logGameDetailsUpdate(fromBlock, toBlock) {
@@ -118,7 +108,7 @@ export default class SportsOracleContract extends ThorifyContract {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }
-        return this.contract.events.LogGameDetailsUpdate(options, (error, event) => {
+        return this.instance.events.LogGameDetailsUpdate(options, (error, event) => {
             console.warn('logGameDetailsUpdate', error, event)
         })
     }
@@ -131,7 +121,7 @@ export default class SportsOracleContract extends ThorifyContract {
             toBlock: toBlock ? toBlock : 'latest'
         }
 
-        return this.contract.events.LogGameResult(options, (error, event) => {
+        return this.instance.events.LogGameResult(options, (error, event) => {
             console.warn('logGameResult', error, event)
         })
     }
@@ -143,7 +133,7 @@ export default class SportsOracleContract extends ThorifyContract {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }
-        return this.contract.events.LogUpdatedProviderOutcome(options, (error, event) => {
+        return this.instance.events.LogUpdatedProviderOutcome(options, (error, event) => {
             console.warn('logUpdatedProviderOutcome', error, event)
         })
     }
@@ -155,7 +145,7 @@ export default class SportsOracleContract extends ThorifyContract {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }
-        return this.contract.events.LogWithdrawal(options, (error, event) => {
+        return this.instance.events.LogWithdrawal(options, (error, event) => {
             console.warn('logWithdrawal', error, event)
         })
     }
@@ -167,7 +157,7 @@ export default class SportsOracleContract extends ThorifyContract {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }
-        return this.contract.events.LogNewGameUpdateCost(options, (error, event) => {
+        return this.instance.events.LogNewGameUpdateCost(options, (error, event) => {
             console.warn('logWithdrawal', error, event)
         })
     }
@@ -179,7 +169,7 @@ export default class SportsOracleContract extends ThorifyContract {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }
-        return this.contract.events.LogNewProviderAcceptanceCost(options, (error, event) => {
+        return this.instance.events.LogNewProviderAcceptanceCost(options, (error, event) => {
             console.warn('logNewProviderAcceptanceCost', error, event)
         })
     }
@@ -191,7 +181,7 @@ export default class SportsOracleContract extends ThorifyContract {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }
-        return this.contract.events.LogUpdatedTime(options, (error, event) => {
+        return this.instance.events.LogUpdatedTime(options, (error, event) => {
             console.warn('logUpdatedTime', error, event)
         })
     }

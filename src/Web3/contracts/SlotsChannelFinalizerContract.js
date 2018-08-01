@@ -1,20 +1,11 @@
-import SlotsChannelFinalizerContractJson from '../../../build/contracts/SlotsChannelFinalizer.json'
 import ethUtil from 'ethereumjs-util'
 import KeyHandler from '../KeyHandler'
 import ethAbi from 'web3-eth-abi'
-import ThorifyContract from './ThorifyContract'
+import BaseContract from './BaseContract'
 
 const keyHandler = new KeyHandler()
 
-export default class SlotsChannelFinalizerContract extends ThorifyContract {
-    /**
-     * Builds the contract
-     * @param {Web3} web3
-     */
-    constructor(web3) {
-        super(web3, SlotsChannelFinalizerContractJson)
-    }
-
+export default class SlotsChannelFinalizerContract extends BaseContract {
 
     finalize(id, userSpin, houseSpin) {
         userSpin = this.getSpinParts(userSpin)
@@ -63,47 +54,47 @@ export default class SlotsChannelFinalizerContract extends ThorifyContract {
             name: 'finalize',
             type: 'function',
             inputs: [{
-                    name: 'id',
-                    type: 'bytes32'
-                },
-                {
-                    name: '_curr',
-                    type: 'string'
-                },
-                {
-                    name: '_prior',
-                    type: 'string'
-                },
-                {
-                    name: 'currR',
-                    type: 'bytes32'
-                },
-                {
-                    name: 'currS',
-                    type: 'bytes32'
-                },
-                {
-                    name: 'priorR',
-                    type: 'bytes32'
-                },
-                {
-                    name: 'priorS',
-                    type: 'bytes32'
-                }
+                name: 'id',
+                type: 'bytes32'
+            },
+            {
+                name: '_curr',
+                type: 'string'
+            },
+            {
+                name: '_prior',
+                type: 'string'
+            },
+            {
+                name: 'currR',
+                type: 'bytes32'
+            },
+            {
+                name: 'currS',
+                type: 'bytes32'
+            },
+            {
+                name: 'priorR',
+                type: 'bytes32'
+            },
+            {
+                name: 'priorS',
+                type: 'bytes32'
+            }
             ]
         }, [
-            id,
-            userSpin.parts,
-            houseSpin.parts,
-            userSpin.r,
-            userSpin.s,
-            houseSpin.r,
-            houseSpin.s
-        ])
+                id,
+                userSpin.parts,
+                houseSpin.parts,
+                userSpin.r,
+                userSpin.s,
+                houseSpin.r,
+                houseSpin.s
+            ])
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.contract.options.address,
+            this.instance.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -152,47 +143,47 @@ export default class SlotsChannelFinalizerContract extends ThorifyContract {
             name: 'finalize',
             type: 'function',
             inputs: [{
-                    name: 'id',
-                    type: 'bytes32'
-                },
-                {
-                    name: '_curr',
-                    type: 'string'
-                },
-                {
-                    name: '_prior',
-                    type: 'string'
-                },
-                {
-                    name: 'currR',
-                    type: 'bytes32'
-                },
-                {
-                    name: 'currS',
-                    type: 'bytes32'
-                },
-                {
-                    name: 'priorR',
-                    type: 'bytes32'
-                },
-                {
-                    name: 'priorS',
-                    type: 'bytes32'
-                }
+                name: 'id',
+                type: 'bytes32'
+            },
+            {
+                name: '_curr',
+                type: 'string'
+            },
+            {
+                name: '_prior',
+                type: 'string'
+            },
+            {
+                name: 'currR',
+                type: 'bytes32'
+            },
+            {
+                name: 'currS',
+                type: 'bytes32'
+            },
+            {
+                name: 'priorR',
+                type: 'bytes32'
+            },
+            {
+                name: 'priorS',
+                type: 'bytes32'
+            }
             ]
         }, [
-            id,
-            userSpin.parts,
-            '',
-            userSpin.r,
-            userSpin.s,
-            emptyBytes32,
-            emptyBytes32
-        ])
+                id,
+                userSpin.parts,
+                '',
+                userSpin.r,
+                userSpin.s,
+                emptyBytes32,
+                emptyBytes32
+            ])
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.contract.options.address,
+            this.instance.options.address,
             null,
             5000000,
             encodedFunctionCall

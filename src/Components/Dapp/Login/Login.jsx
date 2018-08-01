@@ -6,8 +6,6 @@ import LoginInner from './LoginInner'
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import { ThorConnection } from '../../../Web3/ThorConnection'
 import bip39 from 'bip39'
-import { Wallet } from 'ethers'
-import { Actions, initWatchers } from '../../../Model/balance'
 
 import './login.css'
 
@@ -21,30 +19,11 @@ class Login extends Component {
 
     login = () => {
         try {
-            let wallet
-            let login = this.state.value
-            if (login.includes(' ')) {
-                // Passphrase Mnemonic mode
-                wallet = Wallet.fromMnemonic(login)
-            } else {
-                // Private Key Mode
-                // Adds '0x' to the beginning of the key if it is not there.
-                if (login.substring(0, 2) !== '0x') {
-                    login = '0x' + login
-                }
-
-                wallet = new Wallet(login)
-            }
             
-            ThorConnection.setCredentials(wallet.privateKey, wallet.address)
-            ThorConnection.buildThor()
-            ThorConnection.buildContracts()
+            let login = this.state.value
+            
+            ThorConnection.make(login)
 
-             // Initialize the datastore
-            this.props.dispatch(Actions.getPublicAddress())
-            this.props.dispatch(Actions.getTokens())
-            this.props.dispatch(Actions.getEtherBalance())
-            this.props.dispatch(initWatchers)
             // Go to the Root
             this.props.history.push('/')
         } catch (e) {

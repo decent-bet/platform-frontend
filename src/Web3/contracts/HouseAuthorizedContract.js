@@ -1,24 +1,16 @@
-import HouseAuthorizedContractJson from '../../../build/contracts/HouseAuthorizedController.json'
-import ThorifyContract from './ThorifyContract'
+import BaseContract from './BaseContract'
 
-export default class HouseAuthorizedContract extends ThorifyContract {
-    /**
-     * Builds the contract
-     * @param {Web3} web3
-     */
-    constructor(web3) {
-        super(web3, HouseAuthorizedContractJson)
+export default class HouseAuthorizedContract extends BaseContract {
+
+    getAuthorizedAddresses(index) {
+        return this.instance.methods.authorizedAddresses(index).call()
     }
 
-    getAuthorizedAddresses (index) {
-        return this.contract.methods.authorizedAddresses(index).call()
-    }
-
-    addToAuthorizedAddresses (address) {
-        return this.contract.methods.addToAuthorizedAddresses(address).call()
+    addToAuthorizedAddresses(address) {
+        return this.instance.methods.addToAuthorizedAddresses(address).call()
     }
 
     removeFromAuthorizedAddresses(address) {
-        return this.contract.methods.removeFromAuthorizedAddresses(address).call()
+        return this.instance.methods.removeFromAuthorizedAddresses(address).call()
     }
 }

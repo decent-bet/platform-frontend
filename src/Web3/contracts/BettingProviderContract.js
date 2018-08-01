@@ -1,22 +1,10 @@
-import BettingProviderJson from '../../../build/contracts/BettingProvider.json'
 import KeyHandler from '../KeyHandler'
 import ethAbi from 'web3-eth-abi'
-import ThorifyContract from './ThorifyContract'
-
-// Used for VSCode Type Checking
-import Web3 from 'web3' // eslint-disable-line no-unused-vars
+import BaseContract from './BaseContract'
 
 const keyHandler = new KeyHandler()
 
-export default class BettingProviderContract extends ThorifyContract {
-    /**
-     * Builds the contract
-     * @param {Web3} web3
-     */
-    constructor(web3) {
-        super(web3, BettingProviderJson)
-    }
-
+export default class BettingProviderContract extends BaseContract {
     /**
      * Getters
      */
@@ -25,7 +13,7 @@ export default class BettingProviderContract extends ThorifyContract {
      * 
      */
     getGamesCount() {
-        return this.contract.methods.gamesCount().call()
+        return this.instance.methods.gamesCount().call()
     }
 
     /**
@@ -33,88 +21,88 @@ export default class BettingProviderContract extends ThorifyContract {
      * @param {string} id 
      */
     getGame(id) {
-        return this.contract.methods.getGame(id).call()
+        return this.instance.methods.getGame(id).call()
     }
 
     getGamePeriodBetLimits(id, period) {
-        return this.contract.methods.getGamePeriodBetLimits(id, period).call()
+        return this.instance.methods.getGamePeriodBetLimits(id, period).call()
     }
 
     getGameMaxBetLimit(id) {
-        return this.contract.methods.getGameMaxBetLimit(id).call()
+        return this.instance.methods.getGameMaxBetLimit(id).call()
     }
 
     getGameBettor(id, index) {
-        return this.contract.methods.getGameBettor(id, index).call()
+        return this.instance.methods.getGameBettor(id, index).call()
     }
 
     getGameBettorBet(id, address, betId) {
-        return this.contract.methods.getGameBettorBet(id, address, betId).call()
+        return this.instance.methods.getGameBettorBet(id, address, betId).call()
     }
 
     getGameBettorBetOdds(id, address, betId) {
-        return this.contract.methods.getGameBettorBetOdds(id, address, betId).call()
+        return this.instance.methods.getGameBettorBetOdds(id, address, betId).call()
     }
 
     getGameBettorBetOddsDetails(id, address, betId) {
-        return this.contract.methods.getGameBettorBetOddsDetails(id, address, betId).call()
+        return this.instance.methods.getGameBettorBetOddsDetails(id, address, betId).call()
     }
 
     getGameOddsCount(id) {
-        return this.contract.methods.getGameOddsCount(id).call()
+        return this.instance.methods.getGameOddsCount(id).call()
     }
 
     getGameOdds(id, oddsId) {
-        return this.contract.methods.getGameOdds(id, oddsId).call()
+        return this.instance.methods.getGameOdds(id, oddsId).call()
     }
 
     getGameOddsDetails(id, oddsId) {
-        return this.contract.methods.getGameOddsDetails(id, oddsId).call()
+        return this.instance.methods.getGameOddsDetails(id, oddsId).call()
     }
 
     getGameOutcome(id, period) {
-        return this.contract.methods.getGameOutcome(id, period).call()
+        return this.instance.methods.getGameOutcome(id, period).call()
     }
 
     getDepositedTokens(address, sessionNumber) {
-        return this.contract.methods.depositedTokens(address, sessionNumber).call()
+        return this.instance.methods.depositedTokens(address, sessionNumber).call()
     }
 
     getSessionStats(sessionNumber) {
-        return this.contract.methods.sessionStats(sessionNumber).call()
+        return this.instance.methods.sessionStats(sessionNumber).call()
     }
 
     getSportsOracleAddress() {
-        return this.contract.methods.sportsOracleAddress().call()
+        return this.instance.methods.sportsOracleAddress().call()
     }
 
     getHouseAddress() {
-        return this.contract.methods.houseAddress().call()
+        return this.instance.methods.houseAddress().call()
     }
 
     getCurrentSession() {
-        return this.contract.methods.currentSession().call()
+        return this.instance.methods.currentSession().call()
     }
 
     getTime() {
-        return this.contract.methods.getTime().call()
+        return this.instance.methods.getTime().call()
     }
 
     getUserBets(address, index) {
-        return this.contract.methods.getUserBets(address, index).call()
+        return this.instance.methods.getUserBets(address, index).call()
     }
 
     getBetReturns(gameId, betId, bettor) {
-        return this.contract.methods.getBetReturns(gameId, betId, bettor).call()
+        return this.instance.methods.getBetReturns(gameId, betId, bettor).call()
     }
-    
+
     balanceOf(address, session) {
         console.log(
             'Retrieving sportsbook balance for',
             address,
             session
         )
-        return this.contract.methods.balanceOf(address, session).call()
+        return this.instance.methods.balanceOf(address, session).call()
     }
 
     /**
@@ -139,7 +127,7 @@ export default class BettingProviderContract extends ThorifyContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.contract.options.address,
+            this.instance.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -158,19 +146,19 @@ export default class BettingProviderContract extends ThorifyContract {
             name: 'withdraw',
             type: 'function',
             inputs: [{
-                    name: 'amount',
-                    type: 'uint256'
-                },
-                {
-                    name: 'session',
-                    type: 'uint256'
-                }
+                name: 'amount',
+                type: 'uint256'
+            },
+            {
+                name: 'session',
+                type: 'uint256'
+            }
             ]
         }, [amount, session])
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.contract.options.address,
+            this.instance.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -189,7 +177,7 @@ export default class BettingProviderContract extends ThorifyContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.contract.options.address,
+            this.instance.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -208,7 +196,7 @@ export default class BettingProviderContract extends ThorifyContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.contract.options.address,
+            this.instance.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -220,23 +208,23 @@ export default class BettingProviderContract extends ThorifyContract {
             name: 'addGame',
             type: 'function',
             inputs: [{
-                    name: 'oracleGameId',
-                    type: 'uint256'
-                },
-                {
-                    name: 'cutOffTime',
-                    type: 'uint256'
-                },
-                {
-                    name: 'endTime',
-                    type: 'uint256'
-                }
+                name: 'oracleGameId',
+                type: 'uint256'
+            },
+            {
+                name: 'cutOffTime',
+                type: 'uint256'
+            },
+            {
+                name: 'endTime',
+                type: 'uint256'
+            }
             ]
         }, [oracleGameId, cutOffTime, endTime])
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.contract.options.address,
+            this.instance.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -255,23 +243,23 @@ export default class BettingProviderContract extends ThorifyContract {
             name: 'updateGamePeriodBetLimits',
             type: 'function',
             inputs: [{
-                    name: 'gameId',
-                    type: 'uint256'
-                },
-                {
-                    name: 'period',
-                    type: 'uint256'
-                },
-                {
-                    name: 'limits',
-                    type: 'uint256[4]'
-                }
+                name: 'gameId',
+                type: 'uint256'
+            },
+            {
+                name: 'period',
+                type: 'uint256'
+            },
+            {
+                name: 'limits',
+                type: 'uint256[4]'
+            }
             ]
         }, [id, period, limits])
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.contract.options.address,
+            this.instance.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -312,72 +300,72 @@ export default class BettingProviderContract extends ThorifyContract {
             name: 'pushGameOdds',
             type: 'function',
             inputs: [{
-                    name: 'id',
-                    type: 'uint256'
-                },
-                {
-                    name: 'refId',
-                    type: 'string'
-                },
-                {
-                    name: 'period',
-                    type: 'uint256'
-                },
-                {
-                    name: 'handicap',
-                    type: 'int256'
-                },
-                {
-                    name: 'team1',
-                    type: 'int256'
-                },
-                {
-                    name: 'team2',
-                    type: 'int256'
-                },
-                {
-                    name: 'draw',
-                    type: 'int256'
-                },
-                {
-                    name: 'betType',
-                    type: 'uint256'
-                },
-                {
-                    name: 'points',
-                    type: 'uint256'
-                },
-                {
-                    name: 'over',
-                    type: 'int256'
-                },
-                {
-                    name: 'under',
-                    type: 'int256'
-                },
-                {
-                    name: 'isTeam1',
-                    type: 'bool'
-                }
+                name: 'id',
+                type: 'uint256'
+            },
+            {
+                name: 'refId',
+                type: 'string'
+            },
+            {
+                name: 'period',
+                type: 'uint256'
+            },
+            {
+                name: 'handicap',
+                type: 'int256'
+            },
+            {
+                name: 'team1',
+                type: 'int256'
+            },
+            {
+                name: 'team2',
+                type: 'int256'
+            },
+            {
+                name: 'draw',
+                type: 'int256'
+            },
+            {
+                name: 'betType',
+                type: 'uint256'
+            },
+            {
+                name: 'points',
+                type: 'uint256'
+            },
+            {
+                name: 'over',
+                type: 'int256'
+            },
+            {
+                name: 'under',
+                type: 'int256'
+            },
+            {
+                name: 'isTeam1',
+                type: 'bool'
+            }
             ]
         }, [
-            id,
-            refId,
-            period,
-            handicap,
-            team1,
-            team2,
-            draw,
-            betType,
-            points,
-            over,
-            under,
-            isTeam1
-        ])
+                id,
+                refId,
+                period,
+                handicap,
+                team1,
+                team2,
+                draw,
+                betType,
+                points,
+                over,
+                under,
+                isTeam1
+            ])
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.contract.options.address,
+            this.instance.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -400,62 +388,62 @@ export default class BettingProviderContract extends ThorifyContract {
             name: 'updateGameOdds',
             type: 'function',
             inputs: [{
-                    name: 'id',
-                    type: 'uint256'
-                },
-                {
-                    name: 'oddsId',
-                    type: 'uint256'
-                },
-                {
-                    name: 'betType',
-                    type: 'uint256'
-                },
-                {
-                    name: 'handicap',
-                    type: 'int256'
-                },
-                {
-                    name: 'team1',
-                    type: 'int256'
-                },
-                {
-                    name: 'team2',
-                    type: 'int256'
-                },
-                {
-                    name: 'draw',
-                    type: 'int256'
-                },
-                {
-                    name: 'points',
-                    type: 'uint256'
-                },
-                {
-                    name: 'over',
-                    type: 'int256'
-                },
-                {
-                    name: 'under',
-                    type: 'int256'
-                }
+                name: 'id',
+                type: 'uint256'
+            },
+            {
+                name: 'oddsId',
+                type: 'uint256'
+            },
+            {
+                name: 'betType',
+                type: 'uint256'
+            },
+            {
+                name: 'handicap',
+                type: 'int256'
+            },
+            {
+                name: 'team1',
+                type: 'int256'
+            },
+            {
+                name: 'team2',
+                type: 'int256'
+            },
+            {
+                name: 'draw',
+                type: 'int256'
+            },
+            {
+                name: 'points',
+                type: 'uint256'
+            },
+            {
+                name: 'over',
+                type: 'int256'
+            },
+            {
+                name: 'under',
+                type: 'int256'
+            }
             ]
         }, [
-            id,
-            oddsId,
-            betType,
-            handicap,
-            team1,
-            team2,
-            draw,
-            points,
-            over,
-            under
-        ])
+                id,
+                oddsId,
+                betType,
+                handicap,
+                team1,
+                team2,
+                draw,
+                points,
+                over,
+                under
+            ])
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.contract.options.address,
+            this.instance.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -473,31 +461,31 @@ export default class BettingProviderContract extends ThorifyContract {
             name: 'updateGameOutcome',
             type: 'function',
             inputs: [{
-                    name: 'id',
-                    type: 'uint256'
-                },
-                {
-                    name: 'period',
-                    type: 'uint256'
-                },
-                {
-                    name: 'result',
-                    type: 'int256'
-                },
-                {
-                    name: 'team1Points',
-                    type: 'uint256'
-                },
-                {
-                    name: 'team2Points',
-                    type: 'uint256'
-                }
+                name: 'id',
+                type: 'uint256'
+            },
+            {
+                name: 'period',
+                type: 'uint256'
+            },
+            {
+                name: 'result',
+                type: 'int256'
+            },
+            {
+                name: 'team1Points',
+                type: 'uint256'
+            },
+            {
+                name: 'team2Points',
+                type: 'uint256'
+            }
             ]
         }, [id, period, result, team1Points, team2Points])
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.contract.options.address,
+            this.instance.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -518,31 +506,31 @@ export default class BettingProviderContract extends ThorifyContract {
             name: 'placeBet',
             type: 'function',
             inputs: [{
-                    name: 'gameId',
-                    type: 'uint256'
-                },
-                {
-                    name: 'oddsId',
-                    type: 'uint256'
-                },
-                {
-                    name: 'betType',
-                    type: 'uint256'
-                },
-                {
-                    name: 'choice',
-                    type: 'uint256'
-                },
-                {
-                    name: 'amount',
-                    type: 'uint256'
-                }
+                name: 'gameId',
+                type: 'uint256'
+            },
+            {
+                name: 'oddsId',
+                type: 'uint256'
+            },
+            {
+                name: 'betType',
+                type: 'uint256'
+            },
+            {
+                name: 'choice',
+                type: 'uint256'
+            },
+            {
+                name: 'amount',
+                type: 'uint256'
+            }
             ]
         }, [gameId, oddsId, betType, choice, amount])
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.contract.options.address,
+            this.instance.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -554,23 +542,23 @@ export default class BettingProviderContract extends ThorifyContract {
             name: 'claimBet',
             type: 'function',
             inputs: [{
-                    name: 'gameId',
-                    type: 'uint256'
-                },
-                {
-                    name: 'betId',
-                    type: 'uint256'
-                },
-                {
-                    name: 'bettor',
-                    type: 'address'
-                }
+                name: 'gameId',
+                type: 'uint256'
+            },
+            {
+                name: 'betId',
+                type: 'uint256'
+            },
+            {
+                name: 'bettor',
+                type: 'address'
+            }
             ]
         }, [gameId, betId, bettor])
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.contract.options.address,
+            this.instance.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -581,42 +569,48 @@ export default class BettingProviderContract extends ThorifyContract {
      * Events
      */
     logNewGame(fromBlock, toBlock) {
-        return this.contract.events.LogNewGame({filter: {},
+        return this.instance.events.LogNewGame({
+            filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logNewGameOdds(fromBlock, toBlock) {
-        return this.contract.events.LogNewGameOdds({filter: {},
+        return this.instance.events.LogNewGameOdds({
+            filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logUpdatedGameOdds(fromBlock, toBlock) {
-        return this.contract.events.LogUpdatedGameOdds({filter: {},
+        return this.instance.events.LogUpdatedGameOdds({
+            filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logUpdatedMaxBet(fromBlock, toBlock) {
-        return this.contract.events.LogUpdatedMaxBet({filter: {},
+        return this.instance.events.LogUpdatedMaxBet({
+            filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logUpdatedBetLimits(fromBlock, toBlock) {
-        return this.contract.events.LogUpdatedBetLimits({filter: {},
+        return this.instance.events.LogUpdatedBetLimits({
+            filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logNewBet(fromBlock, toBlock) {
-        return this.contract.events.LogNewBet({filter: {},
+        return this.instance.events.LogNewBet({
+            filter: {},
             bettor: this.web3.eth.defaultAccount,
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
@@ -624,7 +618,8 @@ export default class BettingProviderContract extends ThorifyContract {
     }
 
     logClaimedBet(fromBlock, toBlock) {
-        return this.contract.events.LogClaimedBet({filter: {},
+        return this.instance.events.LogClaimedBet({
+            filter: {},
             bettor: this.web3.eth.defaultAccount,
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
@@ -632,7 +627,8 @@ export default class BettingProviderContract extends ThorifyContract {
     }
 
     logDeposit(fromBlock, toBlock) {
-        return this.contract.events.LogDeposit({filter: {},
+        return this.instance.events.LogDeposit({
+            filter: {},
             _address: this.web3.eth.defaultAccount,
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
@@ -640,14 +636,16 @@ export default class BettingProviderContract extends ThorifyContract {
     }
 
     logWithdraw(fromBlock, toBlock) {
-        return this.contract.events.LogWithdraw({filter: {},
+        return this.instance.events.LogWithdraw({
+            filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logUpdatedTime(fromBlock, toBlock) {
-        return this.contract.events.LogUpdatedTime({filter: {},
+        return this.instance.events.LogUpdatedTime({
+            filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })

@@ -1,75 +1,63 @@
-import SlotsChannelManagerJson from '../../../build/contracts/SlotsChannelManager.json'
 import KeyHandler from '../KeyHandler'
 import ethAbi from 'web3-eth-abi'
-import ThorifyContract from './ThorifyContract'
 import Bluebird from 'bluebird'
-
-// Used for VSCode Type Checking
-import Web3 from 'web3' // eslint-disable-line no-unused-vars
+import BaseContract from './BaseContract'
 
 const keyHandler = new KeyHandler()
 
-export default class SlotsChannelManager extends ThorifyContract {
-    /**
-     * Builds the contract
-     * @param {Web3} web3
-     */
-    constructor(web3) {
-        super(web3, SlotsChannelManagerJson)
-    }
+export default class SlotsChannelManagerContract extends BaseContract {
 
     /**
      * Getters
      */
     getChannelInfo(id) {
-        return this.contract.methods.getChannelInfo(id).call({
+        return this.instance.methods.getChannelInfo(id).call({
             from: this.web3.eth.defaultAccount
         })
     }
 
     getChannelHashes(id) {
-        return this.contract.methods.getChannelHashes(id).call({
+        return this.instance.methods.getChannelHashes(id).call({
             from: this.web3.eth.defaultAccount
         })
     }
 
     checkSig = (id, msgHash, sign, turn) => {
-        return this.contract.methods.checkSig(id, msgHash, sign, turn).call({
+        return this.instance.methods.checkSig(id, msgHash, sign, turn).call({
             from: this.web3.eth.defaultAccount
         })
     }
 
     balanceOf(address, session) {
-        return this.contract.methods.balanceOf(address, session).call()
+        return this.instance.methods.balanceOf(address, session).call()
     }
 
     currentSession() {
-        debugger
-        const a= this.contract.methods.currentSession().call()
+        const a = this.instance.methods.currentSession().call()
         a.then(a => {
             console.log(a)
-        },console.log)
+        }, console.log)
         return a
     }
 
     getPlayer(id, isHouse) {
-        return this.contract.methods.getPlayer(id, isHouse).call()
+        return this.instance.methods.getPlayer(id, isHouse).call()
     }
 
     isChannelClosed(id) {
-        return this.contract.methods.isChannelClosed(id).call()
+        return this.instance.methods.isChannelClosed(id).call()
     }
 
     finalBalances(id, isHouse) {
-        return this.contract.methods.finalBalances(id, isHouse).call()
+        return this.instance.methods.finalBalances(id, isHouse).call()
     }
 
     channelDeposits(id, isHouse) {
-        return this.contract.methods.channelDeposits(id, isHouse).call()
+        return this.instance.methods.channelDeposits(id, isHouse).call()
     }
 
     async getChannelCount() {
-        let count = await this.contract.methods.channelCount().call()
+        let count = await this.instance.methods.channelCount().call()
         try {
             return parseInt(count)
         } catch (error) {
@@ -80,11 +68,11 @@ export default class SlotsChannelManager extends ThorifyContract {
 
     getChannels() {
         return Bluebird.fromCallback(cb =>
-            this.contract.getPastEvents('LogNewChannel', {
+            this.instance.getPastEvents('LogNewChannel', {
                 filter: {
                     user: this.web3.eth.defaultAccount
                 },
-                fromBlock:  0,
+                fromBlock: 0,
                 toBlock: 'latest'
             }, cb)
         )
@@ -110,7 +98,7 @@ export default class SlotsChannelManager extends ThorifyContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.contract.options.address,
+            this.instance.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -134,7 +122,7 @@ export default class SlotsChannelManager extends ThorifyContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.contract.options.address,
+            this.instance.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -162,7 +150,7 @@ export default class SlotsChannelManager extends ThorifyContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.contract.options.address,
+            this.instance.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -194,7 +182,7 @@ export default class SlotsChannelManager extends ThorifyContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.contract.options.address,
+            this.instance.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -218,7 +206,7 @@ export default class SlotsChannelManager extends ThorifyContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.contract.options.address,
+            this.instance.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -229,37 +217,41 @@ export default class SlotsChannelManager extends ThorifyContract {
      * Events
      */
     logNewChannel(fromBlock, toBlock) {
-        return this.contract.events.LogNewChannel({ filter: {
-            user: this.web3.eth.defaultAccount
-        },
+        return this.instance.events.LogNewChannel({
+            filter: {
+                user: this.web3.eth.defaultAccount
+            },
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
-    
+
     logChannelDeposit(id, fromBlock, toBlock) {
-        return this.contract.events.LogChannelDeposit({ filter: {
-            user: this.web3.eth.defaultAccount,
-            id: id
-        },
+        return this.instance.events.LogChannelDeposit({
+            filter: {
+                user: this.web3.eth.defaultAccount,
+                id: id
+            },
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
     logChannelActivate(id, fromBlock, toBlock) {
-        return this.contract.events.LogChannelActivate({ filter: {
-            user: this.web3.eth.defaultAccount,
-            id: id
-        },
+        return this.instance.events.LogChannelActivate({
+            filter: {
+                user: this.web3.eth.defaultAccount,
+                id: id
+            },
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logChannelFinalized(id, fromBlock, toBlock) {
-        return this.contract.events.LogChannelFinalized({ filter: {
-            id: id
-        },
+        return this.instance.events.LogChannelFinalized({
+            filter: {
+                id: id
+            },
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         })
@@ -269,27 +261,29 @@ export default class SlotsChannelManager extends ThorifyContract {
     logClaimChannelTokens(id, fromBlock, toBlock) {
         const filter = id
             ? {
-                  id: id
-              }
+                id: id
+            }
             : {}
-        return this.contract.events.LogClaimChannelTokens(filter, {
+        return this.instance.events.LogClaimChannelTokens(filter, {
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logDeposit(fromBlock, toBlock) {
-        return this.contract.events.LogDeposit({ filter: {
-            _address: this.web3.eth.defaultAccount
-        },
+        return this.instance.events.LogDeposit({
+            filter: {
+                _address: this.web3.eth.defaultAccount
+            },
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
     logWithdraw(fromBlock, toBlock) {
-        return this.contract.events.LogWithdraw({ filter: {
-            _address: this.web3.eth.defaultAccount
-        }, 
+        return this.instance.events.LogWithdraw({
+            filter: {
+                _address: this.web3.eth.defaultAccount
+            },
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         })

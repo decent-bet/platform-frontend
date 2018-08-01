@@ -1,17 +1,8 @@
-import HouseSessionsContractJson from '../../../build/contracts/HouseSessionsController.json'
-import ThorifyContract from './ThorifyContract'
+import BaseContract from './BaseContract'
 
-export default class HouseSessionsContract extends ThorifyContract {
-    /**
-     * Builds the contract
-     * @param {Web3} web3
-     */
-    constructor(web3) {
-        super(web3, HouseSessionsContractJson)
-    }
-
+export default class HouseSessionsContract extends BaseContract {
     // Mapping (uint => Session)
     getSession(sessionNumber) {
-        return this.contract.methods.sessions(sessionNumber).call()
+        return this.instance.methods.sessions(sessionNumber).call()
     }
 }

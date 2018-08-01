@@ -10,9 +10,9 @@ const helper = new Helper()
 async function fetchTokens() {
     try {
         let address = await fetchPublicAddress()
-        let rawResult = await ThorConnection.contractFactory()
-                                            .decentBetTokenContract
-                                            .balanceOf(address)
+        let contract = await ThorConnection.contractFactory()
+                                           .decentBetTokenContract()
+        let rawResult = await contract.balanceOf(address)
         return new BigNumber(rawResult).dividedBy(units.ether).toNumber()
     } catch (err) {
         console.log('Error retrieving token balance', err)
@@ -21,9 +21,9 @@ async function fetchTokens() {
 
 async function executeDepositTokens(amount) {
     try {
-        let txHash = await ThorConnection.contractFactory()
-                                            .bettingProviderContract
-                                            .deposit(amount)
+        let contract = await ThorConnection.contractFactory()
+                                     .bettingProviderContract()
+        let txHash = await contract.deposit(amount)
         let msg = `Successfully sent deposit transaction: ${txHash}`
         helper.toggleSnackbar(msg)
         return txHash
@@ -35,9 +35,9 @@ async function executeDepositTokens(amount) {
 
 async function executeWithdrawTokens(amount, session) {
     try {
-        let txHash = await ThorConnection.contractFactory()
-                                         .bettingProviderContract
-                                         .withdraw(amount, session)
+        let contract = await ThorConnection.contractFactory()
+                                           .bettingProviderContract()
+        let txHash = await contract.withdraw(amount, session)
         let msg = `Successfully sent withdraw transaction ${txHash}`
         helper.toggleSnackbar(msg)
         return txHash
@@ -48,14 +48,13 @@ async function executeWithdrawTokens(amount, session) {
 }
 
 async function executeApproveAndDepositTokens(amount) {
-    let bettingProvider = ThorConnection.contractFactory()
-                                        .bettingProviderContract
-                                        .options
-                                        .address
+    let bettingProviderContract = await ThorConnection.contractFactory()
+                                        .bettingProviderContract()
+    let bettingProvider = bettingProviderContract.options.address
     try {
-        let txHash = await ThorConnection.contractFactory()
-                                        .decentBetTokenContract
-                                        .approve(bettingProvider, amount)
+        let decentBetTokenContract = await ThorConnection.contractFactory()
+                                                   .decentBetTokenContract()
+        let txHash = await decentBetTokenContract.approve(bettingProvider, amount)
         helper.toggleSnackbar('Successfully sent approve transaction')
         let txHash2 = await executeDepositTokens(amount)
         return [txHash, txHash2]
@@ -72,7 +71,7 @@ async function fetchPublicAddress() {
 async function faucet() {
     try {
         let tx = await ThorConnection.contractFactory()
-                                     .decentBetTokenContract
+                                     .decentBetTokenContract()
                                      .faucet()
 
         console.log('Sent faucet tx', tx)

@@ -1,4 +1,6 @@
 import DecentAPI from '../../Components/Base/DecentAPI'
+import { Utils } from '../../Web3/Utils'
+
 import Helper from '../../Components/Helper'
 import {
     reels as slotReels,
@@ -59,9 +61,7 @@ export default class SlotsChannelHandler {
         delete nonSignatureSpin.sign
 
         const msg = getTightlyPackedSpin(nonSignatureSpin)
-        const valid = helper
-            .getContractHelper()
-            .verifySign(msg, houseSpin.sign, state.houseAuthorizedAddress)
+        const valid = Utils.verifySign(msg, houseSpin.sign, state.houseAuthorizedAddress)
         if (!valid) callback(true, 'Invalid signature')
 
         /**

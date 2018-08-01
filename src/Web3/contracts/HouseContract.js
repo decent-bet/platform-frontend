@@ -1,33 +1,25 @@
-import HouseContractJson from '../../../build/contracts/House.json'
-import ThorifyContract from './ThorifyContract'
+import BaseContract from './BaseContract'
 
-export default class HouseContract extends ThorifyContract {
-    /**
-     * Builds the contract
-     * @param {Web3} web3
-     */
-    constructor(web3) {
-        super(web3, HouseContractJson)
-    }
+export default class HouseContract extends BaseContract {
     /**
      * Getters
      */
     getCurrentSession() {
-        return this.contract.methods.currentSession().call()
+        return this.instance.methods.currentSession().call()
     }
 
     /**
      * Setters
      */
     purchaseCredits(amount) {
-        return this.contract.methods.purchaseCredits(
+        return this.instance.methods.purchaseCredits(
             amount
         ).send({
             from: this.web3.eth.defaultAccount,
             gas: 5000000
         })
     }
-    
+
     /**
      * Events
      */
@@ -42,7 +34,7 @@ export default class HouseContract extends ThorifyContract {
             toBlock: toBlock ? toBlock : 'latest'
         }
 
-        return this.contract.events.LogPurchasedCredits(options)
+        return this.instance.events.LogPurchasedCredits(options)
     }
 
     logLiquidateCredits(sessionNumber, fromBlock, toBlock) {
@@ -56,6 +48,6 @@ export default class HouseContract extends ThorifyContract {
             toBlock: toBlock ? toBlock : 'latest'
         }
 
-        return this.contract.events.LogLiquidateCredits(options)
+        return this.instance.events.LogLiquidateCredits(options)
     }
 }

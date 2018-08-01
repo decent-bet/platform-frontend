@@ -1,49 +1,70 @@
 import { thorify } from 'thorify'
-import Web3 from 'web3'
+import { Wallet } from 'ethers'
 import KeyHandler from './KeyHandler'
-import ContractHelper from './ContractHelper'
+import { ContractFactory } from './ContractFactory'
 import { PROVIDER_LOCAL, PROVIDER_DBET, KEY_GETH_PROVIDER } from '../Components/Constants'
+const Web3 = require("web3"); 
 
 const keyHandler = new KeyHandler()
 
+const buildThor = (privateKey, address) => {
+        const providerUrl = ThorConnection.getProviderUrl()
+        const thor = thorify(new Web3(), providerUrl)
+        thor.eth.defaultAccount = address
+        thor.eth.defaultAccount = address
+        thor.eth.accounts.wallet.add(privateKey)
+        window._contractFactory = new ContractFactory(thor)
+        window._thor = thor
+}
+
 export class ThorConnection {
 
-    static buildThor() {
-        let providerUrl = ThorConnection.getProviderUrl()
-        window._thor = thorify(new Web3(), providerUrl)
-        let address = keyHandler.getAddress()
-        window._thor.eth.defaultAccount = (address && address.length > 0) ? address : ''
-        ThorConnection.contractFactory()
+    /**
+     * Setup the web3 thorify instance and authenticate the user
+     * @param {string|null} loginValue
+     */
+    static make(loginValue = null) {
+
+        if ( loginValue === null ) {
+
+            const key = keyHandler.get()
+            const address = keyHandler.getAddress()
+            if(key && address && key.length > 0 && address.length > 0) {
+                buildThor(key, address)
+            }
+
+        } else {
+            let wallet
+            if (loginValue.includes(' ')) {
+                // Passphrase Mnemonic mode
+                wallet = Wallet.fromMnemonic(loginValue)
+            } else {
+                // Private Key Mode
+                // Adds '0x' to the beginning of the key if it is not there.
+                if (loginValue.substring(0, 2) !== '0x') {
+                    loginValue = '0x' + loginValue
+                }
+
+                wallet = new Wallet(loginValue)
+            }
+
+            keyHandler.set(wallet.privateKey, wallet.address)
+            buildThor(wallet.privateKey, wallet.address)
+        }
     }
 
-    static setCredentials(privateKey, address) {
-        keyHandler.set(privateKey, address)
-        ThorConnection.thor().eth.defaultAccount = address
-    }
-
-    static setDefaultAccount(account) {
-        ThorConnection.thor().eth.defaultAccount = account
-    }
-
+    /**
+     * Get the default account
+     */
     static getDefaultAccount() {
         return ThorConnection.thor().eth.defaultAccount
     }
 
-    
-    static buildContracts() {
-        ThorConnection.contractFactory().buildContracts()
-        ThorConnection.thor().eth.accounts.wallet.add(keyHandler.get())
-    }
-
     /**
-     * Get the thor instance
-     * @returns {thorify} 
+     * Get the thorify web3 instance
+     * @returns {Web3} 
      */
     static thor() {
-        if (!window._thor) {
-            ThorConnection.buildThor()
-        }
-        
         return window._thor
     }
 
@@ -53,7 +74,7 @@ export class ThorConnection {
      */
     static contractFactory() {
         if(!window._contractFactory) {
-            window._contractFactory = new ContractHelper(null, ThorConnection.thor())
+            window._contractFactory = new ContractFactory(ThorConnection.thor())
         }
 
         return window._contractFactory

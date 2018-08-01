@@ -6,9 +6,6 @@ import {
     SvgIcon
 } from '@material-ui/core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import Helper from '../../Helper'
-import { PROVIDER_DBET } from '../../Constants'
-
 
 export default function FaucetMenuItem({ onFaucetClickedListener }) {
     // if (provider === PROVIDER_DBET) {

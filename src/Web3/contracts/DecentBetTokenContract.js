@@ -1,23 +1,16 @@
-import DecentBetTokenJson from '../../../build/contracts/TestDecentBetToken.json'
 import KeyHandler from '../KeyHandler'
 import ethAbi from 'web3-eth-abi'
-import ThorifyContract from './ThorifyContract'
+import BaseContract from './BaseContract'
+
 const keyHandler = new KeyHandler()
 
-export default class DecentBetTokenContract extends ThorifyContract {
-    /**
-     * Builds the contract
-     * @param {Web3} web3
-     */
-    constructor(web3) {
-        super(web3, DecentBetTokenJson)
-    }
+export default class DecentBetTokenContract extends BaseContract {
 
     /** Getters */
     allowance(owner, spender) {
-        return this.contract.methods
+        return this.instance.methods
             .allowance(owner, spender)
-            .call({ from: this.web3.eth.defaultAccount })
+            .call()
     }
 
     balanceOf(address) {
@@ -46,7 +39,7 @@ export default class DecentBetTokenContract extends ThorifyContract {
 
         return this.signAndSendRawTransaction(
             keyHandler.get(),
-            this.contract.options.address,
+            this.instance.options.address,
             null,
             5000000,
             encodedFunctionCall
@@ -55,7 +48,7 @@ export default class DecentBetTokenContract extends ThorifyContract {
 
     faucet() {
         console.log('Sending faucet tx')
-        return this.contract.methods
+        return this.instance.methods
             .faucet()
             .send({ from: this.web3.eth.defaultAccount })
     }
@@ -63,17 +56,18 @@ export default class DecentBetTokenContract extends ThorifyContract {
     /**
      * Events
      * */
-    logTransfer = (address, isFrom, fromBlock, toBlock) => {
+    logTransfer(address, isFrom, fromBlock, toBlock) {
         if (fromBlock === undefined) {
             fromBlock = false
         }
         if (toBlock === undefined) {
             toBlock = false
-        }        
+        }
         let options = {}
         options[isFrom ? 'from' : 'to'] = address
 
-        return this.contract.events.Transfer({ filter: options,
+        return this.instance.events.Transfer({
+            filter: options,
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         })
