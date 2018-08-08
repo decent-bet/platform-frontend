@@ -4,26 +4,24 @@ import { Card } from '@material-ui/core'
 import LoginActions from './LoginActions'
 import LoginInner from './LoginInner'
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
-import { ThorConnection } from '../../../Web3/ThorConnection'
+import { Actions, Thunks } from '../../../Model/auth'
 import bip39 from 'bip39'
-
 import './login.css'
 
 class Login extends Component {
-    
+
     state = {
         value: '',
-        provider: ThorConnection.getProviderUrl(),
         isErrorDialogOpen: false
+    }
+
+    componentDidMount() {
+       this.props.dispatch(Thunks.getProviderUrl())
     }
 
     login = () => {
         try {
-            
-            let login = this.state.value
-            
-            ThorConnection.make(login)
-
+            this.props.dispatch(Actions.login(this.state.value))
             // Go to the Root
             this.props.history.push('/')
         } catch (e) {
@@ -61,9 +59,7 @@ class Login extends Component {
         this.setState({ value: event.target.value })
 
     onProviderChangedListener = (event, index, value) => {
-        ThorConnection.setProviderUrl(value)
-        this.setState({ provider: value })
-
+        this.props.dispatch(Thunks.setProviderUrl(value))
         // Wait for dropdown animation
         setTimeout(() => {
             window.location.reload()
@@ -84,7 +80,7 @@ class Login extends Component {
         <Card className="login-card">
             <LoginInner
                 loginMethod={this.state.login}
-                provider={this.state.provider}
+                provider={this.props.provider}
                 value={this.state.value}
                 onChange={this.onLoginTextChangedListener}
                 onLoginKeypress={this.loginWithKeyPress}
@@ -109,7 +105,5 @@ class Login extends Component {
     }
 }
 
-
-
 // Connect this component to Redux
-export default connect(state => state)(Login)
+export default connect(state => state.auth)(Login)

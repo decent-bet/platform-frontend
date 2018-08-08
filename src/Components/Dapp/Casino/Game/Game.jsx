@@ -10,9 +10,7 @@ import { connect } from 'react-redux'
 import {
     Actions,
     SlotsChannelHandler,
-    Thunks,
-    watcherChannelClaimed,
-    watcherChannelFinalized
+    Thunks
 } from '../../../../Model/slotsManager'
 import { CHANNEL_STATUS_FINALIZED } from '../../../Constants'
 import Helper from '../../../Helper'
@@ -30,13 +28,9 @@ class Game extends Component {
     }
 
     componentDidMount = () => {
+        
         const { dispatch, channelId } = this.props
-        dispatch(Actions.getAesKey(channelId))
-        dispatch(Actions.getChannelDetails(channelId))
-        dispatch(Actions.getLastSpin(channelId))
-
-        watcherChannelClaimed(channelId, dispatch)
-        watcherChannelFinalized(channelId, dispatch)
+        dispatch(Thunks.initializeGame(channelId))
 
         // TODO: Make this less ugly
         // Maybe we should use websockets to communicate instead?

@@ -1,15 +1,13 @@
 import { KeyHandler } from '../../Web3'
-import Helper from '../../Components/Helper'
 import { SHA256, AES } from 'crypto-js'
 import DecentAPI from '../../Components/Base/DecentAPI'
 import BigNumber from 'bignumber.js'
 
 const keyHandler = new KeyHandler()
-const helper = new Helper()
 const decentAPI = new DecentAPI()
 
-export function getAesKey(id) {
-    const web3 = helper.getWeb3()
+export function getAesKey(id, chainProvider) {
+    const { web3 } = chainProvider
     const idHash = web3.utils.sha3(id)
     const aesKey = web3.eth.accounts.sign(idHash, keyHandler.get()).signature
     return aesKey
@@ -49,10 +47,10 @@ export function random(length) {
  * @param id
  * @param callback
  */
-export async function getChannelDepositParams(id, callback) {
+export async function getChannelDepositParams(id, chainProvider) {
     let randomNumber = random(18).toString()
 
-    const key = getAesKey(id)
+    const key = getAesKey(id, chainProvider)
     let initialUserNumber = AES.encrypt(randomNumber, key).toString()
     let userHashes = await getUserHashes(randomNumber)
     let finalUserHash = userHashes[userHashes.length - 1]

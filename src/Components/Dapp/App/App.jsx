@@ -42,19 +42,19 @@ export default class App extends Component {
             return null
         }
     }
-
-    renderStateLoaded = () => (
-        <Fragment>
-            <BrowserRouter>
-                <Switch>
-                    <LogoutRoute path={VIEW_LOGIN} component={Login} />
-                    <PrivateRoute component={Dashboard} />
-                </Switch>
-            </BrowserRouter>
-
-            {this.renderSnackBar()}
-        </Fragment>
-    )
+    renderStateLoaded() {
+        return (
+            <Fragment>
+                <BrowserRouter>
+                    <Switch>
+                        <LogoutRoute path={VIEW_LOGIN} component={Login} />
+                        <PrivateRoute component={Dashboard} />
+                    </Switch>
+                </BrowserRouter>
+                {this.renderSnackBar()}
+            </Fragment>
+        )
+    }
 
     renderStateError = () => (
         <ConfirmationDialog

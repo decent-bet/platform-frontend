@@ -13,7 +13,7 @@ const decentApi = new DecentAPI()
  * @param {number} channelId
  * @param state
  */
-async function finalizeChannel(channelId, state) {
+async function finalizeChannel(channelId, state, { contractFactory }) {
     let aesKey = state.aesKey
     try {
         let betSize = helper.convertToEther(1)
@@ -21,22 +21,14 @@ async function finalizeChannel(channelId, state) {
         let userSpin = await getSpin(betSize, state, true)
         let lastHouseSpin
         let txHash
-
+        let contract = await contractFactory.slotsChannelFinalizerContract()
         // If the user nonce is 0
         // this would mean that there haven't been any spin performed within the channel.
         if(userSpin.nonce === 0) {
-            txHash = await helper
-                .getContractHelper()
-                .getWrappers()
-                .slotsChannelFinalizer()
-                .finalizeZeroNonce(channelId, userSpin)
+            txHash = await contract.finalizeZeroNonce(channelId, userSpin)
         } else {
             lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]
-            txHash = await helper
-                .getContractHelper()
-                .getWrappers()
-                .slotsChannelFinalizer()
-                .finalize(channelId, userSpin, lastHouseSpin)
+            txHash = await contract.finalize(channelId, userSpin, lastHouseSpin)
         }
         /**
          * After sending a finalize channel tx on the Ethereum network let the state channel API know that

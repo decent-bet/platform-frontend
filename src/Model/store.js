@@ -1,14 +1,16 @@
 import { createStore, applyMiddleware, combineReducers } from 'redux'
 import promiseMiddleware from 'redux-promise-middleware'
-import thunkMiddleware from 'redux-thunk'
+import ReduxThunk from 'redux-thunk'
 import logger from 'redux-logger'
-
 import { Reducer as bettingProviderReducer } from './bettingProvider'
 import { Reducer as oracleReducer } from './oracle'
 import { Reducer as balanceReducer } from './balance'
 import { Reducer as houseReducer } from './house'
+import { Reducer as authReducer } from './auth'
 import { Reducer as slotsManagerReducer } from './slotsManager'
 import Helper from '../Components/Helper'
+import { ChainProvider } from '../Web3/ChainProvider'
+
 
 const helper = new Helper()
 
@@ -18,18 +20,20 @@ const CombinedReducers = combineReducers({
     slotsManager: slotsManagerReducer,
     bettingProvider: bettingProviderReducer,
     sportsOracle: oracleReducer,
-    balance: balanceReducer
+    balance: balanceReducer,
+    auth: authReducer
 })
 
+const chainProvider = new ChainProvider()
 // Setup middleware
-const middleware = [
-    thunkMiddleware,
+const middlewares = [
+    ReduxThunk.withExtraArgument(chainProvider),
     promiseMiddleware({ promiseTypeDelimiter: '/' })
 ]
 
 // Only log redux on development
 if (helper.isDev()) {
-    middleware.push(logger)
+    middlewares.push(logger)
 }
 
-export default createStore(CombinedReducers, {}, applyMiddleware(...middleware))
+export default createStore(CombinedReducers, {}, applyMiddleware(...middlewares))

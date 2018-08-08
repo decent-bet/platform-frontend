@@ -3,26 +3,29 @@ import { createActions } from 'redux-actions'
 import Actions, { Prefix } from './actionTypes'
 import BigNumber from 'bignumber.js'
 import { units } from 'ethereum-units'
-import { ThorConnection } from '../../Web3/ThorConnection'
-
 const helper = new Helper()
 
-async function fetchTokens() {
+export async function fetchTokens(chainProvider) {
     try {
-        let address = await fetchPublicAddress()
-        let contract = await ThorConnection.contractFactory()
-                                           .decentBetTokenContract()
+        let { contractFactory } = chainProvider
+        let address = await fetchPublicAddress(chainProvider)
+        let contract = await contractFactory.decentBetTokenContract()
+
         let rawResult = await contract.balanceOf(address)
-        return new BigNumber(rawResult).dividedBy(units.ether).toNumber()
+        let tokens = new BigNumber(rawResult)
+            .dividedBy(units.ether)
+            .toNumber()
+        return tokens
     } catch (err) {
         console.log('Error retrieving token balance', err)
     }
 }
 
-async function executeDepositTokens(amount) {
+export async function executeDepositTokens(amount, chainProvider) {
     try {
-        let contract = await ThorConnection.contractFactory()
-                                     .bettingProviderContract()
+        let { contractFactory } = chainProvider
+        let contract = await contractFactory.bettingProviderContract()
+
         let txHash = await contract.deposit(amount)
         let msg = `Successfully sent deposit transaction: ${txHash}`
         helper.toggleSnackbar(msg)
@@ -33,10 +36,9 @@ async function executeDepositTokens(amount) {
     }
 }
 
-async function executeWithdrawTokens(amount, session) {
+export async function executeWithdrawTokens(amount, session, { contractFactory }) {
     try {
-        let contract = await ThorConnection.contractFactory()
-                                           .bettingProviderContract()
+        let contract = await contractFactory.bettingProviderContract()
         let txHash = await contract.withdraw(amount, session)
         let msg = `Successfully sent withdraw transaction ${txHash}`
         helper.toggleSnackbar(msg)
@@ -47,32 +49,34 @@ async function executeWithdrawTokens(amount, session) {
     }
 }
 
-async function executeApproveAndDepositTokens(amount) {
-    let bettingProviderContract = await ThorConnection.contractFactory()
-                                        .bettingProviderContract()
-    let bettingProvider = bettingProviderContract.options.address
-    try {
-        let decentBetTokenContract = await ThorConnection.contractFactory()
-                                                   .decentBetTokenContract()
-        let txHash = await decentBetTokenContract.approve(bettingProvider, amount)
-        helper.toggleSnackbar('Successfully sent approve transaction')
-        let txHash2 = await executeDepositTokens(amount)
-        return [txHash, txHash2]
-    } catch (err) {
-        console.log('Error approving dbets', err.message)
-        helper.toggleSnackbar('Error sending approve transaction')
-    }
+export async function executeApproveAndDepositTokens(amount, dispatch, chainProvider) {
+        let { contractFactory } = chainProvider
+        let bettingProviderContract = await contractFactory.bettingProviderContract()
+        let bettingProvider = bettingProviderContract.options.address
+
+        try {
+            let decentBetTokenContract = await contractFactory.decentBetTokenContract()
+            let txHash = await decentBetTokenContract.approve(
+                bettingProvider,
+                amount
+            )
+            helper.toggleSnackbar('Successfully sent approve transaction')
+            let txHash2 = await executeDepositTokens(amount, chainProvider)
+            return [txHash, txHash2]
+        } catch (err) {
+            console.log('Error approving dbets', err.message)
+            helper.toggleSnackbar('Error sending approve transaction')
+        }
 }
 
-async function fetchPublicAddress() {
-    return Promise.resolve(ThorConnection.getDefaultAccount())
+export async function fetchPublicAddress(chainProvider) {
+    return chainProvider.defaultAccount
 }
 
-async function faucet() {
+export async function faucet({contractFactory}) {
     try {
-        let tx = await ThorConnection.contractFactory()
-                                     .decentBetTokenContract()
-                                     .faucet()
+        let contract = await contractFactory.decentBetTokenContract()
+        let tx = await contract.faucet()
 
         console.log('Sent faucet tx', tx)
         helper.toggleSnackbar('Successfully sent faucet transaction')
@@ -84,15 +88,17 @@ async function faucet() {
 }
 
 // Get Total Ether.
-async function fetchEtherBalance() {
+export async function fetchEtherBalance(dispatch, chainProvider) {
     try {
-        let address = await fetchPublicAddress()
-        let rawAmount = await ThorConnection.thor().eth.getBalance(address)
+        let address = await fetchPublicAddress(chainProvider)
+        let contract = await chainProvider.contractFactory.decentBetTokenContract()
+        let rawAmount = await contract.getBalance(address)
         return new BigNumber(rawAmount).dividedBy(units.ether)
     } catch (err) {
         console.log('error retrieving ether balance')
     }
 }
+
 
 // Functions of this object are the "ACTION_KEYS" "inCamelCase"
 // They are namespaced by the "Prefix" "inCamelCase".

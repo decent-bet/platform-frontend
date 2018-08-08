@@ -1,25 +1,21 @@
 import KeyHandler from '../KeyHandler'
-import ethAbi from 'web3-eth-abi'
 import BaseContract from './BaseContract'
 
 const keyHandler = new KeyHandler()
 
 export default class DecentBetTokenContract extends BaseContract {
-
     /** Getters */
-    allowance(owner, spender) {
-        return this.instance.methods
-            .allowance(owner, spender)
-            .call()
+    async allowance (owner, spender) {
+        return await this.instance.methods.allowance(owner, spender).call()
     }
 
-    balanceOf(address) {
-        return this.getBalance(address)
+    async balanceOf(address) {
+        return await this.getBalance(address)
     }
 
     /** Setters */
-    approve = (address, value) => {
-        let encodedFunctionCall = ethAbi.encodeFunctionCall(
+    async approve (address, value) {
+        let encodedFunctionCall = this.web3.eth.abi.encodeFunctionCall(
             {
                 name: 'approve',
                 type: 'function',
@@ -37,26 +33,40 @@ export default class DecentBetTokenContract extends BaseContract {
             [address, value]
         )
 
-        return this.signAndSendRawTransaction(
+        return await this.signAndSendRawTransaction(
             keyHandler.get(),
             this.instance.options.address,
             null,
-            5000000,
+            null,
             encodedFunctionCall
         )
     }
 
-    faucet() {
+    async faucet() {
         console.log('Sending faucet tx')
-        return this.instance.methods
-            .faucet()
-            .send({ from: this.web3.eth.defaultAccount })
+
+        let encodedFunctionCall = this.web3.eth.abi.encodeFunctionCall(
+            {
+                name: 'faucet',
+                type: 'function',
+                inputs: []
+            },
+            []
+        )
+
+        return await this.signAndSendRawTransaction(
+            keyHandler.get(),
+            this.instance.options.address,
+            null,
+            null,
+            encodedFunctionCall
+        )
     }
 
     /**
      * Events
      * */
-    logTransfer(address, isFrom, fromBlock, toBlock) {
+    async logTransfer(address, isFrom, fromBlock, toBlock) {
         if (fromBlock === undefined) {
             fromBlock = false
         }
@@ -66,11 +76,10 @@ export default class DecentBetTokenContract extends BaseContract {
         let options = {}
         options[isFrom ? 'from' : 'to'] = address
 
-        return this.instance.events.Transfer({
+        return await this.getPastEvents('Transfer', {
             filter: options,
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         })
-
     }
 }

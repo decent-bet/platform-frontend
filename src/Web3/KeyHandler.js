@@ -25,7 +25,6 @@ class KeyHandler {
         } catch (e) {}
         return privateKey
     }
-
     /**
      * Returns address of the logged in user
      */

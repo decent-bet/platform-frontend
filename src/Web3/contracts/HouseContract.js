@@ -4,8 +4,8 @@ export default class HouseContract extends BaseContract {
     /**
      * Getters
      */
-    getCurrentSession() {
-        return this.instance.methods.currentSession().call()
+    async getCurrentSession() {
+        return await this.instance.methods.currentSession().call()
     }
 
     /**
@@ -23,7 +23,7 @@ export default class HouseContract extends BaseContract {
     /**
      * Events
      */
-    logPurchasedCredits(sessionNumber, fromBlock, toBlock) {
+    async logPurchasedCredits(sessionNumber, fromBlock, toBlock) {
 
         let options = {
             filter: {
@@ -34,10 +34,10 @@ export default class HouseContract extends BaseContract {
             toBlock: toBlock ? toBlock : 'latest'
         }
 
-        return this.instance.events.LogPurchasedCredits(options)
+        return await this.getPastEvents('LogPurchasedCredits', options)
     }
 
-    logLiquidateCredits(sessionNumber, fromBlock, toBlock) {
+    async logLiquidateCredits(sessionNumber, fromBlock, toBlock) {
 
         let options = {
             filter: {
@@ -48,6 +48,6 @@ export default class HouseContract extends BaseContract {
             toBlock: toBlock ? toBlock : 'latest'
         }
 
-        return this.instance.events.LogLiquidateCredits(options)
+        return await this.getPastEvents('LogLiquidateCredits', options)
     }
 }

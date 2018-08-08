@@ -17,5 +17,4 @@ library.add(faSolid, faEthereum)
 // Inject tap event plugin
 injectTapEventPlugin()
 
-let landingApp = React.createElement(App)
-ReactDOM.render(landingApp, document.getElementById('root'))
+ReactDOM.render(<App/>, document.getElementById('root'))

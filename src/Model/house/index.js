@@ -1,8 +1,5 @@
 import actions, { fetchCurrentSessionId } from './actions'
 import reducer from './reducer'
-import Helper from '../../Components/Helper'
-
-const helper = new Helper()
 
 export const Actions = actions.house
 export const Reducer = reducer
@@ -10,41 +7,27 @@ export const Reducer = reducer
 /**
  * Watches for purchased credits and updates when called.
  */
-export async function initWatchers(dispatch) {
-    let contract = helper
-        .getContractHelper()
-        .getWrappers()
-        .house()
-
+export async function initWatchers(...args) {
     let sessionNumber = await fetchCurrentSessionId()
-    contract
-        .logPurchasedCredits(sessionNumber, 'latest')
-        .on('data', (err, event) => {
-            if (err) {
-                console.log('Purchased credits event error: ' + err)
-            } else {
-                let balance = event.returnValues.balance
-                dispatch(
-                    Actions.setHousePurchasedCredits(
-                        sessionNumber,
-                        balance.toFixed(0)
+    let { contractFactory } = args
+    let contract = await contractFactory.houseContract()
+    
+    return dispatch => {
+        contract
+            .logPurchasedCredits(sessionNumber, 'latest')
+            .on('data', (err, event) => {
+                if (err) {
+                    console.log('Purchased credits event error: ' + err)
+                } else {
+                    let balance = event.returnValues.balance
+                    dispatch(
+                        Actions.setHousePurchasedCredits(
+                            sessionNumber,
+                            balance.toFixed(0)
+                        )
                     )
-                )
-                dispatch(Actions.getHouseSessionData())
-            }
-        })
-}
-
-export function stopWatchers(dispatch) {
-    // TODO: As of Web3 1.0.0.beta33, this function is broken
-    try {
-        helper
-            .getContractHelper()
-            .getWrappers()
-            .house()
-            .logPurchasedCredits()
-            .unsubscribe()
-    } catch (error) {
-        console.warn('Web3 deregistration broken')
+                    dispatch(Actions.getHouseSessionData())
+                }
+            })
     }
 }

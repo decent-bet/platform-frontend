@@ -10,11 +10,10 @@ const helper = new Helper()
 export const Actions = { ...basicActions.oracle, ...gameActions.oracle }
 export const Reducer = reducer
 
-export function initWatchers(dispatch) {
-    let contract = helper
-        .getContractHelper()
-        .getWrappers()
-        .sportsOracle()
+export function initWatchers(...args) {
+    return dispatch => {
+        let { contractFactory } = args 
+    let contract = contractFactory.sportsOracleContract()
 
     // Game Added
     contract.logGameAdded().on('data', (event) => {
@@ -54,20 +53,5 @@ export function initWatchers(dispatch) {
     }).on('error', (error) => {
         console.error('Updated oracle time event error', error)
     })
-}
-
-export function stopWatchers(_dispatch) {
-    let contract = helper
-        .getContractHelper()
-        .getWrappers()
-        .sportsOracle()
-
-    // TODO: As of Web3 1.beta33 this is broken.
-    try {
-        contract.logGameAdded().unsubscribe()
-        contract.logUpdatedProviderOutcome().unsubscribe()
-        contract.logUpdatedTime().unsubscribe()
-    } catch (error) {
-        console.warn('Web 3 Event deregistration broken')
     }
 }

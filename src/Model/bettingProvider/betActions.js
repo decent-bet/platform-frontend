@@ -6,17 +6,18 @@ import ethUnits from 'ethereum-units'
 
 const helper = new Helper()
 
-async function fetchGameBettorBet(gameId, betId) {
+
+async function fetchGameBettorBet(gameId, betId, ...args) {
+    let { contractFactory, chanProvider } = args
+
     try {
-        let _bet = await helper
-            .getContractHelper()
-            .getWrappers()
-            .bettingProvider()
-            .getGameBettorBet(
-                gameId,
-                helper.getWeb3().eth.defaultAccount,
-                betId
-            )
+        
+        let contract = await contractFactory.bettingProviderContract()
+        let _bet = await contract.getGameBettorBet(
+            gameId,
+            chanProvider.web3.eth.defaultAccount,
+            betId
+        )
 
         return {
             id: betId,
@@ -34,26 +35,27 @@ async function fetchGameBettorBet(gameId, betId) {
     }
 }
 
-async function fetchBetReturns(gameId, betId) {
+async function fetchBetReturns(gameId, betId, ...args) {
+    let { contractFactory, chanProvider } = args
+
     try {
-        return helper
-            .getContractHelper()
-            .getWrappers()
-            .bettingProvider()
-            .getBetReturns(gameId, betId, helper.getWeb3().eth.defaultAccount)
+        let contract = await contractFactory.bettingProviderContract()
+        return contract.getBetReturns(
+            gameId,
+            betId,
+            chanProvider.web3.eth.defaultAccount
+        )
     } catch (err) {}
 }
 
-async function fetchGameBettorBetOdds(gameId, betId) {
-    let odds = await helper
-        .getContractHelper()
-        .getWrappers()
-        .bettingProvider()
-        .getGameBettorBetOdds(
-            gameId,
-            helper.getWeb3().eth.defaultAccount,
-            betId
-        )
+async function fetchGameBettorBetOdds(gameId, betId, ...args) {
+    let { contractFactory, chanProvider } = args
+    let contract = await contractFactory.bettingProviderContract()
+    let odds = await contract.getGameBettorBetOdds(
+        gameId,
+        chanProvider.web3.eth.defaultAccount,
+        betId
+    )
     odds = {
         betType: odds[0].toNumber(),
         period: odds[1].toNumber(),
@@ -69,17 +71,18 @@ async function fetchGameBettorBetOdds(gameId, betId) {
     return odds
 }
 
-async function fetchUserBets() {
+async function fetchUserBets(...args) {
     let iterator = 0
     let iterate = true
     let placedBets = {}
+    let { contractFactory, chanProvider } = args
     while (iterate) {
         try {
-            let bets = await helper
-                .getContractHelper()
-                .getWrappers()
-                .bettingProvider()
-                .getUserBets(helper.getWeb3().eth.defaultAccount, iterator)
+            let contract = await contractFactory.bettingProviderContract()
+            let bets = await contract.getUserBets(
+                chanProvider.web3.eth.defaultAccount,
+                iterator
+            )
 
             let gameId = bets[0].toNumber()
             let betId = bets[1].toNumber()
@@ -106,17 +109,21 @@ async function fetchUserBets() {
     return placedBets
 }
 
-async function putBet(gameId, oddsId, betType, betAmount, betChoice) {
+async function putBet(gameId, oddsId, betType, betAmount, betChoice, ...args) {
     const parsedAmount = new BigNumber(betAmount)
         .times(ethUnits.units.ether)
         .toFixed()
+        let { contractFactory } = args
 
     try {
-        let txHash = await helper
-            .getContractHelper()
-            .getWrappers()
-            .bettingProvider()
-            .placeBet(gameId, oddsId, betType, betChoice, parsedAmount)
+        let contract = await contractFactory.bettingProviderContract()
+        let txHash = await contract.placeBet(
+            gameId,
+            oddsId,
+            betType,
+            betChoice,
+            parsedAmount
+        )
         helper.toggleSnackbar(
             `Successfully sent place bet transaction: ${txHash}`
         )
@@ -127,13 +134,16 @@ async function putBet(gameId, oddsId, betType, betAmount, betChoice) {
     }
 }
 
-async function executeClaimBet(gameId, betId) {
+async function executeClaimBet(gameId, betId, ...args) {
+    let { factory, chanProvider } = args
+
     try {
-        let txHash = await helper
-            .getContractHelper()
-            .getWrappers()
-            .bettingProvider()
-            .claimBet(gameId, betId, helper.getWeb3().eth.defaultAccount)
+        let contract = await factory.bettingProviderContract()
+        let txHash = contract.claimBet(
+            gameId,
+            betId,
+            chanProvider.web3.eth.defaultAccount
+        )
 
         helper.toggleSnackbar('Successfully sent claim bet transaction')
         return txHash

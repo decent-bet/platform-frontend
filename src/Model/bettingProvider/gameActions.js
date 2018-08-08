@@ -12,13 +12,12 @@ import ethUnits from 'ethereum-units'
 
 const helper = new Helper()
 
-async function fetchGamePeriodOutcomes(gameId, period) {
+async function fetchGamePeriodOutcomes(gameId, period, ...args) {
+    let { contractFactory } = args
+
     try {
-        let outcome = await helper
-            .getContractHelper()
-            .getWrappers()
-            .bettingProvider()
-            .getGameOutcome(gameId, period)
+        let contract = await contractFactory.bettingProviderContract()
+        let outcome = await contract.getGameOutcome(gameId, period)
 
         return {
             result: outcome[0].toNumber(),
@@ -33,13 +32,11 @@ async function fetchGamePeriodOutcomes(gameId, period) {
     }
 }
 
-async function fetchBetLimits(gameId, period) {
+async function fetchBetLimits(gameId, period, ...args) {
+    let { contractFactory } = args
     try {
-        let limits = await helper
-            .getContractHelper()
-            .getWrappers()
-            .bettingProvider()
-            .getGamePeriodBetLimits(gameId, period)
+        let contract = await contractFactory.bettingProviderContract()
+        let limits = await contract.getGamePeriodBetLimits(gameId, period)
         let betLimits = limits[0]
         return {
             spread: betLimits[0].div(ethUnits.units.ether).toNumber(),
@@ -52,12 +49,10 @@ async function fetchBetLimits(gameId, period) {
     }
 }
 
-async function fetchGameOddsItem(gameId, iterator) {
-    let _odds = await helper
-        .getContractHelper()
-        .getWrappers()
-        .bettingProvider()
-        .getGameOdds(gameId, iterator)
+async function fetchGameOddsItem(gameId, iterator, ...args) {
+    let { contractFactory } = args
+    let contract = await contractFactory.bettingProviderContract()
+    let _odds = await contract.getGameOdds(gameId, iterator)
     let gameOdds = {
         id: iterator,
         betType: _odds[0].toNumber(),
@@ -103,38 +98,34 @@ async function fetchGameOdds(gameId) {
     }
 }
 
-async function fetchGameOddsCount(gameId) {
+async function fetchGameOddsCount(gameId, ...args) {
+    let { contractFactory } = args
+
     try {
-        let oddsCount = await helper
-            .getContractHelper()
-            .getWrappers()
-            .bettingProvider()
-            .getGameOddsCount(gameId)
+        let contract = await contractFactory.bettingProviderContract()
+        let oddsCount = await contract.getGameOddsCount(gameId)
         return oddsCount.toNumber()
     } catch (err) {
         console.log('Error retrieving game odds count ', gameId, err.message)
     }
 }
 
-async function fetchMaxBetLimit(gameId) {
+async function fetchMaxBetLimit(gameId, ...args) {
+    let { contractFactory } = args
+
     try {
-        let rawResult = await helper
-            .getContractHelper()
-            .getWrappers()
-            .bettingProvider()
-            .getGameMaxBetLimit(gameId)
+        let contract = await contractFactory.bettingProviderContract()
+        let rawResult = await contract.getGameMaxBetLimit(gameId)
         return helper.formatEther(rawResult.toString())
     } catch (err) {
         console.log('Error retrieving max bet limit', gameId)
     }
 }
 
-async function fetchGamesItem(gameId) {
-    let data = await helper
-        .getContractHelper()
-        .getWrappers()
-        .bettingProvider()
-        .getGame(gameId)
+async function fetchGamesItem(gameId, ...args) {
+    let { contractFactory } = args
+    let contract = await contractFactory.bettingProviderContract()
+    let data = await contract.getGame(gameId)
 
     let exists = data[8]
     let gameItem = null
@@ -172,7 +163,7 @@ async function fetchGamesItem(gameId) {
     return gameItem
 }
 
-async function fetchGames() {
+async function fetchGames(...args) {
     let currentId = 0
     let gameArray = []
     try {

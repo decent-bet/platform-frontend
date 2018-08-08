@@ -157,18 +157,16 @@ async function fetchLottery(session) {
 /**
  * Iterates over authorized addresses available in the house contract.
  */
-async function fetchAuthorizedAddresses() {
+async function fetchAuthorizedAddresses(...args) {
+    let { contractFactory } = args
     let iterate = true
     let index = 0
     let result = []
+    let contract = await contractFactory.houseAuthorizedContract()
     while (iterate) {
         try {
             console.log('fetchAuthorizedAddresses')
-            let address = await helper
-                .getContractHelper()
-                .getWrappers()
-                .house()
-                .getAuthorizedAddresses(index)
+            let address = await contract.getAuthorizedAddresses(index)
             result.push(address)
             index++
         } catch (error) {
@@ -183,16 +181,14 @@ async function fetchAuthorizedAddresses() {
 /**
  * Returns the allowance assigned to the house for DBETs assigned to the user's ETH address
  */
-async function fetchHouseAllowance() {
+async function fetchHouseAllowance(...args) {
     try {
-        return helper
-            .getContractHelper()
-            .getWrappers()
-            .token()
-            .allowance(
-                helper.getWeb3().eth.defaultAccount,
-                helper.getContractHelper().getHouseInstance().options.address
-            )
+        let { contractFactory, chainProvider } = args
+        let contract = await contractFactory.decentBetTokenContract()
+        let account = chainProvider.defaultAccount
+        let houseContract = await contractFactory.houseContract()
+        let houseAddress = houseContract.instance.options.address
+        return contract.allowance(account, houseAddress)
     } catch (err) {
         console.log('Error retrieving house allowance', err.message)
     }
@@ -202,13 +198,12 @@ async function fetchHouseAllowance() {
  * Purchase session credits. Amount must be converted to 18 decimal places before buying.
  * @param amount
  */
-async function executePurchaseCredits(amount) {
+async function executePurchaseCredits(amount, ...args) {
     try {
-        return helper
-            .getContractHelper()
-            .getWrappers()
-            .house()
-            .purchaseCredits(amount)
+        let { contractFactory } = args
+        let contract = await contractFactory.houseContract()
+
+        return contract.purchaseCredits(amount)
     } catch (err) {
         console.log('Error sending purchase credits tx', err.message)
     }
@@ -219,15 +214,15 @@ async function executePurchaseCredits(amount) {
  * purchases 'amount' credits
  * @param amount
  */
-async function executeApproveAndPurchaseCredits(amount) {
-    let house = helper.getContractHelper().getHouseInstance().options.address
+async function executeApproveAndPurchaseCredits(amount, ...args) {
+    let { contractFactory } = args
+    let houseContract = await contractFactory.houseContract()
+    let houseAddress = await houseContract.instance.options.address
 
     try {
-        let tx = await helper
-            .getContractHelper()
-            .getWrappers()
-            .token()
-            .approve(house, amount)
+        let tokenContract = await contractFactory.decentBetTokenContract()
+
+        let tx = await tokenContract.approve(houseAddress, amount)
         let tx2 = await executePurchaseCredits(amount)
         return { tx, tx2 }
     } catch (err) {

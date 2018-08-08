@@ -7,7 +7,7 @@ const keyHandler = new KeyHandler()
 
 export default class SlotsChannelFinalizerContract extends BaseContract {
 
-    finalize(id, userSpin, houseSpin) {
+    async finalize(id, userSpin, houseSpin) {
         userSpin = this.getSpinParts(userSpin)
         houseSpin = this.getSpinParts(houseSpin)
 
@@ -92,16 +92,16 @@ export default class SlotsChannelFinalizerContract extends BaseContract {
                 houseSpin.s
             ])
 
-        return this.signAndSendRawTransaction(
+        return await this.signAndSendRawTransaction(
             keyHandler.get(),
             this.instance.options.address,
             null,
-            5000000,
+            null,
             encodedFunctionCall
         )
     }
 
-    finalizeZeroNonce(id, userSpin) {
+    async finalizeZeroNonce(id, userSpin) {
         userSpin = this.getSpinParts(userSpin)
 
         console.log(
@@ -181,11 +181,11 @@ export default class SlotsChannelFinalizerContract extends BaseContract {
                 emptyBytes32
             ])
 
-        return this.signAndSendRawTransaction(
+        return await this.signAndSendRawTransaction(
             keyHandler.get(),
             this.instance.options.address,
             null,
-            5000000,
+            null,
             encodedFunctionCall
         )
     }

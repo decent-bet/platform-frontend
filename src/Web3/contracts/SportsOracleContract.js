@@ -5,71 +5,72 @@ export default class SportsOracleContract extends BaseContract {
     /**
      * Getters
      */
-    getOwner() {
-        return this.instance.methods.owner().call()
+    async getOwner() {
+        return await this.instance.methods.owner().call()
     }
 
-    getBalance() {
-        return this.getBalance(this.instance.options.address)
+    async getBalance() {
+        return await this.getBalance(this.instance.options.address)
     }
 
-    getGameUpdateCost() {
-        return this.instance.methods.gameUpdateCost().call()
+    async getGameUpdateCost() {
+        return await this.instance.methods.gameUpdateCost().call()
     }
 
-    getProviderAcceptanceCost() {
-        return this.instance.methods.providerAcceptanceCost().call()
+    async getProviderAcceptanceCost() {
+        return await this.instance.methods.providerAcceptanceCost().call()
     }
 
-    getPayForProviderAcceptance() {
-        return this.instance.methods.payForProviderAcceptance().call()
+    async getPayForProviderAcceptance() {
+        return await this.instance.methods.payForProviderAcceptance().call()
     }
 
-    getAuthorizedAddresses(index) {
-        return this.instance.methods.authorizedAddresses(index).call()
+    async getAuthorizedAddresses(index) {
+        return await this.instance.methods.authorizedAddresses(index).call()
     }
 
-    getRequestedProviderAddresses(index) {
+    async getRequestedProviderAddresses(index) {
         return this.instance.methods.requestedProviderAddresses(index).call()
     }
 
-    getAcceptedProviderAddresses(index) {
-        return this.instance.methods.acceptedProviderAddresses(index).call()
+    async getAcceptedProviderAddresses(index) {
+        return await this.instance.methods.acceptedProviderAddresses(index).call()
     }
 
-    getGamesCount() {
-        return this.instance.methods.gamesCount().call()
+    async getGamesCount() {
+        return await this.instance.methods.gamesCount().call()
     }
 
-    getGame(gameId) {
-        return this.instance.methods.games(gameId).call()
+    async getGame(gameId) {
+        return await this.instance.methods.games(gameId).call()
     }
 
-    getAvailableGamePeriods(gameId, index) {
-        return this.instance.availableGamePeriods(gameId, index).call()
+    async getAvailableGamePeriods(gameId, index) {
+        return await this.instance.availableGamePeriods(gameId, index).call()
     }
 
-    getGameProvidersUpdateList(gameId, index) {
-        return this.instance.methods.gameProvidersUpdateList(gameId, index).call()
+    async  getGameProvidersUpdateList(gameId, index) {
+        return await this.instance.methods.gameProvidersUpdateList(gameId, index).call()
     }
 
-    getProviderGameToUpdate(gameId, providerAddress) {
-        return this.instance.methods.providerGamesToUpdate(gameId, providerAddress).call()
+    async getProviderGameToUpdate(gameId, providerAddress) {
+        return await this.instance.methods.providerGamesToUpdate(gameId, providerAddress).call()
     }
 
-    getGamePeriods(gameId, periodNumber) {
-        return this.instance.methods.gamePeriods(gameId, periodNumber).call()
+    async getGamePeriods(gameId, periodNumber) {
+        return await this.instance.methods.gamePeriods(gameId, periodNumber).call()
     }
 
-    getTime() {
-        return this.instance.methods.getTime().call()
+    async getTime() {
+        return await this.instance.methods.getTime().call()
     }
 
     /**
      * Events
      */
-    logNewAuthorizedAddress(fromBlock, toBlock) {
-        return this.instance.events.LogNewAuthorizedAddress({}, {
+    async logNewAuthorizedAddress(fromBlock, toBlock) {
+        return await this.getPastEvents('LogNewAuthorizedAddress', {
+            filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }, (error, event) => {
@@ -77,8 +78,9 @@ export default class SportsOracleContract extends BaseContract {
         })
     }
 
-    logNewAcceptedProvider(fromBlock, toBlock) {
-        return this.instance.events.LogNewAcceptedProvider({}, {
+    async logNewAcceptedProvider(fromBlock, toBlock) {
+        return await this.getPastEvents('LogNewAcceptedProvider', {
+            filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }, (error, event) => {
@@ -86,7 +88,7 @@ export default class SportsOracleContract extends BaseContract {
         })
     }
 
-    logGameAdded(fromBlock, toBlock) {
+    async logGameAdded(fromBlock, toBlock) {
 
         let options = {
             filter: {
@@ -95,25 +97,25 @@ export default class SportsOracleContract extends BaseContract {
             toBlock: toBlock ? toBlock : 'latest'
         }
 
-        return this.instance.events.LogGameAdded(options,
+        return await this.getPastEvents('LogGameAdded', options,
             (error, event) => {
                 console.warn('logGameAdded', error, event)
             })
     }
 
-    logGameDetailsUpdate(fromBlock, toBlock) {
+    async logGameDetailsUpdate(fromBlock, toBlock) {
         let options = {
             filter: {
             },
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }
-        return this.instance.events.LogGameDetailsUpdate(options, (error, event) => {
+        return await this.getPastEvents('LogGameDetailsUpdate', options, (error, event) => {
             console.warn('logGameDetailsUpdate', error, event)
         })
     }
 
-    logGameResult(fromBlock, toBlock) {
+    async logGameResult(fromBlock, toBlock) {
         let options = {
             filter: {
             },
@@ -121,67 +123,77 @@ export default class SportsOracleContract extends BaseContract {
             toBlock: toBlock ? toBlock : 'latest'
         }
 
-        return this.instance.events.LogGameResult(options, (error, event) => {
+        return await this.getPastEvents('LogGameResult', options, (error, event) => {
             console.warn('logGameResult', error, event)
         })
     }
 
-    logUpdatedProviderOutcome(fromBlock, toBlock) {
+    async logUpdatedProviderOutcome(fromBlock, toBlock) {
         let options = {
             filter: {
             },
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }
-        return this.instance.events.LogUpdatedProviderOutcome(options, (error, event) => {
+        return await this.getPastEvents('LogUpdatedProviderOutcome', options, (error, event) => {
             console.warn('logUpdatedProviderOutcome', error, event)
         })
     }
 
-    logWithdrawal(fromBlock, toBlock) {
+    async logWithdrawal(fromBlock, toBlock) {
         let options = {
             filter: {
             },
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }
-        return this.instance.events.LogWithdrawal(options, (error, event) => {
+        return await this.getPastEvents('LogWithdrawal',options, (error, event) => {
             console.warn('logWithdrawal', error, event)
         })
     }
 
-    logNewGameUpdateCost(fromBlock, toBlock) {
+    async logNewGameUpdateCost(fromBlock, toBlock) {
         let options = {
             filter: {
             },
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }
-        return this.instance.events.LogNewGameUpdateCost(options, (error, event) => {
+        return await this.getPastEvents('LogNewGameUpdateCost',options, (error, event) => {
             console.warn('logWithdrawal', error, event)
         })
     }
 
-    logNewProviderAcceptanceCost(fromBlock, toBlock) {
+    /** PROPOSAL for events
+     * subscribeAll(evt, A, B) {
+        const scheduler$ = Observable.interval(11)
+
+        const fn$ = Observable.from(this.getPastEvents(evt, {}))
+
+        return scheduler$.switchMap(fn$)
+    }
+    */
+
+    async logNewProviderAcceptanceCost(fromBlock, toBlock) {
         let options = {
             filter: {
             },
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }
-        return this.instance.events.LogNewProviderAcceptanceCost(options, (error, event) => {
+        return await this.getPastEvents('LogNewProviderAcceptanceCost',options, (error, event) => {
             console.warn('logNewProviderAcceptanceCost', error, event)
         })
     }
 
-    logUpdatedTime(fromBlock, toBlock) {
+    async logUpdatedTime(fromBlock, toBlock) {
         let options = {
             filter: {
             },
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }
-        return this.instance.events.LogUpdatedTime(options, (error, event) => {
+        return await this.getPastEvents('LogUpdatedTime', options, (error, event) => {
             console.warn('logUpdatedTime', error, event)
         })
     }

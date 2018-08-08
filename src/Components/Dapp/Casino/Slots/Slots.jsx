@@ -1,7 +1,7 @@
 import { BigNumber } from 'bignumber.js'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
-import { Actions, Thunks } from '../../../../Model/slotsManager'
+import { Thunks } from '../../../../Model/slotsManager'
 import { isChannelClaimed } from '../functions'
 import SlotsList from './SlotsList'
 import StateChannelBuilder from './StateChannelBuilder'
@@ -20,10 +20,7 @@ class Slots extends Component {
     }
 
     componentDidMount = () => {
-        this.props.dispatch(Actions.getSessionId())
-        this.props.dispatch(Actions.getBalance())
-        this.props.dispatch(Actions.getAllowance())
-
+       this.props.dispatch(Thunks.initializeSlots())
         this.refreshChannels()
     }
 
@@ -32,7 +29,7 @@ class Slots extends Component {
         this.setState({ stateMachine: 'loading' })
 
         // Get channels and wait
-        const result = await this.props.dispatch(Actions.getChannels())
+        const result = await this.props.dispatch(Thunks.fetchChannels())
         const channels = result.value
 
         // Make a list of all usable channels for the user and publish it

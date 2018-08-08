@@ -98,6 +98,7 @@
     "redux-logger": "^3.0.6",
     "redux-promise-middleware": "^5.1.0",
     "redux-thunk": "^2.2.0",
+    "redux-thunk-actions": "^1.2.1",
     "request": "^2.86.0",
     "rxjs": "5.5.0",
     "scroll-to-element": "^2 .0.0",

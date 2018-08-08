@@ -8291,6 +8291,12 @@ reduce-reducers@^0.1.0:
   version "0.1.5"
   resolved "https://registry.yarnpkg.com/reduce-reducers/-/reduce-reducers-0.1.5.tgz#ff77ca8068ff41007319b8b4b91533c7e0e54576"
 
+redux-actions@^0.10.1:
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/redux-actions/-/redux-actions-0.10.1.tgz#bb442ee37dd9643a94933e4071e089f435587135"
+  dependencies:
+    reduce-reducers "^0.1.0"
+
 redux-actions@^2.3.0:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/redux-actions/-/redux-actions-2.4.0.tgz#620df42d264af88366b4e919c46ae68da7c9ce7c"
@@ -8309,6 +8315,12 @@ redux-logger@^3.0.6:
 redux-promise-middleware@^5.1.0:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/redux-promise-middleware/-/redux-promise-middleware-5.1.1.tgz#37689339a58a33d1fda675ed1ba2053a2d196b8d"
+
+redux-thunk-actions@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/redux-thunk-actions/-/redux-thunk-actions-1.2.1.tgz#814809c353ad50b095da14bc9d9f4c7a401ee626"
+  dependencies:
+    redux-actions "^0.10.1"
 
 redux-thunk@^2.2.0:
   version "2.3.0"

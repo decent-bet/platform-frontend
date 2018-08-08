@@ -1,8 +1,5 @@
-import NonceHandler from '../NonceHandler'
 
-const nonceHandler = new NonceHandler()
-
-export default class ThorifyContract {
+export default class BaseContract {
     
     /**
      * @param {Web3} web3
@@ -13,19 +10,15 @@ export default class ThorifyContract {
         this.instance = instance
     }
 
-    // async getEvents(eventName, options) {
-    //     return await this.contract.getPastEvents(eventName, options)
-    // }
-    getBalance(address) {
-        if (typeof this.web3.eth.getBalance === 'function') {
-            // thorify
-            return this.web3.eth.getBalance(address)
-        }
-        
-        return this.contract.methods
-            .balanceOf(address)
-            .call({ from: this.web3.eth.defaultAccount })
+    async getPastEvents(eventName, options) {
+         return await this.instance.getPastEvents(eventName, options)
     }
+
+
+    async getBalance(address) {
+        return await this.web3.eth.getBalance(address)
+    }
+    
     /**
      * Takes the enconded function, signs it and sends it to
      * the ethereum network
@@ -35,38 +28,34 @@ export default class ThorifyContract {
      * @param {Number} gas
      * @param {String} data
      */
-    signAndSendRawTransaction = async (
+    async signAndSendRawTransaction (
         privateKey,
         to,
-        gasPrice = 10000000000,
         gas,
+        gasPriceCoef = 128,
         data
-    ) => {
-        // Get the nonce
-        const count = await this.web3.eth.getTransactionCount(
-            this.web3.eth.defaultAccount,
-            'latest'
-        )
-        const nonce = nonceHandler.get(count)
-        const chainId = await this.web3.eth.net.getId()
+    ) {
+        const chainTag = await this.web3.eth.getChainTag()
 
-        if (!gasPrice) gasPrice = 10000000
-       
-        this.web3.eth.accounts.wallet.add(privateKey)
-        const promiEvent = this.web3.eth.sendTransaction({
-            chainId,
-            nonce,
+        if(!gasPriceCoef) {
+            gasPriceCoef = 128
+        }
+
+        if(!gas || gas < 0) {
+            gas = 50000
+        }
+
+        let txBody = {
+            from: this.web3.eth.defaultAccount,
             to,
-            data,
             gas,
-            gasPrice
-        })
-
-        // Increase nonce once transaction has been completed
-        promiEvent.once('receipt', () => nonceHandler.set(nonce))
-
-        // Return the "PromiEvent"
-        // (https://web3js.readthedocs.io/en/1.0/callbacks-promises-events.html)
-        return promiEvent
+            data,
+            chainTag,
+            expiration: 32,
+            gasPriceCoef
+        }
+        
+        return this.web3.eth.sendTransaction(txBody)
     }
+
 }

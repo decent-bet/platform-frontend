@@ -4,13 +4,10 @@ import Actions, { Prefix } from './actionTypes'
 
 const helper = new Helper()
 
-async function fetchGamesCount() {
+async function fetchGamesCount({ contractFactory }) {
     try {
-        let result = await helper
-            .getContractHelper()
-            .getWrappers()
-            .bettingProvider()
-            .getGamesCount()
+        let contract = await contractFactory.bettingProviderContract()
+        let result = await contract.getGamesCount()
         return result.toNumber()
     } catch (err) {
         console.log(
@@ -20,112 +17,92 @@ async function fetchGamesCount() {
     }
 }
 
-async function fetchCurrentSession() {
+async function fetchCurrentSession({ contractFactory }) {
     try {
-        return helper
-            .getContractHelper()
-            .getWrappers()
-            .bettingProvider()
-            .getCurrentSession()
+        let contract = await contractFactory.bettingProviderContract()
+        return await contract.getCurrentSession()
     } catch (err) {
         console.log('Error retrieving current session', err.message)
     }
 }
 
-async function fetchDepositedTokens() {
+async function fetchDepositedTokens(chainProvider) {
+    let { contractFactory } = chainProvider
+
     try {
         let session = await fetchCurrentSession()
-        let result = await helper
-            .getContractHelper()
-            .getWrappers()
-            .bettingProvider()
-            .balanceOf(helper.getWeb3().eth.defaultAccount, session)
+        let contract = await contractFactory.bettingProviderContract()
+        let result = await contract.balanceOf(
+            chainProvider.web3.eth.defaultAccount,
+            session
+        )
         return result
     } catch (err) {
         console.log('Error retrieving balance', err.message)
     }
 }
 
-async function fetchTokenBalance() {
+async function fetchTokenBalance({ contractFactory }) {
     try {
-        let address = helper.getContractHelper().getBettingProviderInstance().options.address
-        let result = await helper
-            .getContractHelper()
-            .getWrappers()
-            .token()
-            .balanceOf(address)
+        let tokenContract = await contractFactory.decentBetTokenContract()
+        let bettingContract = await contractFactory.bettingProviderContract()
+        let result = await tokenContract.balanceOf(bettingContract.instance.options.address)
         return helper.formatEther(result)
     } catch (err) {
         console.log('Error retrieving token balance', err.message)
     }
 }
 
-async function fetchAllowance() {
+async function fetchAllowance(chainProvider) {
+    let { contractFactory } = chainProvider
     try {
-        const address = helper.getWeb3().eth.defaultAccount
-        const bettingProvider = helper
-            .getContractHelper()
-            .getBettingProviderInstance().options.address
-        let result = await helper
-            .getContractHelper()
-            .getWrappers()
-            .token()
-            .allowance(address, bettingProvider)
+        let tokenContract = await contractFactory.decentBetTokenContract
+        const address = chainProvider.web3.eth.defaultAccount
+        let bettingContract = await contractFactory.bettingProviderContract()
+
+        let result = await tokenContract.allowance(address, bettingContract.instance.options.address)
         return result.toNumber()
     } catch (err) {
         console.log('Error retrieving allowance', err.message)
     }
 }
 
-async function fetchHouseAddress() {
+async function fetchHouseAddress({ contractFactory }) {
     try {
-        return helper
-            .getContractHelper()
-            .getWrappers()
-            .bettingProvider()
-            .getHouseAddress()
+        let contract = await contractFactory.bettingProviderContract()
+        return await contract.getHouseAddress()
     } catch (err) {
         console.log('Error retrieving house address', err.message)
     }
 }
 
-async function fetchSportsOracleAddress() {
+async function fetchSportsOracleAddress({ contractFactory }) {
     try {
-        return helper
-            .getContractHelper()
-            .getWrappers()
-            .bettingProvider()
-            .getSportsOracleAddress()
+        let contract = await contractFactory.getBettingProviderContract()
+        return await contract.getSportsOracleAddress()
     } catch (err) {
         console.log('Error retrieving sports oracle address', err.message)
     }
 }
 
-async function fetchSessionStats(session) {
+async function fetchSessionStats(session, { contractFactory }) {
     try {
-        return helper
-            .getContractHelper()
-            .getWrappers()
-            .bettingProvider()
-            .getSessionStats(session)
+        let contract = await contractFactory.bettingProviderContract()
+        return await contract.getSessionStats(session)
     } catch (err) {
         console.log('Error retrieving session stats', err.message)
     }
 }
 
-async function fetchTime() {
-    let time = await helper
-        .getContractHelper()
-        .getWrappers()
-        .bettingProvider()
-        .getTime()
+async function fetchTime({ contractFactory }) {
+    let contract = await contractFactory.bettingProviderContract()
+    let time = await contract.getTime()
     return time.toNumber()
 }
 
-async function fetchAddress() {
-    return Promise.resolve(
-        helper.getContractHelper().getBettingProviderInstance().options.address
-    )
+async function fetchAddress({ contractFactory }) {
+    let contract = contractFactory.bettingProviderContract()
+    return await contract.instance.options.address
 }
 
 // Functions of this object are the "ACTION_KEYS" "inCamelCase"
@@ -143,7 +120,6 @@ export default createActions({
         [Actions.GET_STATS]: fetchSessionStats,
         [Actions.GET_TIME]: fetchTime,
         [Actions.GET_ADDRESS]: fetchAddress,
-
         [Actions.SET_TIME]: time => time
     }
 })

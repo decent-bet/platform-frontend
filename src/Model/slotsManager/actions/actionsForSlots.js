@@ -6,12 +6,11 @@ import Actions, { PREFIX } from './actionTypes'
 import { getAesKey, getUserHashes } from '../functions'
 import BigNumber from 'bignumber.js'
 import moment from 'moment'
-import { ThorConnection } from '../../../Web3/ThorConnection'
 
 const decentApi = new DecentAPI()
 
-async function fetchAesKey(channelId) {
-    let key = getAesKey(channelId)
+async function fetchAesKey(channelId, chainProvider) {
+    let key = getAesKey(channelId, chainProvider)
     return Promise.resolve({ channelId, key })
 }
 
@@ -19,9 +18,9 @@ async function fetchAesKey(channelId) {
  * The Basic information of a State Channel
  * @param channelId
  */
-async function getChannelInfo(channelId) {
+async function getChannelInfo(channelId, { contractFactory }) {
     try {
-        const contract = ThorConnection.contractFactory().slotsChannelManagerContract()
+        const contract = await contractFactory.slotsChannelManagerContract()
         const info = await contract.getChannelInfo(channelId)
         const playerAddress = info[0]
         return {
@@ -43,10 +42,10 @@ async function getChannelInfo(channelId) {
  * Get the player's house address
  * @param id
  */
-async function getAuthorizedAddress(channelId) {
+async function getAuthorizedAddress(channelId, { contractFactory }) {
     try {
-        const contract = ThorConnection.contractFactory().slotsChannelManagerContract()
-        return contract.getPlayer(channelId, true)
+        const contract = await contractFactory.slotsChannelManagerContract()
+        return await contract.getPlayer(channelId, true)
     } catch (error) {
         console.log('Error retrieving house authorized address', error.message)
     }
@@ -56,10 +55,10 @@ async function getAuthorizedAddress(channelId) {
  * Is the channel closed?
  * @param {number} id
  */
-async function isChannelClosed(channelId) {
+async function isChannelClosed(channelId, { contractFactory }) {
     try {
-        const contract = ThorConnection.contractFactory().slotsChannelManagerContract
-        return contract.isChannelClosed(channelId)
+        const contract = await contractFactory.slotsChannelManagerContract()
+        return await contract.isChannelClosed(channelId)
     } catch (err) {
         console.log('Error retrieving is channel closed', err.message)
     }
@@ -69,9 +68,9 @@ async function isChannelClosed(channelId) {
  * Get the other channel hashes
  * @param {number} id
  */
-async function getChannelHashes(id) {
+async function getChannelHashes(id, { contractFactory }) {
     try {
-        const contract = ThorConnection.contractFactory().slotsChannelManagerContract()
+        const contract = contractFactory.slotsChannelManagerContract()
         const hashes = await contract.getChannelHashes(id)
         return {
             finalUserHash: hashes[0],
@@ -84,8 +83,8 @@ async function getChannelHashes(id) {
     }
 }
 
-async function getDeposited(channelId, isHouse = false) {
-    const contract = ThorConnection.contractFactory().slotsChannelManagerContract()
+async function getDeposited(channelId, isHouse = false, { contractFactory }) {
+    const contract = contractFactory.slotsChannelManagerContract()
     const rawBalance = await contract.channelDeposits(channelId, isHouse)
     return new BigNumber(rawBalance)
 }
@@ -94,14 +93,14 @@ async function getDeposited(channelId, isHouse = false) {
  * Get info and hashes required to interact with an active channel
  * @param id
  */
-async function getChannelDetails(id) {
+async function getChannelDetails(id, chainProvider) {
     return Bluebird.props({
-        deposited: getDeposited(id),
+        deposited: getDeposited(id, false, chainProvider),
         channelId: id,
-        info: getChannelInfo(id),
-        houseAuthorizedAddress: getAuthorizedAddress(id),
-        closed: isChannelClosed(id),
-        hashes: getChannelHashes(id)
+        info: getChannelInfo(id, chainProvider),
+        houseAuthorizedAddress: getAuthorizedAddress(id, chainProvider),
+        closed: isChannelClosed(id, chainProvider),
+        hashes: getChannelHashes(id, chainProvider)
     })
 }
 
@@ -147,9 +146,9 @@ async function loadLastSpin(id, hashes, aesKey) {
     }
 }
 
-async function getLastSpin(channelId) {
-    let aesKey = await getAesKey(channelId)
-    let { hashes } = await getChannelDetails(channelId)
+async function getLastSpin(channelId, chainProvider) {
+    let aesKey = await getAesKey(channelId, chainProvider)
+    let { hashes } = await getChannelDetails(channelId, chainProvider)
     let data = await loadLastSpin(channelId, hashes, aesKey)
 
     return {
@@ -165,11 +164,11 @@ async function getLastSpin(channelId) {
  * Gets a single channel's data
  * @param {string} channelId
  */
-async function getChannel(channelId) {
+async function getChannel(channelId, chainProvider) {
     // Execute both actions in parallel
     const data = await Bluebird.props({
-        channelDetails: getChannelDetails(channelId),
-        lastSpin: getLastSpin(channelId)
+        channelDetails: getChannelDetails(channelId, chainProvider),
+        lastSpin: getLastSpin(channelId, chainProvider)
     })
     return {
         ...data.channelDetails,
@@ -180,8 +179,9 @@ async function getChannel(channelId) {
 /**
  * Get all channels for a user
  */
-async function getChannels() {
-    const contract = await ThorConnection.contractFactory().slotsChannelManagerContract()
+async function getChannels(chainProvider) {
+    const { contractFactory } = chainProvider
+    const contract = await contractFactory.slotsChannelManagerContract()
     let channelCount = await contract.getChannelCount()
     const accumulator = {}
 
@@ -191,7 +191,7 @@ async function getChannels() {
             // Query every channel and accumulate it
             const id = iterator.returnValues.id
             // Add promise itself into the array.
-            const resultPromise = getChannel(id)
+            const resultPromise = getChannel(id, chainProvider)
             accumulator[id] = resultPromise
         }
     } 

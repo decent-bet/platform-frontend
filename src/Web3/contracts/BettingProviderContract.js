@@ -8,107 +8,103 @@ export default class BettingProviderContract extends BaseContract {
     /**
      * Getters
      */
-
-    /**
-     * 
-     */
-    getGamesCount() {
-        return this.instance.methods.gamesCount().call()
+    async getGamesCount() {
+        return await this.instance.methods.gamesCount().call()
     }
 
     /**
      * 
      * @param {string} id 
      */
-    getGame(id) {
-        return this.instance.methods.getGame(id).call()
+    async getGame(id) {
+        return await this.instance.methods.getGame(id).call()
     }
 
-    getGamePeriodBetLimits(id, period) {
-        return this.instance.methods.getGamePeriodBetLimits(id, period).call()
+    async getGamePeriodBetLimits(id, period) {
+        return await this.instance.methods.getGamePeriodBetLimits(id, period).call()
     }
 
-    getGameMaxBetLimit(id) {
-        return this.instance.methods.getGameMaxBetLimit(id).call()
+    async getGameMaxBetLimit(id) {
+        return await this.instance.methods.getGameMaxBetLimit(id).call()
     }
 
-    getGameBettor(id, index) {
-        return this.instance.methods.getGameBettor(id, index).call()
+    async getGameBettor(id, index) {
+        return await this.instance.methods.getGameBettor(id, index).call()
     }
 
-    getGameBettorBet(id, address, betId) {
-        return this.instance.methods.getGameBettorBet(id, address, betId).call()
+    async getGameBettorBet(id, address, betId) {
+        return await this.instance.methods.getGameBettorBet(id, address, betId).call()
     }
 
-    getGameBettorBetOdds(id, address, betId) {
-        return this.instance.methods.getGameBettorBetOdds(id, address, betId).call()
+    async getGameBettorBetOdds(id, address, betId) {
+        return await this.instance.methods.getGameBettorBetOdds(id, address, betId).call()
     }
 
-    getGameBettorBetOddsDetails(id, address, betId) {
-        return this.instance.methods.getGameBettorBetOddsDetails(id, address, betId).call()
+    async getGameBettorBetOddsDetails(id, address, betId) {
+        return await this.instance.methods.getGameBettorBetOddsDetails(id, address, betId).call()
     }
 
-    getGameOddsCount(id) {
-        return this.instance.methods.getGameOddsCount(id).call()
+    async getGameOddsCount(id) {
+        return await this.instance.methods.getGameOddsCount(id).call()
     }
 
-    getGameOdds(id, oddsId) {
-        return this.instance.methods.getGameOdds(id, oddsId).call()
+    async getGameOdds(id, oddsId) {
+        return await this.instance.methods.getGameOdds(id, oddsId).call()
     }
 
-    getGameOddsDetails(id, oddsId) {
-        return this.instance.methods.getGameOddsDetails(id, oddsId).call()
+    async getGameOddsDetails(id, oddsId) {
+        return await this.instance.methods.getGameOddsDetails(id, oddsId).call()
     }
 
-    getGameOutcome(id, period) {
-        return this.instance.methods.getGameOutcome(id, period).call()
+    async getGameOutcome(id, period) {
+        return await this.instance.methods.getGameOutcome(id, period).call()
     }
 
-    getDepositedTokens(address, sessionNumber) {
-        return this.instance.methods.depositedTokens(address, sessionNumber).call()
+    async getDepositedTokens(address, sessionNumber) {
+        return await this.instance.methods.depositedTokens(address, sessionNumber).call()
     }
 
-    getSessionStats(sessionNumber) {
-        return this.instance.methods.sessionStats(sessionNumber).call()
+    async getSessionStats(sessionNumber) {
+        return await this.instance.methods.sessionStats(sessionNumber).call()
     }
 
-    getSportsOracleAddress() {
-        return this.instance.methods.sportsOracleAddress().call()
+    async getSportsOracleAddress() {
+        return await this.instance.methods.sportsOracleAddress().call()
     }
 
-    getHouseAddress() {
-        return this.instance.methods.houseAddress().call()
+    async getHouseAddress() {
+        return await this.instance.methods.houseAddress().call()
     }
 
-    getCurrentSession() {
-        return this.instance.methods.currentSession().call()
+    async getCurrentSession() {
+        return await this.instance.methods.currentSession().call()
     }
 
-    getTime() {
-        return this.instance.methods.getTime().call()
+    async getTime() {
+        return await this.instance.methods.getTime().call()
     }
 
-    getUserBets(address, index) {
-        return this.instance.methods.getUserBets(address, index).call()
+    async getUserBets(address, index) {
+        return await this.instance.methods.getUserBets(address, index).call()
     }
 
-    getBetReturns(gameId, betId, bettor) {
-        return this.instance.methods.getBetReturns(gameId, betId, bettor).call()
+    async getBetReturns(gameId, betId, bettor) {
+        return await this.instance.methods.getBetReturns(gameId, betId, bettor).call()
     }
 
-    balanceOf(address, session) {
+    async balanceOf(address, session) {
         console.log(
             'Retrieving sportsbook balance for',
             address,
             session
         )
-        return this.instance.methods.balanceOf(address, session).call()
+        return await this.instance.methods.balanceOf(address, session).call()
     }
 
     /**
      * Setters
      */
-    deposit(amount) {
+    async deposit(amount) {
         console.log(
             'Depositing',
             amount,
@@ -125,16 +121,16 @@ export default class BettingProviderContract extends BaseContract {
             }]
         }, [amount])
 
-        return this.signAndSendRawTransaction(
+        return await this.signAndSendRawTransaction(
             keyHandler.get(),
             this.instance.options.address,
             null,
-            5000000,
+            null,
             encodedFunctionCall
         )
     }
 
-    withdraw(amount, session) {
+    async withdraw(amount, session) {
         console.log(
             'Withdraw',
             amount,
@@ -156,16 +152,16 @@ export default class BettingProviderContract extends BaseContract {
             ]
         }, [amount, session])
 
-        return this.signAndSendRawTransaction(
+        return await this.signAndSendRawTransaction(
             keyHandler.get(),
             this.instance.options.address,
             null,
-            5000000,
+            null,
             encodedFunctionCall
         )
     }
 
-    setSportsOracle(address) {
+    async setSportsOracle(address) {
         let encodedFunctionCall = ethAbi.encodeFunctionCall({
             name: 'setSportsOracle',
             type: 'function',
@@ -175,16 +171,16 @@ export default class BettingProviderContract extends BaseContract {
             }]
         }, [address])
 
-        return this.signAndSendRawTransaction(
+        return await this.signAndSendRawTransaction(
             keyHandler.get(),
             this.instance.options.address,
             null,
-            5000000,
+            null,
             encodedFunctionCall
         )
     }
 
-    changeAssistedClaimTimeOffset(offset) {
+    async changeAssistedClaimTimeOffset(offset) {
         let encodedFunctionCall = ethAbi.encodeFunctionCall({
             name: 'changeAssistedClaimTimeOffset',
             type: 'function',
@@ -194,7 +190,7 @@ export default class BettingProviderContract extends BaseContract {
             }]
         }, [offset])
 
-        return this.signAndSendRawTransaction(
+        return await this.signAndSendRawTransaction(
             keyHandler.get(),
             this.instance.options.address,
             null,
@@ -203,7 +199,7 @@ export default class BettingProviderContract extends BaseContract {
         )
     }
 
-    addGame(oracleGameId, cutOffTime, endTime) {
+    async addGame(oracleGameId, cutOffTime, endTime) {
         let encodedFunctionCall = ethAbi.encodeFunctionCall({
             name: 'addGame',
             type: 'function',
@@ -222,16 +218,16 @@ export default class BettingProviderContract extends BaseContract {
             ]
         }, [oracleGameId, cutOffTime, endTime])
 
-        return this.signAndSendRawTransaction(
+        return await this.signAndSendRawTransaction(
             keyHandler.get(),
             this.instance.options.address,
             null,
-            5000000,
+            null,
             encodedFunctionCall
         )
     }
 
-    updateGamePeriodBetLimits(id, period, limits) {
+    async updateGamePeriodBetLimits(id, period, limits) {
         console.log(
             'updateGamePeriodBetLimits',
             id,
@@ -257,16 +253,16 @@ export default class BettingProviderContract extends BaseContract {
             ]
         }, [id, period, limits])
 
-        return this.signAndSendRawTransaction(
+        return await this.signAndSendRawTransaction(
             keyHandler.get(),
             this.instance.options.address,
             null,
-            5000000,
+            null,
             encodedFunctionCall
         )
     }
 
-    pushGameOdds(
+    async pushGameOdds(
         id,
         refId,
         period,
@@ -363,16 +359,16 @@ export default class BettingProviderContract extends BaseContract {
                 isTeam1
             ])
 
-        return this.signAndSendRawTransaction(
+        return await this.signAndSendRawTransaction(
             keyHandler.get(),
             this.instance.options.address,
             null,
-            5000000,
+            null,
             encodedFunctionCall
         )
     }
 
-    updateGameOdds(
+    async updateGameOdds(
         id,
         oddsId,
         betType,
@@ -441,16 +437,16 @@ export default class BettingProviderContract extends BaseContract {
                 under
             ])
 
-        return this.signAndSendRawTransaction(
+        return await this.signAndSendRawTransaction(
             keyHandler.get(),
             this.instance.options.address,
             null,
-            5000000,
+            null,
             encodedFunctionCall
         )
     }
 
-    updateGameOutcome(
+    async updateGameOutcome(
         id,
         period,
         result,
@@ -483,16 +479,16 @@ export default class BettingProviderContract extends BaseContract {
             ]
         }, [id, period, result, team1Points, team2Points])
 
-        return this.signAndSendRawTransaction(
+        return await this.signAndSendRawTransaction(
             keyHandler.get(),
             this.instance.options.address,
             null,
-            5000000,
+            null,
             encodedFunctionCall
         )
     }
 
-    placeBet(gameId, oddsId, betType, choice, amount) {
+    async placeBet(gameId, oddsId, betType, choice, amount) {
         console.log(
             'Placing bet',
             gameId,
@@ -528,16 +524,16 @@ export default class BettingProviderContract extends BaseContract {
             ]
         }, [gameId, oddsId, betType, choice, amount])
 
-        return this.signAndSendRawTransaction(
+        return await this.signAndSendRawTransaction(
             keyHandler.get(),
             this.instance.options.address,
             null,
-            5000000,
+            null,
             encodedFunctionCall
         )
     }
 
-    claimBet(gameId, betId, bettor) {
+    async claimBet(gameId, betId, bettor) {
         let encodedFunctionCall = ethAbi.encodeFunctionCall({
             name: 'claimBet',
             type: 'function',
@@ -556,11 +552,11 @@ export default class BettingProviderContract extends BaseContract {
             ]
         }, [gameId, betId, bettor])
 
-        return this.signAndSendRawTransaction(
+        return await this.signAndSendRawTransaction(
             keyHandler.get(),
             this.instance.options.address,
             null,
-            5000000,
+            null,
             encodedFunctionCall
         )
     }
@@ -568,57 +564,48 @@ export default class BettingProviderContract extends BaseContract {
     /**
      * Events
      */
-    logNewGame(fromBlock, toBlock) {
-        return this.instance.events.LogNewGame({
+    async logNewGame(fromBlock, toBlock) {
+        return await this.getPastEvents('LogNewGame', {
             filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
-    logNewGameOdds(fromBlock, toBlock) {
-        return this.instance.events.LogNewGameOdds({
+    async logNewGameOdds(fromBlock, toBlock) {
+        return await this.getPastEvents('LogNewGameOdds', {
             filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
-    logUpdatedGameOdds(fromBlock, toBlock) {
-        return this.instance.events.LogUpdatedGameOdds({
+    async logUpdatedGameOdds(fromBlock, toBlock) {
+        return await this.getPastEvents('LogUpdatedGameOdds', {
             filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
-    logUpdatedMaxBet(fromBlock, toBlock) {
-        return this.instance.events.LogUpdatedMaxBet({
+    async logUpdatedMaxBet(fromBlock, toBlock) {
+        return await this.getPastEvents('LogUpdatedMaxBet', {
             filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
-    logUpdatedBetLimits(fromBlock, toBlock) {
-        return this.instance.events.LogUpdatedBetLimits({
+    async logUpdatedBetLimits(fromBlock, toBlock) {
+        return await this.getPastEvents('LogUpdatedBetLimits', {
             filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
-    logNewBet(fromBlock, toBlock) {
-        return this.instance.events.LogNewBet({
-            filter: {},
-            bettor: this.web3.eth.defaultAccount,
-            fromBlock: fromBlock ? fromBlock : 'latest',
-            toBlock: toBlock ? toBlock : 'latest'
-        })
-    }
-
-    logClaimedBet(fromBlock, toBlock) {
-        return this.instance.events.LogClaimedBet({
+    async logNewBet(fromBlock, toBlock) {
+        return await this.getPastEvents('LogNewBet', {
             filter: {},
             bettor: this.web3.eth.defaultAccount,
             fromBlock: fromBlock ? fromBlock : 'latest',
@@ -626,8 +613,17 @@ export default class BettingProviderContract extends BaseContract {
         })
     }
 
-    logDeposit(fromBlock, toBlock) {
-        return this.instance.events.LogDeposit({
+    async logClaimedBet(fromBlock, toBlock) {
+        return await this.getPastEvents('LogClaimedBet', {
+            filter: {},
+            bettor: this.web3.eth.defaultAccount,
+            fromBlock: fromBlock ? fromBlock : 'latest',
+            toBlock: toBlock ? toBlock : 'latest'
+        })
+    }
+
+    async logDeposit(fromBlock, toBlock) {
+        return await this.getPastEvents('LogDeposit', {
             filter: {},
             _address: this.web3.eth.defaultAccount,
             fromBlock: fromBlock ? fromBlock : 'latest',
@@ -635,16 +631,16 @@ export default class BettingProviderContract extends BaseContract {
         })
     }
 
-    logWithdraw(fromBlock, toBlock) {
-        return this.instance.events.LogWithdraw({
+    async logWithdraw(fromBlock, toBlock) {
+        return await this.getPastEvents('LogWithdraw', {
             filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
-    logUpdatedTime(fromBlock, toBlock) {
-        return this.instance.events.LogUpdatedTime({
+    async logUpdatedTime(fromBlock, toBlock) {
+        return await this.getPastEvents('LogUpdatedTime', {
             filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
