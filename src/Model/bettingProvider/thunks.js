@@ -1,6 +1,8 @@
 import Actions from './index'
 import { Actions as BalanceActions } from '../balance'
 import Helper from '../../Components/Helper'
+import { Observable } from 'rxjs'
+
 const helper = new Helper()
 
 function filterEvents(events) {
@@ -197,16 +199,18 @@ export function startEventListeners() {
     return async (dispatch, getState, { contractFactory }) => {
         try {
             let contract = await contractFactory.bettingProviderContract()
-            await logDeposit(contract)
-            await logWithdraw(contract)
-            await logNewBet(contract) 
-            await logNewGame(contract)
-            await logNewGameOdds(contract) 
-            await logUpdatedGameOdds(contract)
-            await logUpdatedMaxBet(contract) 
-            await logUpdatedBetLimits(contract) 
-            await logClaimedBet(contract) 
-            await dispatch(logUpdatedTime(contract))
+            contract.getEvents()
+                    .subscribe(events => console.log('events', events))    
+            //await logDeposit(contract)
+            //await logWithdraw(contract)
+            //await logNewBet(contract) 
+            //await logNewGame(contract)
+            //await logNewGameOdds(contract) 
+            //await logUpdatedGameOdds(contract)
+           // await logUpdatedMaxBet(contract) 
+            //await logUpdatedBetLimits(contract) 
+            //await logClaimedBet(contract) 
+            //await dispatch(logUpdatedTime(contract))
         } catch (error) {
             console.error(`Betting Provider Event error:`, error)
         }

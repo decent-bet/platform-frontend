@@ -1,30 +1,21 @@
-import KeyHandler from '../KeyHandler'
 import ethAbi from 'web3-eth-abi'
 import Bluebird from 'bluebird'
 import BaseContract from './BaseContract'
-
-const keyHandler = new KeyHandler()
 
 export default class SlotsChannelManagerContract extends BaseContract {
     /**
      * Getters
      */
     async getChannelInfo(id) {
-        return await this.instance.methods.getChannelInfo(id).call({
-            from: this.web3.eth.defaultAccount
-        })
+        return await this.instance.methods.getChannelInfo(id).call()
     }
 
     async getChannelHashes(id) {
-        return await this.instance.methods.getChannelHashes(id).call({
-            from: this.web3.eth.defaultAccount
-        })
+        return await this.instance.methods.getChannelHashes(id).call()
     }
 
     async checkSig (id, msgHash, sign, turn) {
-        return await this.instance.methods.checkSig(id, msgHash, sign, turn).call({
-            from: this.web3.eth.defaultAccount
-        })
+        return await this.instance.methods.checkSig(id, msgHash, sign, turn).call()
     }
 
     async balanceOf(address, session) {
@@ -32,11 +23,8 @@ export default class SlotsChannelManagerContract extends BaseContract {
     }
 
     async currentSession() {
-        const a = await this.instance.methods.currentSession().call()
-        a.then(a => {
-            console.log(a)
-        }, console.log)
-        return a
+        let session = await this.instance.methods.currentSession().call()
+        return session
     }
 
     async getPlayer(id, isHouse) {
@@ -100,7 +88,6 @@ export default class SlotsChannelManagerContract extends BaseContract {
         )
 
         return await this.signAndSendRawTransaction(
-            keyHandler.get(),
             this.instance.options.address,
             null,
             null,
@@ -124,7 +111,6 @@ export default class SlotsChannelManagerContract extends BaseContract {
         )
 
         return await this.signAndSendRawTransaction(
-            keyHandler.get(),
             this.instance.options.address,
             null,
             null,
@@ -152,7 +138,6 @@ export default class SlotsChannelManagerContract extends BaseContract {
         )
 
         return await this.signAndSendRawTransaction(
-            keyHandler.get(),
             this.instance.options.address,
             null,
             null,
@@ -184,7 +169,6 @@ export default class SlotsChannelManagerContract extends BaseContract {
         )
 
         return await this.signAndSendRawTransaction(
-            keyHandler.get(),
             this.instance.options.address,
             null,
             null,
@@ -208,7 +192,6 @@ export default class SlotsChannelManagerContract extends BaseContract {
         )
 
         return await this.signAndSendRawTransaction(
-            keyHandler.get(),
             this.instance.options.address,
             null,
             null,

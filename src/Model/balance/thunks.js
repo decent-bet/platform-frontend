@@ -25,12 +25,13 @@ export function initialize() {
         await dispatch(actions.getPublicAddress(chainProvider))
         await dispatch(actions.getTokens(chainProvider))
         await dispatch(actions.getEtherBalance(chainProvider))
-        await dispatch(listenForTransfers(chainProvider))
+        //await dispatch(listenForTransfers(chainProvider))
     }     
 }
 
 export function faucet() {
     return async (dispatch, getState, chainProvider) => {
         await dispatch(actions.faucet(chainProvider))
+        await dispatch(actions.getTokens(chainProvider))
     }     
 }

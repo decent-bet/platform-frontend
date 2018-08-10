@@ -4,7 +4,7 @@ import { Contracts } from './contracts'
 
 
 export class ContractFactory {
-    _contracts = []
+    _contracts = new Map()
 
     /**
      *
@@ -29,22 +29,21 @@ export class ContractFactory {
         }
 
         const nameUpperCased = name.toUpperCase()
-        
-        let contractItem = this._contracts.find( item => item.key === nameUpperCased )
-        if(!contractItem) {
+        let contractItem = this._contracts.get(nameUpperCased)
+
+        if(typeof contractItem === 'undefined') {
             const json = JsonContracts[name]
             const instance = new this._web3.eth.Contract(json.abi)
-            const chainTag = await this.getChainTag(json)
-            instance.options.address = chainTag.address
-            let contract = new Contracts[name](this._web3, instance)
-            contractItem = {key: nameUpperCased, contract: contract}
-            this._contracts.push(contractItem)
+            const chainTagObject = await this.getChainTagObject(json)
+            instance.options.address = chainTagObject.address
+            contractItem = new Contracts[name](this._web3, instance)
+            this._contracts.set(nameUpperCased, contractItem)
         }
 
-        return contractItem.contract
+        return contractItem
     } 
 
-    async getChainTag(json) {
+    async getChainTagObject(json) {
         const chainTag = await this._web3.eth.getChainTag()
         return json.chain_tags[chainTag]
     }

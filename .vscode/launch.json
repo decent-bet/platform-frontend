@@ -12,17 +12,26 @@
         {
             "type": "chrome",
             "request": "attach",
-            "name": "Run and Attach to Chrome",
+            "name": "Run App/Launch Chrome and Attach",
             "port": 9222,
             "webRoot": "${workspaceFolder}/src",
-            "preLaunchTask": "run-app:open-chrome"
+            "preLaunchTask": "open-chrome:run-app",
+            "postDebugTask": "close-chrome:close-app",
+        },
+        {
+            "type": "chrome",
+            "request": "attach",
+            "name": "Launch and Attach",
+            "port": 9222,
+            "webRoot": "${workspaceFolder}/src",
+            "preLaunchTask": "open-chrome"
         },
         {
             "type": "chrome",
             "request": "attach",
             "name": "Attach to Chrome",
             "port": 9222,
-            "webRoot": "${workspaceFolder}/src"
+            "webRoot": "${workspaceFolder}/src",
         }
     ]
 }

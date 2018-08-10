@@ -17,8 +17,25 @@
             "script": "start"
         },
         {
-            "label": "run-app:open-chrome",
-            "dependsOn": ["run-app", "open-chrome"]
-        }
+            "label": "open-chrome:run-app",
+            "dependsOn": ["open-chrome", "run-app"]
+        },
+        {
+            "label": "close-app",
+            "type": "npm",
+            "script": "stop"
+        },
+        {
+            "label": "close-chrome",
+            "type": "shell",
+            "command": "./scripts/close-chrome.sh",
+            "windows": {
+                "command": ".\\scripts\\close-chrome.cmd"
+            }
+        },
+        {
+            "label": "close-chrome:close-app",
+            "dependsOn": ["close-chrome", "close-app"]
+        },
     ]
 }

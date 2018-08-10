@@ -7,10 +7,11 @@ const helper = new Helper()
 // Get the allowance
 async function fetchAllowance(chainProvider) {
     let { contractFactory } = chainProvider
-    const defaultAccount = chainProvider.defaultAccount
-    const contract = await contractFactory.slotsChannelManagerContract()
-    const slotsAddress = contract.instance.options.address
     try {
+        const defaultAccount = chainProvider.defaultAccount
+        const contract = await contractFactory.slotsChannelManagerContract()
+        const slotsAddress = contract.instance.options.address
+        
         let tokenContract = await contractFactory.decentBetTokenContract()
         const allowance = await tokenContract.allowance(
             defaultAccount,
@@ -26,8 +27,8 @@ async function fetchAllowance(chainProvider) {
 async function fetchSessionId({ contractFactory }) {
     try {
         let slotsContract = await contractFactory.slotsChannelManagerContract()
-        const session = await slotsContract.currentSession()
-        return Number(session)
+        let session = await slotsContract.currentSession()
+        return session
     } catch (err) {
         console.log('Error retrieving current session', err)
     }
@@ -37,7 +38,7 @@ async function fetchSessionId({ contractFactory }) {
 async function fetchSessionBalance(chainProvider) {
     let { contractFactory } = chainProvider
     try {
-        const sessionId = await fetchSessionId()
+        const sessionId = await fetchSessionId(chainProvider)
         let slotsContract = await contractFactory.slotsChannelManagerContract()
         let balance = await slotsContract.balanceOf(
             chainProvider.defaultAccount,
@@ -123,9 +124,10 @@ async function depositChips(amount, { contractFactory }) {
 }
 
 // Withdraw Chips and return them as Tokens to the Wallet
-async function withdrawChips(amount, { contractFactory }) {
+async function withdrawChips(amount, chainProvider) {
     try {
-        const session = await fetchSessionId()
+        let { contractFactory } = chainProvider
+        const session = await fetchSessionId(chainProvider)
         let contract = await contractFactory.slotsChannelManagerContract()
         const tx = await contract.withdraw(amount, session)
         helper.toggleSnackbar('Successfully sent withdraw transaction')

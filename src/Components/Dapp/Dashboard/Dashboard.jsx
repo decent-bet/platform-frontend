@@ -17,7 +17,6 @@ class Dashboard extends Component {
     }
 
     componentDidMount = () => {
-
         // Initialize the datastore
         this.props.dispatch(Thunks.initialize())
     }

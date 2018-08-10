@@ -30,7 +30,7 @@ async function fetchDepositedTokens(chainProvider) {
     let { contractFactory } = chainProvider
 
     try {
-        let session = await fetchCurrentSession()
+        let session = await fetchCurrentSession(chainProvider)
         let contract = await contractFactory.bettingProviderContract()
         let result = await contract.balanceOf(
             chainProvider.web3.eth.defaultAccount,

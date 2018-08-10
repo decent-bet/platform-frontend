@@ -1,7 +1,5 @@
-import KeyHandler from '../KeyHandler'
-import BaseContract from './BaseContract'
 
-const keyHandler = new KeyHandler()
+import BaseContract from './BaseContract'
 
 export default class DecentBetTokenContract extends BaseContract {
     /** Getters */
@@ -34,7 +32,6 @@ export default class DecentBetTokenContract extends BaseContract {
         )
 
         return await this.signAndSendRawTransaction(
-            keyHandler.get(),
             this.instance.options.address,
             null,
             null,
@@ -43,8 +40,7 @@ export default class DecentBetTokenContract extends BaseContract {
     }
 
     async faucet() {
-        console.log('Sending faucet tx')
-
+        
         let encodedFunctionCall = this.web3.eth.abi.encodeFunctionCall(
             {
                 name: 'faucet',
@@ -55,12 +51,10 @@ export default class DecentBetTokenContract extends BaseContract {
         )
 
         return await this.signAndSendRawTransaction(
-            keyHandler.get(),
             this.instance.options.address,
             null,
             null,
-            encodedFunctionCall
-        )
+            encodedFunctionCall)
     }
 
     /**

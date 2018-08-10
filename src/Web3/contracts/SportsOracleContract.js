@@ -73,8 +73,6 @@ export default class SportsOracleContract extends BaseContract {
             filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
-        }, (error, event) => {
-            console.warn('logNewAuthorizedAddress', error, event)
         })
     }
 
@@ -83,8 +81,6 @@ export default class SportsOracleContract extends BaseContract {
             filter: {},
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
-        }, (error, event) => {
-            console.warn('logNewAcceptedProvider', error, event)
         })
     }
 
@@ -97,10 +93,7 @@ export default class SportsOracleContract extends BaseContract {
             toBlock: toBlock ? toBlock : 'latest'
         }
 
-        return await this.getPastEvents('LogGameAdded', options,
-            (error, event) => {
-                console.warn('logGameAdded', error, event)
-            })
+        return await this.getPastEvents('LogGameAdded', options)
     }
 
     async logGameDetailsUpdate(fromBlock, toBlock) {
@@ -110,9 +103,7 @@ export default class SportsOracleContract extends BaseContract {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }
-        return await this.getPastEvents('LogGameDetailsUpdate', options, (error, event) => {
-            console.warn('logGameDetailsUpdate', error, event)
-        })
+        return await this.getPastEvents('LogGameDetailsUpdate', options)
     }
 
     async logGameResult(fromBlock, toBlock) {
@@ -123,9 +114,7 @@ export default class SportsOracleContract extends BaseContract {
             toBlock: toBlock ? toBlock : 'latest'
         }
 
-        return await this.getPastEvents('LogGameResult', options, (error, event) => {
-            console.warn('logGameResult', error, event)
-        })
+        return await this.getPastEvents('LogGameResult', options)
     }
 
     async logUpdatedProviderOutcome(fromBlock, toBlock) {
@@ -135,9 +124,7 @@ export default class SportsOracleContract extends BaseContract {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }
-        return await this.getPastEvents('LogUpdatedProviderOutcome', options, (error, event) => {
-            console.warn('logUpdatedProviderOutcome', error, event)
-        })
+        return await this.getPastEvents('LogUpdatedProviderOutcome', options)
     }
 
     async logWithdrawal(fromBlock, toBlock) {
@@ -147,9 +134,7 @@ export default class SportsOracleContract extends BaseContract {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }
-        return await this.getPastEvents('LogWithdrawal',options, (error, event) => {
-            console.warn('logWithdrawal', error, event)
-        })
+        return await this.getPastEvents('LogWithdrawal',options)
     }
 
     async logNewGameUpdateCost(fromBlock, toBlock) {
@@ -159,20 +144,8 @@ export default class SportsOracleContract extends BaseContract {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }
-        return await this.getPastEvents('LogNewGameUpdateCost',options, (error, event) => {
-            console.warn('logWithdrawal', error, event)
-        })
+        return await this.getPastEvents('LogNewGameUpdateCost',options)
     }
-
-    /** PROPOSAL for events
-     * subscribeAll(evt, A, B) {
-        const scheduler$ = Observable.interval(11)
-
-        const fn$ = Observable.from(this.getPastEvents(evt, {}))
-
-        return scheduler$.switchMap(fn$)
-    }
-    */
 
     async logNewProviderAcceptanceCost(fromBlock, toBlock) {
         let options = {
@@ -181,9 +154,7 @@ export default class SportsOracleContract extends BaseContract {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }
-        return await this.getPastEvents('LogNewProviderAcceptanceCost',options, (error, event) => {
-            console.warn('logNewProviderAcceptanceCost', error, event)
-        })
+        return await this.getPastEvents('LogNewProviderAcceptanceCost',options)
     }
 
     async logUpdatedTime(fromBlock, toBlock) {
@@ -193,8 +164,6 @@ export default class SportsOracleContract extends BaseContract {
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         }
-        return await this.getPastEvents('LogUpdatedTime', options, (error, event) => {
-            console.warn('logUpdatedTime', error, event)
-        })
+        return await this.getPastEvents('LogUpdatedTime', options)
     }
 }

@@ -87,9 +87,8 @@ contract SlotsChannelManager is SlotsImplementation, HouseOffering, SafeMath, Ut
     event LogWithdraw(address _address, uint amount, uint session, uint balance);
 
     /* Constructor */
-
-    function SlotsChannelManager(address _house, address _token, address _slotsHelper,
-                                 address _slotsChannelFinalizer) /* onlyHouse */ {
+    constructor(address _house, address _token, address _slotsHelper, address _slotsChannelFinalizer) {
+        
         if(_house == 0) throw;
         if(_token == 0) throw;
         if(_slotsHelper == 0) throw;

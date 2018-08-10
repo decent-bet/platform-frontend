@@ -1,9 +1,6 @@
 import ethUtil from 'ethereumjs-util'
-import KeyHandler from '../KeyHandler'
 import ethAbi from 'web3-eth-abi'
 import BaseContract from './BaseContract'
-
-const keyHandler = new KeyHandler()
 
 export default class SlotsChannelFinalizerContract extends BaseContract {
 
@@ -93,7 +90,6 @@ export default class SlotsChannelFinalizerContract extends BaseContract {
             ])
 
         return await this.signAndSendRawTransaction(
-            keyHandler.get(),
             this.instance.options.address,
             null,
             null,
@@ -108,7 +104,7 @@ export default class SlotsChannelFinalizerContract extends BaseContract {
             'Finalize',
             id,
             typeof id,
-            window.web3Object.eth.defaultAccount
+            this.web3.eth.defaultAccount
         )
 
         let logKeys = spin => {
@@ -182,7 +178,6 @@ export default class SlotsChannelFinalizerContract extends BaseContract {
             ])
 
         return await this.signAndSendRawTransaction(
-            keyHandler.get(),
             this.instance.options.address,
             null,
             null,

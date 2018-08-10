@@ -33,7 +33,7 @@ export function claimAndWithdrawFromChannel(channelId) {
         await dispatch(Actions.withdrawChips(tokensInContract.value))
 
         // Update the ether balance
-        await dispatch(BalanceActions.getEtherBalance())
+        await dispatch(BalanceActions.getEtherBalance(chainProvider))
     }
 }
 
@@ -44,6 +44,7 @@ export function claimAndWithdrawFromChannel(channelId) {
  * @returns {Promise<string>}
  */
 export function buildChannel(amount, allowance) {
+    
     return async (dispatch, getState, chainProvider) => {
         // Approve Tokens if it needs more allowance
         if (allowance.isLessThan(amount)) {

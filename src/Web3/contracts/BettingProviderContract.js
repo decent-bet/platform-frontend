@@ -1,8 +1,5 @@
-import KeyHandler from '../KeyHandler'
 import ethAbi from 'web3-eth-abi'
 import BaseContract from './BaseContract'
-
-const keyHandler = new KeyHandler()
 
 export default class BettingProviderContract extends BaseContract {
     /**
@@ -122,7 +119,6 @@ export default class BettingProviderContract extends BaseContract {
         }, [amount])
 
         return await this.signAndSendRawTransaction(
-            keyHandler.get(),
             this.instance.options.address,
             null,
             null,
@@ -153,7 +149,6 @@ export default class BettingProviderContract extends BaseContract {
         }, [amount, session])
 
         return await this.signAndSendRawTransaction(
-            keyHandler.get(),
             this.instance.options.address,
             null,
             null,
@@ -172,7 +167,6 @@ export default class BettingProviderContract extends BaseContract {
         }, [address])
 
         return await this.signAndSendRawTransaction(
-            keyHandler.get(),
             this.instance.options.address,
             null,
             null,
@@ -191,7 +185,6 @@ export default class BettingProviderContract extends BaseContract {
         }, [offset])
 
         return await this.signAndSendRawTransaction(
-            keyHandler.get(),
             this.instance.options.address,
             null,
             5000000,
@@ -219,7 +212,6 @@ export default class BettingProviderContract extends BaseContract {
         }, [oracleGameId, cutOffTime, endTime])
 
         return await this.signAndSendRawTransaction(
-            keyHandler.get(),
             this.instance.options.address,
             null,
             null,
@@ -254,7 +246,6 @@ export default class BettingProviderContract extends BaseContract {
         }, [id, period, limits])
 
         return await this.signAndSendRawTransaction(
-            keyHandler.get(),
             this.instance.options.address,
             null,
             null,
@@ -360,7 +351,6 @@ export default class BettingProviderContract extends BaseContract {
             ])
 
         return await this.signAndSendRawTransaction(
-            keyHandler.get(),
             this.instance.options.address,
             null,
             null,
@@ -438,7 +428,6 @@ export default class BettingProviderContract extends BaseContract {
             ])
 
         return await this.signAndSendRawTransaction(
-            keyHandler.get(),
             this.instance.options.address,
             null,
             null,
@@ -480,7 +469,6 @@ export default class BettingProviderContract extends BaseContract {
         }, [id, period, result, team1Points, team2Points])
 
         return await this.signAndSendRawTransaction(
-            keyHandler.get(),
             this.instance.options.address,
             null,
             null,
@@ -525,7 +513,6 @@ export default class BettingProviderContract extends BaseContract {
         }, [gameId, oddsId, betType, choice, amount])
 
         return await this.signAndSendRawTransaction(
-            keyHandler.get(),
             this.instance.options.address,
             null,
             null,
@@ -553,7 +540,6 @@ export default class BettingProviderContract extends BaseContract {
         }, [gameId, betId, bettor])
 
         return await this.signAndSendRawTransaction(
-            keyHandler.get(),
             this.instance.options.address,
             null,
             null,

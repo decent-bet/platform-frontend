@@ -21,7 +21,7 @@ class Slots extends Component {
 
     componentDidMount = () => {
        this.props.dispatch(Thunks.initializeSlots())
-        this.refreshChannels()
+       this.refreshChannels()
     }
 
     refreshChannels = async () => {

@@ -69,7 +69,7 @@ export class ChainProvider {
             return this._contractFactory
     }
 
-    buildContractFactory(){
+    buildContractFactory() {
         let privateKey = keyHandler.get()
         if(!privateKey || privateKey.length <= 0 ) {
             throw new Error('Private key not available')

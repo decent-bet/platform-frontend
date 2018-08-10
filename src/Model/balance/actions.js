@@ -88,14 +88,15 @@ export async function faucet({contractFactory}) {
 }
 
 // Get Total Ether.
-export async function fetchEtherBalance(dispatch, chainProvider) {
+export async function fetchEtherBalance(chainProvider) {
     try {
         let address = await fetchPublicAddress(chainProvider)
         let contract = await chainProvider.contractFactory.decentBetTokenContract()
         let rawAmount = await contract.getBalance(address)
-        return new BigNumber(rawAmount).dividedBy(units.ether)
-    } catch (err) {
-        console.log('error retrieving ether balance')
+        let balance = new BigNumber(rawAmount).dividedBy(units.ether)
+        return balance
+    } catch (error) {
+        console.log('error retrieving ether balance', error)
     }
 }
 
