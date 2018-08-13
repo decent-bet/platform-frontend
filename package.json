@@ -125,7 +125,8 @@
       "src/**/*.{js,jsx}"
     ],
     "setupFiles": [
-      "<rootDir>/config/polyfills.js"
+      "<rootDir>/config/polyfills.js",
+      "<rootDir>/test/__mocks__/localStorageMock.js"
     ],
     "testPathIgnorePatterns": [
       "<rootDir>[/](build|docs|node_modules)[/]"

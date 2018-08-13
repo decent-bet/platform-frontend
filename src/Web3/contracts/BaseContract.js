@@ -1,20 +1,19 @@
 
 import { interval } from 'rxjs'
 import { switchMap, finalize } from 'rxjs/operators';
-import { KeyHandler } from '..'
-
-const keyHandler = new KeyHandler()
 
 export default class BaseContract {
     
     /**
      * @param {Web3} web3
      * @param {Object} instance
+     * @param {KeyHandler} keyHandler
      */
-    constructor(web3, instance) {
-        this.web3 = web3
+    constructor(web3, instance, keyHandler) {
+        this._web3 = web3
         this.instance = instance
-        this.eventSubscription = null
+        this._eventSubscription = null
+        this._keyHandler = keyHandler
     }
 
     /**
@@ -40,7 +39,7 @@ export default class BaseContract {
         const intervalSource$ = interval(10000)
                                 .pipe(finalize(() => console.log('UNSUBSCRIBED from allEvents'))) 
         
-        this.eventSubscription = intervalSource$.pipe(
+        this._eventSubscription = intervalSource$.pipe(
             switchMap(() => 
                 this.instance.getPastEvents('allEvents', {
                     filter: filter,
@@ -91,7 +90,7 @@ export default class BaseContract {
         }
 
         try {
-            let privateKey = keyHandler.get()
+            let privateKey = this._keyHandler.get()
             let signed = await this.web3.eth.accounts.signTransaction(txBody, privateKey)
             let promiseEvent = this.web3.eth.sendSignedTransaction(signed.raw)
             return promiseEvent

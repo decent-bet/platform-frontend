@@ -4,17 +4,22 @@ import {
     PROVIDER_DBET,
     KEY_GETH_PROVIDER
 } from '../Components/Constants'
-import KeyHandler from '../Web3/KeyHandler'
 import { ContractFactory } from './ContractFactory';
-const Web3 = require('web3')
-
-const keyHandler = new KeyHandler()
 
 export class ChainProvider {
+    /**
+     * @var {ContractFactory}
+     */
     _contractFactory = null
 
-    constructor() {
-        this._web3 = thorify(new Web3(), this.url)
+    /**
+     * 
+     * @param {Web3} web3 
+     * @param {KeyHandler} keyHandler 
+     */
+    constructor(web3, keyHandler) {
+        this._web3 = thorify(web3, this.url)
+        this._keyHandler = keyHandler
     }
 
     /**
@@ -26,14 +31,11 @@ export class ChainProvider {
     }
 
     /**
-     * Returns the default account / used instead of web3.eth.defaultAccount
+     * Returns the default account
      * @returns {string}
      */
     get defaultAccount() {
-        if (!this._contractFactory) {
-            this.buildContractFactory()
-        }
-        return this._web3.eth.accounts.wallet[0].address
+        return this._web3.eth.defaultAccount
     }
 
     /**
@@ -52,7 +54,7 @@ export class ChainProvider {
 
         return provider
     }
-
+    
     set url(provider) {
         localStorage.setItem(KEY_GETH_PROVIDER, provider)
     }
@@ -69,13 +71,16 @@ export class ChainProvider {
             return this._contractFactory
     }
 
+    /**
+     * Setup the contract factory
+     */
     buildContractFactory() {
-        let privateKey = keyHandler.get()
+        let privateKey = this._keyHandler.get()
         if(!privateKey || privateKey.length <= 0 ) {
             throw new Error('Private key not available')
         }
-        this._web3.eth.defaultAccount = keyHandler.getAddress()
         this._web3.eth.accounts.wallet.add(privateKey)
-        this._contractFactory = new ContractFactory(this._web3)
+        this._web3.eth.defaultAccount = this._keyHandler.getAddress()
+        this._contractFactory = new ContractFactory(this._web3, this._keyHandler)
     }
 }

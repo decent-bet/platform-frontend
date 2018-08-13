@@ -10,8 +10,8 @@ import { Reducer as authReducer } from './auth'
 import { Reducer as slotsManagerReducer } from './slotsManager'
 import Helper from '../Components/Helper'
 import { ChainProvider } from '../Web3/ChainProvider'
-
-
+import KeyHandler from '../Web3/KeyHandler'
+const Web3 = require('web3')
 const helper = new Helper()
 
 // Combine all Reducers
@@ -24,10 +24,11 @@ const CombinedReducers = combineReducers({
     auth: authReducer
 })
 
-const chainProvider = new ChainProvider()
+//setup the ChainProvider
+const chainProvider = new ChainProvider(new Web3(), new KeyHandler())
 // Setup middleware
 const middlewares = [
-    ReduxThunk.withExtraArgument(chainProvider),
+    ReduxThunk.withExtraArgument({chainProvider}), //inject the ChainProvider instance like a DI
     promiseMiddleware({ promiseTypeDelimiter: '/' })
 ]
 

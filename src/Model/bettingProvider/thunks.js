@@ -1,7 +1,6 @@
 import Actions from './index'
 import { Actions as BalanceActions } from '../balance'
 import Helper from '../../Components/Helper'
-import { Observable } from 'rxjs'
 
 const helper = new Helper()
 
@@ -14,7 +13,7 @@ function filterEvents(events) {
 }
 
 export function logDeposit(contract) {
-    return async (dispatch, getState, chainProvider) => {
+    return async (dispatch, getState, { chainProvider }) => {
         const events = await contract.logDeposit()
         const event = filterEvents(events)
         if(event) {
@@ -35,7 +34,7 @@ export function logDeposit(contract) {
 }
 
 export function logWithdraw(contract) {
-    return async (dispatch, getState, chainProvider) => {
+    return async (dispatch, getState, { chainProvider }) => {
         const events = await contract.logWithdraw()
         const event = filterEvents(events)
         if(event) {
@@ -57,7 +56,7 @@ export function logWithdraw(contract) {
 }
 
 export function logNewBet(contract) {
-    return async (dispatch, getState, chainProvider) => {
+    return async (dispatch, getState, { chainProvider }) => {
         const events = await contract.logNewBet()
         const event = filterEvents(events)
         if(event) {
@@ -76,7 +75,7 @@ export function logNewBet(contract) {
 }
 
 export function logNewGame(contract) {
-    return async (dispatch, getState, chainProvider) => {
+    return async (dispatch, getState, { chainProvider }) => {
         const events = await contract.logNewGame()
         const event = filterEvents(events)
         if(event) {
@@ -92,7 +91,7 @@ export function logNewGame(contract) {
 }
 
 export function logNewGameOdds(contract) {
-    return async (dispatch, getState, chainProvider) => {
+    return async (dispatch, getState, { chainProvider }) => {
         const events = await contract.logNewGameOdds()
         const event = filterEvents(events)
         if(event) {
@@ -108,7 +107,7 @@ export function logNewGameOdds(contract) {
 }
 
 export function logUpdatedGameOdds(contract) {
-    return async (dispatch, getState, chainProvider) => {
+    return async (dispatch, getState, { chainProvider }) => {
         const events = await contract.logUpdatedGameOdds()
         const event = filterEvents(events)
         if(event) {
@@ -125,7 +124,7 @@ export function logUpdatedGameOdds(contract) {
 }
 
 export function logUpdatedMaxBet(contract) {
-    return async (dispatch, getState, chainProvider) => {
+    return async (dispatch, getState, { chainProvider }) => {
         const events = await contract.logUpdatedMaxBet()
         const event = filterEvents(events)
         if(event) {
@@ -142,7 +141,7 @@ export function logUpdatedMaxBet(contract) {
 }
 
 export function logUpdatedBetLimits(contract) {
-    return async (dispatch, getState, chainProvider) => {
+    return async (dispatch, getState, { chainProvider }) => {
         const events = await contract.logUpdatedBetLimits()
         const event = filterEvents(events)
         if(event) {
@@ -166,7 +165,7 @@ export function logUpdatedBetLimits(contract) {
 }
 
 export function logClaimedBet(contract) {
-    return async (dispatch, getState, chainProvider) => {
+    return async (dispatch, getState, { chainProvider }) => {
         const events = await contract.logClaimedBet()
         const event = filterEvents(events)
         if(event) {
@@ -182,7 +181,7 @@ export function logClaimedBet(contract) {
 }
 
 export function logUpdatedTime(contract) {
-    return async (dispatch, getState, chainProvider) => {
+    return async (dispatch, getState, { chainProvider }) => {
         const events = await contract.logUpdatedTime()
         const event = filterEvents(events)
         if(event) {

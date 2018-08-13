@@ -1,9 +1,6 @@
 import EthAccounts from 'web3-eth-accounts'
 import BaseContract from './BaseContract'
 import Web3 from 'web3'
-import Helper from '../../../src/Components/Helper'
-import TruffleContract from 'truffle-contract'
-
 jest.mock('../../../src/Components/Helper')
 
 beforeEach(() => {
@@ -11,6 +8,10 @@ beforeEach(() => {
     Helper.mockClear()
     TruffleContract.mockClear()
 })
+
+describe('BaseContract', () => { 
+
+}
 
 it('should call constructor', () => {
     const web3 = new Web3()
