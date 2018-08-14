@@ -90,6 +90,7 @@ export default class BaseContract {
         }
 
         try {
+            
             let privateKey = this._keyHandler.get()
             let signed = await this.web3.eth.accounts.signTransaction(txBody, privateKey)
             let promiseEvent = this.web3.eth.sendSignedTransaction(signed.raw)

@@ -44,7 +44,6 @@ export class ContractFactory {
 
     async getChainTagObject(json) {
         const chainTag = await this._web3.eth.getChainTag()
-        console.log('chainTag', chainTag)
         return json.chain_tags[chainTag]
     }
     /**
