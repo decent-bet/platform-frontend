@@ -15,6 +15,12 @@ export class ChainProvider {
 
     constructor() {
         this._web3 = thorify(new Web3(), this.url)
+        let privateKey = keyHandler.get()
+        if(!privateKey || privateKey.length <= 0 ) {
+            throw new Error('Private key not available')
+        }
+        this._web3.eth.defaultAccount = keyHandler.getAddress()
+        this._web3.eth.accounts.wallet.add(privateKey)
     }
 
     /**
@@ -58,24 +64,18 @@ export class ChainProvider {
     }
 
     /**
-     * Configure the web3 instance 
+     * Configure the web3 instance
      * @returns {void}
      */
     get contractFactory() {
             if (!this._contractFactory) {
                 this.buildContractFactory()
             }
-    
+
             return this._contractFactory
     }
 
     buildContractFactory() {
-        let privateKey = keyHandler.get()
-        if(!privateKey || privateKey.length <= 0 ) {
-            throw new Error('Private key not available')
-        }
-        this._web3.eth.defaultAccount = keyHandler.getAddress()
-        this._web3.eth.accounts.wallet.add(privateKey)
         this._contractFactory = new ContractFactory(this._web3)
     }
 }

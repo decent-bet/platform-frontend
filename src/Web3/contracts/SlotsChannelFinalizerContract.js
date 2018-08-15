@@ -5,89 +5,50 @@ import BaseContract from './BaseContract'
 export default class SlotsChannelFinalizerContract extends BaseContract {
 
     async finalize(id, userSpin, houseSpin) {
-        userSpin = this.getSpinParts(userSpin)
-        houseSpin = this.getSpinParts(houseSpin)
-
-        console.log(
-            'Finalize',
-            id,
-            typeof id,
-            this.web3.eth.defaultAccount
-        )
-
-        let logKeys = spin => {
-            Object.keys(spin).forEach(key => {
-                console.log(
-                    'Finalize',
-                    key,
-                    spin[key],
-                    typeof spin[key]
-                )
-            })
-        }
-
-        logKeys(userSpin)
-        logKeys(houseSpin)
-
-        console.log(
-            'Finalize string: "' +
-            id +
-            '", "' +
-            userSpin.parts +
-            '", "' +
-            houseSpin.parts +
-            '", "' +
-            userSpin.r +
-            '", "' +
-            userSpin.s +
-            '", "' +
-            houseSpin.r +
-            '", "' +
-            houseSpin.s +
-            '"'
-        )
+        userSpin = await this.getSpinParts(userSpin)
+        houseSpin = await this.getSpinParts(houseSpin)
 
         let encodedFunctionCall = ethAbi.encodeFunctionCall({
             name: 'finalize',
             type: 'function',
             inputs: [{
-                name: 'id',
-                type: 'bytes32'
-            },
-            {
-                name: '_curr',
-                type: 'string'
-            },
-            {
-                name: '_prior',
-                type: 'string'
-            },
-            {
-                name: 'currR',
-                type: 'bytes32'
-            },
-            {
-                name: 'currS',
-                type: 'bytes32'
-            },
-            {
-                name: 'priorR',
-                type: 'bytes32'
-            },
-            {
-                name: 'priorS',
-                type: 'bytes32'
-            }
+                    name: 'id',
+                    type: 'bytes32'
+                },
+                {
+                    name: '_curr',
+                    type: 'string'
+                },
+                {
+                    name: '_prior',
+                    type: 'string'
+                },
+                {
+                    name: 'currR',
+                    type: 'bytes32'
+                },
+                {
+                    name: 'currS',
+                    type: 'bytes32'
+                },
+                {
+                    name: 'priorR',
+                    type: 'bytes32'
+                },
+                {
+                    name: 'priorS',
+                    type: 'bytes32'
+                }
             ]
         }, [
-                id,
-                userSpin.parts,
-                houseSpin.parts,
-                userSpin.r,
-                userSpin.s,
-                houseSpin.r,
-                houseSpin.s
-            ])
+            id,
+            userSpin.parts,
+            houseSpin.parts,
+            userSpin.r,
+            userSpin.s,
+            houseSpin.r,
+            houseSpin.s
+        ])
 
         return await this.signAndSendRawTransaction(
             this.instance.options.address,
@@ -142,40 +103,40 @@ export default class SlotsChannelFinalizerContract extends BaseContract {
                 name: 'id',
                 type: 'bytes32'
             },
-            {
-                name: '_curr',
-                type: 'string'
-            },
-            {
-                name: '_prior',
-                type: 'string'
-            },
-            {
-                name: 'currR',
-                type: 'bytes32'
-            },
-            {
-                name: 'currS',
-                type: 'bytes32'
-            },
-            {
-                name: 'priorR',
-                type: 'bytes32'
-            },
-            {
-                name: 'priorS',
-                type: 'bytes32'
-            }
+                {
+                    name: '_curr',
+                    type: 'string'
+                },
+                {
+                    name: '_prior',
+                    type: 'string'
+                },
+                {
+                    name: 'currR',
+                    type: 'bytes32'
+                },
+                {
+                    name: 'currS',
+                    type: 'bytes32'
+                },
+                {
+                    name: 'priorR',
+                    type: 'bytes32'
+                },
+                {
+                    name: 'priorS',
+                    type: 'bytes32'
+                }
             ]
         }, [
-                id,
-                userSpin.parts,
-                '',
-                userSpin.r,
-                userSpin.s,
-                emptyBytes32,
-                emptyBytes32
-            ])
+            id,
+            userSpin.parts,
+            '',
+            userSpin.r,
+            userSpin.s,
+            emptyBytes32,
+            emptyBytes32
+        ])
 
         return await this.signAndSendRawTransaction(
             this.instance.options.address,
@@ -185,7 +146,7 @@ export default class SlotsChannelFinalizerContract extends BaseContract {
         )
     }
 
-    getSpinParts(spin) {
+    async getSpinParts(spin) {
         let sign = spin.sign
 
         let sigParams = ethUtil.fromRpcSig(sign)
@@ -194,34 +155,34 @@ export default class SlotsChannelFinalizerContract extends BaseContract {
         let s = ethUtil.bufferToHex(sigParams.s)
         let v = ethUtil.bufferToInt(sigParams.v)
 
-        console.log('getSpinParts sig: ', v, r, s)
+        console.log('getSpinParts sig: ', sign, v, r, s)
 
         console.log('getSpinParts reverse sig: ', ethUtil.toRpcSig(v, r, s))
 
         return {
             parts: spin.reelHash +
-                '/' +
-                (spin.reel !== '' ? spin.reel.toString() : '') +
-                '/' +
-                spin.reelSeedHash +
-                '/' +
-                spin.prevReelSeedHash +
-                '/' +
-                spin.userHash +
-                '/' +
-                spin.prevUserHash +
-                '/' +
-                spin.nonce +
-                '/' +
-                spin.turn +
-                '/' +
-                spin.userBalance +
-                '/' +
-                spin.houseBalance +
-                '/' +
-                spin.betSize +
-                '/' +
-                v,
+            '/' +
+            (spin.reel !== '' ? spin.reel.toString() : '') +
+            '/' +
+            spin.reelSeedHash +
+            '/' +
+            spin.prevReelSeedHash +
+            '/' +
+            spin.userHash +
+            '/' +
+            spin.prevUserHash +
+            '/' +
+            spin.nonce +
+            '/' +
+            spin.turn +
+            '/' +
+            spin.userBalance +
+            '/' +
+            spin.houseBalance +
+            '/' +
+            spin.betSize +
+            '/' +
+            v,
             r: r,
             s: s
         }

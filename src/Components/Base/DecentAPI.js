@@ -1,6 +1,14 @@
 import Helper from '../Helper'
 import { KeyHandler } from '../../Web3'
+import { ChainProvider } from '../../Web3/ChainProvider'
 
+const cryptoJs = require("crypto-js")
+const elliptic = require('elliptic')
+const secp256k1 = new elliptic.ec("secp256k1")
+
+const request = require('request')
+
+const chainProvider = new ChainProvider()
 const helper = new Helper()
 const keyHandler = new KeyHandler()
 
@@ -9,12 +17,14 @@ const PUBLIC_URL = 'https://slots-api.decent.bet/api'
 
 const BASE_URL = helper.isDev() ? LOCAL_URL : PUBLIC_URL
 
-const cryptoJs = require("crypto-js")
 const ethUtil = require('ethereumjs-util')
 
-const request = require('request')
 
 class DecentAPI {
+
+    constructor() {
+        this.web3 = chainProvider.web3
+    }
 
     /** Off-chain finally verifiable slot spins */
     spin = async (address, spin, aesKey, callback) => {
@@ -87,7 +97,7 @@ class DecentAPI {
             try {
                 body = JSON.parse(body)
             } catch (e) {
-
+                console.log('Error loading last spin', e.stack)
             }
             callback(err, body)
         })
@@ -134,7 +144,7 @@ class DecentAPI {
             let msgHash = ethUtil.sha3(text)
             let privateKey = ethUtil.toBuffer(keyHandler.get())
 
-            console.log('Signing', text, ethUtil.bufferToHex(msgHash), 'as', helper.getWeb3().eth.defaultAccount,
+            console.log('Signing', text, ethUtil.bufferToHex(msgHash), 'as', this.web3.eth.defaultAccount,
                 ethUtil.isValidPrivate(privateKey))
 
             const {v, r, s} = ethUtil.ecsign(msgHash, privateKey)
@@ -146,11 +156,12 @@ class DecentAPI {
             let pub = ethUtil.ecrecover(m, v, r, s)
             let adr = '0x' + ethUtil.pubToAddress(pub).toString('hex')
 
-            console.log('Generated sign address', adr, helper.getWeb3().eth.defaultAccount)
+            console.log('Generated sign address', adr, this.web3.eth.defaultAccount)
 
             console.log('Generated msgHash', msgHash, 'Sign', sgn)
 
-            if (adr !== (helper.getWeb3().eth.defaultAccount).toLowerCase()) reject(new Error("Invalid address for signed message"))
+            if (adr !== (this.web3.eth.defaultAccount).toLowerCase())
+                reject(new Error("Invalid address for signed message"))
 
             resolve({msgHash: msgHash, sig: sgn})
         })

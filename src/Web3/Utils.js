@@ -1,4 +1,4 @@
-import ethUtil from 'ethereumjs-util'
+import ethUtil from "ethereumjs-util";
 
 /**
  * Utils class for common use
@@ -8,10 +8,10 @@ export class Utils {
 
     /**
      * Verify a sign for the message sign and given address
-     * 
-     * @param {string} msg 
-     * @param {string} sign 
-     * @param {string} address 
+     *
+     * @param {string} msg
+     * @param {string} sign
+     * @param {string} address
      */
     static verifySign(msg, sign, address) {
         let sigParams = ethUtil.fromRpcSig(sign)
@@ -28,9 +28,9 @@ export class Utils {
         console.log(
             'Verify sign - Public key',
             publicKey,
-            publicKey === address
+            address
         )
 
-        return publicKey === address
+        return publicKey === address.toLowerCase()
     }
 }

@@ -4793,6 +4793,14 @@ hdkey@^0.7.0:
     coinstring "^2.0.0"
     secp256k1 "^3.0.1"
 
+hdkey@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/hdkey/-/hdkey-1.0.0.tgz#1d658dfe966aaa542c1d499586200b325e5c0cf4"
+  dependencies:
+    coinstring "^2.0.0"
+    safe-buffer "^5.1.1"
+    secp256k1 "^3.0.1"
+
 he@1.1.x:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/he/-/he-1.1.1.tgz#93410fd21b009735151f8868c2f271f3427e23fd"
@@ -6136,7 +6144,7 @@ keycode@^2.1.9:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/keycode/-/keycode-2.2.0.tgz#3d0af56dc7b8b8e5cba8d0a97f107204eec22b04"
 
-keythereum@^1.0.2:
+keythereum@^1.0.2, keythereum@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/keythereum/-/keythereum-1.0.4.tgz#e3ac3e41569efab8e5129a12286c6a60dc02ee39"
   dependencies:
@@ -8661,6 +8669,10 @@ rx-lite@*, rx-lite@^4.0.8:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/rx-lite/-/rx-lite-4.0.8.tgz#0b1e11af8bc44836f04a6407e92da42467b79444"
 
+rxjs-compat@^6.2.2:
+  version "6.2.2"
+  resolved "https://registry.yarnpkg.com/rxjs-compat/-/rxjs-compat-6.2.2.tgz#3c0fcdb46130cc70aa55412c2b1147905ab4680a"
+
 rxjs@^5.5.2:
   version "5.5.11"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-5.5.11.tgz#f733027ca43e3bec6b994473be4ab98ad43ced87"
@@ -9612,6 +9624,20 @@ thenify-all@^1.0.0, thenify-all@^1.6.0:
   dependencies:
     any-promise "^1.0.0"
 
+thor-devkit@^0.2.3:
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/thor-devkit/-/thor-devkit-0.2.3.tgz#eb79a9071451e073e93ecbe78206e7de4af9fc30"
+  dependencies:
+    bignumber.js "^7.2.1"
+    bip39 "^2.5.0"
+    blakejs "^1.1.0"
+    hdkey "^1.0.0"
+    keccak "^1.4.0"
+    keythereum "^1.0.4"
+    rlp "^2.0.0"
+    secp256k1 "^3.5.0"
+    web3-eth-abi "^1.0.0-beta.34"
+
 thor-model-kit@^0.2.0:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/thor-model-kit/-/thor-model-kit-0.2.2.tgz#24d310e41d8c2dfc7e3f97d3230b6e1a1d4bede0"
@@ -9622,9 +9648,9 @@ thor-model-kit@^0.2.0:
     rlp "^2.0.0"
     secp256k1 "^3.5.0"
 
-thorify@^0.3.3:
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/thorify/-/thorify-0.3.3.tgz#05bbb623fec7d1af2ea8cdfd3b10af00cdfccdd3"
+thorify@0.3.4:
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/thorify/-/thorify-0.3.4.tgz#a3423853d8f97c3e8eba94d7fd7bc040cbf159a9"
   dependencies:
     blakejs "^1.1.0"
     debug "^3.1.0"
@@ -10304,7 +10330,7 @@ web3-core@1.0.0-beta.35:
     web3-core-requestmanager "1.0.0-beta.35"
     web3-utils "1.0.0-beta.35"
 
-web3-eth-abi@1.0.0-beta.35:
+web3-eth-abi@1.0.0-beta.35, web3-eth-abi@^1.0.0-beta.34:
   version "1.0.0-beta.35"
   resolved "https://registry.yarnpkg.com/web3-eth-abi/-/web3-eth-abi-1.0.0-beta.35.tgz#2eb9c1c7c7233db04010defcb192293e0db250e6"
   dependencies:

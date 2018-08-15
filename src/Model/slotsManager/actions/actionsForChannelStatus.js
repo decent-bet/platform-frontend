@@ -12,6 +12,7 @@ const decentApi = new DecentAPI()
  * Finalizes a channel allowing users to claim DBETs
  * @param {number} channelId
  * @param state
+ * @param contractFactory
  */
 async function finalizeChannel(channelId, state, { contractFactory }) {
     let aesKey = state.aesKey
