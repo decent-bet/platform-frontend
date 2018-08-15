@@ -1,4 +1,3 @@
-
 import { thorify } from 'thorify'
 import { JsonContracts } from '../../../src/Web3/JsonContracts'
 import KeyHandler from '../../../src/Web3/KeyHandler'
@@ -48,7 +47,7 @@ describe('BaseContract', () => {
     })
 
     test('should call getBalance', () => {
-        baseContract.getBalance('1234577677878').then((promise) => {
+        baseContract.getBalance('1234577677878').then(() => {
             expect(web3.eth.getBalance).toHaveBeenCalled()
         })
     })

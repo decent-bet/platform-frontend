@@ -7,7 +7,7 @@ import { getAesKey, getUserHashes } from '../functions'
 import BigNumber from 'bignumber.js'
 import moment from 'moment'
 
-const decentApi = new DecentAPI()
+let decentApi
 
 async function fetchAesKey(channelId, chainProvider) {
     let key = getAesKey(channelId, chainProvider)
@@ -17,6 +17,7 @@ async function fetchAesKey(channelId, chainProvider) {
 /**
  * The Basic information of a State Channel
  * @param channelId
+ * @param contractFactory
  */
 async function getChannelInfo(channelId, { contractFactory }) {
     try {
@@ -40,7 +41,8 @@ async function getChannelInfo(channelId, { contractFactory }) {
 
 /**
  * Get the player's house address
- * @param id
+ * @param channelId
+ * @param contractFactory
  */
 async function getAuthorizedAddress(channelId, { contractFactory }) {
     try {
@@ -53,7 +55,8 @@ async function getAuthorizedAddress(channelId, { contractFactory }) {
 
 /**
  * Is the channel closed?
- * @param {number} id
+ * @param channelId
+ * @param contractFactory
  */
 async function isChannelClosed(channelId, { contractFactory }) {
     try {
@@ -67,11 +70,13 @@ async function isChannelClosed(channelId, { contractFactory }) {
 /**
  * Get the other channel hashes
  * @param {number} id
+ * @param contractFactory
  */
 async function getChannelHashes(id, { contractFactory }) {
     try {
-        const contract = contractFactory.slotsChannelManagerContract()
+        const contract = await contractFactory.slotsChannelManagerContract()
         const hashes = await contract.getChannelHashes(id)
+        console.log('Hashes', hashes, id)
         return {
             finalUserHash: hashes[0],
             initialUserNumber: hashes[1],
@@ -84,7 +89,7 @@ async function getChannelHashes(id, { contractFactory }) {
 }
 
 async function getDeposited(channelId, isHouse = false, { contractFactory }) {
-    const contract = contractFactory.slotsChannelManagerContract()
+    const contract = await contractFactory.slotsChannelManagerContract()
     const rawBalance = await contract.channelDeposits(channelId, isHouse)
     return new BigNumber(rawBalance)
 }
@@ -92,6 +97,7 @@ async function getDeposited(channelId, isHouse = false, { contractFactory }) {
 /**
  * Get info and hashes required to interact with an active channel
  * @param id
+ * @param chainProvider
  */
 async function getChannelDetails(id, chainProvider) {
     return Bluebird.props({
@@ -109,8 +115,11 @@ async function getChannelDetails(id, chainProvider) {
  * @param id
  * @param hashes
  * @param aesKey
+ * @param chainProvider
  */
 async function loadLastSpin(id, hashes, aesKey) {
+    if(!decentApi)
+        decentApi = new DecentAPI()
     let result = await Bluebird.fromCallback(cb =>
         decentApi.getLastSpin(id, cb)
     )
@@ -131,6 +140,16 @@ async function loadLastSpin(id, hashes, aesKey) {
     } else {
         houseSpins = []
     }
+    console.log('loadLastSpin', {
+        result,
+        encryptedSpin,
+        houseSpin,
+        nonce,
+        userSpin,
+        houseSpins,
+        initialUserNumber: hashes.initialUserNumber,
+        aesKey
+    })
 
     let initialUserNumber = AES.decrypt(
         hashes.initialUserNumber,
@@ -139,7 +158,8 @@ async function loadLastSpin(id, hashes, aesKey) {
     let userHashes = await getUserHashes(initialUserNumber)
     let isValid = userHashes[userHashes.length - 1] === hashes.finalUserHash
 
-    if (!isValid) throw new Error('Invalid initial User Number')
+    if (!isValid)
+        throw new Error('Invalid initial User Number')
     return {
         nonce: nonce,
         houseSpins: houseSpins,
@@ -149,9 +169,10 @@ async function loadLastSpin(id, hashes, aesKey) {
 }
 
 async function getLastSpin(channelId, chainProvider) {
+    console.log('getLastSpin', channelId)
     let aesKey = await getAesKey(channelId, chainProvider)
     let { hashes } = await getChannelDetails(channelId, chainProvider)
-    let data = await loadLastSpin(channelId, hashes, aesKey)
+    let data = await loadLastSpin(channelId, hashes, aesKey, chainProvider)
 
     return {
         channelId,
@@ -165,13 +186,16 @@ async function getLastSpin(channelId, chainProvider) {
 /**
  * Gets a single channel's data
  * @param {string} channelId
+ * @param chainProvider
  */
 async function getChannel(channelId, chainProvider) {
     // Execute both actions in parallel
+    console.log('getChannel', channelId)
     const data = await Bluebird.props({
         channelDetails: getChannelDetails(channelId, chainProvider),
         lastSpin: getLastSpin(channelId, chainProvider)
     })
+    console.log('getChannel', data)
     return {
         ...data.channelDetails,
         ...data.lastSpin
@@ -185,10 +209,12 @@ async function getChannels(chainProvider) {
     const { contractFactory } = chainProvider
     const contract = await contractFactory.slotsChannelManagerContract()
     let channelCount = await contract.getChannelCount()
+    console.log('channelCount', channelCount)
     const accumulator = {}
 
     if (channelCount > 0) {
         const list = await contract.getChannels()
+        console.log('Channels', list)
         for (const iterator of list) {
             // Query every channel and accumulate it
             const id = iterator.returnValues.id
@@ -196,7 +222,7 @@ async function getChannels(chainProvider) {
             const resultPromise = getChannel(id, chainProvider)
             accumulator[id] = resultPromise
         }
-    } 
+    }
     // Execute all promises simultaneously.
     return Bluebird.props(accumulator)
 }

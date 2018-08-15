@@ -1,4 +1,3 @@
-
 import { JsonContracts } from './JsonContracts'
 import { Contracts } from './contracts'
 
@@ -40,53 +39,11 @@ export class ContractFactory {
         }
 
         return contractItem
-    } 
+    }
 
     async getChainTagObject(json) {
         const chainTag = await this._web3.eth.getChainTag()
         return json.chain_tags[chainTag]
-    }
-    /**
-     * @returns {Promise<BettingProviderContract>}
-     */
-    async bettingProviderContract() {
-        return await this.makeContract('BettingProviderContract')
-    }
-    
-
-    /**
-     * @returns {HouseAuthorizedContract}
-     */
-    async houseAuthorizedContract() {
-        return await this.makeContract('HouseAuthorizedContract')
-    }
-
-    /**
-     * @returns {HouseContract}
-    */
-    async houseContract() {
-        return await this.makeContract('HouseContract')
-    }
-
-    /**
-     * @returns {HouseFundsContract}
-    */
-   async houseFundsContract() {
-        return await this.makeContract('HouseFundsContract')
-    }
-
-    /**
-     * @returns {HouseLotteryContract}
-    */
-   async houseLotteryContract() {
-        return await this.makeContract('HouseLotteryContract')
-    }
-
-    /**
-     * @returns {HouseSessionsContract}
-    */
-   async houseSessionsContract() {
-    return await this.makeContract('HouseSessionsContract')
     }
 
     /**
@@ -110,11 +67,4 @@ export class ContractFactory {
         return await this.makeContract('DecentBetTokenContract')
     }
 
-    /**
-     * @returns {SportsOracleContract}
-    */
-   async sportsOracleContract() {
-    return await this.makeContract('SportsOracleContract')
-    }
-    
 }

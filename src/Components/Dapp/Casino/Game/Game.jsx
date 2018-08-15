@@ -28,7 +28,6 @@ class Game extends Component {
     }
 
     componentDidMount = () => {
-        
         const { dispatch, channelId } = this.props
         dispatch(Thunks.initializeGame(channelId))
 
@@ -60,8 +59,8 @@ class Game extends Component {
 
     onFinalizeListener = async () => {
         this.setState({ isFinalizing: true })
-        let action = Actions.finalizeChannel(this.props.channelId, this.props)
-        await this.props.dispatch(action)
+        const thunk = Thunks.finalizeChannel(this.props.channelId, this.props)
+        await this.props.dispatch(thunk)
         this.setState({ isFinalizing: false })
         this.back()
     }

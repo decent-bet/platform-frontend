@@ -1,6 +1,6 @@
 /**
  * Created by user on 7/17/2017.
- */
+*/
 
 import Helper from '../Helper'
 

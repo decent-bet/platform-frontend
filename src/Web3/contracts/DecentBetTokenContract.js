@@ -8,7 +8,7 @@ export default class DecentBetTokenContract extends BaseContract {
     }
 
     async balanceOf(address) {
-        return await this.getBalance(address)
+        return await this.instance.methods.balanceOf(address).call()
     }
 
     /** Setters */
@@ -31,7 +31,9 @@ export default class DecentBetTokenContract extends BaseContract {
             [address, value]
         )
 
-        return await this.signAndSendRawTransaction(
+        console.log('Encoded function call', encodedFunctionCall)
+
+        return this.signAndSendRawTransaction(
             this.instance.options.address,
             null,
             null,
@@ -40,7 +42,6 @@ export default class DecentBetTokenContract extends BaseContract {
     }
 
     async faucet() {
-        
         let encodedFunctionCall = this.web3.eth.abi.encodeFunctionCall(
             {
                 name: 'faucet',
@@ -71,6 +72,22 @@ export default class DecentBetTokenContract extends BaseContract {
         options[isFrom ? 'from' : 'to'] = address
 
         return await this.getPastEvents('Transfer', {
+            filter: options,
+            fromBlock: fromBlock ? fromBlock : 0,
+            toBlock: toBlock ? toBlock : 'latest'
+        })
+    }
+
+    async logApproval(spender, value, fromBlock, toBlock) {
+        let options = {
+            owner: this.web3.eth.defaultAccount
+        }
+        if(spender)
+            options.spender = spender
+        if(value)
+            options.value = value
+
+        return this.getEvents('Approval', {
             filter: options,
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'

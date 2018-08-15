@@ -1,5 +1,3 @@
-import ethAbi from 'web3-eth-abi'
-import Bluebird from 'bluebird'
 import BaseContract from './BaseContract'
 
 export default class SlotsChannelManagerContract extends BaseContract {
@@ -14,17 +12,12 @@ export default class SlotsChannelManagerContract extends BaseContract {
         return await this.instance.methods.getChannelHashes(id).call()
     }
 
-    async checkSig (id, msgHash, sign, turn) {
+    async checkSig(id, msgHash, sign, turn) {
         return await this.instance.methods.checkSig(id, msgHash, sign, turn).call()
     }
 
-    async balanceOf(address, session) {
-        return await this.instance.methods.balanceOf(address, session).call()
-    }
-
-    async currentSession() {
-        let session = await this.instance.methods.currentSession().call()
-        return session
+    async balanceOf(address) {
+        return await this.instance.methods.balanceOf(address).call()
     }
 
     async getPlayer(id, isHouse) {
@@ -54,18 +47,15 @@ export default class SlotsChannelManagerContract extends BaseContract {
     }
 
     getChannels() {
-        return Bluebird.fromCallback(cb =>
-            this.getPastEvents(
-                'LogNewChannel',
-                {
-                    filter: {
-                        user: this.web3.eth.defaultAccount
-                    },
-                    fromBlock: 0,
-                    toBlock: 'latest'
+        return this.getPastEvents(
+            'LogNewChannel',
+            {
+                filter: {
+                    user: this.web3.eth.defaultAccount
                 },
-                cb
-            )
+                fromBlock: 0,
+                toBlock: 'latest'
+            }
         )
     }
 
@@ -73,7 +63,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
      * Setters
      */
     async createChannel(deposit) {
-        let encodedFunctionCall = ethAbi.encodeFunctionCall(
+        let encodedFunctionCall = this.web3.eth.abi.encodeFunctionCall(
             {
                 name: 'createChannel',
                 type: 'function',
@@ -96,7 +86,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
     }
 
     async deposit(amount) {
-        let encodedFunctionCall = ethAbi.encodeFunctionCall(
+        let encodedFunctionCall = this.web3.eth.abi.encodeFunctionCall(
             {
                 name: 'deposit',
                 type: 'function',
@@ -118,8 +108,8 @@ export default class SlotsChannelManagerContract extends BaseContract {
         )
     }
 
-    async withdraw(amount, session) {
-        let encodedFunctionCall = ethAbi.encodeFunctionCall(
+    async withdraw(amount) {
+        let encodedFunctionCall = this.web3.eth.abi.encodeFunctionCall(
             {
                 name: 'withdraw',
                 type: 'function',
@@ -127,14 +117,10 @@ export default class SlotsChannelManagerContract extends BaseContract {
                     {
                         name: 'amount',
                         type: 'uint256'
-                    },
-                    {
-                        name: 'session',
-                        type: 'uint256'
                     }
                 ]
             },
-            [amount, session]
+            [amount]
         )
 
         return await this.signAndSendRawTransaction(
@@ -146,7 +132,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
     }
 
     async depositToChannel(id, initialUserNumber, finalUserHash) {
-        let encodedFunctionCall = ethAbi.encodeFunctionCall(
+        let encodedFunctionCall = this.web3.eth.abi.encodeFunctionCall(
             {
                 name: 'depositChannel',
                 type: 'function',
@@ -177,7 +163,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
     }
 
     async claim(id) {
-        let encodedFunctionCall = ethAbi.encodeFunctionCall(
+        let encodedFunctionCall = this.web3.eth.abi.encodeFunctionCall(
             {
                 name: 'claim',
                 type: 'function',
@@ -247,8 +233,8 @@ export default class SlotsChannelManagerContract extends BaseContract {
     async logClaimChannelTokens(id, fromBlock, toBlock) {
         const filter = id
             ? {
-                  id: id
-              }
+                id: id
+            }
             : {}
         return await this.getPastEvents('LogClaimChannelTokens', filter, {
             fromBlock: fromBlock ? fromBlock : 0,
@@ -302,6 +288,6 @@ export default class SlotsChannelManagerContract extends BaseContract {
                 type: 'uint256'
             }
         ]
-        return ethAbi.decodeLog(params, log, topics)
+        return this.web3.eth.abi.decodeLog(params, log, topics)
     }
 }

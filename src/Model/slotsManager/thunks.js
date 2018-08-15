@@ -5,8 +5,8 @@ import { Actions as BalanceActions } from '../balance'
 import BigNumber from 'bignumber.js' // eslint-disable-line no-unused-vars
 
 export function initializeSlots() {
-    return async (dispatch, getState, { chainProvider }) => {
-        await dispatch(Actions.getSessionId(chainProvider))
+
+    return async (dispatch, getState, chainProvider) => {
         await dispatch(Actions.getBalance(chainProvider))
         await dispatch(Actions.getAllowance(chainProvider))
     }
@@ -26,7 +26,7 @@ export function fetchChannels() {
 export function claimAndWithdrawFromChannel(channelId) {
     return async (dispatch, getState, { chainProvider }) => {
         // Claim the channel, check token total in the contract, and withdraw tokens
-        await dispatch(Actions.claimChannel(channelId))
+        await dispatch(Actions.claimChannel(channelId, chainProvider))
         const tokensInContract = await dispatch(
             Actions.getBalance(chainProvider)
         )
@@ -44,8 +44,7 @@ export function claimAndWithdrawFromChannel(channelId) {
  * @returns {Promise<string>}
  */
 export function buildChannel(amount, allowance) {
-    
-    return async (dispatch, getState, { chainProvider }) => {
+    return async (dispatch, getState, chainProvider) => {
         // Approve Tokens if it needs more allowance
         if (allowance.isLessThan(amount)) {
             await dispatch(
@@ -56,9 +55,10 @@ export function buildChannel(amount, allowance) {
         }
 
         // Create Channel
-        const { value } = await dispatch(
+        const result = await dispatch(
             Actions.createChannel(amount, chainProvider)
         )
+        const value = result.value
 
         if (value) {
             // Deposit Tokens to channel
@@ -75,6 +75,7 @@ export function buildChannel(amount, allowance) {
         return 0
     }
 }
+
 /**
  * Spin the slots, wait for the action to complete, AND THEN increase the nonce.
  * @param {string} channelId
@@ -97,17 +98,29 @@ export function initializeGame(channelId) {
     }
 }
 
+export function finalizeChannel(channelId, state) {
+    return async (dispatch, getState, chainProvider) => {
+        await dispatch(Actions.finalizeChannel(channelId, state, chainProvider))
+    }
+}
+
 // Watcher that monitors channel finalization
 export function watcherChannelFinalized(channelId) {
-    return async (dispatch, getState, { contractFactory }) => {
-        const contract = contractFactory.slotsChannelManagerContract()
+    return async (dispatch, getState, {contractFactory}) => {
+        const contract = await contractFactory.slotsChannelManagerContract()
         try {
-            const events = await contract.logChannelFinalized(channelId)
-            if (events && events.length) {
-                let [event] = events
-                let id = event.returnValues.id.toString()
-                await dispatch(Actions.setChannelFinalized(id))
-            }
+            const finalizedChannelEventSubscription =
+                await contract.getEventSubscription(contract.logChannelFinalized(channelId))
+
+            const finalizedChannelSubscription =
+                finalizedChannelEventSubscription.subscribe(async (events) => {
+                    if (events && events.length) {
+                        let [event] = events
+                        let id = event.returnValues.id.toString()
+                        await dispatch(Actions.setChannelFinalized(id))
+                        finalizedChannelSubscription.unsubscribe()
+                    }
+                })
             return
         } catch (error) {
             console.error('Finalized channel event', error)
@@ -121,17 +134,24 @@ export function watcherChannelClaimed(channelId) {
         return async (dispatch, getState, { contractFactory }) => {
             const contract = contractFactory.slotsChannelManagerContract()
             try {
-                const events = await contract.logClaimChannelTokens(channelId)
-                if (events && events.length) {
-                    let [event] = events
-                    let id = event.returnValues.id.toString()
-                    await dispatch(
-                        Actions.setChannelClaimed(
-                            id,
-                            event.returnValues.isHouse
-                        )
-                    )
-                }
+                const claimChannelEventSubscription =
+                    await contract.getEventSubscription(contract.logClaimChannelTokens(channelId))
+
+                const claimChannelSubscription =
+                    claimChannelEventSubscription.subscribe(async (events) => {
+                        if (events && events.length) {
+                            let [event] = events
+                            let id = event.returnValues.id.toString()
+                            await
+                                dispatch(
+                                    Actions.setChannelClaimed(
+                                        id,
+                                        event.returnValues.isHouse
+                                    )
+                                )
+                            claimChannelSubscription.unsubscribe()
+                        }
+                    })
                 return
             } catch (error) {
                 console.error('Claim channel tokens event error', error)

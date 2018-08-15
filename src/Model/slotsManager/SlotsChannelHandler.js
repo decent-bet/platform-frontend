@@ -62,7 +62,8 @@ export default class SlotsChannelHandler {
 
         const msg = getTightlyPackedSpin(nonSignatureSpin)
         const valid = Utils.verifySign(msg, houseSpin.sign, state.houseAuthorizedAddress)
-        if (!valid) callback(true, 'Invalid signature')
+        if (!valid)
+            callback(true, 'Invalid signature')
 
         /**
          * Verify spin balances

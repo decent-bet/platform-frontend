@@ -23,8 +23,9 @@ class KeyHandler {
                 password
             ).toString(CryptoJS.enc.Utf8)
         } catch (e) {
-            return ""
+            privateKey = ""
         }
+        
         return privateKey
     }
     /**
