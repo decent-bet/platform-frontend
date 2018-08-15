@@ -122,7 +122,9 @@ async function loadLastSpin(id, hashes, aesKey) {
         try {
             let rawSpinData = AES.decrypt(encryptedSpin, aesKey)
             userSpin = JSON.parse(rawSpinData.toString(cryptoJs.enc.Utf8))
-        } catch (e) {}
+        } catch (e) {
+            throw e
+        }
     }
     if (houseSpin) {
         houseSpins = [houseSpin]

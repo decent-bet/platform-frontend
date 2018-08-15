@@ -22,7 +22,9 @@ class KeyHandler {
                 localStorage.getItem('key'),
                 password
             ).toString(CryptoJS.enc.Utf8)
-        } catch (e) {}
+        } catch (e) {
+            return ""
+        }
         return privateKey
     }
     /**

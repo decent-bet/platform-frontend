@@ -20,7 +20,7 @@ class DecentAPI {
     spin = async (address, spin, aesKey, callback) => {
         /**
          * Spin:
-         * {
+         * 
          *      reelHash - reelHash from the house for this turn - finalReelHash if nonce == 1
          *      reel - empty if user and nonce == 1
          *      reelSeedHash - reelSeedHash from the house for this turn - finalReelSeedHash if nonce == 1
@@ -32,7 +32,7 @@ class DecentAPI {
          *      houseBalance - initialDeposit if nonce == 1
          *      betSize - betSize for this turn, determined by user
          *      sign - signed spin object
-         * }
+         * 
          *
          * aesKey - send encrypted spin to server to save state
          */
@@ -86,10 +86,10 @@ class DecentAPI {
         request(options, (err, response, body) => {
             try {
                 body = JSON.parse(body)
+                callback(err, body)
             } catch (e) {
-
+                callback(e, body)
             }
-            callback(err, body)
         })
     }
 

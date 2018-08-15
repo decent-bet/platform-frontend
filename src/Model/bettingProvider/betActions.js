@@ -45,7 +45,9 @@ async function fetchBetReturns(gameId, betId, ...args) {
             betId,
             chanProvider.web3.eth.defaultAccount
         )
-    } catch (err) {}
+    } catch (err) {
+        throw err
+    }
 }
 
 async function fetchGameBettorBetOdds(gameId, betId, ...args) {

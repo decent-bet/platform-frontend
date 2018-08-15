@@ -163,7 +163,7 @@ async function fetchGamesItem(gameId, ...args) {
     return gameItem
 }
 
-async function fetchGames(...args) {
+async function fetchGames() {
     let currentId = 0
     let gameArray = []
     try {

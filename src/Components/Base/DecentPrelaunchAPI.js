@@ -24,10 +24,10 @@ class DecentPrelaunchAPI {
         request(options, (err, response, body) => {
             try {
                 body = JSON.parse(body)
+                callback(err, body)
             } catch (e) {
-
+                callback(e, body)
             }
-            callback(err, body)
         })
     }
 

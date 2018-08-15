@@ -1,7 +1,7 @@
 import Actions from './index'
 import { Actions as BalanceActions } from '../balance'
 import Helper from '../../Components/Helper'
-
+/*no-unused-vars dispatch getState*/
 const helper = new Helper()
 
 function filterEvents(events) {
@@ -181,7 +181,7 @@ export function logClaimedBet(contract) {
 }
 
 export function logUpdatedTime(contract) {
-    return async (dispatch, getState, { chainProvider }) => {
+    return async (dispatch) => {
         const events = await contract.logUpdatedTime()
         const event = filterEvents(events)
         if(event) {

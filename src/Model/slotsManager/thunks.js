@@ -1,6 +1,6 @@
 import Actions from './actions'
 import { Actions as BalanceActions } from '../balance'
-
+/*no-unused-vars dispatch getState*/
 // Used for VSCode Code Completion
 import BigNumber from 'bignumber.js' // eslint-disable-line no-unused-vars
 
@@ -118,7 +118,6 @@ export function watcherChannelFinalized(channelId) {
 
 // Watcher that monitors the claiming of a channel's Chips
 export function watcherChannelClaimed(channelId) {
-    return async (dispatch, getState, { chainProvider }) => {
         return async (dispatch, getState, { contractFactory }) => {
             const contract = contractFactory.slotsChannelManagerContract()
             try {
@@ -139,5 +138,4 @@ export function watcherChannelClaimed(channelId) {
                 return
             }
         }
-    }
 }

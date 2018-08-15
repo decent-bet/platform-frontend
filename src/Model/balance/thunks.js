@@ -7,13 +7,13 @@ export function listenForTransfers() {
         // Transfer from
         tokenContract
             .logTransfer(chainProvider.defaultAccount, true)
-            .then((error, events) => {
+            .then(() => {
                 dispatch(actions.getTokens(chainProvider))
             })
         //Transfer To
         tokenContract
             .logTransfer(chainProvider.defaultAccount, false)
-            .then((error, events) => {
+            .then(() => {
                 dispatch(actions.getTokens(chainProvider))
             })
     }
