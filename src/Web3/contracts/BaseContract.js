@@ -54,11 +54,7 @@ export default class BaseContract {
      */
     async getBalance(address) {
         console.log('getBalance()', address)
-        return await this.web3.eth.getBalance(address)
-    }
-
-    async sendTransaction() {
-
+        return await this._web3.eth.getBalance(address)
     }
 
     /**
@@ -72,7 +68,7 @@ export default class BaseContract {
      */
     async signAndSendRawTransaction(to, gasPrice, gas, data) {
         if (!gasPrice || gasPrice < 0) {
-            gasPrice = this.web3.eth.gasPrice
+            gasPrice = this._web3.eth.gasPrice
         }
 
         if (!gas || gas < 0) {
@@ -80,7 +76,7 @@ export default class BaseContract {
         }
 
         let txBody = {
-            from: this.web3.eth.defaultAccount,
+            from: this._web3.eth.defaultAccount,
             to,
             gas,
             data,
@@ -92,8 +88,8 @@ export default class BaseContract {
         try {
             
             let privateKey = this._keyHandler.get()
-            let signed = await this.web3.eth.accounts.signTransaction(txBody, privateKey)
-            let promiseEvent = this.web3.eth.sendSignedTransaction(signed.rawTransaction)
+            let signed = await this._web3.eth.accounts.signTransaction(txBody, privateKey)
+            let promiseEvent = this._web3.eth.sendSignedTransaction(signed.rawTransaction)
             return promiseEvent
 
         } catch (error) {
@@ -104,9 +100,9 @@ export default class BaseContract {
     }
 
     async getSignedRawTx(to, value, data, gas, dependsOn) {
-        let blockRef = await this.web3.eth.getBlockRef()
+        let blockRef = await this._web3.eth.getBlockRef()
 
-        let signedTx = await this.web3.eth.accounts.signTransaction({
+        let signedTx = await this._web3.eth.accounts.signTransaction({
             to,
             value,
             data,
@@ -121,7 +117,7 @@ export default class BaseContract {
 
         signedTx.id = '0x' + cry.blake2b256(
             signedTx.messageHash,
-            this.web3.eth.defaultAccount
+            this._web3.eth.defaultAccount
         ).toString('hex')
 
         return signedTx
@@ -135,7 +131,7 @@ export default class BaseContract {
      */
     async signAndSendRawTransactionWithClauses(clauses) {
         const gas = Transaction.intrinsicGas(clauses)
-        const blockRef = await this.web3.eth.getBlockRef()
+        const blockRef = await this._web3.eth.getBlockRef()
         console.log('signAndSendRawTransactionWithClauses', gas, blockRef)
 
         const body = {
@@ -157,7 +153,7 @@ export default class BaseContract {
             const privateKeyBuffer = Buffer.from(privateKey, 'hex')
             tx.signature = cry.secp256k1.sign(cry.blake2b256(tx.encode()), privateKeyBuffer)
             const raw = tx.encode()
-            return this.web3.eth.sendSignedTransaction('0x' + raw.toString('hex'))
+            return this._web3.eth.sendSignedTransaction('0x' + raw.toString('hex'))
         } catch (error) {
             console.error('signAndSendRawTransaction error', error.stack)
             return null

@@ -23,7 +23,7 @@ class KeyHandler {
                 password
             ).toString(CryptoJS.enc.Utf8)
         } catch (e) {
-            privateKey = ""
+            privateKey = null
         }
         
         return privateKey

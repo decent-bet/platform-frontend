@@ -8,7 +8,6 @@ let BettingProvider = artifacts.require('BettingProvider')
 let BettingProviderHelper = artifacts.require('BettingProviderHelper')
 let SlotsChannelManager = artifacts.require('SlotsChannelManager')
 
-let wallet
 let token
 let house
 let houseLottery

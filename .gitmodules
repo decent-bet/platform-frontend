@@ -4,6 +4,7 @@
 [submodule "public/slots-classic-7even"]
 	path = public/slots-classic-7even
 	url = git@gitlab.dcntbt.com:slots/classic-7even.git
+	ignore = dirty
 [submodule "public/slots-monster-mayhem"]
 	path = public/slots-monster-mayhem
 	url = git@gitlab.dcntbt.com:slots/monster-mayhem.git

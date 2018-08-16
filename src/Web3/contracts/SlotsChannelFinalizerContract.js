@@ -65,7 +65,7 @@ export default class SlotsChannelFinalizerContract extends BaseContract {
             'Finalize',
             id,
             typeof id,
-            this.web3.eth.defaultAccount
+            this._web3.eth.defaultAccount
         )
 
         let logKeys = spin => {

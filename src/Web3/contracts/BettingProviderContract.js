@@ -106,7 +106,7 @@ export default class BettingProviderContract extends BaseContract {
             'Depositing',
             amount,
             'to sportsbook as',
-            this.web3.eth.defaultAccount
+            this._web3.eth.defaultAccount
         )
 
         let encodedFunctionCall = ethAbi.encodeFunctionCall({
@@ -131,7 +131,7 @@ export default class BettingProviderContract extends BaseContract {
             'Withdraw',
             amount,
             'from sportsbook as',
-            this.web3.eth.defaultAccount
+            this._web3.eth.defaultAccount
         )
 
         let encodedFunctionCall = ethAbi.encodeFunctionCall({
@@ -593,7 +593,7 @@ export default class BettingProviderContract extends BaseContract {
     async logNewBet(fromBlock, toBlock) {
         return await this.getPastEvents('LogNewBet', {
             filter: {},
-            bettor: this.web3.eth.defaultAccount,
+            bettor: this._web3.eth.defaultAccount,
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
@@ -602,7 +602,7 @@ export default class BettingProviderContract extends BaseContract {
     async logClaimedBet(fromBlock, toBlock) {
         return await this.getPastEvents('LogClaimedBet', {
             filter: {},
-            bettor: this.web3.eth.defaultAccount,
+            bettor: this._web3.eth.defaultAccount,
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })
@@ -611,7 +611,7 @@ export default class BettingProviderContract extends BaseContract {
     async logDeposit(fromBlock, toBlock) {
         return await this.getPastEvents('LogDeposit', {
             filter: {},
-            _address: this.web3.eth.defaultAccount,
+            _address: this._web3.eth.defaultAccount,
             fromBlock: fromBlock ? fromBlock : 'latest',
             toBlock: toBlock ? toBlock : 'latest'
         })

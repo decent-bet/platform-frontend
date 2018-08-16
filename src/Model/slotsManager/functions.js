@@ -5,7 +5,7 @@ import DecentAPI from '../../Components/Base/DecentAPI'
 const BigNumber = require('bignumber.js')
 
 const keyHandler = new KeyHandler()
-const decentAPI = new DecentAPI()
+let decentAPI
 
 export function getAesKey(id, chainProvider) {
     const { web3 } = chainProvider
@@ -68,7 +68,7 @@ export async function getChannelDepositParams(id, chainProvider) {
  * @param {state} state
  * @param {Boolean} finalize
  */
-export async function getSpin(betSize, state, finalize) {
+export async function getSpin(betSize, state, finalize, chainProvider) {
     const lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]
     const spinNonce = finalize ? (state.nonce === 1 ? 0 : state.nonce) : state.nonce
     const nonce = state.nonce
@@ -102,6 +102,9 @@ export async function getSpin(betSize, state, finalize) {
         betSize: betSize
     }
 
+    if(!decentAPI) {
+        decentAPI = new DecentAPI(chainProvider.web3)
+    }
     let packedString = getTightlyPackedSpin(spin)
     let sign = await decentAPI.signString(packedString)
     spin.sign = sign.sig

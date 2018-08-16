@@ -117,9 +117,9 @@ async function getChannelDetails(id, chainProvider) {
  * @param aesKey
  * @param chainProvider
  */
-async function loadLastSpin(id, hashes, aesKey) {
+async function loadLastSpin(id, hashes, aesKey, chainProvider) {
     if(!decentApi)
-        decentApi = new DecentAPI()
+        decentApi = new DecentAPI(chainProvider.web3)
     let result = await Bluebird.fromCallback(cb =>
         decentApi.getLastSpin(id, cb)
     )

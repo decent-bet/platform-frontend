@@ -18,9 +18,20 @@ async function fetchAllowance(chainProvider) {
             defaultAccount,
             slotsAddress
         )
-        return Number(allowance).toFixed()
+        return allowance.toFixed()
     } catch (err) {
         console.log('Error retrieving slots channel manager allowance', err)
+    }
+}
+
+// Starts the current session
+async function fetchSessionId() {
+    try {
+        const instance = helper.getContractHelper().SlotsChannelManager
+        const session = await instance.currentSession()
+        return session.toNumber()
+    } catch (err) {
+        console.log('Error retrieving current session', err.message)
     }
 }
 
@@ -28,8 +39,9 @@ async function fetchAllowance(chainProvider) {
 async function fetchBalance(chainProvider) {
     let {contractFactory} = chainProvider
     try {
+        const sessionId = await fetchSessionId()
         let slotsContract = await contractFactory.slotsChannelManagerContract()
-        let balance = await slotsContract.balanceOf(chainProvider.defaultAccount)
+        let balance = await slotsContract.balanceOf(chainProvider.defaultAccount, sessionId)
         balance = balance || 0
         return parseFloat(balance).toFixed()
     } catch (err) {

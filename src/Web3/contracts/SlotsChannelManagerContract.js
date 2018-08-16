@@ -16,8 +16,8 @@ export default class SlotsChannelManagerContract extends BaseContract {
         return await this.instance.methods.checkSig(id, msgHash, sign, turn).call()
     }
 
-    async balanceOf(address) {
-        return await this.instance.methods.balanceOf(address).call()
+    async balanceOf(address, sessionId) {
+        return await this.instance.methods.balanceOf(address, sessionId).call()
     }
 
     async getPlayer(id, isHouse) {
@@ -51,7 +51,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
             'LogNewChannel',
             {
                 filter: {
-                    user: this.web3.eth.defaultAccount
+                    user: this._web3.eth.defaultAccount
                 },
                 fromBlock: 0,
                 toBlock: 'latest'
@@ -63,7 +63,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
      * Setters
      */
     async createChannel(deposit) {
-        let encodedFunctionCall = this.web3.eth.abi.encodeFunctionCall(
+        let encodedFunctionCall = this._web3.eth.abi.encodeFunctionCall(
             {
                 name: 'createChannel',
                 type: 'function',
@@ -86,7 +86,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
     }
 
     async deposit(amount) {
-        let encodedFunctionCall = this.web3.eth.abi.encodeFunctionCall(
+        let encodedFunctionCall = this._web3.eth.abi.encodeFunctionCall(
             {
                 name: 'deposit',
                 type: 'function',
@@ -109,7 +109,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
     }
 
     async withdraw(amount) {
-        let encodedFunctionCall = this.web3.eth.abi.encodeFunctionCall(
+        let encodedFunctionCall = this._web3.eth.abi.encodeFunctionCall(
             {
                 name: 'withdraw',
                 type: 'function',
@@ -132,7 +132,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
     }
 
     async depositToChannel(id, initialUserNumber, finalUserHash) {
-        let encodedFunctionCall = this.web3.eth.abi.encodeFunctionCall(
+        let encodedFunctionCall = this._web3.eth.abi.encodeFunctionCall(
             {
                 name: 'depositChannel',
                 type: 'function',
@@ -163,7 +163,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
     }
 
     async claim(id) {
-        let encodedFunctionCall = this.web3.eth.abi.encodeFunctionCall(
+        let encodedFunctionCall = this._web3.eth.abi.encodeFunctionCall(
             {
                 name: 'claim',
                 type: 'function',
@@ -191,7 +191,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
     async logNewChannel(fromBlock, toBlock) {
         return await this.getPastEvents('LogNewChannel', {
             filter: {
-                user: this.web3.eth.defaultAccount
+                user: this._web3.eth.defaultAccount
             },
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
@@ -201,7 +201,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
     async logChannelDeposit(id, fromBlock, toBlock) {
         return await this.getPastEvents('LogChannelDeposit', {
             filter: {
-                user: this.web3.eth.defaultAccount,
+                user: this._web3.eth.defaultAccount,
                 id: id
             },
             fromBlock: fromBlock ? fromBlock : 0,
@@ -212,7 +212,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
     async logChannelActivate(id, fromBlock, toBlock) {
         return await this.getPastEvents('LogChannelActivate', {
             filter: {
-                user: this.web3.eth.defaultAccount,
+                user: this._web3.eth.defaultAccount,
                 id: id
             },
             fromBlock: fromBlock ? fromBlock : 0,
@@ -245,7 +245,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
     async logDeposit(fromBlock, toBlock) {
         return this.getPastEvents('LogDeposit', {
             filter: {
-                _address: this.web3.eth.defaultAccount
+                _address: this._web3.eth.defaultAccount
             },
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
@@ -255,7 +255,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
     async logWithdraw(fromBlock, toBlock) {
         return await this.getPastEvents('LogWithdraw', {
             filter: {
-                _address: this.web3.eth.defaultAccount
+                _address: this._web3.eth.defaultAccount
             },
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
@@ -288,6 +288,6 @@ export default class SlotsChannelManagerContract extends BaseContract {
                 type: 'uint256'
             }
         ]
-        return this.web3.eth.abi.decodeLog(params, log, topics)
+        return this._web3.eth.abi.decodeLog(params, log, topics)
     }
 }

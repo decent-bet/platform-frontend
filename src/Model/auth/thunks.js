@@ -8,7 +8,7 @@ export function getProviderUrl() {
 }
 
 export function setProviderUrl(url) {
-    return (dispatch, getState, { chainProvider }) => {
+    return (dispatch, getState, chainProvider ) => {
         dispatch(actions.setProviderUrl(chainProvider, url))
     }
 }

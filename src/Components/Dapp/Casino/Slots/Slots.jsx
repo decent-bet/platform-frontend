@@ -20,6 +20,7 @@ class Slots extends Component {
     }
 
     componentDidMount = () => {
+        
        this.props.dispatch(Thunks.initializeSlots())
        this.refreshChannels()
     }
@@ -108,7 +109,6 @@ class Slots extends Component {
 
     renderLoadingState = message => (
         <StateChannelWaiter
-            builtChannelId={this.props.builtChannelId}
             message={message}
         />
     )
@@ -142,7 +142,7 @@ class Slots extends Component {
             claimableChannels={this.state.claimableChannels}
 
             /* Function as a child. Receives `channel` */
-            children={this.renderStateChannelToolbar}
+            channelProp={this.renderStateChannelToolbar}
         />
     )
 

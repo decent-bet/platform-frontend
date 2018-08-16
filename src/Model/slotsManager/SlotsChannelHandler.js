@@ -12,11 +12,13 @@ import { SHA256 } from 'crypto-js'
 import BigNumber from 'bignumber.js'
 import { getSpin, getTightlyPackedSpin } from './functions'
 import Bluebird from 'bluebird'
-
-const decentApi = new DecentAPI()
 const helper = new Helper()
 
 export default class SlotsChannelHandler {
+
+    constructor(web3) {
+        this.decentApi = new DecentAPI(web3)
+    }
     /**
      *
      * @param betSize
@@ -30,7 +32,7 @@ export default class SlotsChannelHandler {
         try {
             let userSpin = await getSpin(betSize, state, false)
             let response = await Bluebird.fromCallback(cb =>
-                decentApi.spin(id, userSpin, state.aesKey, cb)
+                this.decentApi.spin(id, userSpin, state.aesKey, cb)
             )
 
             if (response.error) {

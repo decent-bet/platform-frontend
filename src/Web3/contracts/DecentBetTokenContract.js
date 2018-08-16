@@ -13,7 +13,7 @@ export default class DecentBetTokenContract extends BaseContract {
 
     /** Setters */
     async approve (address, value) {
-        let encodedFunctionCall = this.web3.eth.abi.encodeFunctionCall(
+        let encodedFunctionCall = this._web3.eth.abi.encodeFunctionCall(
             {
                 name: 'approve',
                 type: 'function',
@@ -42,7 +42,7 @@ export default class DecentBetTokenContract extends BaseContract {
     }
 
     async faucet() {
-        let encodedFunctionCall = this.web3.eth.abi.encodeFunctionCall(
+        let encodedFunctionCall = this._web3.eth.abi.encodeFunctionCall(
             {
                 name: 'faucet',
                 type: 'function',
@@ -80,7 +80,7 @@ export default class DecentBetTokenContract extends BaseContract {
 
     async logApproval(spender, value, fromBlock, toBlock) {
         let options = {
-            owner: this.web3.eth.defaultAccount
+            owner: this._web3.eth.defaultAccount
         }
         if(spender)
             options.spender = spender

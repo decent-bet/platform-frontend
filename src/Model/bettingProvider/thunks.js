@@ -75,7 +75,7 @@ export function logNewBet(contract) {
 }
 
 export function logNewGame(contract) {
-    return async (dispatch, getState, { chainProvider }) => {
+    return async (dispatch, getState, chainProvider ) => {
         const events = await contract.logNewGame()
         const event = filterEvents(events)
         if(event) {

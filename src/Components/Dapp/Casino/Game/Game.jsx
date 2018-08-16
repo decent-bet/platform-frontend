@@ -8,8 +8,6 @@ import {
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import {
-    Actions,
-    SlotsChannelHandler,
     Thunks
 } from '../../../../Model/slotsManager'
 import { CHANNEL_STATUS_FINALIZED } from '../../../Constants'
@@ -20,7 +18,6 @@ import Iframe from './Iframe'
 import './game.css'
 
 const helper = new Helper()
-const slotsChannelHandler = new SlotsChannelHandler()
 
 class Game extends Component {
     state = {
@@ -49,7 +46,8 @@ class Game extends Component {
             callback(err, msg, lines)
         }
 
-        slotsChannelHandler.spin(totalBetSize, this.props, listener)
+        dispatch(Thunks.spin(totalBetSize, this.props, listener))
+
     }
 
     getBalance = () => ({

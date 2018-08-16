@@ -1,27 +1,21 @@
 import Helper from '../Helper'
 import { KeyHandler } from '../../Web3'
-import { ChainProvider } from '../../Web3/ChainProvider'
 
 const cryptoJs = require("crypto-js")
-
 const request = require('request')
-
-const chainProvider = new ChainProvider()
 const helper = new Helper()
 const keyHandler = new KeyHandler()
-
+const ethUtil = require('ethereumjs-util')
 const LOCAL_URL = 'http://localhost:3010/api'
 const PUBLIC_URL = 'https://slots-api.decent.bet/api'
-
 const BASE_URL = helper.isDev() ? LOCAL_URL : PUBLIC_URL
 
-const ethUtil = require('ethereumjs-util')
 
 
 class DecentAPI {
 
-    constructor() {
-        this.web3 = chainProvider.web3
+    constructor(web3) {
+        this.web3 = web3
     }
 
     /** Off-chain finally verifiable slot spins */

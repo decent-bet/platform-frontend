@@ -8,7 +8,7 @@ export const mockContract = {
     }
 }
 
-export const mockgetChainTag = jest.fn(async json => {
+export const mockgetChainTag = jest.fn(async () => {
     return Promise.resolve({
         'x7032': {
             address: 'x0123456789'
@@ -67,7 +67,7 @@ export const mockEth = {
 const thorify = jest
     .fn()
     .mockImplementation(
-        (web3Instance, host = 'http://localhost:8669', timeout = 0) => {
+        () => {
             return {
                 eth: mockEth,
                 utils: jest.fn()

@@ -13,8 +13,8 @@ export async function fetchTokens(chainProvider) {
 
         let rawResult = await contract.balanceOf(address)
         let tokens = new BigNumber(rawResult)
-            .dividedBy(units.ether)
-            .toNumber()
+                                .dividedBy(units.ether)
+                                .toNumber()
         return tokens
     } catch (err) {
         console.log('Error retrieving token balance', err)

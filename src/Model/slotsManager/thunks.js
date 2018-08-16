@@ -1,19 +1,30 @@
 import Actions from './actions'
 import { Actions as BalanceActions } from '../balance'
-/*no-unused-vars dispatch getState*/
-// Used for VSCode Code Completion
-import BigNumber from 'bignumber.js' // eslint-disable-line no-unused-vars
+import SlotsChannelHandler from './SlotsChannelHandler'
+
+let slotsChannelHandler
 
 export function initializeSlots() {
 
-    return async (dispatch, getState, chainProvider) => {
+    return async (dispatch, getState, { chainProvider }) => {
         await dispatch(Actions.getBalance(chainProvider))
         await dispatch(Actions.getAllowance(chainProvider))
     }
 }
 
-export function fetchChannels() {
+export function spin(totalBetSize, props, listener) {
     return async (dispatch, getState, { chainProvider }) => {
+        
+        if(!slotsChannelHandler) {
+            slotsChannelHandler = new SlotsChannelHandler(chainProvider.web3)
+        }
+
+        await slotsChannelHandler.spin(totalBetSize, props, listener)
+    }
+}
+
+export function fetchChannels() {
+    return async (dispatch, getState, { chainProvider } ) => {
         return await dispatch(Actions.getChannels(chainProvider))
     }
 }
@@ -24,11 +35,11 @@ export function fetchChannels() {
  * @returns {Promise}
  */
 export function claimAndWithdrawFromChannel(channelId) {
-    return async (dispatch, getState, { chainProvider }) => {
+    return async (dispatch, getState, { chainProvider } ) => {
         // Claim the channel, check token total in the contract, and withdraw tokens
         await dispatch(Actions.claimChannel(channelId, chainProvider))
         const tokensInContract = await dispatch(
-            Actions.getBalance(chainProvider)
+            Actions.getBalance(chainProvider, channelId)
         )
         await dispatch(Actions.withdrawChips(tokensInContract.value))
 
@@ -44,7 +55,7 @@ export function claimAndWithdrawFromChannel(channelId) {
  * @returns {Promise<string>}
  */
 export function buildChannel(amount, allowance) {
-    return async (dispatch, getState, chainProvider) => {
+    return async (dispatch, getState, { chainProvider }) => {
         // Approve Tokens if it needs more allowance
         if (allowance.isLessThan(amount)) {
             await dispatch(
@@ -99,7 +110,7 @@ export function initializeGame(channelId) {
 }
 
 export function finalizeChannel(channelId, state) {
-    return async (dispatch, getState, chainProvider) => {
+    return async (dispatch, getState, { chainProvider }) => {
         await dispatch(Actions.finalizeChannel(channelId, state, chainProvider))
     }
 }

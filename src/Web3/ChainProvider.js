@@ -20,13 +20,7 @@ export class ChainProvider {
     constructor(web3, keyHandler) {
         this._web3 = thorify(web3, this.url)
         this._keyHandler = keyHandler
-        let privateKey = keyHandler.get()
-        if(!privateKey || privateKey.length <= 0 ) {
-            throw new Error('Private key not available')
-        }
-        this._web3.eth.defaultAccount = this._keyHandler.getAddress()
-        this._web3.eth.accounts.wallet.add(privateKey)
-
+        this.setupThorify()
     }
 
     /**
@@ -50,6 +44,14 @@ export class ChainProvider {
      * @returns {string}
      */
     get url() {
+        return ChainProvider.getProviderUrl()
+    }
+    
+    set url(provider) {
+        localStorage.setItem(KEY_GETH_PROVIDER, provider)
+    }
+
+    static getProviderUrl() {
         let provider = localStorage.getItem(KEY_GETH_PROVIDER)
         if (!provider || provider === 'undefined') {
             // In Safari the localStorage returns the text 'undefined' as is
@@ -60,10 +62,6 @@ export class ChainProvider {
         }
 
         return provider
-    }
-    
-    set url(provider) {
-        localStorage.setItem(KEY_GETH_PROVIDER, provider)
     }
 
     /**
@@ -82,12 +80,26 @@ export class ChainProvider {
      * Setup the contract factory
      */
     buildContractFactory() {
-        let privateKey = this._keyHandler.get()
-        if(!privateKey || privateKey.length <= 0 ) {
-            throw new Error('Private key not available')
-        }
-        this._web3.eth.accounts.wallet.add(privateKey)
-        this._web3.eth.defaultAccount = this._keyHandler.getAddress()
+        this.setupThorify()
         this._contractFactory = new ContractFactory(this._web3, this._keyHandler)
+    }
+
+    setupThorify() {
+        let privateKey = this._keyHandler.get()
+        if(privateKey && privateKey.length > 0 ) {
+            this._web3.eth.accounts.wallet.add(privateKey)
+            this._web3.eth.defaultAccount = this._keyHandler.getAddress()
+        }
+    }
+
+    static buildThorify(web3, keyHandler) {
+        let url = ChainProvider.getProviderUrl()
+        let _thorify = thorify(web3, url)
+        let privateKey = keyHandler.get()
+        if(privateKey && privateKey.length > 0 ) {
+            _thorify.eth.accounts.wallet.add(privateKey)
+            _thorify.eth.defaultAccount = keyHandler.getAddress()
+        }
+        return _thorify
     }
 }
