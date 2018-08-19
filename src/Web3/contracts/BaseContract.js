@@ -32,7 +32,7 @@ export default class BaseContract {
             {
                 range: {},
                 options,
-                order: "ASC"
+                order: "DESC"
             }
         )
     }
