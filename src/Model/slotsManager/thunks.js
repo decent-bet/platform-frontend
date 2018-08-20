@@ -40,18 +40,25 @@ export function claimAndWithdrawFromChannel(channelId) {
  * Builds a State Channel in a single step
  * @param {BigNumber} amount
  * @param {BigNumber} allowance
+ * @param balance
  * @returns {Promise<string>}
  */
-export function buildChannel(amount, allowance) {
+export function buildChannel(amount, allowance, balance) {
 
     return async (dispatch, getState, chainProvider) => {
         // Approve Tokens if it needs more allowance
-        if (allowance.isLessThan(amount)) {
-            await dispatch(
-                Actions.approveAndDepositChips(amount, chainProvider)
-            )
-        } else {
-            await dispatch(Actions.depositChips(amount, chainProvider))
+        if(balance.isLessThan(amount)) {
+            let depositAmount = (balance.isGreaterThan(0)) ?
+                amount.minus(balance) :
+                amount
+
+            if (allowance.isLessThan(depositAmount)) {
+                await dispatch(
+                    Actions.approveAndDepositChips(depositAmount, chainProvider)
+                )
+            } else {
+                await dispatch(Actions.depositChips(depositAmount, chainProvider))
+            }
         }
 
         // Create Channel
