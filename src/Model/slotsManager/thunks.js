@@ -55,7 +55,7 @@ export function claimAndWithdrawFromChannel(channelId) {
  * @param balance
  * @returns {Promise<string>}
  */
-export function buildChannel(amount, allowance) {
+export function buildChannel(amount, allowance, balance) {
     return async (dispatch, getState, { chainProvider }) => {
         // Approve Tokens if it needs more allowance
         if(balance.isLessThan(amount)) {
@@ -124,9 +124,11 @@ export function finalizeChannel(channelId, state) {
 
 // Watcher that monitors channel finalization
 export function watcherChannelFinalized(channelId) {
-    return async (dispatch, getState, {contractFactory}) => {
-        const contract = await contractFactory.slotsChannelManagerContract()
+    return async (dispatch, getState, { chainProvider }) => {
+        
         try {
+            let { contractFactory } = chainProvider
+            const contract = await contractFactory.slotsChannelManagerContract()
             const finalizedChannelEventSubscription =
                 await contract.getEventSubscription(contract.logChannelFinalized(channelId))
 
@@ -149,9 +151,10 @@ export function watcherChannelFinalized(channelId) {
 
 // Watcher that monitors the claiming of a channel's Chips
 export function watcherChannelClaimed(channelId) {
-        return async (dispatch, getState, { contractFactory }) => {
-            const contract = contractFactory.slotsChannelManagerContract()
+        return async (dispatch, getState, { chainProvider }) => {
             try {
+                const { contractFactory } = chainProvider
+                const contract = contractFactory.slotsChannelManagerContract()
                 const claimChannelEventSubscription =
                     await contract.getEventSubscription(contract.logClaimChannelTokens(channelId))
 

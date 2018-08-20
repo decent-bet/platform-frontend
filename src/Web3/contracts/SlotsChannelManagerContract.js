@@ -20,8 +20,8 @@ export default class SlotsChannelManagerContract extends BaseContract {
         return await this.instance.methods.checkSig(id, msgHash, sign, turn).call()
     }
 
-    async balanceOf(address, sessionId) {
-        return await this.instance.methods.balanceOf(address, sessionId).call()
+    async balanceOf(address) {
+        return await this.instance.methods.balanceOf(address).call()
     }
 
     async getPlayer(id, isHouse) {

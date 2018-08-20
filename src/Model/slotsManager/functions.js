@@ -8,8 +8,7 @@ const keyHandler = new KeyHandler()
 let decentAPI
 const initialChannelHouseBalance = new BigNumber(10).pow(18).times(10000).toFixed()
 
-export function getAesKey(id, chainProvider) {
-    const { web3 } = chainProvider
+export function getAesKey(id, { web3 }) {
     const idHash = web3.utils.soliditySha3(id)
     let privateKey = keyHandler.get()
     let sign = web3.eth.accounts.sign(idHash, privateKey)

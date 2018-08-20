@@ -7,7 +7,7 @@ import { getAesKey, getUserHashes } from '../functions'
 import BigNumber from 'bignumber.js'
 import moment from 'moment'
 
-let decentApi
+let decentApi = null
 
 async function fetchAesKey(channelId, chainProvider) {
     let key = getAesKey(channelId, chainProvider)
@@ -120,6 +120,7 @@ async function getChannelDetails(id, chainProvider) {
 async function loadLastSpin(id, hashes, aesKey, chainProvider) {
     if(!decentApi)
         decentApi = new DecentAPI(chainProvider.web3)
+
     let result = await Bluebird.fromCallback(cb =>
         decentApi.getLastSpin(id, cb)
     )

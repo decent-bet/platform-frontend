@@ -24,23 +24,12 @@ async function fetchAllowance(chainProvider) {
     }
 }
 
-// Starts the current session
-async function fetchSessionId(slotsContract) {
-    try {
-        const session = await slotsContract.currentSession()
-        return Number(session)
-    } catch (err) {
-        console.log('Error retrieving current session', err.message)
-    }
-}
-
 // Get the current session balance
 async function fetchBalance(chainProvider) {
     let {contractFactory} = chainProvider
     try {
         let slotsContract = await contractFactory.slotsChannelManagerContract()
-        const sessionId = await fetchSessionId(slotsContract)
-        let balance = await slotsContract.balanceOf(chainProvider.defaultAccount, sessionId)
+        let balance = await slotsContract.balanceOf(chainProvider.defaultAccount)
         balance = balance || 0
         return parseFloat(balance).toFixed()
     } catch (err) {
@@ -79,6 +68,7 @@ function createChannel(deposit, chainProvider) {
                     }
                 })
         } catch (err) {
+            helper.toggleSnackbar('Error creating the channel transaction')
             reject(err)
         }
     })

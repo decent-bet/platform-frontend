@@ -47,7 +47,6 @@
       "recursive-readdir": "^2.2.2",
       "strip-ansi": "^4.0.0",
       "style-loader": "^0.21.0",
-      "truffle-contract": "^3.0.4",
       "truffle-solidity-loader": "^0.0.8",
       "url-loader": "^1.0.1",
       "webpack": "~3",
@@ -107,7 +106,7 @@
       "solidity-sha3": "^0.4.1",
       "swarm-js": "^0.1.37",
       "thor-devkit": "^0.2.3",
-      "thorify": "0.3.4",
+      "thorify": "0.3.5",
       "truffle-hdwallet-provider": "^0.0.5",
       "web3": "^1.0.0-beta.35",
       "wowjs": "^1.1.3"
