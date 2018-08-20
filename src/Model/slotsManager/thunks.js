@@ -2,7 +2,7 @@ import Actions from './actions'
 import { Actions as BalanceActions } from '../balance'
 import SlotsChannelHandler from './SlotsChannelHandler'
 
-let slotsChannelHandler
+let slotsChannelHandler = null
 
 export function initializeSlots() {
 
@@ -19,7 +19,7 @@ export function spin(totalBetSize, props, listener) {
             slotsChannelHandler = new SlotsChannelHandler(chainProvider.web3)
         }
 
-        await slotsChannelHandler.spin(totalBetSize, props, listener)
+        await slotsChannelHandler.spin(totalBetSize, props, chainProvider, listener)
     }
 }
 
@@ -154,9 +154,9 @@ export function watcherChannelClaimed(channelId) {
         return async (dispatch, getState, { chainProvider }) => {
             try {
                 const { contractFactory } = chainProvider
-                const contract = contractFactory.slotsChannelManagerContract()
-                const claimChannelEventSubscription =
-                    await contract.getEventSubscription(contract.logClaimChannelTokens(channelId))
+                const contract = await contractFactory.slotsChannelManagerContract()
+                const subscription = contract.logClaimChannelTokens(channelId)
+                const claimChannelEventSubscription = await contract.getEventSubscription(subscription)
 
                 const claimChannelSubscription =
                     claimChannelEventSubscription.subscribe(async (events) => {

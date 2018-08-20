@@ -195,8 +195,9 @@ export function logUpdatedTime(contract) {
 
 
 export function startEventListeners() {
-    return async (dispatch, getState, { contractFactory }) => {
+    return async (dispatch, getState, { chainProvider }) => {
         try {
+            let { contractFactory } = chainProvider
             let contract = await contractFactory.bettingProviderContract()
             //await logDeposit(contract)
             //await logWithdraw(contract)

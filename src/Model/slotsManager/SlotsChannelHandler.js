@@ -25,12 +25,12 @@ export default class SlotsChannelHandler {
      * @param state
      * @param callback
      */
-    spin = async (betSize, state, callback) => {
+    spin = async (betSize, state, chainProvider, callback) => {
         const id = state.channelId
         betSize = helper.convertToEther(betSize)
 
         try {
-            let userSpin = await getSpin(betSize, state, false)
+            let userSpin = await getSpin(betSize, state, false, chainProvider)
             let response = await Bluebird.fromCallback(cb =>
                 this.decentApi.spin(id, userSpin, state.aesKey, cb)
             )
@@ -46,9 +46,9 @@ export default class SlotsChannelHandler {
 
             let lines = this.getLines(response.message.reel)
             // Increase nonce and add response.message to houseSpins in callback
-            callback(false, response.message, lines)
+            callback(null, response.message, lines)
         } catch (error) {
-            callback(true, error.message)
+            callback(error.message)
         }
     }
 
