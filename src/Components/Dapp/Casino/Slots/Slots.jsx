@@ -70,13 +70,14 @@ class Slots extends Component {
     // Builds the entire State Channel in one Step
     onBuildChannelListener = async amount => {
         const allowance = new BigNumber(this.props.allowance)
+        const balance = new BigNumber(this.props.balance)
         const parsedAmount = new BigNumber(amount)
 
         // Update UI. Tell the user we are building the channel
         this.setState({ stateMachine: 'building_game' })
 
         // Create the channel
-        const thunk = Thunks.buildChannel(parsedAmount, allowance)
+        const thunk = Thunks.buildChannel(parsedAmount, allowance, balance)
         const currentChannel = await this.props.dispatch(thunk)
 
         // Update UI

@@ -67,8 +67,11 @@ function createChannel(deposit, chainProvider) {
 
             const newChannelSubscription =
                 newChannelEventSubscription.subscribe(async (events) => {
-                    console.log('New channel subscription - Events:', events)
+                    // Since getPastEvents() order option doesn't work, sort by block number manually
                     if (events.length >= 1) {
+                        events.sort((eventA, eventB) => {
+                            return eventB.blockNumber - eventA.blockNumber
+                        })
                         helper.toggleSnackbar('Successfully sent create channel transaction')
                         let id = events[0].returnValues.id
                         newChannelSubscription.unsubscribe()

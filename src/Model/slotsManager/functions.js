@@ -6,6 +6,7 @@ const BigNumber = require('bignumber.js')
 
 const keyHandler = new KeyHandler()
 let decentAPI
+const initialChannelHouseBalance = new BigNumber(10).pow(18).times(10000).toFixed()
 
 export function getAesKey(id, chainProvider) {
     const { web3 } = chainProvider
@@ -85,7 +86,7 @@ export async function getSpin(betSize, state, finalize, chainProvider) {
         nonce === 1 ? state.info.initialDeposit : lastHouseSpin.userBalance
     userBalance = new BigNumber(userBalance).toFixed(0)
     let houseBalance =
-        nonce === 1 ? state.info.initialDeposit : lastHouseSpin.houseBalance
+        nonce === 1 ? initialChannelHouseBalance : lastHouseSpin.houseBalance
     houseBalance = new BigNumber(houseBalance).toFixed(0)
 
     let spin = {
@@ -101,6 +102,7 @@ export async function getSpin(betSize, state, finalize, chainProvider) {
         houseBalance: houseBalance,
         betSize: betSize
     }
+    console.log('getSpin', spin)
 
     if(!decentAPI) {
         decentAPI = new DecentAPI(chainProvider.web3)
