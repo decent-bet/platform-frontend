@@ -5,7 +5,7 @@ import DecentAPI from '../../Components/Base/DecentAPI'
 const BigNumber = require('bignumber.js')
 
 const keyHandler = new KeyHandler()
-let decentAPI
+let decentAPI = null
 const initialChannelHouseBalance = new BigNumber(10).pow(18).times(10000).toFixed()
 
 export function getAesKey(id, { web3 }) {

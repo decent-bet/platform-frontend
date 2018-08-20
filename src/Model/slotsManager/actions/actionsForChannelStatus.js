@@ -6,13 +6,13 @@ import Helper from '../../../Components/Helper'
 import { getSpin } from '../functions'
 
 const helper = new Helper()
-let decentApi 
+let decentApi = null
 
 /**
  * Finalizes a channel allowing users to claim DBETs
  * @param {number} channelId
- * @param state
- * @param contractFactory
+ * @param {Object} state
+ * @param {Object} chainProvider
  */
 async function finalizeChannel(channelId, state, chainProvider) {
     let aesKey = state.aesKey
@@ -36,9 +36,10 @@ async function finalizeChannel(channelId, state, chainProvider) {
          * After sending a finalize channel tx on the Ethereum network let the state channel API know that
          * the transaction was sent to make sure future spins aren't processed.
          */
-        if(!decentAPI) {
-            decentAPI = new DecentAPI(chainProvider.web3)
+        if(!decentApi) {
+            decentApi = new DecentAPI(chainProvider.web3)
         }
+
         await Bluebird.fromCallback(cb =>
             decentApi.finalizeChannel(channelId, userSpin, aesKey, cb)
         )
