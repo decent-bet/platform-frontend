@@ -33,7 +33,7 @@ export default class DecentBetTokenContract extends BaseContract {
 
         console.log('Encoded function call', encodedFunctionCall)
 
-        return this.signAndSendRawTransaction(
+        return await this.signAndSendRawTransaction(
             this.instance.options.address,
             null,
             null,

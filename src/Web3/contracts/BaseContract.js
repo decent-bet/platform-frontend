@@ -67,19 +67,31 @@ export default class BaseContract {
      * @param {String} data
      */
     async signAndSendRawTransaction(to, gasPrice, gas, data) {
+        //check the gasPrice
         if (!gasPrice || gasPrice < 0) {
-            gasPrice = this._web3.eth.gasPrice
+            // Method not supported in thorify
+            //let price = await this._web3.eth.getGasPrice()
+            //gasPrice = Number(price)
+            gasPrice = 10000000000
         }
 
+        //check the gas
         if (!gas || gas < 0) {
             gas = 2000000
         }
+
+        const blockRef = await this._web3.eth.getBlockRef()
+        const chainTag = await this._web3.eth.getChainTag()
 
         let txBody = {
             from: this._web3.eth.defaultAccount,
             to,
             gas,
             data,
+            chainTag,
+            blockRef,
+            expiration: 32,
+            gasPriceCoef: 128,
             gasPrice
         }
 
@@ -93,7 +105,7 @@ export default class BaseContract {
             return promiseEvent
 
         } catch (error) {
-            console.error('signAndSendRawTransaction', error.message)
+            console.error('Error on signAndSendRawTransaction', error.message)
             return null
         }
 

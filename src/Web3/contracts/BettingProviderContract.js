@@ -187,7 +187,7 @@ export default class BettingProviderContract extends BaseContract {
         return await this.signAndSendRawTransaction(
             this.instance.options.address,
             null,
-            5000000,
+            null,
             encodedFunctionCall
         )
     }

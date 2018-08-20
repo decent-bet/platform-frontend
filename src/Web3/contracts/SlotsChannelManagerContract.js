@@ -12,6 +12,10 @@ export default class SlotsChannelManagerContract extends BaseContract {
         return await this.instance.methods.getChannelHashes(id).call()
     }
 
+    async currentSession() {
+        return await this.instance.methods.currentSession().call()
+    }
+    
     async checkSig(id, msgHash, sign, turn) {
         return await this.instance.methods.checkSig(id, msgHash, sign, turn).call()
     }
