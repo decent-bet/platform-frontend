@@ -49,7 +49,7 @@ class Slots extends Component {
                     activeChannels.push(channelId)
                 }
                 
-                if (isChannelClaimed(channel)) {
+                if (!isChannelClaimed(channel)) {
                     claimableChannels.push(channelId)
                 }
             }
