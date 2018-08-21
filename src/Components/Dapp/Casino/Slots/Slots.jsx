@@ -42,6 +42,7 @@ class Slots extends Component {
 
                 // Is channel still usable?
                 const isUsable =
+                    channel.info && 
                     channel.info.ready &&
                     channel.info.activated &&
                     !channel.info.finalized

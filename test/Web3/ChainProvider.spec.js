@@ -18,7 +18,6 @@ let web3
 beforeAll(() => {
     KeyHandler.mockClear()
     Web3.mockClear()
-    localStorage.clear()
 
     keyHandler = new KeyHandler()
     web3 = new Web3()
@@ -43,11 +42,6 @@ describe('ChainProvider', () => {
         
         test('should return the local url', () => {
             expect(chainProvider.url).toBe(PROVIDER_LOCAL)
-        })
-        
-        test('should return the dummy url', () => {
-            localStorage.getItem.mockReturnValue(_dummyProviderUrl)
-            expect(chainProvider.url).toBe(_dummyProviderUrl)
         })
     })
 

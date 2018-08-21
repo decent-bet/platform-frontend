@@ -20,7 +20,12 @@ export const mockEth = {
     defaultAccount: '0x',
 
     accounts: {
-        wallet: mockWallet
+        wallet: mockWallet,
+        signTransaction: jest.fn(() => {
+            return Promise.resolve({
+                rawTransaction: '9u9345932u58935u42u525u2435'
+            })
+        })
     },
 
     getBlockNumber: jest.fn(),

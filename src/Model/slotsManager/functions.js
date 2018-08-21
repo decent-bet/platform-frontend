@@ -15,7 +15,7 @@ export function getAesKey(id, { web3 }) {
     return sign.signature
 }
 
-export async function getUserHashes(randomNumber) {
+export function getUserHashes(randomNumber) {
     let lastHash
     let hashes = []
     for (let i = 0; i < 1000; i++) {

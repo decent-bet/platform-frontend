@@ -118,8 +118,9 @@ async function getChannelDetails(id, chainProvider) {
  * @param chainProvider
  */
 async function loadLastSpin(id, hashes, aesKey, chainProvider) {
-    if(!decentApi)
+    if(!decentApi) {
         decentApi = new DecentAPI(chainProvider.web3)
+    }
 
     let result = await Bluebird.fromCallback(cb =>
         decentApi.getLastSpin(id, cb)
@@ -156,11 +157,14 @@ async function loadLastSpin(id, hashes, aesKey, chainProvider) {
         hashes.initialUserNumber,
         aesKey
     ).toString(cryptoJs.enc.Utf8)
-    let userHashes = await getUserHashes(initialUserNumber)
-    let isValid = userHashes[userHashes.length - 1] === hashes.finalUserHash
-
-    if (!isValid)
+    let userHashes = getUserHashes(initialUserNumber)
+    let index = userHashes.length - 1
+    if (userHashes[index] !== hashes.finalUserHash){
+        console.warn('Invalid initial User Number', userHashes[index], hashes.finalUserHash)
         throw new Error('Invalid initial User Number')
+    }
+    
+        
     return {
         nonce: nonce,
         houseSpins: houseSpins,
@@ -192,15 +196,12 @@ async function getLastSpin(channelId, chainProvider) {
 async function getChannel(channelId, chainProvider) {
     // Execute both actions in parallel
     console.log('getChannel', channelId)
-    const data = await Bluebird.props({
-        channelDetails: getChannelDetails(channelId, chainProvider),
-        lastSpin: getLastSpin(channelId, chainProvider)
-    })
+    const data = await Promise.all(
+        [getChannelDetails(channelId, chainProvider),
+        getLastSpin(channelId, chainProvider)]
+    )
     console.log('getChannel', data)
-    return {
-        ...data.channelDetails,
-        ...data.lastSpin
-    }
+    return data
 }
 
 /**
@@ -211,21 +212,18 @@ async function getChannels(chainProvider) {
     const contract = await contractFactory.slotsChannelManagerContract()
     let channelCount = await contract.getChannelCount()
     console.log('channelCount', channelCount)
-    const accumulator = {}
+    let promises = []
 
     if (channelCount > 0) {
-        const list = await contract.getChannels()
-        console.log('Channels', list)
-        for (const iterator of list) {
-            // Query every channel and accumulate it
-            const id = iterator.returnValues.id
-            // Add promise itself into the array.
-            const resultPromise = getChannel(id, chainProvider)
-            accumulator[id] = resultPromise
+        const channels = await contract.getChannels()
+        console.log('Channels', channels)
+        for (const channel of channels) {
+            const id = channel.returnValues.id
+            promises.push(getChannel(id, chainProvider))
         }
     }
     // Execute all promises simultaneously.
-    return Bluebird.props(accumulator)
+    return await Promise.all(promises)
 }
 
 export default createActions({

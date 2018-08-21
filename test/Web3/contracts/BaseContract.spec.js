@@ -19,8 +19,8 @@ beforeAll(() => {
     localStorage.clear()
 
     web3 = thorify(new Web3(), _dummyProviderUrl)
-    const { BettingProviderContract } = JsonContracts 
-    instance = new web3.eth.Contract(BettingProviderContract.abi)
+    const { DecentBetTokenContract } = JsonContracts 
+    instance = new web3.eth.Contract(DecentBetTokenContract.abi)
     keyHandler = new KeyHandler()
     
     keyHandler.get = jest.fn()
