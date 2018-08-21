@@ -59,7 +59,7 @@ export default class SlotsChannelFinalizerContract extends BaseContract {
     }
 
     async finalizeZeroNonce(id, userSpin) {
-        userSpin = this.getSpinParts(userSpin)
+        userSpin = await this.getSpinParts(userSpin)
 
         console.log(
             'Finalize',

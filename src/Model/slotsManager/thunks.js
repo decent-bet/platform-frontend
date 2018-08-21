@@ -41,7 +41,9 @@ export function claimAndWithdrawFromChannel(channelId) {
         const tokensInContract = await dispatch(
             Actions.getBalance(chainProvider, channelId)
         )
-        await dispatch(Actions.withdrawChips(tokensInContract.value))
+
+        if(tokensInContract)
+            await dispatch(Actions.withdrawChips(tokensInContract.value))   
 
         // Update the ether balance
         await dispatch(BalanceActions.getEtherBalance(chainProvider))
@@ -52,7 +54,7 @@ export function claimAndWithdrawFromChannel(channelId) {
  * Builds a State Channel in a single step
  * @param {BigNumber} amount
  * @param {BigNumber} allowance
- * @param balance
+ * @param balanceZ
  * @returns {Promise<string>}
  */
 export function buildChannel(amount, allowance, balance) {
@@ -67,31 +69,46 @@ export function buildChannel(amount, allowance, balance) {
                 await dispatch(
                     Actions.approveAndDepositChips(depositAmount, chainProvider)
                 )
+                return await createChannel(dispatch, amount, chainProvider) 
             } else {
                 await dispatch(Actions.depositChips(depositAmount, chainProvider))
+                return await createChannel(dispatch, amount, chainProvider) 
+            }
+        } else {
+            if (allowance.isLessThan(amount)) {
+                await dispatch(
+                    Actions.approveAndDepositChips(amount, chainProvider)
+                )
+                return await createChannel(dispatch, amount, chainProvider) 
+            } else {
+                await dispatch(Actions.depositChips(amount, chainProvider))
+                return await createChannel(dispatch, amount, chainProvider) 
             }
         }
-
-        // Create Channel
-        const result = await dispatch(
-            Actions.createChannel(amount, chainProvider)
-        )
-        const value = result.value
-
-        if (value) {
-            // Deposit Tokens to channel
-            await dispatch(Actions.depositToChannel(value, chainProvider))
-
-            // Query the channel's data and add it to the redux state
-            await dispatch(Actions.getChannel(value, chainProvider))
-
-            // Update the ether balance
-            await dispatch(BalanceActions.getEtherBalance(chainProvider))
-            return value
-        }
-
-        return 0
     }
+}
+
+async function createChannel(dispatch, amount, chainProvider) {
+     // Create Channel
+     const result = await dispatch(
+        Actions.createChannel(amount, chainProvider)
+    )
+    const value = result.value
+
+    if (value) {
+        // Deposit Tokens to channel
+        await dispatch(Actions.depositToChannel(value, chainProvider))
+
+        // Query the channel's data and add it to the redux state
+        await dispatch(Actions.getChannel(value, chainProvider))
+
+        // Update the ether balance
+        await dispatch(BalanceActions.getEtherBalance(chainProvider))
+        await dispatch(BalanceActions.getTokens(chainProvider))
+        return value
+    }
+
+    return 0
 }
 
 /**

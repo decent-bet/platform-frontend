@@ -48,7 +48,8 @@ class Slots extends Component {
                 if (isUsable) {
                     activeChannels.push(channelId)
                 }
-                if (channel.info.finalized && !isChannelClaimed(channel)) {
+                
+                if (isChannelClaimed(channel)) {
                     claimableChannels.push(channelId)
                 }
             }
@@ -81,7 +82,11 @@ class Slots extends Component {
         const currentChannel = await this.props.dispatch(thunk)
 
         // Update UI
-        this.setState({ stateMachine: 'select_game', currentChannel })
+        if(currentChannel) {
+            this.setState({ stateMachine: 'select_game', currentChannel })
+        } else {
+            this.refreshChannels()
+        }
     }
 
     // Claims the tokens from a Channel
