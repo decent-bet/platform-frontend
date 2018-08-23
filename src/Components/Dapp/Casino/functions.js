@@ -6,8 +6,9 @@ import BigNumber from 'bignumber.js'
  * @param {StateChannel} channel
  */
 export function channelBalanceParser(channel) {
-    let totalTokens = channel.info ? new BigNumber(channel.info.initialDeposit) : 0
-    if (channel.houseSpins && channel.houseSpins.length > 0) {
+    let initialDeposit = (channel && channel.info) ? new BigNumber(channel.info.initialDeposit) : 0
+    let totalTokens = new BigNumber(initialDeposit)
+    if (channel && channel.houseSpins && channel.houseSpins.length > 0) {
         const lastIdx = channel.houseSpins.length - 1
         const rawBalance = channel.houseSpins[lastIdx].userBalance
         totalTokens = new BigNumber(rawBalance)
