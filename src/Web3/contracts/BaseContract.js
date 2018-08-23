@@ -67,14 +67,13 @@ export default class BaseContract {
      * the ethereum network
      *
      * @param {String} to
-     * @param {Number} gasPrice
+     * @param {Number} gasPriceCoef
      * @param {Number} gas
      * @param {String} data
      */
-    async signAndSendRawTransaction(to, gasPrice, gas, data) {
-        if (!gasPrice || gasPrice < 0) {
-            gasPrice = this.web3.eth.gasPrice
-        }
+    async signAndSendRawTransaction(to, gasPriceCoef, gas, data) {
+        if (!gasPriceCoef)
+            gasPriceCoef = 0
 
         if (!gas || gas < 0) {
             gas = 2000000
@@ -85,7 +84,7 @@ export default class BaseContract {
             to,
             gas,
             data,
-            gasPrice
+            gasPriceCoef
         }
 
         console.log('signAndSendRawTransaction - txBody:', txBody)
