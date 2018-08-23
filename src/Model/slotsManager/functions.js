@@ -1,12 +1,11 @@
 import { KeyHandler } from '../../Web3'
 import { SHA256, AES } from 'crypto-js'
 import DecentAPI from '../../Components/Base/DecentAPI'
-
 const BigNumber = require('bignumber.js')
 
 const keyHandler = new KeyHandler()
 let decentAPI = null
-const initialChannelHouseBalance = new BigNumber(10).pow(18).times(10000).toFixed()
+const initialChannelHouseBalance = new BigNumber(10).pow(18).times(10000)
 
 export function getAesKey(id, { web3 }) {
     const idHash = web3.utils.soliditySha3(id)
@@ -72,6 +71,7 @@ export async function getSpin(betSize, state, finalize, chainProvider) {
     const lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]
     const spinNonce = finalize ? (state.nonce === 1 ? 0 : state.nonce) : state.nonce
     const nonce = state.nonce
+    console.log('getSpin', betSize, lastHouseSpin, spinNonce, nonce)
 
     let reelHash =
         nonce === 1 ? state.hashes.finalReelHash : lastHouseSpin.reelHash
@@ -83,10 +83,10 @@ export async function getSpin(betSize, state, finalize, chainProvider) {
     let prevUserHash = state.userHashes[state.userHashes.length - nonce - 1]
     let userBalance =
         nonce === 1 ? state.info.initialDeposit : lastHouseSpin.userBalance
-    userBalance = new BigNumber(userBalance).toFixed(0)
+    userBalance = new BigNumber(userBalance).toFixed()
     let houseBalance =
         nonce === 1 ? initialChannelHouseBalance : lastHouseSpin.houseBalance
-    houseBalance = new BigNumber(houseBalance).toFixed(0)
+    houseBalance = new BigNumber(houseBalance).toFixed()
 
     let spin = {
         reelHash: reelHash,
