@@ -20,9 +20,8 @@ class Slots extends Component {
     }
 
     componentDidMount = () => {
-        
-       this.props.dispatch(Thunks.initializeSlots())
-       this.refreshChannels()
+        this.props.dispatch(Thunks.initializeSlots())
+        this.refreshChannels()
     }
 
     refreshChannels = async () => {
@@ -36,22 +35,25 @@ class Slots extends Component {
         // Make a list of all usable channels for the user and publish it
         const activeChannels = []
         const claimableChannels = []
-        for (const channelId in channels) {
-            if (channels.hasOwnProperty(channelId)) {
-                const channel = channels[channelId]
 
-                // Is channel still usable?
-                const isUsable =
-                    channel.info && 
-                    channel.info.ready &&
-                    channel.info.activated &&
-                    !channel.info.finalized
-                if (isUsable) {
-                    activeChannels.push(channelId)
-                }
-                
-                if (isChannelClaimed(channel)) {
-                    claimableChannels.push(channelId)
+        if (channels) {
+            for (const channelId in channels) {
+                if (channels.hasOwnProperty(channelId)) {
+                    const channel = channels[channelId]
+
+                    // Is channel still usable?
+                    const isUsable =
+                        channel.info &&
+                        channel.info.ready &&
+                        channel.info.activated &&
+                        !channel.info.finalized
+                    if (isUsable) {
+                        activeChannels.push(channelId)
+                    }
+
+                    if (!isChannelClaimed(channel)) {
+                        claimableChannels.push(channelId)
+                    }
                 }
             }
         }
@@ -83,11 +85,7 @@ class Slots extends Component {
         const currentChannel = await this.props.dispatch(thunk)
 
         // Update UI
-        if(currentChannel) {
-            this.setState({ stateMachine: 'select_game', currentChannel })
-        } else {
-            this.refreshChannels()
-        }
+        this.setState({ stateMachine: 'select_game', currentChannel })
     }
 
     // Claims the tokens from a Channel
@@ -114,11 +112,7 @@ class Slots extends Component {
         />
     )
 
-    renderLoadingState = message => (
-        <StateChannelWaiter
-            message={message}
-        />
-    )
+    renderLoadingState = message => <StateChannelWaiter message={message} />
 
     renderSelectChannelsState = () => (
         <Fragment>
@@ -147,7 +141,6 @@ class Slots extends Component {
             channelMap={this.props.channels}
             activeChannels={this.state.activeChannels}
             claimableChannels={this.state.claimableChannels}
-
             /* Function as a child. Receives `channel` */
             channelProp={this.renderStateChannelToolbar}
         />

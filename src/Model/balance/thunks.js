@@ -7,11 +7,11 @@ export function watcherChannelClaimed(channelId) {
             const { contractFactory } = chainProvider
             const contract = await contractFactory.slotsChannelManagerContract()
             const subscription = contract.logClaimChannelTokens(channelId)
-            const claimChannelEventSubscription = await contract.getEventSubscription(subscription)
+            const claimChannelEventSubscription = contract.getEventSubscription(subscription)
 
             const claimChannelSubscription =
                 claimChannelEventSubscription.subscribe(async (events) => {
-                    if (events && events.length) {
+                    if (events && events.length >=1) {
                         let [event] = events
                         let id = event.returnValues.id.toString()
                         await
@@ -38,29 +38,29 @@ export function listenForTransfers() {
         try {
             let tokenContract = await chainProvider.contractFactory.decentBetTokenContract()
             const transferFromEvents = tokenContract.logTransfer(chainProvider.defaultAccount, true)
-            const transferFromEventsSubscription = await tokenContract.getEventSubscription(transferFromEvents)
+            const transferFromEventsSubscription = tokenContract.getEventSubscription(transferFromEvents)
 
             const transferToEvents = tokenContract.logTransfer(chainProvider.defaultAccount, false)
-            const transferToEventsSubscription = await tokenContract.getEventSubscription(transferToEvents)
+            const transferToEventsSubscription = tokenContract.getEventSubscription(transferToEvents)
 
-            let transferFromSubscription = transferFromEventsSubscription.subscribe( async (events) => {
+            transferFromEventsSubscription.subscribe( async (events) => {
                 console.log('transferFromEvents - Events:', events)
                 if (events.length >= 1) {
-                    dispatch(actions.getTokens(chainProvider))
-                    transferFromSubscription.unsubscribe()
+                    await dispatch(actions.getTokens(chainProvider))
+                    await dispatch(actions.getEtherBalance(chainProvider))
                 }
             })
 
-            let transferToSubscription = transferToEventsSubscription.subscribe( async (events) => {
-                console.log('transferFromEvents - Events:', events)
+            transferToEventsSubscription.subscribe( async (events) => {
+                console.log('transferToEvents - Events:', events)
                 if (events.length >= 1) {
-                    dispatch(actions.getTokens(chainProvider))
-                    transferToSubscription.unsubscribe()
+                    await dispatch(actions.getTokens(chainProvider))
+                    await dispatch(actions.getEtherBalance(chainProvider))
                 }
             })
 
         } catch (error) {
-            console.error('listenForTransfers Error:', error)
+            console.error('listenToTransfers Error:', error)
         }
     }
 }
@@ -77,7 +77,5 @@ export function initialize() {
 export function faucet() {
     return async (dispatch, getState, { chainProvider }) => {
         await dispatch(actions.faucet(chainProvider))
-        await dispatch(actions.getTokens(chainProvider))
-        await dispatch(actions.getEtherBalance(chainProvider))
     }     
 }

@@ -24,6 +24,6 @@ export default class PrivateRoute extends React.Component {
 
     render() {
         let { ...rest } = this.props
-        return <Route {...rest} render={this.renderCaptiveComponent} />
+        return <Route {...rest} component={this.renderCaptiveComponent} />
     }
 }

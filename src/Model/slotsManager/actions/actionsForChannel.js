@@ -45,14 +45,18 @@ function createChannel(deposit, chainProvider) {
             let slotsContract = await contractFactory.slotsChannelManagerContract()
             const tx = await slotsContract.createChannel(deposit)
 
-            const newChannelEventSubscription = await slotsContract
-                .getEventSubscription(slotsContract.getPastEvents('LogNewChannel', {
-                    filter: {
-                        user: chainProvider.defaultAccount,
-                        initialDeposit: deposit
-                    },
-                    fromBlock: tx.blockNumber
-                }))
+            let _options = {
+                filter: {
+                    user: chainProvider.defaultAccount,
+                    initialDeposit: deposit
+                },
+                fromBlock: tx.blockNumber,
+                toBlock: tx.blockNumber
+            }
+
+            const eventSubscription = slotsContract.instance.getPastEvents('LogNewChannel', _options)
+            const newChannelEventSubscription = slotsContract
+                .getEventSubscription(eventSubscription)
 
             const newChannelSubscription =
                 newChannelEventSubscription.subscribe(async (events) => {
@@ -98,7 +102,7 @@ async function depositToChannel(id, chainProvider) {
 }
 
 // Deposit new Chips, sourced from wallet's tokens
-function approveAndDepositChips(amount, chainProvider) {
+function approve(amount, chainProvider) {
     return new Promise(async (resolve, reject) => {
         try {
             let {contractFactory} = chainProvider
@@ -110,39 +114,11 @@ function approveAndDepositChips(amount, chainProvider) {
             const allowance = await tokenContract.allowance(chainProvider.defaultAccount, slotsAddress)
             console.log('Token contract approve', approveTx, allowance)
 
-            const onApproval = async () => {
-                const depositTx = await slotsContract.deposit(amount.toFixed())
-                console.log('Slots deposit', depositTx)
-
-                const depositEventSubscription = await slotsContract
-                    .getEventSubscription(slotsContract.getPastEvents('LogDeposit', {
-                        filter: {
-                            _address: chainProvider.defaultAccount,
-                            amount: amount.toFixed()
-                        }
-                    }))
-
-                const depositSubscription =
-                    depositEventSubscription.subscribe(async (events) => {
-                        console.log('Deposit subscription - Events:', events)
-
-                        if (events.length >= 1) {
-                            const updatedBalance = await slotsContract.balanceOf(chainProvider.defaultAccount)
-                            console.log('Updated balance', updatedBalance, chainProvider.defaultAccount)
-                            helper.toggleSnackbar('Successfully sent deposit transaction')
-                            depositSubscription.unsubscribe()
-                            resolve(depositTx)
-                        }
-                    })
-            }
-
-            const approvalEventSubscription = await tokenContract
+            const approvalEventSubscription = tokenContract
                 .getEventSubscription(tokenContract.getPastEvents('Approval', {
-                    filter: {
-                        owner: chainProvider.defaultAccount,
-                        spender: slotsAddress,
-                        value: amount.toFixed()
-                    },
+                    owner: chainProvider.defaultAccount,
+                    spender: slotsAddress,
+                    value: amount.toFixed()
                 }))
 
             const approvalSubscription =
@@ -150,7 +126,7 @@ function approveAndDepositChips(amount, chainProvider) {
                     console.log('Approval subscription - Events:', events)
                     if (events.length >= 1) {
                         helper.toggleSnackbar('Successfully sent approve transaction')
-                        await onApproval()
+                        resolve(approveTx)
                         approvalSubscription.unsubscribe()
                     }
                 })
@@ -162,15 +138,35 @@ function approveAndDepositChips(amount, chainProvider) {
 }
 
 // Deposit new Chips, sourced from wallet's tokens
-async function depositChips(amount, {contractFactory}) {
+async function depositChips(amount, chainProvider) {
+    return new Promise(async (resolve, reject) => {
     try {
-        let contract = await contractFactory.slotsChannelManagerContract()
-        const tx = await contract.deposit(amount.toFixed())
-        helper.toggleSnackbar('Successfully sent deposit transaction')
-        return tx
+        let {contractFactory} = chainProvider
+        console.warn('depositChips', new Date())
+        let slotsContract = await contractFactory.slotsChannelManagerContract()
+        const tx = await slotsContract.deposit(amount.toFixed())
+        
+        const depositEventSubscription = slotsContract
+        .getEventSubscription(slotsContract.getPastEvents('LogDeposit', {
+            _address: chainProvider.defaultAccount,
+            amount: amount.toFixed()
+        }))
+
+        const depositSubscription =
+            depositEventSubscription.subscribe( async (events) => {
+            console.log('Deposit subscription - Events:', events)
+
+            if (events.length >= 1) {
+                helper.toggleSnackbar('Successfully sent deposit transaction')
+                depositSubscription.unsubscribe()
+                resolve(tx)
+            }
+        })
+        
     } catch (err) {
-        console.log('Error sending deposit tx', err.message)
+        reject(err)
     }
+})
 }
 
 // Withdraw Chips and return them as Tokens to the Wallet
@@ -197,8 +193,8 @@ async function claimChannel(channelId, {contractFactory}) {
             let contract = await contractFactory.slotsChannelManagerContract()
             const txHash = await contract.claim(channelId)
 
-            const claimChannelEventSubscription = await contract
-                .getEventSubscription(contract.logClaimChannelTokens(channelId))
+            const claimChannelEventSubscription = contract
+                .getEventSubscription(contract.logClaimChannelTokens(channelId, txHash.blockNumber))
 
             const claimChannelSubscription =
                 claimChannelEventSubscription.subscribe(async (events) => {
@@ -220,7 +216,7 @@ async function claimChannel(channelId, {contractFactory}) {
 // Documentation https://redux-actions.js.org/docs/api/createAction.html#createactionsactionmap
 export default createActions({
     [PREFIX]: {
-        [Actions.APPROVE_AND_DEPOSIT_CHIPS]: approveAndDepositChips,
+        [Actions.APPROVE]: approve,
         [Actions.CREATE_CHANNEL]: createChannel,
         [Actions.DEPOSIT_TO_CHANNEL]: depositToChannel,
         [Actions.DEPOSIT_CHIPS]: depositChips,

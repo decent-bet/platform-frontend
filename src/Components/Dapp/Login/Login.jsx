@@ -7,6 +7,9 @@ import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import { Actions, Thunks } from '../../../Model/auth'
 import bip39 from 'bip39'
 import './login.css'
+import { KeyHandler } from '../../../Web3'
+
+const keyHandler = new KeyHandler()
 
 class Login extends Component {
 
@@ -16,7 +19,11 @@ class Login extends Component {
     }
 
     componentDidMount() {
-       this.props.dispatch(Thunks.getProviderUrl())
+        if(keyHandler.isLoggedIn()) {
+            window.location.href = '/'
+        } else {
+            this.props.dispatch(Thunks.getProviderUrl())
+        }
     }
 
     login = () => {

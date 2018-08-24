@@ -9,6 +9,9 @@ import NoTokensWarning from './NoTokensWarning'
 import { Thunks } from '../../../Model/balance'
 import { Actions as AuthActions, Thunks as AuthThunks } from '../../../Model/auth'
 import './dashboard.css'
+import { KeyHandler } from '../../../Web3'
+
+const keyHandler = new KeyHandler()
 
 class Dashboard extends Component {
     state = {
@@ -16,9 +19,13 @@ class Dashboard extends Component {
         drawerOpen: false
     }
 
-    componentDidMount = () => {
-        // Initialize the datastore
-        this.props.dispatch(Thunks.initialize())
+    componentDidMount = async () => {
+        if(!keyHandler.isLoggedIn()) {
+            this.props.history.push('/login')
+        } else {
+            // Initialize the datastore
+           await this.props.dispatch(Thunks.initialize())
+        }
     }
 
     // Faucet Button Clicked. Execute Faucet

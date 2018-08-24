@@ -13,6 +13,6 @@ export default class LogoutRoute extends Component {
     }
     render() {
         let { ...rest } = this.props
-        return <Route {...rest} render={this.renderRedirect} />
+        return <Route {...rest} component={this.renderRedirect} />
     }
 }

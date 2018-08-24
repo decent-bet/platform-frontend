@@ -13,26 +13,7 @@ export default class DecentBetTokenContract extends BaseContract {
 
     /** Setters */
     async approve (address, value) {
-        let encodedFunctionCall = this._web3.eth.abi.encodeFunctionCall(
-            {
-                name: 'approve',
-                type: 'function',
-                inputs: [
-                    {
-                        name: 'spender',
-                        type: 'address'
-                    },
-                    {
-                        name: 'value',
-                        type: 'uint256'
-                    }
-                ]
-            },
-            [address, value]
-        )
-
-        console.log('Encoded function call', encodedFunctionCall)
-
+        const encodedFunctionCall = this.instance.methods.approve(address, value).encodeABI()
         return await this.signAndSendRawTransaction(
             this.instance.options.address,
             null,
@@ -42,15 +23,7 @@ export default class DecentBetTokenContract extends BaseContract {
     }
 
     async faucet() {
-        let encodedFunctionCall = this._web3.eth.abi.encodeFunctionCall(
-            {
-                name: 'faucet',
-                type: 'function',
-                inputs: []
-            },
-            []
-        )
-
+        const encodedFunctionCall = this.instance.methods.faucet().encodeABI()
         return await this.signAndSendRawTransaction(
             this.instance.options.address,
             null,
@@ -62,35 +35,22 @@ export default class DecentBetTokenContract extends BaseContract {
      * Events
      * */
     async logTransfer(address, isFrom, fromBlock, toBlock) {
-        if (fromBlock === undefined) {
-            fromBlock = false
-        }
-        if (toBlock === undefined) {
-            toBlock = false
-        }
-        let options = {}
-        options[isFrom ? 'from' : 'to'] = address
 
-        return await this.getPastEvents('Transfer', {
-            filter: options,
-            fromBlock: fromBlock ? fromBlock : 0,
-            toBlock: toBlock ? toBlock : 'latest'
-        })
+        let filter = {}
+        filter[isFrom ? 'from' : 'to'] = address
+
+        return await this.getPastEvents('Transfer', filter, (fromBlock ? fromBlock : 'latest'), (toBlock ? toBlock : 'latest'))
     }
 
     async logApproval(spender, value, fromBlock, toBlock) {
-        let options = {
+        let filter = {
             owner: this._web3.eth.defaultAccount
         }
         if(spender)
-            options.spender = spender
+            filter.spender = spender
         if(value)
-            options.value = value
+            filter.value = value
 
-        return this.getEvents('Approval', {
-            filter: options,
-            fromBlock: fromBlock ? fromBlock : 0,
-            toBlock: toBlock ? toBlock : 'latest'
-        })
+        return this.getEvents('Approval', filter, (fromBlock ? fromBlock : 'latest'), (toBlock ? toBlock : 'latest'))
     }
 }

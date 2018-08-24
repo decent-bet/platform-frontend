@@ -45,7 +45,6 @@ class KeyHandler {
     }
 
     isLoggedIn = () => {
-        console.log('localStorage.getItem', localStorage.getItem('key'))
         return localStorage.getItem('key') != null
     }
 }

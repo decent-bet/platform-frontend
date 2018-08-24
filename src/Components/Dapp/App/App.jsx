@@ -30,7 +30,7 @@ export default class App extends Component {
     }
 
     renderSnackBar = () => {
-        if (this.state.snackbarMessage) {
+        if (this.state.isSnackBarOpen === true) {
             return (
                 <Snackbar
                     message={this.state.snackbarMessage}

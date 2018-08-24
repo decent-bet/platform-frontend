@@ -23,17 +23,14 @@ export default class BaseContract {
      * @param {string} eventName
      * @param {Object} options
      */
-    async getPastEvents(eventName, options = {filter: {}, fromBlock: 'latest', toBlock: 'latest'}) {
-        if (options.filter === {})
-            delete options.filter
-        console.log('getPastEvents', options)
-        return this.instance.getPastEvents(eventName,
-            {
-                range: {},
-                options,
-                order: "DESC"
-            }
-        )
+    async getPastEvents(eventName, config = {filter: {}, fromBlock: 'latest', toBlock: 'latest', options: {offset: 1, limit: 1}, range: {}, order:'DESC', topics: []}) {
+       
+        if (config.filter === {})
+            delete config.filter
+
+        console.log('getPastEvents', eventName, config)
+
+        return await this.instance.getPastEvents(eventName, config)
     }
 
     /**
@@ -42,7 +39,7 @@ export default class BaseContract {
      *
      * @param {Object} eventPromise
      */
-    async getEventSubscription(eventPromise) {
+    getEventSubscription(eventPromise) {
         return interval(10000)
             .pipe(flatMap(() => { return from(eventPromise) }))
     }
@@ -68,11 +65,11 @@ export default class BaseContract {
      */
     async signAndSendRawTransaction(to, gasPriceCoef, gas, data) {
         if (!gasPriceCoef)
-            gasPriceCoef = 0
+            gasPriceCoef = 128
 
         //check the gas
         if (!gas || gas < 0) {
-            gas = 2000000
+            gas = 5000000
         }
 
         let txBody = {
@@ -85,17 +82,9 @@ export default class BaseContract {
 
         console.log('signAndSendRawTransaction - txBody:', txBody)
 
-        try {
-            
-            let privateKey = this._keyHandler.get()
-            let signed = await this._web3.eth.accounts.signTransaction(txBody, privateKey)
-            let promiseEvent = this._web3.eth.sendSignedTransaction(signed.rawTransaction)
-            return promiseEvent
-
-        } catch (error) {
-            console.error('Error on signAndSendRawTransaction', error.message)
-            return null
-        }
+        let privateKey = this._keyHandler.get()
+        let signed = await this._web3.eth.accounts.signTransaction(txBody, privateKey)
+        return await this._web3.eth.sendSignedTransaction(signed.rawTransaction)
 
     }
 

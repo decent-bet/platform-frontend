@@ -100,14 +100,28 @@ async function getDeposited(channelId, isHouse = false, { contractFactory }) {
  * @param chainProvider
  */
 async function getChannelDetails(id, chainProvider) {
-    return Bluebird.props({
-        deposited: getDeposited(id, false, chainProvider),
+    let [
+        deposited,
+        info,
+        houseAuthorizedAddress,
+        closed,
+        hashes
+    ] = await Promise.all([
+        getDeposited(id, false, chainProvider),
+        getChannelInfo(id, chainProvider),
+        getAuthorizedAddress(id, chainProvider),
+        isChannelClosed(id, chainProvider),
+        getChannelHashes(id, chainProvider)
+    ])
+
+    return {
+        deposited,
         channelId: id,
-        info: getChannelInfo(id, chainProvider),
-        houseAuthorizedAddress: getAuthorizedAddress(id, chainProvider),
-        closed: isChannelClosed(id, chainProvider),
-        hashes: getChannelHashes(id, chainProvider)
-    })
+        info,
+        houseAuthorizedAddress,
+        closed,
+        hashes
+    }
 }
 
 /**
@@ -118,7 +132,7 @@ async function getChannelDetails(id, chainProvider) {
  * @param chainProvider
  */
 async function loadLastSpin(id, hashes, aesKey, chainProvider) {
-    if(!decentApi) {
+    if (!decentApi) {
         decentApi = new DecentAPI(chainProvider.web3)
     }
 
@@ -159,12 +173,15 @@ async function loadLastSpin(id, hashes, aesKey, chainProvider) {
     ).toString(cryptoJs.enc.Utf8)
     let userHashes = getUserHashes(initialUserNumber)
     let index = userHashes.length - 1
-    if (userHashes[index] !== hashes.finalUserHash){
-        console.warn('Invalid initial User Number', userHashes[index], hashes.finalUserHash)
+    if (userHashes[index] !== hashes.finalUserHash) {
+        console.warn(
+            'Invalid initial User Number',
+            userHashes[index],
+            hashes.finalUserHash
+        )
         throw new Error('Invalid initial User Number')
     }
-    
-        
+
     return {
         nonce: nonce,
         houseSpins: houseSpins,
@@ -195,35 +212,54 @@ async function getLastSpin(channelId, chainProvider) {
  */
 async function getChannel(channelId, chainProvider) {
     // Execute both actions in parallel
-    console.log('getChannel', channelId)
-    const data = await Promise.all(
-        [getChannelDetails(channelId, chainProvider),
-        getLastSpin(channelId, chainProvider)]
-    )
-    console.log('getChannel', data)
-    return data
+    let [channelDetails, lastSpin] = await Promise.all([
+        getChannelDetails(channelId, chainProvider),
+        getLastSpin(channelId, chainProvider)
+    ])
+    
+    return {
+        ...channelDetails,
+        ...lastSpin
+    }
 }
 
 /**
  * Get all channels for a user
  */
 async function getChannels(chainProvider) {
-    const { contractFactory } = chainProvider
-    const contract = await contractFactory.slotsChannelManagerContract()
-    let channelCount = await contract.getChannelCount()
-    console.log('channelCount', channelCount)
-    let promises = []
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { contractFactory } = chainProvider
+            const contract = await contractFactory.slotsChannelManagerContract()
+            let channelCount = await contract.getChannelCount()
+            console.log('channelCount', channelCount)
+            if (channelCount > 0) {
+                let promises = []
+                const getChannelsEventSubscription = contract.getEventSubscription(
+                    contract.getChannels()
+                )
 
-    if (channelCount > 0) {
-        const channels = await contract.getChannels()
-        console.log('Channels', channels)
-        for (const channel of channels) {
-            const id = channel.returnValues.id
-            promises.push(getChannel(id, chainProvider))
+                const getChannelsSubscription = getChannelsEventSubscription.subscribe(
+                    async events => {
+                        if (events.length >= 1) {
+                            getChannelsSubscription.unsubscribe()
+                            for (const channel of events) {
+                                const id = channel.returnValues.id
+                                promises.push(getChannel(id, chainProvider))
+                            }
+                            // Execute all promises simultaneously.
+                            let result = await Promise.all(promises)
+                            resolve(result)
+                        }
+                    }
+                )
+            } else {
+                resolve(null)
+            }
+        } catch (error) {
+            reject(error)
         }
-    }
-    // Execute all promises simultaneously.
-    return await Promise.all(promises)
+    })
 }
 
 export default createActions({

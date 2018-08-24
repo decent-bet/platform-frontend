@@ -69,8 +69,8 @@ export async function executeApproveAndDepositTokens(amount, dispatch, chainProv
         }
 }
 
-export async function fetchPublicAddress(chainProvider) {
-    return chainProvider.defaultAccount
+export function fetchPublicAddress(chainProvider) {
+    return Promise.resolve(chainProvider.defaultAccount)
 }
 
 export async function faucet({contractFactory}) {

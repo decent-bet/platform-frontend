@@ -1,5 +1,4 @@
 import ethUtil from 'ethereumjs-util'
-import ethAbi from 'web3-eth-abi'
 import BaseContract from './BaseContract'
 
 export default class SlotsChannelFinalizerContract extends BaseContract {
@@ -7,54 +6,20 @@ export default class SlotsChannelFinalizerContract extends BaseContract {
     async finalize(id, userSpin, houseSpin) {
         userSpin = await this.getSpinParts(userSpin)
         houseSpin = await this.getSpinParts(houseSpin)
-
-        let encodedFunctionCall = ethAbi.encodeFunctionCall({
-            name: 'finalize',
-            type: 'function',
-            inputs: [{
-                    name: 'id',
-                    type: 'bytes32'
-                },
-                {
-                    name: '_curr',
-                    type: 'string'
-                },
-                {
-                    name: '_prior',
-                    type: 'string'
-                },
-                {
-                    name: 'currR',
-                    type: 'bytes32'
-                },
-                {
-                    name: 'currS',
-                    type: 'bytes32'
-                },
-                {
-                    name: 'priorR',
-                    type: 'bytes32'
-                },
-                {
-                    name: 'priorS',
-                    type: 'bytes32'
-                }
-            ]
-        }, [
+        const data = this.instance.methods.finalize(
             id,
             userSpin.parts,
             houseSpin.parts,
             userSpin.r,
             userSpin.s,
             houseSpin.r,
-            houseSpin.s
-        ])
+            houseSpin.s).encodeABI()
 
         return await this.signAndSendRawTransaction(
             this.instance.options.address,
             null,
             null,
-            encodedFunctionCall
+            data
         )
     }
 
@@ -93,42 +58,9 @@ export default class SlotsChannelFinalizerContract extends BaseContract {
             userSpin.s
         )
 
-        const emptyBytes32 =
-            '0x0000000000000000000000000000000000000000000000000000000000000000'
+        const emptyBytes32 = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
-        let encodedFunctionCall = ethAbi.encodeFunctionCall({
-            name: 'finalize',
-            type: 'function',
-            inputs: [{
-                name: 'id',
-                type: 'bytes32'
-            },
-                {
-                    name: '_curr',
-                    type: 'string'
-                },
-                {
-                    name: '_prior',
-                    type: 'string'
-                },
-                {
-                    name: 'currR',
-                    type: 'bytes32'
-                },
-                {
-                    name: 'currS',
-                    type: 'bytes32'
-                },
-                {
-                    name: 'priorR',
-                    type: 'bytes32'
-                },
-                {
-                    name: 'priorS',
-                    type: 'bytes32'
-                }
-            ]
-        }, [
+        const data = this.instance.methods.finalize(
             id,
             userSpin.parts,
             '',
@@ -136,13 +68,13 @@ export default class SlotsChannelFinalizerContract extends BaseContract {
             userSpin.s,
             emptyBytes32,
             emptyBytes32
-        ])
+        ).encodeABI()
 
         return await this.signAndSendRawTransaction(
             this.instance.options.address,
             null,
             null,
-            encodedFunctionCall
+            data
         )
     }
 
