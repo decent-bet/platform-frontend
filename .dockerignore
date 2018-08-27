@@ -1,0 +1,16 @@
+.git
+node_modules
+Dockerfile
+docker-compose.yml
+build_webpack
+.DS_Store
+.gitignore
+README.md
+.env
+.env.*
+deployment
+data
+.prettierrc
+
+
+

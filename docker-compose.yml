@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  platform-frontend:
+    build: 
+      context: .
+    image: platform-frontend-nginx
+    container_name: "platform-frontend-nginx"
+    ports:
+      - 80:80
+    restart: always
