@@ -26,26 +26,11 @@ export default class App extends Component {
                 snackbarMessage: message
             })
         })
-
-        if (window.web3Loaded) {
-            this.initWeb3Data()
-        } else {
-            let web3Loaded = EventBus.on('web3Loaded', () => {
-                this.setState({ stateMachine: 'loaded' })
-                // Unregister callback
-                web3Loaded()
-            })
-
-            // Listen for error state
-            let web3NotLoaded = EventBus.on('web3NotLoaded', () => {
-                this.setState({ stateMachine: 'error' })
-                web3NotLoaded()
-            })
-        }
+        this.setState({ stateMachine: 'loaded' })
     }
 
     renderSnackBar = () => {
-        if (this.state.snackbarMessage) {
+        if (this.state.isSnackBarOpen === true) {
             return (
                 <Snackbar
                     message={this.state.snackbarMessage}
@@ -57,19 +42,19 @@ export default class App extends Component {
             return null
         }
     }
-
-    renderStateLoaded = () => (
-        <Fragment>
-            <BrowserRouter>
-                <Switch>
-                    <LogoutRoute path={VIEW_LOGIN} component={Login} />
-                    <PrivateRoute component={Dashboard} />
-                </Switch>
-            </BrowserRouter>
-
-            {this.renderSnackBar()}
-        </Fragment>
-    )
+    renderStateLoaded() {
+        return (
+            <Fragment>
+                <BrowserRouter>
+                    <Switch>
+                        <LogoutRoute path={VIEW_LOGIN} component={Login} />
+                        <PrivateRoute component={Dashboard} />
+                    </Switch>
+                </BrowserRouter>
+                {this.renderSnackBar()}
+            </Fragment>
+        )
+    }
 
     renderStateError = () => (
         <ConfirmationDialog

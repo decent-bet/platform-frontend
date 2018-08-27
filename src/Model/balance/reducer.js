@@ -17,6 +17,7 @@ export default function balanceReducer(
                 ...balanceState,
                 address: action.payload
             }
+        
         case `${Prefix}/${Actions.GET_TOKENS}/${FULFILLED}`:
             return {
                 ...balanceState,

@@ -1,26 +1,26 @@
 import Helper from '../Helper'
 import { KeyHandler } from '../../Web3'
 
+const cryptoJs = require("crypto-js")
+const request = require('request')
 const helper = new Helper()
 const keyHandler = new KeyHandler()
-
+const ethUtil = require('ethereumjs-util')
 const LOCAL_URL = 'http://localhost:3010/api'
 const PUBLIC_URL = 'https://slots-api.decent.bet/api'
-
 const BASE_URL = helper.isDev() ? LOCAL_URL : PUBLIC_URL
 
-const cryptoJs = require("crypto-js")
-const ethUtil = require('ethereumjs-util')
-
-const request = require('request')
-
 class DecentAPI {
+
+    constructor(web3) {
+        this.web3 = web3
+    }
 
     /** Off-chain finally verifiable slot spins */
     spin = async (address, spin, aesKey, callback) => {
         /**
          * Spin:
-         * {
+         * 
          *      reelHash - reelHash from the house for this turn - finalReelHash if nonce == 1
          *      reel - empty if user and nonce == 1
          *      reelSeedHash - reelSeedHash from the house for this turn - finalReelSeedHash if nonce == 1
@@ -32,7 +32,7 @@ class DecentAPI {
          *      houseBalance - initialDeposit if nonce == 1
          *      betSize - betSize for this turn, determined by user
          *      sign - signed spin object
-         * }
+         * 
          *
          * aesKey - send encrypted spin to server to save state
          */
@@ -86,10 +86,10 @@ class DecentAPI {
         request(options, (err, response, body) => {
             try {
                 body = JSON.parse(body)
+                callback(err, body)
             } catch (e) {
-
+                callback(e, body)
             }
-            callback(err, body)
         })
     }
 
@@ -134,7 +134,7 @@ class DecentAPI {
             let msgHash = ethUtil.sha3(text)
             let privateKey = ethUtil.toBuffer(keyHandler.get())
 
-            console.log('Signing', text, ethUtil.bufferToHex(msgHash), 'as', helper.getWeb3().eth.defaultAccount,
+            console.log('Signing', text, ethUtil.bufferToHex(msgHash), 'as', this.web3.eth.defaultAccount,
                 ethUtil.isValidPrivate(privateKey))
 
             const {v, r, s} = ethUtil.ecsign(msgHash, privateKey)
@@ -146,11 +146,12 @@ class DecentAPI {
             let pub = ethUtil.ecrecover(m, v, r, s)
             let adr = '0x' + ethUtil.pubToAddress(pub).toString('hex')
 
-            console.log('Generated sign address', adr, helper.getWeb3().eth.defaultAccount)
+            console.log('Generated sign address', adr, this.web3.eth.defaultAccount)
 
             console.log('Generated msgHash', msgHash, 'Sign', sgn)
 
-            if (adr !== (helper.getWeb3().eth.defaultAccount).toLowerCase()) reject(new Error("Invalid address for signed message"))
+            if (adr !== (this.web3.eth.defaultAccount).toLowerCase())
+                reject(new Error("Invalid address for signed message"))
 
             resolve({msgHash: msgHash, sig: sgn})
         })

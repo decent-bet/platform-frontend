@@ -5,7 +5,7 @@ import { channelBalanceParser } from '../functions'
 export default function StateChannelTable({
     claimableChannels,
     channelMap,
-    children
+    channelProp
 }) {
     // List all existing channels for this user
     const claimableChannelsArray = claimableChannels.map(channelId => {
@@ -16,7 +16,7 @@ export default function StateChannelTable({
         return (
             <CardContent key={channelId}>
                 <Typography>You have {totalTokens} chips</Typography>
-                {children(channel)}
+                {channelProp(channel)}
             </CardContent>
         )
     })

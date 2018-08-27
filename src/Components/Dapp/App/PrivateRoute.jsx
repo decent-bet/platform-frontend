@@ -23,7 +23,7 @@ export default class PrivateRoute extends React.Component {
     }
 
     render() {
-        let { component: _Component, ...rest } = this.props
-        return <Route {...rest} render={this.renderCaptiveComponent} />
+        let { ...rest } = this.props
+        return <Route {...rest} component={this.renderCaptiveComponent} />
     }
 }

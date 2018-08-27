@@ -22,10 +22,12 @@ class KeyHandler {
                 localStorage.getItem('key'),
                 password
             ).toString(CryptoJS.enc.Utf8)
-        } catch (e) {}
+        } catch (e) {
+            privateKey = null
+        }
+        
         return privateKey
     }
-
     /**
      * Returns address of the logged in user
      */

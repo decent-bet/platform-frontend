@@ -1,83 +1,93 @@
-import Actions, { PREFIX } from './actionTypes'
-import { createActions } from 'redux-actions'
+import Actions, {PREFIX} from './actionTypes'
+import {createActions} from 'redux-actions'
 import Helper from '../../../Components/Helper'
-import { getChannelDepositParams } from '../functions'
+import {getChannelDepositParams} from '../functions'
 
 const helper = new Helper()
 
 // Get the allowance
-async function fetchAllowance() {
-    const contractHelper = helper.getContractHelper()
-    const defaultAccount = helper.getWeb3().eth.defaultAccount
-    const slotsAddress = contractHelper.SlotsChannelManager.instance.address
+async function fetchAllowance(chainProvider) {
+    let {contractFactory} = chainProvider
     try {
-        const allowance = await contractHelper
-            .getWrappers()
-            .token()
-            .allowance(defaultAccount, slotsAddress)
-        return allowance.toFixed()
-    } catch (err) {
-        console.log(
-            'Error retrieving slots channel manager allowance',
-            err.message
-        )
-    }
-}
+        const defaultAccount = chainProvider.defaultAccount
+        const contract = await contractFactory.slotsChannelManagerContract()
+        const slotsAddress = contract.instance.options.address
 
-// Starts the current session
-async function fetchSessionId() {
-    try {
-        const instance = helper.getContractHelper().SlotsChannelManager
-        const session = await instance.currentSession()
-        return session.toNumber()
+        let tokenContract = await contractFactory.decentBetTokenContract()
+        const allowance = await tokenContract.allowance(
+            defaultAccount,
+            slotsAddress
+        )
+        return Number(allowance).toFixed()
     } catch (err) {
-        console.log('Error retrieving current session', err.message)
+        console.log('Error retrieving slots channel manager allowance', err)
     }
 }
 
 // Get the current session balance
-async function fetchSessionBalance() {
+async function fetchBalance(chainProvider) {
+    let {contractFactory} = chainProvider
     try {
-        const sessionId = await fetchSessionId()
-        const instance = helper.getContractHelper().SlotsChannelManager
-        const balance = await instance.balanceOf(
-            helper.getWeb3().eth.defaultAccount,
-            sessionId
-        )
-        return balance.toFixed()
+        let slotsContract = await contractFactory.slotsChannelManagerContract()
+        let balance = await slotsContract.balanceOf(chainProvider.defaultAccount)
+        balance = balance || 0
+        return parseFloat(balance).toFixed()
     } catch (err) {
         console.log('Error retrieving balance', err.message)
     }
 }
 
 // Create a state channel
-async function createChannel(deposit) {
-    try {
-        const instance = helper.getContractHelper().SlotsChannelManager
-        const tx = await instance.createChannel(deposit)
+function createChannel(deposit, chainProvider) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let {contractFactory} = chainProvider
+            let slotsContract = await contractFactory.slotsChannelManagerContract()
+            const tx = await slotsContract.createChannel(deposit)
 
-        // Get the ChannelId
-        const results = tx.logs[0]
-        const eventResults = instance.logNewChannelDecode(
-            results.data,
-            results.topics
-        )
-        const channelId = eventResults.id
+            let _options = {
+                filter: {
+                    user: chainProvider.defaultAccount,
+                    initialDeposit: deposit
+                },
+                fromBlock: tx.blockNumber,
+                toBlock: tx.blockNumber
+            }
 
-        helper.toggleSnackbar('Successfully sent create channel transaction')
-        return channelId
-    } catch (err) {
-        console.log('Error creating new channel', err.message)
-    }
+            const eventSubscription = slotsContract.instance.getPastEvents('LogNewChannel', _options)
+            const newChannelEventSubscription = slotsContract
+                .getEventSubscription(eventSubscription)
+
+            const newChannelSubscription =
+                newChannelEventSubscription.subscribe(async (events) => {
+                    // Since getPastEvents() order option doesn't work, sort by block number manually
+                    if (events.length >= 1) {
+                        events.sort((eventA, eventB) => {
+                            return eventB.blockNumber - eventA.blockNumber
+                        })
+                        helper.toggleSnackbar('Successfully sent create channel transaction')
+                        let id = events[0].returnValues.id
+                        newChannelSubscription.unsubscribe()
+                        resolve(id)
+                    }
+                })
+        } catch (err) {
+            helper.toggleSnackbar('Error creating the channel transaction')
+            reject(err)
+        }
+    })
 }
 
 // Send a deposit transaction to channel
-async function depositToChannel(id) {
-    const params = await getChannelDepositParams(id)
-    const { initialUserNumber, finalUserHash } = params
+async function depositToChannel(id, chainProvider) {
     try {
-        const instance = helper.getContractHelper().SlotsChannelManager
-        const tx = await instance.depositToChannel(
+        console.log('Deposit to channel', id)
+        let {contractFactory} = chainProvider
+        const params = await getChannelDepositParams(id, chainProvider)
+        const {initialUserNumber, finalUserHash} = params
+
+        let slotsContract = await contractFactory.slotsChannelManagerContract()
+        const tx = await slotsContract.depositToChannel(
             id,
             initialUserNumber,
             finalUserHash
@@ -91,41 +101,80 @@ async function depositToChannel(id) {
     }
 }
 
-// Increase allowance and then deposit new Chips
-async function approveAndDepositChips(amount) {
-    const contractHelper = helper.getContractHelper()
-    const contractAddress = contractHelper.SlotsChannelManager.instance.address
-    try {
-        const tx1 = await contractHelper
-            .getWrappers()
-            .token()
-            .approve(contractAddress, amount)
-        const tx2 = await depositChips(amount)
-        helper.toggleSnackbar('Successfully sent approve transaction')
-        return [tx1, tx2]
-    } catch (err) {
-        console.log('Error sending approve tx', err.message)
-    }
+// Deposit new Chips, sourced from wallet's tokens
+function approve(amount, chainProvider) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let {contractFactory} = chainProvider
+            let slotsContract = await contractFactory.slotsChannelManagerContract()
+            let tokenContract = await contractFactory.decentBetTokenContract()
+            let slotsAddress = slotsContract.instance.options.address
+
+            const approveTx = await tokenContract.approve(slotsAddress, amount.toFixed())
+            const allowance = await tokenContract.allowance(chainProvider.defaultAccount, slotsAddress)
+            console.log('Token contract approve', approveTx, allowance)
+
+            const approvalEventSubscription = tokenContract
+                .getEventSubscription(tokenContract.getPastEvents('Approval', {
+                    owner: chainProvider.defaultAccount,
+                    spender: slotsAddress,
+                    value: amount.toFixed()
+                }))
+
+            const approvalSubscription =
+                approvalEventSubscription.subscribe(async (events) => {
+                    console.log('Approval subscription - Events:', events)
+                    if (events.length >= 1) {
+                        helper.toggleSnackbar('Successfully sent approve transaction')
+                        resolve(approveTx)
+                        approvalSubscription.unsubscribe()
+                    }
+                })
+
+        } catch (err) {
+            reject(err)
+        }
+    })
 }
 
 // Deposit new Chips, sourced from wallet's tokens
-async function depositChips(amount) {
-    const instance = helper.getContractHelper().SlotsChannelManager
+async function depositChips(amount, chainProvider) {
+    return new Promise(async (resolve, reject) => {
     try {
-        const tx = await instance.deposit(amount)
-        helper.toggleSnackbar('Successfully sent deposit transaction')
-        return tx
+        let {contractFactory} = chainProvider
+        console.warn('depositChips', new Date())
+        let slotsContract = await contractFactory.slotsChannelManagerContract()
+        const tx = await slotsContract.deposit(amount.toFixed())
+        
+        const depositEventSubscription = slotsContract
+        .getEventSubscription(slotsContract.getPastEvents('LogDeposit', {
+            _address: chainProvider.defaultAccount,
+            amount: amount.toFixed()
+        }))
+
+        const depositSubscription =
+            depositEventSubscription.subscribe( async (events) => {
+            console.log('Deposit subscription - Events:', events)
+
+            if (events.length >= 1) {
+                helper.toggleSnackbar('Successfully sent deposit transaction')
+                depositSubscription.unsubscribe()
+                resolve(tx)
+            }
+        })
+        
     } catch (err) {
-        console.log('Error sending deposit tx', err.message)
+        reject(err)
     }
+})
 }
 
 // Withdraw Chips and return them as Tokens to the Wallet
-async function withdrawChips(amount) {
+async function withdrawChips(amount, chainProvider) {
     try {
-        const session = await fetchSessionId()
-        const instance = helper.getContractHelper().SlotsChannelManager
-        const tx = await instance.withdraw(amount, session)
+        let {contractFactory} = chainProvider
+        let contract = await contractFactory.slotsChannelManagerContract()
+        const tx = await contract.withdraw(amount)
         helper.toggleSnackbar('Successfully sent withdraw transaction')
         return tx
     } catch (err) {
@@ -138,11 +187,28 @@ async function withdrawChips(amount) {
  * @param {number} channelId
  * @param state
  */
-async function claimChannel(channelId) {
-    const instance = helper.getContractHelper().SlotsChannelManager
-    const txHash = await instance.claim(channelId)
-    helper.toggleSnackbar('Successfully sent claim DBETs transaction')
-    return txHash
+async function claimChannel(channelId, {contractFactory}) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let contract = await contractFactory.slotsChannelManagerContract()
+            const txHash = await contract.claim(channelId)
+
+            const claimChannelEventSubscription = contract
+                .getEventSubscription(contract.logClaimChannelTokens(channelId, txHash.blockNumber))
+
+            const claimChannelSubscription =
+                claimChannelEventSubscription.subscribe(async (events) => {
+                    console.log('Claim channel subscription - Events:', events)
+                    if (events.length >= 1) {
+                        helper.toggleSnackbar('Successfully sent claim DBETs transaction')
+                        claimChannelSubscription.unsubscribe()
+                        resolve(txHash)
+                    }
+                })
+        } catch (e) {
+            reject(e)
+        }
+    })
 }
 
 // Functions of this object are the "ACTION_KEYS" "inCamelCase"
@@ -150,17 +216,16 @@ async function claimChannel(channelId) {
 // Documentation https://redux-actions.js.org/docs/api/createAction.html#createactionsactionmap
 export default createActions({
     [PREFIX]: {
-        [Actions.APPROVE_AND_DEPOSIT_CHIPS]: approveAndDepositChips,
+        [Actions.APPROVE]: approve,
         [Actions.CREATE_CHANNEL]: createChannel,
         [Actions.DEPOSIT_TO_CHANNEL]: depositToChannel,
         [Actions.DEPOSIT_CHIPS]: depositChips,
         [Actions.GET_ALLOWANCE]: fetchAllowance,
-        [Actions.GET_BALANCE]: fetchSessionBalance,
-        [Actions.GET_SESSION_ID]: fetchSessionId,
+        [Actions.GET_BALANCE]: fetchBalance,
         [Actions.SET_CHANNEL]: channel => channel,
-        [Actions.SET_CHANNEL_DEPOSITED]: channelId => ({ channelId }),
-        [Actions.SET_CHANNEL_ACTIVATED]: channelId => ({ channelId }),
-        [Actions.SET_CHANNEL_FINALIZED]: channelId => ({ channelId }),
+        [Actions.SET_CHANNEL_DEPOSITED]: channelId => ({channelId}),
+        [Actions.SET_CHANNEL_ACTIVATED]: channelId => ({channelId}),
+        [Actions.SET_CHANNEL_FINALIZED]: channelId => ({channelId}),
         [Actions.SET_CHANNEL_CLAIMED]: (channelId, isHouse) => ({
             channelId,
             isHouse

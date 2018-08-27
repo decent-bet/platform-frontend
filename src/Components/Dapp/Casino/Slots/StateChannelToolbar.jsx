@@ -7,12 +7,13 @@ export default class StateChannelToolbar extends Component {
 
     render() {
         const { channel } = this.props
+        const disabled = channel && channel.info ? (!channel.info.finalized || channel.info.claimed) : true 
         return (
             <Button
                 variant="raised"
                 color="primary"
                 onClick={this.onClaimListener}
-                disabled={!channel.info.finalized || channel.info.claimed}
+                disabled={disabled}
             >
                 Claim Chips
             </Button>

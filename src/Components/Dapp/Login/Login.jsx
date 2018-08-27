@@ -1,46 +1,34 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import { Card } from '@material-ui/core'
 import LoginActions from './LoginActions'
 import LoginInner from './LoginInner'
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
-import Helper from '../../Helper'
-import { KeyHandler } from '../../../Web3'
+import { Actions, Thunks } from '../../../Model/auth'
 import bip39 from 'bip39'
-import { Wallet } from 'ethers'
-
 import './login.css'
+import { KeyHandler } from '../../../Web3'
 
-const helper = new Helper()
 const keyHandler = new KeyHandler()
 
-export default class Login extends Component {
+class Login extends Component {
+
     state = {
         value: '',
-        provider: helper.getGethProvider(),
         isErrorDialogOpen: false
+    }
+
+    componentDidMount() {
+        if(keyHandler.isLoggedIn()) {
+            window.location.href = '/'
+        } else {
+            this.props.dispatch(Thunks.getProviderUrl())
+        }
     }
 
     login = () => {
         try {
-            let wallet
-            let login = this.state.value
-            if (login.includes(' ')) {
-                // Passphrase Mnemonic mode
-                wallet = Wallet.fromMnemonic(login)
-            } else {
-                // Private Key Mode
-                // Adds '0x' to the beginning of the key if it is not there.
-                if (login.substring(0, 2) !== '0x') {
-                    login = '0x' + login
-                }
-
-                wallet = new Wallet(login)
-            }
-            keyHandler.set(wallet.privateKey, wallet.address)
-
-            // Reload Web3 Address.
-            window.web3Object.eth.defaultAccount = wallet.address
-
+            this.props.dispatch(Actions.login(this.state.value))
             // Go to the Root
             this.props.history.push('/')
         } catch (e) {
@@ -78,9 +66,7 @@ export default class Login extends Component {
         this.setState({ value: event.target.value })
 
     onProviderChangedListener = (event, index, value) => {
-        helper.setGethProvider(value)
-        this.setState({ provider: value })
-
+        this.props.dispatch(Thunks.setProviderUrl(value))
         // Wait for dropdown animation
         setTimeout(() => {
             window.location.reload()
@@ -101,7 +87,7 @@ export default class Login extends Component {
         <Card className="login-card">
             <LoginInner
                 loginMethod={this.state.login}
-                provider={this.state.provider}
+                provider={this.props.provider}
                 value={this.state.value}
                 onChange={this.onLoginTextChangedListener}
                 onLoginKeypress={this.loginWithKeyPress}
@@ -125,3 +111,6 @@ export default class Login extends Component {
         )
     }
 }
+
+// Connect this component to Redux
+export default connect(state => state.auth)(Login)

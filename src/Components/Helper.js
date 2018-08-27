@@ -2,34 +2,12 @@ import React from 'react'
 import EventBus from 'eventing-bus'
 import ethUnits from 'ethereum-units'
 import BigNumber from 'bignumber.js'
-import { KEY_GETH_PROVIDER, PROVIDER_LOCAL, PROVIDER_DBET } from './Constants'
 
 export default class Helper {
     isDev = () => {
         return process.env['NODE_ENV'] !== 'production'
     }
 
-    getWeb3 = () => {
-        return window.web3Object
-    }
-
-    getContractHelper = () => {
-        return window.contractHelper
-    }
-
-    getGethProvider = () => {
-        let provider = localStorage.getItem(KEY_GETH_PROVIDER)
-        if (!provider || provider === 'undefined') {
-            // In Safari the localStorage returns the text 'undefined' as is
-            return this.isDev() ? PROVIDER_LOCAL : PROVIDER_DBET
-        }
-
-        return provider
-    }
-
-    setGethProvider = provider => {
-        localStorage.setItem(KEY_GETH_PROVIDER, provider)
-    }
 
     getTimestamp = () => {
         return this.getTimestampInMillis() / 1000

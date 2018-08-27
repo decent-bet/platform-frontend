@@ -1,7 +1,7 @@
 import { BigNumber } from 'bignumber.js'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
-import { Actions, Thunks } from '../../../../Model/slotsManager'
+import { Thunks } from '../../../../Model/slotsManager'
 import { isChannelClaimed } from '../functions'
 import SlotsList from './SlotsList'
 import StateChannelBuilder from './StateChannelBuilder'
@@ -20,10 +20,7 @@ class Slots extends Component {
     }
 
     componentDidMount = () => {
-        this.props.dispatch(Actions.getSessionId())
-        this.props.dispatch(Actions.getBalance())
-        this.props.dispatch(Actions.getAllowance())
-
+        this.props.dispatch(Thunks.initializeSlots())
         this.refreshChannels()
     }
 
@@ -32,26 +29,31 @@ class Slots extends Component {
         this.setState({ stateMachine: 'loading' })
 
         // Get channels and wait
-        const result = await this.props.dispatch(Actions.getChannels())
+        const result = await this.props.dispatch(Thunks.fetchChannels())
         const channels = result.value
 
         // Make a list of all usable channels for the user and publish it
         const activeChannels = []
         const claimableChannels = []
-        for (const channelId in channels) {
-            if (channels.hasOwnProperty(channelId)) {
-                const channel = channels[channelId]
 
-                // Is channel still usable?
-                const isUsable =
-                    channel.info.ready &&
-                    channel.info.activated &&
-                    !channel.info.finalized
-                if (isUsable) {
-                    activeChannels.push(channelId)
-                }
-                if (channel.info.finalized && !isChannelClaimed(channel)) {
-                    claimableChannels.push(channelId)
+        if (channels) {
+            for (const channelId in channels) {
+                if (channels.hasOwnProperty(channelId)) {
+                    const channel = channels[channelId]
+
+                    // Is channel still usable?
+                    const isUsable =
+                        channel.info &&
+                        channel.info.ready &&
+                        channel.info.activated &&
+                        !channel.info.finalized
+                    if (isUsable) {
+                        activeChannels.push(channelId)
+                    }
+
+                    if (!isChannelClaimed(channel)) {
+                        claimableChannels.push(channelId)
+                    }
                 }
             }
         }
@@ -72,13 +74,14 @@ class Slots extends Component {
     // Builds the entire State Channel in one Step
     onBuildChannelListener = async amount => {
         const allowance = new BigNumber(this.props.allowance)
+        const balance = new BigNumber(this.props.balance)
         const parsedAmount = new BigNumber(amount)
 
         // Update UI. Tell the user we are building the channel
         this.setState({ stateMachine: 'building_game' })
 
         // Create the channel
-        const thunk = Thunks.buildChannel(parsedAmount, allowance)
+        const thunk = Thunks.buildChannel(parsedAmount, allowance, balance)
         const currentChannel = await this.props.dispatch(thunk)
 
         // Update UI
@@ -109,12 +112,7 @@ class Slots extends Component {
         />
     )
 
-    renderLoadingState = message => (
-        <StateChannelWaiter
-            builtChannelId={this.props.builtChannelId}
-            message={message}
-        />
-    )
+    renderLoadingState = message => <StateChannelWaiter message={message} />
 
     renderSelectChannelsState = () => (
         <Fragment>
@@ -143,9 +141,8 @@ class Slots extends Component {
             channelMap={this.props.channels}
             activeChannels={this.state.activeChannels}
             claimableChannels={this.state.claimableChannels}
-            
             /* Function as a child. Receives `channel` */
-            children={this.renderStateChannelToolbar}
+            channelProp={this.renderStateChannelToolbar}
         />
     )
 

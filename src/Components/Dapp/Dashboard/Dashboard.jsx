@@ -1,37 +1,37 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-
 import DashboardAppBar from './DashboardAppBar'
 import DashboardAppBarToolbar from './DashboardAppBarToolbar'
 import DashboardRouter from './DashboardRouter'
 import DashboardDrawer from './DashboardDrawer'
 import ProviderSelector from './ProviderSelector'
 import NoTokensWarning from './NoTokensWarning'
-import Helper from '../../Helper'
-import { Actions, initWatchers } from '../../../Model/balance'
-
+import { Thunks } from '../../../Model/balance'
+import { Actions as AuthActions, Thunks as AuthThunks } from '../../../Model/auth'
 import './dashboard.css'
+import { KeyHandler } from '../../../Web3'
 
-const helper = new Helper()
+const keyHandler = new KeyHandler()
 
 class Dashboard extends Component {
     state = {
-        provider: helper.getGethProvider(),
+        provider: '',
         drawerOpen: false
     }
 
-    componentDidMount = () => {
-        // Initialize the datastore
-        this.props.dispatch(Actions.getPublicAddress())
-        this.props.dispatch(Actions.getTokens())
-        this.props.dispatch(Actions.getEtherBalance())
-        this.props.dispatch(initWatchers)
+    componentDidMount = async () => {
+        if(!keyHandler.isLoggedIn()) {
+            this.props.history.push('/login')
+        } else {
+            // Initialize the datastore
+           await this.props.dispatch(Thunks.initialize())
+        }
     }
 
     // Faucet Button Clicked. Execute Faucet
     onFaucetClickedListener = () => {
         this.onToggleDrawerListener()
-        this.props.dispatch(Actions.faucet())
+        this.props.dispatch(Thunks.faucet())
     }
 
     onDrawerButtonPressedListener = open => this.setState({ drawerOpen: open })
@@ -39,11 +39,12 @@ class Dashboard extends Component {
 
     onProviderChangeListener = value => {
         if (value !== this.state.provider) {
-            helper.setGethProvider(value)
             this.setState({ provider: value })
+            this.props.dispatch(AuthThunks.setProviderUrl(value))
+            this.props.dispatch(AuthActions.logout())
             // Wait for dropdown animation
             setTimeout(() => {
-                window.location.reload()
+                this.props.history.push('/login')
             }, 500)
         }
     }
@@ -53,6 +54,7 @@ class Dashboard extends Component {
 
     onViewChangeListener = newView => {
         if (this.props.location.pathname === newView) return
+        this.props.dispatch(AuthActions.logout())
         this.setState({ drawerOpen: false })
         this.props.history.push(newView)
     }
@@ -84,17 +86,18 @@ class Dashboard extends Component {
 
     render() {
         // Print the rest of the content only if the user has DBETs
-        const inner =
-            this.props.balance > 0 ? <DashboardRouter /> : <NoTokensWarning />
-        return (
-            <div className="dashboard">
+
+        const inner = this.props.balance > 0 ? <DashboardRouter /> : <NoTokensWarning />
+        return (<div className="dashboard">
                 {this.renderAppbar()}
                 {inner}
                 {this.renderDrawer()}
             </div>
-        )
+          )
     }
 }
+
+
 
 // Connect this component to Redux
 export default connect(state => state.balance)(Dashboard)

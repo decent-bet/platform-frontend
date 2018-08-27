@@ -8,11 +8,7 @@ import {
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import {
-    Actions,
-    SlotsChannelHandler,
-    Thunks,
-    watcherChannelClaimed,
-    watcherChannelFinalized
+    Thunks
 } from '../../../../Model/slotsManager'
 import { CHANNEL_STATUS_FINALIZED } from '../../../Constants'
 import Helper from '../../../Helper'
@@ -22,7 +18,6 @@ import Iframe from './Iframe'
 import './game.css'
 
 const helper = new Helper()
-const slotsChannelHandler = new SlotsChannelHandler()
 
 class Game extends Component {
     state = {
@@ -31,12 +26,7 @@ class Game extends Component {
 
     componentDidMount = () => {
         const { dispatch, channelId } = this.props
-        dispatch(Actions.getAesKey(channelId))
-        dispatch(Actions.getChannelDetails(channelId))
-        dispatch(Actions.getLastSpin(channelId))
-
-        watcherChannelClaimed(channelId, dispatch)
-        watcherChannelFinalized(channelId, dispatch)
+        dispatch(Thunks.initializeGame(channelId))
 
         // TODO: Make this less ugly
         // Maybe we should use websockets to communicate instead?
@@ -56,7 +46,8 @@ class Game extends Component {
             callback(err, msg, lines)
         }
 
-        slotsChannelHandler.spin(totalBetSize, this.props, listener)
+        dispatch(Thunks.spin(totalBetSize, this.props, listener))
+
     }
 
     getBalance = () => ({
@@ -66,8 +57,8 @@ class Game extends Component {
 
     onFinalizeListener = async () => {
         this.setState({ isFinalizing: true })
-        let action = Actions.finalizeChannel(this.props.channelId, this.props)
-        await this.props.dispatch(action)
+        const thunk = Thunks.finalizeChannel(this.props.channelId, this.props)
+        await this.props.dispatch(thunk)
         this.setState({ isFinalizing: false })
         this.back()
     }

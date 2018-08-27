@@ -1,4 +1,6 @@
 import DecentAPI from '../../Components/Base/DecentAPI'
+import { Utils } from '../../Web3/Utils'
+
 import Helper from '../../Components/Helper'
 import {
     reels as slotReels,
@@ -10,25 +12,27 @@ import { SHA256 } from 'crypto-js'
 import BigNumber from 'bignumber.js'
 import { getSpin, getTightlyPackedSpin } from './functions'
 import Bluebird from 'bluebird'
-
-const decentApi = new DecentAPI()
 const helper = new Helper()
 
 export default class SlotsChannelHandler {
+
+    constructor(web3) {
+        this.decentApi = new DecentAPI(web3)
+    }
     /**
      *
      * @param betSize
      * @param state
      * @param callback
      */
-    spin = async (betSize, state, callback) => {
+    spin = async (betSize, state, chainProvider, callback) => {
         const id = state.channelId
         betSize = helper.convertToEther(betSize)
 
         try {
-            let userSpin = await getSpin(betSize, state, false)
+            let userSpin = await getSpin(betSize, state, false, chainProvider)
             let response = await Bluebird.fromCallback(cb =>
-                decentApi.spin(id, userSpin, state.aesKey, cb)
+                this.decentApi.spin(id, userSpin, state.aesKey, cb)
             )
 
             if (response.error) {
@@ -42,9 +46,9 @@ export default class SlotsChannelHandler {
 
             let lines = this.getLines(response.message.reel)
             // Increase nonce and add response.message to houseSpins in callback
-            callback(false, response.message, lines)
+            callback(null, response.message, lines)
         } catch (error) {
-            callback(true, error.message)
+            callback(error.message)
         }
     }
 
@@ -59,10 +63,9 @@ export default class SlotsChannelHandler {
         delete nonSignatureSpin.sign
 
         const msg = getTightlyPackedSpin(nonSignatureSpin)
-        const valid = helper
-            .getContractHelper()
-            .verifySign(msg, houseSpin.sign, state.houseAuthorizedAddress)
-        if (!valid) callback(true, 'Invalid signature')
+        const valid = Utils.verifySign(msg, houseSpin.sign, state.houseAuthorizedAddress)
+        if (!valid)
+            callback(true, 'Invalid signature')
 
         /**
          * Verify spin balances

@@ -8,7 +8,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export default class DashboardDrawerItem extends Component {
-    onClick = event => this.props.onViewChangeListener(this.props.viewToSelect)
+    onClick = () => this.props.onViewChangeListener(this.props.viewToSelect)
     render() {
         let itemClasses = this.props.isSelected
             ? 'menu-item selected'

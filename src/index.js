@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom'
 
 import injectTapEventPlugin from 'react-tap-event-plugin'
 import App from './Components/Dapp'
-import { Web3Loader } from './Web3'
 
 import './index.css'
 import './css/bootstrap.min.css'
@@ -18,8 +17,4 @@ library.add(faSolid, faEthereum)
 // Inject tap event plugin
 injectTapEventPlugin()
 
-// Init Web3
-new Web3Loader()
-
-let landingApp = React.createElement(App)
-ReactDOM.render(landingApp, document.getElementById('root'))
+ReactDOM.render(<App/>, document.getElementById('root'))

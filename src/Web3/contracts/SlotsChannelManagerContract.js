@@ -1,227 +1,116 @@
-import SlotsChannelManagerJson from '../../../build/contracts/SlotsChannelManager.json'
-import KeyHandler from '../KeyHandler'
-import ethAbi from 'web3-eth-abi'
-import AbstractContract from './AbstractContract'
-import Bluebird from 'bluebird'
+import BaseContract from './BaseContract'
 
-// Used for VSCode Type Checking
-import Web3 from 'web3' // eslint-disable-line no-unused-vars
-
-const keyHandler = new KeyHandler()
-
-export default class SlotsChannelManager extends AbstractContract {
-    /**
-     * Builds the contract
-     * @param {Web3} web3
-     */
-    constructor(web3) {
-        super(web3, SlotsChannelManagerJson)
-    }
-
+export default class SlotsChannelManagerContract extends BaseContract {
     /**
      * Getters
      */
-    getChannelInfo = id => {
-        return this.instance.getChannelInfo.call(id, {
-            from: this.web3.eth.defaultAccount
-        })
+    async getChannelInfo(id) {
+        return await this.instance.methods.getChannelInfo(id).call()
     }
 
-    getChannelHashes = id => {
-        return this.instance.getChannelHashes.call(id, {
-            from: this.web3.eth.defaultAccount
-        })
+    async getChannelHashes(id) {
+        return await this.instance.methods.getChannelHashes(id).call()
     }
 
-    checkSig = (id, msgHash, sign, turn) => {
-        return this.instance.checkSig.call(id, msgHash, sign, turn, {
-            from: this.web3.eth.defaultAccount
-        })
+    async currentSession() {
+        return await this.instance.methods.currentSession().call()
+    }
+    
+    async checkSig(id, msgHash, sign, turn) {
+        return await this.instance.methods.checkSig(id, msgHash, sign, turn).call()
     }
 
-    balanceOf = (address, session) => {
-        return this.instance.balanceOf.call(address, session, {
-            from: this.web3.eth.defaultAccount
-        })
+    async balanceOf(address) {
+        return await this.instance.methods.balanceOf(address).call()
     }
 
-    currentSession = () => {
-        return this.instance.currentSession.call({
-            from: this.web3.eth.defaultAccount
-        })
+    async getPlayer(id, isHouse) {
+        return await this.instance.methods.getPlayer(id, isHouse).call()
     }
 
-    getPlayer = (id, isHouse) => {
-        return this.instance.getPlayer.call(id, isHouse, {
-            from: this.web3.eth.defaultAccount
-        })
+    async isChannelClosed(id) {
+        return await this.instance.methods.isChannelClosed(id).call()
     }
 
-    isChannelClosed = id => {
-        return this.instance.isChannelClosed.call(id, {
-            from: this.web3.eth.defaultAccount
-        })
+    async finalBalances(id, isHouse) {
+        return await this.instance.methods.finalBalances(id, isHouse).call()
     }
 
-    finalBalances = (id, isHouse) => {
-        return this.instance.finalBalances.call(id, isHouse, {
-            from: this.web3.eth.defaultAccount
-        })
+    async channelDeposits(id, isHouse) {
+        return await this.instance.methods.channelDeposits(id, isHouse).call()
     }
 
-    channelDeposits = (id, isHouse) => {
-        return this.instance.channelDeposits.call(id, isHouse, {
-            from: this.web3.eth.defaultAccount
-        })
+    async getChannelCount() {
+        let count = await this.instance.methods.channelCount().call()
+        try {
+            return Number(count)
+        } catch (error) {
+            console.log(error)
+            return 0
+        }
     }
 
-    getChannels = () => {
-        return Bluebird.fromCallback(cb =>
-            this.instance
-                .LogNewChannel(
-                    {
-                        user: this.web3.eth.defaultAccount
-                    },
-                    {
-                        fromBlock: 0,
-                        toBlock: 'latest'
-                    }
-                )
-                .get(cb)
-        )
+    async getChannels() {
+        let _options = {
+            filter: {
+                user: this._web3.eth.defaultAccount
+            }
+        }
+        return await this.instance.getPastEvents('LogNewChannel', _options)
     }
 
     /**
      * Setters
      */
-    createChannel = deposit => {
-        let encodedFunctionCall = ethAbi.encodeFunctionCall(
-            {
-                name: 'createChannel',
-                type: 'function',
-                inputs: [
-                    {
-                        name: 'initialDeposit',
-                        type: 'uint256'
-                    }
-                ]
-            },
-            [deposit]
-        )
-
-        return this.signAndSendRawTransaction(
-            keyHandler.get(),
-            this.instance.address,
+    async createChannel(deposit) {
+        const encodedFunctionCall = this.instance.methods.createChannel(deposit).encodeABI()
+        return await this.signAndSendRawTransaction(
+            this.instance.options.address,
             null,
-            5000000,
+            null,
             encodedFunctionCall
         )
     }
 
-    deposit = amount => {
-        let encodedFunctionCall = ethAbi.encodeFunctionCall(
-            {
-                name: 'deposit',
-                type: 'function',
-                inputs: [
-                    {
-                        name: 'amount',
-                        type: 'uint256'
-                    }
-                ]
-            },
-            [amount]
-        )
+    async deposit(amount) {
+        const encodedFunctionCall = this.instance.methods.deposit(amount).encodeABI()
 
-        return this.signAndSendRawTransaction(
-            keyHandler.get(),
-            this.instance.address,
+        return await this.signAndSendRawTransaction(
+            this.instance.options.address,
             null,
-            5000000,
+            null,
             encodedFunctionCall
         )
     }
 
-    withdraw = (amount, session) => {
-        let encodedFunctionCall = ethAbi.encodeFunctionCall(
-            {
-                name: 'withdraw',
-                type: 'function',
-                inputs: [
-                    {
-                        name: 'amount',
-                        type: 'uint256'
-                    },
-                    {
-                        name: 'session',
-                        type: 'uint256'
-                    }
-                ]
-            },
-            [amount, session]
-        )
+    async withdraw(amount) {
+        const encodedFunctionCall = this.instance.methods.withdraw(amount).encodeABI()
 
-        return this.signAndSendRawTransaction(
-            keyHandler.get(),
-            this.instance.address,
+        return await this.signAndSendRawTransaction(
+            this.instance.options.address,
             null,
-            5000000,
+            null,
             encodedFunctionCall
         )
     }
 
-    depositToChannel = (id, initialUserNumber, finalUserHash) => {
-        let encodedFunctionCall = ethAbi.encodeFunctionCall(
-            {
-                name: 'depositChannel',
-                type: 'function',
-                inputs: [
-                    {
-                        name: 'id',
-                        type: 'bytes32'
-                    },
-                    {
-                        name: '_initialUserNumber',
-                        type: 'string'
-                    },
-                    {
-                        name: '_finalUserHash',
-                        type: 'string'
-                    }
-                ]
-            },
-            [id, initialUserNumber, finalUserHash]
-        )
+    async depositToChannel(id, initialUserNumber, finalUserHash) {
+        const encodedFunctionCall = this.instance.methods.depositChannel(id, initialUserNumber, finalUserHash).encodeABI()
 
-        return this.signAndSendRawTransaction(
-            keyHandler.get(),
-            this.instance.address,
+        return await this.signAndSendRawTransaction(
+            this.instance.options.address,
             null,
-            5000000,
+            null,
             encodedFunctionCall
         )
     }
 
-    claim = id => {
-        let encodedFunctionCall = ethAbi.encodeFunctionCall(
-            {
-                name: 'claim',
-                type: 'function',
-                inputs: [
-                    {
-                        name: 'id',
-                        type: 'bytes32'
-                    }
-                ]
-            },
-            [id]
-        )
-
-        return this.signAndSendRawTransaction(
-            keyHandler.get(),
-            this.instance.address,
+    async claim(id) {
+        const encodedFunctionCall = this.instance.methods.claim(id).encodeABI()
+        return await this.signAndSendRawTransaction(
+            this.instance.options.address,
             null,
-            5000000,
+            null,
             encodedFunctionCall
         )
     }
@@ -229,89 +118,71 @@ export default class SlotsChannelManager extends AbstractContract {
     /**
      * Events
      */
-    logNewChannel = (fromBlock, toBlock) => {
-        return this.instance.LogNewChannel(
-            {
-                user: this.web3.eth.defaultAccount
-            },
-            {
-                fromBlock: fromBlock ? fromBlock : 0,
-                toBlock: toBlock ? toBlock : 'latest'
-            }
-        )
-    }
-    logChannelDeposit = (id, fromBlock, toBlock) => {
-        return this.instance.LogChannelDeposit(
-            {
-                user: this.web3.eth.defaultAccount,
-                id: id
-            },
-            {
-                fromBlock: fromBlock ? fromBlock : 0,
-                toBlock: toBlock ? toBlock : 'latest'
-            }
-        )
-    }
-    logChannelActivate = (id, fromBlock, toBlock) => {
-        return this.instance.LogChannelActivate(
-            {
-                user: this.web3.eth.defaultAccount,
-                id: id
-            },
-            {
-                fromBlock: fromBlock ? fromBlock : 0,
-                toBlock: toBlock ? toBlock : 'latest'
-            }
-        )
+    async logNewChannel(fromBlock, toBlock) {
+        let filter = {
+            user: this._web3.eth.defaultAccount
+        }
+        return await this.getPastEvents('LogNewChannel', filter, (fromBlock ? fromBlock : 'latest'), (toBlock ? toBlock : 'latest'))
     }
 
-    logChannelFinalized = (id, fromBlock, toBlock) => {
-        return this.instance.LogChannelFinalized(
-            {
-                id: id
-            },
-            {
-                fromBlock: fromBlock ? fromBlock : 0,
-                toBlock: toBlock ? toBlock : 'latest'
-            }
-        )
+    async logChannelDeposit(id, fromBlock, toBlock) {
+        let filter = {
+            user: this._web3.eth.defaultAccount,
+            id: id
+        }
+        return await this.getPastEvents('LogChannelDeposit', filter,( fromBlock ? fromBlock : 0), (toBlock ? toBlock : 'latest'))
     }
 
-    logClaimChannelTokens = (id, fromBlock, toBlock) => {
-        const filter = id ? { id: id } : {}
-        return this.instance.LogClaimChannelTokens(filter, {
-            fromBlock: fromBlock ? fromBlock : 0,
-            toBlock: toBlock ? toBlock : 'latest'
-        })
+    async logChannelActivate(id, fromBlock, toBlock) {
+        let filter = {
+            user: this._web3.eth.defaultAccount,
+            id: id
+        }
+        return await this.getPastEvents('LogChannelActivate', filter,( fromBlock ? fromBlock : 0), (toBlock ? toBlock : 'latest'))
     }
 
-    logDeposit = (fromBlock, toBlock) => {
-        return this.instance.LogDeposit(
-            {
-                _address: this.web3.eth.defaultAccount
-            },
-            {
-                fromBlock: fromBlock ? fromBlock : 0,
-                toBlock: toBlock ? toBlock : 'latest'
-            }
-        )
+    async logChannelFinalized(id, fromBlock, toBlock) {
+        let filter = {
+            user: this._web3.eth.defaultAccount,
+            id: id
+        }
+        
+        return await this.getPastEvents('LogChannelFinalized', filter,( fromBlock ? fromBlock : 0), (toBlock ? toBlock : 'latest'))
     }
-    logWithdraw = (fromBlock, toBlock) => {
-        return this.instance.LogWithdraw(
-            {
-                _address: this.web3.eth.defaultAccount
-            },
-            {
-                fromBlock: fromBlock ? fromBlock : 0,
-                toBlock: toBlock ? toBlock : 'latest'
-            }
-        )
+
+    async logClaimChannelTokens(id, fromBlock, toBlock) {
+        
+        let _options = {
+            fromBlock: (fromBlock ? fromBlock : 0),
+            toBlock: (toBlock ? toBlock : 'latest')
+        }
+
+        if(id) {
+            _options.filter = { id: id }
+        }
+        
+        return await this.instance.getPastEvents('LogClaimChannelTokens', _options)
+    }
+
+    async logDeposit(fromBlock, toBlock) {
+        let filter = {
+            _address: this._web3.eth.defaultAccount
+        }
+
+        return this.getPastEvents('LogDeposit', filter,( fromBlock ? fromBlock : 0), (toBlock ? toBlock : 'latest'))
+    }
+
+    async logWithdraw(fromBlock, toBlock) {
+        let filter = {
+            _address: this._web3.eth.defaultAccount
+        }
+        return await this.getPastEvents('LogWithdraw', filter,( fromBlock ? fromBlock : 0), (toBlock ? toBlock : 'latest'))
     }
 
     /**
      * Event Decoders
      */
-    logNewChannelDecode = (log, topics) => {
+    logNewChannelDecode(log, topics) {
         const params = [
             {
                 indexed: false,
@@ -334,6 +205,6 @@ export default class SlotsChannelManager extends AbstractContract {
                 type: 'uint256'
             }
         ]
-        return ethAbi.decodeLog(params, log, topics)
+        return this._web3.eth.abi.decodeLog(params, log, topics)
     }
 }

@@ -2,28 +2,27 @@ import Bluebird from 'bluebird'
 import cryptoJs, { AES } from 'crypto-js'
 import { createActions } from 'redux-actions'
 import DecentAPI from '../../../Components/Base/DecentAPI'
-import Helper from '../../../Components/Helper'
 import Actions, { PREFIX } from './actionTypes'
 import { getAesKey, getUserHashes } from '../functions'
 import BigNumber from 'bignumber.js'
 import moment from 'moment'
 
-const helper = new Helper()
-const decentApi = new DecentAPI()
+let decentApi = null
 
-async function fetchAesKey(channelId) {
-    let key = getAesKey(channelId)
+async function fetchAesKey(channelId, chainProvider) {
+    let key = getAesKey(channelId, chainProvider)
     return Promise.resolve({ channelId, key })
 }
 
 /**
  * The Basic information of a State Channel
  * @param channelId
+ * @param contractFactory
  */
-async function getChannelInfo(channelId) {
+async function getChannelInfo(channelId, { contractFactory }) {
     try {
-        const instance = helper.getContractHelper().SlotsChannelManager
-        const info = await instance.getChannelInfo(channelId)
+        const contract = await contractFactory.slotsChannelManagerContract()
+        const info = await contract.getChannelInfo(channelId)
         const playerAddress = info[0]
         return {
             playerAddress,
@@ -42,12 +41,13 @@ async function getChannelInfo(channelId) {
 
 /**
  * Get the player's house address
- * @param id
+ * @param channelId
+ * @param contractFactory
  */
-async function getAuthorizedAddress(channelId) {
+async function getAuthorizedAddress(channelId, { contractFactory }) {
     try {
-        const instance = helper.getContractHelper().SlotsChannelManager
-        return instance.getPlayer(channelId, true)
+        const contract = await contractFactory.slotsChannelManagerContract()
+        return await contract.getPlayer(channelId, true)
     } catch (error) {
         console.log('Error retrieving house authorized address', error.message)
     }
@@ -55,12 +55,13 @@ async function getAuthorizedAddress(channelId) {
 
 /**
  * Is the channel closed?
- * @param {number} id
+ * @param channelId
+ * @param contractFactory
  */
-async function isChannelClosed(channelId) {
+async function isChannelClosed(channelId, { contractFactory }) {
     try {
-        const instance = helper.getContractHelper().SlotsChannelManager
-        return instance.isChannelClosed(channelId)
+        const contract = await contractFactory.slotsChannelManagerContract()
+        return await contract.isChannelClosed(channelId)
     } catch (err) {
         console.log('Error retrieving is channel closed', err.message)
     }
@@ -69,11 +70,13 @@ async function isChannelClosed(channelId) {
 /**
  * Get the other channel hashes
  * @param {number} id
+ * @param contractFactory
  */
-async function getChannelHashes(id) {
+async function getChannelHashes(id, { contractFactory }) {
     try {
-        const instance = helper.getContractHelper().SlotsChannelManager
-        const hashes = await instance.getChannelHashes(id)
+        const contract = await contractFactory.slotsChannelManagerContract()
+        const hashes = await contract.getChannelHashes(id)
+        console.log('Hashes', hashes, id)
         return {
             finalUserHash: hashes[0],
             initialUserNumber: hashes[1],
@@ -85,25 +88,40 @@ async function getChannelHashes(id) {
     }
 }
 
-async function getDeposited(channelId, isHouse = false) {
-    const instance = helper.getContractHelper().SlotsChannelManager
-    const rawBalance = await instance.channelDeposits(channelId, isHouse)
+async function getDeposited(channelId, isHouse = false, { contractFactory }) {
+    const contract = await contractFactory.slotsChannelManagerContract()
+    const rawBalance = await contract.channelDeposits(channelId, isHouse)
     return new BigNumber(rawBalance)
 }
 
 /**
  * Get info and hashes required to interact with an active channel
  * @param id
+ * @param chainProvider
  */
-async function getChannelDetails(id) {
-    return Bluebird.props({
-        deposited: getDeposited(id),
+async function getChannelDetails(id, chainProvider) {
+    let [
+        deposited,
+        info,
+        houseAuthorizedAddress,
+        closed,
+        hashes
+    ] = await Promise.all([
+        getDeposited(id, false, chainProvider),
+        getChannelInfo(id, chainProvider),
+        getAuthorizedAddress(id, chainProvider),
+        isChannelClosed(id, chainProvider),
+        getChannelHashes(id, chainProvider)
+    ])
+
+    return {
+        deposited,
         channelId: id,
-        info: getChannelInfo(id),
-        houseAuthorizedAddress: getAuthorizedAddress(id),
-        closed: isChannelClosed(id),
-        hashes: getChannelHashes(id)
-    })
+        info,
+        houseAuthorizedAddress,
+        closed,
+        hashes
+    }
 }
 
 /**
@@ -111,8 +129,13 @@ async function getChannelDetails(id) {
  * @param id
  * @param hashes
  * @param aesKey
+ * @param chainProvider
  */
-async function loadLastSpin(id, hashes, aesKey) {
+async function loadLastSpin(id, hashes, aesKey, chainProvider) {
+    if (!decentApi) {
+        decentApi = new DecentAPI(chainProvider.web3)
+    }
+
     let result = await Bluebird.fromCallback(cb =>
         decentApi.getLastSpin(id, cb)
     )
@@ -124,22 +147,41 @@ async function loadLastSpin(id, hashes, aesKey) {
         try {
             let rawSpinData = AES.decrypt(encryptedSpin, aesKey)
             userSpin = JSON.parse(rawSpinData.toString(cryptoJs.enc.Utf8))
-        } catch (e) {}
+        } catch (e) {
+            throw e
+        }
     }
     if (houseSpin) {
         houseSpins = [houseSpin]
     } else {
         houseSpins = []
     }
+    console.log('loadLastSpin', {
+        result,
+        encryptedSpin,
+        houseSpin,
+        nonce,
+        userSpin,
+        houseSpins,
+        initialUserNumber: hashes.initialUserNumber,
+        aesKey
+    })
 
     let initialUserNumber = AES.decrypt(
         hashes.initialUserNumber,
         aesKey
     ).toString(cryptoJs.enc.Utf8)
-    let userHashes = await getUserHashes(initialUserNumber)
-    let isValid = userHashes[userHashes.length - 1] === hashes.finalUserHash
+    let userHashes = getUserHashes(initialUserNumber)
+    let index = userHashes.length - 1
+    if (userHashes[index] !== hashes.finalUserHash) {
+        console.warn(
+            'Invalid initial User Number',
+            userHashes[index],
+            hashes.finalUserHash
+        )
+        throw new Error('Invalid initial User Number')
+    }
 
-    if (!isValid) throw new Error('Invalid initial User Number')
     return {
         nonce: nonce,
         houseSpins: houseSpins,
@@ -148,10 +190,11 @@ async function loadLastSpin(id, hashes, aesKey) {
     }
 }
 
-async function getLastSpin(channelId) {
-    let aesKey = await getAesKey(channelId)
-    let { hashes } = await getChannelDetails(channelId)
-    let data = await loadLastSpin(channelId, hashes, aesKey)
+async function getLastSpin(channelId, chainProvider) {
+    console.log('getLastSpin', channelId)
+    let aesKey = await getAesKey(channelId, chainProvider)
+    let { hashes } = await getChannelDetails(channelId, chainProvider)
+    let data = await loadLastSpin(channelId, hashes, aesKey, chainProvider)
 
     return {
         channelId,
@@ -165,37 +208,58 @@ async function getLastSpin(channelId) {
 /**
  * Gets a single channel's data
  * @param {string} channelId
+ * @param chainProvider
  */
-async function getChannel(channelId) {
+async function getChannel(channelId, chainProvider) {
     // Execute both actions in parallel
-    const data = await Bluebird.props({
-        channelDetails: getChannelDetails(channelId),
-        lastSpin: getLastSpin(channelId)
-    })
+    let [channelDetails, lastSpin] = await Promise.all([
+        getChannelDetails(channelId, chainProvider),
+        getLastSpin(channelId, chainProvider)
+    ])
+    
     return {
-        ...data.channelDetails,
-        ...data.lastSpin
+        ...channelDetails,
+        ...lastSpin
     }
 }
 
 /**
  * Get all channels for a user
  */
-async function getChannels() {
-    const contract = helper.getContractHelper().SlotsChannelManager
+async function getChannels(chainProvider) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { contractFactory } = chainProvider
+            const contract = await contractFactory.slotsChannelManagerContract()
+            let channelCount = await contract.getChannelCount()
+            console.log('channelCount', channelCount)
+            if (channelCount > 0) {
+                let promises = []
+                const getChannelsEventSubscription = contract.getEventSubscription(
+                    contract.getChannels()
+                )
 
-    //Query a list of all channel ids
-    const list = await contract.getChannels()
-    const accumulator = {}
-    for (const iterator of list) {
-        // Query every channel and accumulate it
-        const id = iterator.args.id
-        // Add promise itself into the array.
-        const resultPromise = getChannel(id)
-        accumulator[id] = resultPromise
-    }
-    // Execute all promises simultaneously.
-    return Bluebird.props(accumulator)
+                const getChannelsSubscription = getChannelsEventSubscription.subscribe(
+                    async events => {
+                        if (events.length >= 1) {
+                            getChannelsSubscription.unsubscribe()
+                            for (const channel of events) {
+                                const id = channel.returnValues.id
+                                promises.push(getChannel(id, chainProvider))
+                            }
+                            // Execute all promises simultaneously.
+                            let result = await Promise.all(promises)
+                            resolve(result)
+                        }
+                    }
+                )
+            } else {
+                resolve(null)
+            }
+        } catch (error) {
+            reject(error)
+        }
+    })
 }
 
 export default createActions({

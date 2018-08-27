@@ -1,21 +1,20 @@
 import { KeyHandler } from '../../Web3'
-import Helper from '../../Components/Helper'
 import { SHA256, AES } from 'crypto-js'
 import DecentAPI from '../../Components/Base/DecentAPI'
-import BigNumber from 'bignumber.js'
+const BigNumber = require('bignumber.js')
 
 const keyHandler = new KeyHandler()
-const helper = new Helper()
-const decentAPI = new DecentAPI()
+let decentAPI = null
+const initialChannelHouseBalance = new BigNumber(10).pow(18).times(10000)
 
-export function getAesKey(id) {
-    const web3 = helper.getWeb3()
-    const idHash = web3.utils.sha3(id)
-    const aesKey = web3.eth.accounts.sign(idHash, keyHandler.get()).signature
-    return aesKey
+export function getAesKey(id, { web3 }) {
+    const idHash = web3.utils.soliditySha3(id)
+    let privateKey = keyHandler.get()
+    let sign = web3.eth.accounts.sign(idHash, privateKey)
+    return sign.signature
 }
 
-export async function getUserHashes(randomNumber) {
+export function getUserHashes(randomNumber) {
     let lastHash
     let hashes = []
     for (let i = 0; i < 1000; i++) {
@@ -47,12 +46,12 @@ export function random(length) {
  *
  *
  * @param id
- * @param callback
+ * @param chainProvider
  */
-export async function getChannelDepositParams(id, callback) {
+export async function getChannelDepositParams(id, chainProvider) {
     let randomNumber = random(18).toString()
 
-    const key = getAesKey(id)
+    const key = getAesKey(id, chainProvider)
     let initialUserNumber = AES.encrypt(randomNumber, key).toString()
     let userHashes = await getUserHashes(randomNumber)
     let finalUserHash = userHashes[userHashes.length - 1]
@@ -68,10 +67,11 @@ export async function getChannelDepositParams(id, callback) {
  * @param {state} state
  * @param {Boolean} finalize
  */
-export async function getSpin(betSize, state, finalize) {
+export async function getSpin(betSize, state, finalize, chainProvider) {
     const lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]
     const spinNonce = finalize ? (state.nonce === 1 ? 0 : state.nonce) : state.nonce
     const nonce = state.nonce
+    console.log('getSpin', betSize, lastHouseSpin, spinNonce, nonce)
 
     let reelHash =
         nonce === 1 ? state.hashes.finalReelHash : lastHouseSpin.reelHash
@@ -83,10 +83,10 @@ export async function getSpin(betSize, state, finalize) {
     let prevUserHash = state.userHashes[state.userHashes.length - nonce - 1]
     let userBalance =
         nonce === 1 ? state.info.initialDeposit : lastHouseSpin.userBalance
-    userBalance = new BigNumber(userBalance).toFixed(0)
+    userBalance = new BigNumber(userBalance).toFixed()
     let houseBalance =
-        nonce === 1 ? state.info.initialDeposit : lastHouseSpin.houseBalance
-    houseBalance = new BigNumber(houseBalance).toFixed(0)
+        nonce === 1 ? initialChannelHouseBalance : lastHouseSpin.houseBalance
+    houseBalance = new BigNumber(houseBalance).toFixed()
 
     let spin = {
         reelHash: reelHash,
@@ -101,7 +101,11 @@ export async function getSpin(betSize, state, finalize) {
         houseBalance: houseBalance,
         betSize: betSize
     }
+    console.log('getSpin', spin)
 
+    if(!decentAPI) {
+        decentAPI = new DecentAPI(chainProvider.web3)
+    }
     let packedString = getTightlyPackedSpin(spin)
     let sign = await decentAPI.signString(packedString)
     spin.sign = sign.sig

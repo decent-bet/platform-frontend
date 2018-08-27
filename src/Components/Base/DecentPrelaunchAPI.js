@@ -1,6 +1,6 @@
 /**
  * Created by user on 7/17/2017.
- */
+*/
 
 import Helper from '../Helper'
 
@@ -24,10 +24,10 @@ class DecentPrelaunchAPI {
         request(options, (err, response, body) => {
             try {
                 body = JSON.parse(body)
+                callback(err, body)
             } catch (e) {
-
+                callback(e, body)
             }
-            callback(err, body)
         })
     }
 

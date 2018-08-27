@@ -1,26 +1,10 @@
 import actions from './actions'
-import reducer from './reducer'
-import Helper from '../../Components/Helper'
+import Reducer from './reducer'
+import * as Thunks from './thunks'
 
-const helper = new Helper()
-
-export const Actions = actions.balance
-export const Reducer = reducer
-export function initWatchers(dispatch) {
-    let tokenContract = helper
-        .getContractHelper()
-        .getWrappers()
-        .token()
-
-    let address = helper.getWeb3().eth.defaultAccount
-
-    // Transfer from
-    tokenContract.logTransfer(address, true).watch((err, event) => {
-        if (!err) dispatch(Actions.getTokens())
-    })
-
-    //Transfer To
-    tokenContract.logTransfer(address, false).watch((err, event) => {
-        if (!err) dispatch(Actions.getTokens())
-    })
+const Actions = actions.balance
+export {
+    Actions,
+    Reducer,
+    Thunks
 }
