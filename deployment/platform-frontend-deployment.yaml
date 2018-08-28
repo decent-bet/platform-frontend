@@ -18,7 +18,7 @@ spec:
         io.kompose.service: platform-frontend
     spec:
       containers:
-      - image: platform-frontend-nginx
+      - image: us.gcr.io/dbet-platform/platform-fronend:latest
         name: platform-frontend-nginx
         ports:
         - containerPort: 80

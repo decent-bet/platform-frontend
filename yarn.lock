@@ -99,6 +99,10 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
+"@decent-bet/contract-slots@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@decent-bet/contract-slots/-/contract-slots-0.1.0.tgz#a350e79b3c0921c5f8288640923d9fcc6f5b0096"
+
 "@fortawesome/fontawesome-common-types@^0.1.7":
   version "0.1.7"
   resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-0.1.7.tgz#4336c4b06d0b5608ff1215464b66fcf9f4795284"

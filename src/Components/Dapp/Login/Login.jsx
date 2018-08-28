@@ -64,9 +64,9 @@ class Login extends Component {
 
     onLoginTextChangedListener = event =>
         this.setState({ value: event.target.value })
-
-    onProviderChangedListener = (event, index, value) => {
-        this.props.dispatch(Thunks.setProviderUrl(value))
+    
+    onProviderChangedListener = async (event) => {
+        await this.props.dispatch(Thunks.setProviderUrl(event.target.value))
         // Wait for dropdown animation
         setTimeout(() => {
             window.location.reload()

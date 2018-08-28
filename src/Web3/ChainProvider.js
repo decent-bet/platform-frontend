@@ -18,6 +18,7 @@ export class ChainProvider {
      * @param {KeyHandler} keyHandler 
      */
     constructor(web3, keyHandler) {
+        this._rawWeb3 = web3
         this._web3 = thorify(web3, this.url)
         this._keyHandler = keyHandler
         this.setupThorify()
@@ -43,15 +44,7 @@ export class ChainProvider {
      * Get the provider url depending of the environtment
      * @returns {string}
      */
-    get url() {
-        return ChainProvider.getProviderUrl()
-    }
-    
-    set url(provider) {
-        localStorage.setItem(KEY_GETH_PROVIDER, provider)
-    }
-
-    static getProviderUrl() {
+    get providerUrl() {
         let provider = localStorage.getItem(KEY_GETH_PROVIDER)
         if (!provider || provider === 'undefined') {
             // In Safari the localStorage returns the text 'undefined' as is
@@ -64,6 +57,14 @@ export class ChainProvider {
         return provider
     }
 
+    /**
+    * Set the provider url
+     * @returns {string}
+     */
+    set providerUrl(url) {
+        localStorage.setItem(KEY_GETH_PROVIDER, url)
+        this._web3 = thorify(this._rawWeb3, url)
+    }
     /**
      * Configure the web3 instance
      * @returns {void}
@@ -90,16 +91,5 @@ export class ChainProvider {
             this._web3.eth.accounts.wallet.add(privateKey)
             this._web3.eth.defaultAccount = this._keyHandler.getAddress()
         }
-    }
-
-    static buildThorify(web3, keyHandler) {
-        let url = ChainProvider.getProviderUrl()
-        let _thorify = thorify(web3, url)
-        let privateKey = keyHandler.get()
-        if(privateKey && privateKey.length > 0 ) {
-            _thorify.eth.accounts.wallet.add(privateKey)
-            _thorify.eth.defaultAccount = keyHandler.getAddress()
-        }
-        return _thorify
     }
 }

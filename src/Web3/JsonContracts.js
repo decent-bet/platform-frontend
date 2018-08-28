@@ -1,10 +1,7 @@
-const DecentBetTokenContract = require('../../build/contracts/TestDecentBetToken.json'),
-    SlotsChannelManagerContract = require('../../build/contracts/SlotsChannelManager.json'),
-    SlotsChannelFinalizerContract = require('../../build/contracts/SlotsChannelFinalizer.json')
-
+import Contracts from '@decent-bet/contract-slots'
 
 export const JsonContracts = {
-    DecentBetTokenContract,
-    SlotsChannelManagerContract,
-    SlotsChannelFinalizerContract
+    DecentBetTokenContract: Contracts.TestDecentBetToken.raw,
+    SlotsChannelManagerContract: Contracts.SlotsChannelManager.raw,
+    SlotsChannelFinalizerContract: Contracts.SlotsChannelFinalizer.raw,
 }

@@ -1,6 +1,6 @@
 # STEP 1 build static website
 
-## create a builderbuilder 
+## Create a builderbuilder 
 FROM node:9-alpine as builder
 
 # Add Git and Build Tools.
@@ -11,21 +11,23 @@ RUN apk update && apk --no-cache --virtual build-dependencies add \
     make \
     g++
 
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
-## Install app dependencies
-COPY package.json yarn.lock /usr/src/app/
-RUN yarn install --silent
-## Copy app source code and build
+RUN mkdir -p /srv/platform-frontend
+WORKDIR /srv/platform-frontend
+
+## Copy, install app dependencies and build
 COPY . .
+RUN yarn install --silent
+RUN git submodule update
+## Copy app source code and build
 RUN yarn build
 
 # STEP 2 build a small nginx image with static website
-## switch to nginx 
+## Switch to nginx 
 FROM nginx:alpine
 RUN rm -rf /usr/share/nginx/html/*
+
 ## Remove default nginx website
-COPY --from=builder /usr/src/app/build_webpack /usr/share/nginx/html
+COPY --from=builder /srv/platform-frontend/build_webpack /usr/share/nginx/html
 
 ## Expose port and start application
 EXPOSE 80

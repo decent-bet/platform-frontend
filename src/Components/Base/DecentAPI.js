@@ -7,7 +7,7 @@ const helper = new Helper()
 const keyHandler = new KeyHandler()
 const ethUtil = require('ethereumjs-util')
 const LOCAL_URL = 'http://localhost:3010/api'
-const PUBLIC_URL = 'https://slots-api.decent.bet/api'
+const PUBLIC_URL = 'http://35.236.232.60:8081/api'
 const BASE_URL = helper.isDev() ? LOCAL_URL : PUBLIC_URL
 
 class DecentAPI {

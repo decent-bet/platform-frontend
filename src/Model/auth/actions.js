@@ -31,11 +31,11 @@ async function logout() {
 }
 
 async function getProviderUrl(chainProvider) {
-    return chainProvider.url
+    return chainProvider.providerUrl
 }
 
-async function setProviderUrl(chainProvider, url) {
-    return chainProvider.url = url
+function setProviderUrl(chainProvider, url) {
+    chainProvider.providerUrl = url
 }
 
 export default createActions({
