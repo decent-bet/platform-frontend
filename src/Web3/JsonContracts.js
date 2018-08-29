@@ -1,7 +1,7 @@
-import Contracts from '@decent-bet/contract-slots'
+import { TestDecentBetToken, SlotsChannelManager, SlotsChannelFinalizer } from '@decent-bet/contract-slots'
 
 export const JsonContracts = {
-    DecentBetTokenContract: Contracts.TestDecentBetToken.raw,
-    SlotsChannelManagerContract: Contracts.SlotsChannelManager.raw,
-    SlotsChannelFinalizerContract: Contracts.SlotsChannelFinalizer.raw,
+    DecentBetTokenContract: TestDecentBetToken.raw,
+    SlotsChannelManagerContract: SlotsChannelManager.raw,
+    SlotsChannelFinalizerContract: SlotsChannelFinalizer.raw,
 }
