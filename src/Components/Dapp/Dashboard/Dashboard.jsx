@@ -9,22 +9,33 @@ import NoTokensWarning from './NoTokensWarning'
 import { Thunks } from '../../../Model/balance'
 import { Actions as AuthActions, Thunks as AuthThunks } from '../../../Model/auth'
 import './dashboard.css'
-import { KeyHandler } from '../../../Web3'
-
-const keyHandler = new KeyHandler()
 
 class Dashboard extends Component {
+
     state = {
         provider: '',
-        drawerOpen: false
+        drawerOpen: false,
+        transferSubscriptions: []
     }
 
     componentDidMount = async () => {
-        if(!keyHandler.isLoggedIn()) {
-            this.props.history.push('/login')
-        } else {
-            // Initialize the datastore
-           await this.props.dispatch(Thunks.initialize())
+        // Initialize the datastore
+        this.props.dispatch(Thunks.initialize())
+
+        let subscriptions = await this.props.dispatch(Thunks.listenForTransfers())
+        if(subscriptions && Array.isArray(subscriptions)) {
+            this.setState({transferSubscriptions: subscriptions})
+        }
+    }
+
+    componentWillUnmount() {
+
+        if(this.state.transferSubscriptions && Array.isArray(this.state.transferSubscriptions)) {
+            this.state.transferSubscriptions.forEach( subscription => {
+                subscription.unsubscribe()
+            })
+
+            this.setState({transferSubscriptions: []})
         }
     }
 
@@ -86,7 +97,6 @@ class Dashboard extends Component {
 
     render() {
         // Print the rest of the content only if the user has DBETs
-
         const inner = this.props.balance > 0 ? <DashboardRouter /> : <NoTokensWarning />
         return (<div className="dashboard">
                 {this.renderAppbar()}

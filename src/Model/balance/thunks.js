@@ -34,7 +34,7 @@ export function watcherChannelClaimed(channelId) {
 
 export function listenForTransfers() {
     return async (dispatch, getState, { chainProvider }) => {
-        
+        let subscriptions = []
         try {
             let tokenContract = await chainProvider.contractFactory.decentBetTokenContract()
             const transferFromEvents = tokenContract.logTransfer(chainProvider.defaultAccount, true)
@@ -43,15 +43,16 @@ export function listenForTransfers() {
             const transferToEvents = tokenContract.logTransfer(chainProvider.defaultAccount, false)
             const transferToEventsSubscription = tokenContract.getEventSubscription(transferToEvents)
 
-            transferFromEventsSubscription.subscribe( async (events) => {
+            const fromSubscription = transferFromEventsSubscription.subscribe( async (events) => {
                 console.log('transferFromEvents - Events:', events)
                 if (events.length >= 1) {
                     await dispatch(actions.getTokens(chainProvider))
                     await dispatch(actions.getEtherBalance(chainProvider))
                 }
             })
+            subscriptions.push(fromSubscription)
 
-            transferToEventsSubscription.subscribe( async (events) => {
+            const toSubscription = transferToEventsSubscription.subscribe( async (events) => {
                 console.log('transferToEvents - Events:', events)
                 if (events.length >= 1) {
                     await dispatch(actions.getTokens(chainProvider))
@@ -59,9 +60,13 @@ export function listenForTransfers() {
                 }
             })
 
+            subscriptions.push(toSubscription)
+
         } catch (error) {
             console.error('listenToTransfers Error:', error)
         }
+
+        return subscriptions
     }
 }
 
@@ -70,7 +75,6 @@ export function initialize() {
         await dispatch(actions.getPublicAddress(chainProvider))
         await dispatch(actions.getTokens(chainProvider))
         await dispatch(actions.getEtherBalance(chainProvider))
-        await dispatch(listenForTransfers(chainProvider))
     }     
 }
 
