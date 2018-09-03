@@ -10041,9 +10041,9 @@ thor-model-kit@^0.2.0:
     rlp "^2.0.0"
     secp256k1 "^3.5.0"
 
-thorify@0.3.5:
-  version "0.3.5"
-  resolved "https://registry.yarnpkg.com/thorify/-/thorify-0.3.5.tgz#944d88cdc0a38083a4011fb9a5eae54de7a773c9"
+thorify@0.3.6:
+  version "0.3.6"
+  resolved "https://registry.yarnpkg.com/thorify/-/thorify-0.3.6.tgz#95df9548b2fbdbcc7230c4f925689c364005a646"
   dependencies:
     blakejs "^1.1.0"
     debug "^3.1.0"
