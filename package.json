@@ -108,7 +108,7 @@
     "solidity-sha3": "^0.4.1",
     "swarm-js": "^0.1.37",
     "thor-devkit": "^0.2.3",
-    "thorify": "0.3.5",
+    "thorify": "0.3.6",
     "truffle-hdwallet-provider": "^0.0.6",
     "web3": "^1.0.0-beta.35",
     "wowjs": "^1.1.3"

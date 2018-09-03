@@ -19,7 +19,7 @@ export class ChainProvider {
      */
     constructor(web3, keyHandler) {
         this._rawWeb3 = web3
-        this._web3 = thorify(web3, this.url)
+        this._web3 = thorify(web3, this.providerUrl)
         this._keyHandler = keyHandler
         this.setupThorify()
     }
@@ -45,16 +45,19 @@ export class ChainProvider {
      * @returns {string}
      */
     get providerUrl() {
-        let provider = localStorage.getItem(KEY_GETH_PROVIDER)
-        if (!provider || provider === 'undefined') {
+        let url = localStorage.getItem(KEY_GETH_PROVIDER)
+        if (!url || url === 'undefined') {
             // In Safari the localStorage returns the text 'undefined' as is
             if (process.env['NODE_ENV'] === 'production') {
-                return PROVIDER_DBET
+                url = PROVIDER_DBET
+            } else {
+                url = PROVIDER_LOCAL
             }
-            return PROVIDER_LOCAL
         }
 
-        return provider
+        localStorage.setItem(KEY_GETH_PROVIDER, url)
+        
+        return url
     }
 
     /**

@@ -30,7 +30,7 @@ class Login extends Component {
         try {
             this.props.dispatch(Actions.login(this.state.value))
             // Go to the Root
-            this.props.history.push('/')
+            window.location.href = '/'
         } catch (e) {
             // Login Failed. Open error dialog.
             this.setState({
