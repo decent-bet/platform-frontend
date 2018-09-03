@@ -18,8 +18,20 @@ spec:
         io.kompose.service: platform-frontend
     spec:
       containers:
-      - image: us.gcr.io/dbet-platform/platform-fronend:latest
-        name: platform-frontend-nginx
+      - image: us.gcr.io/dbet-platform/platform-frontend:latest
+        name: platform-frontend
+        readinessProbe:
+          httpGet:
+            path: /index.html
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        # livenessProbe:
+        #   httpGet:
+        #     path: /api/health
+        #     port: 3010
+        #   initialDelaySeconds: 3
+        #   periodSeconds: 3
         ports:
         - containerPort: 80
         resources: {}
