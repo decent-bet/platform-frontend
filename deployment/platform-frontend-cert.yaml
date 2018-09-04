@@ -8,12 +8,12 @@ spec:
   issuerRef:
     kind: ClusterIssuer
     name: letsencrypt-production
-  commonName: platform-frontend.decent.bet
+  commonName: platform-test.decent.bet
   dnsNames:
-  - platform-frontend.decent.bet
+  - platform-test.decent.bet
   acme:
     config:
     - http01:
         ingress: platform-frontend-ingress
       domains:
-      - platform-frontend.decent.bet
+      - platform-test.decent.bet
