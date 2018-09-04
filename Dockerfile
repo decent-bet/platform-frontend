@@ -26,6 +26,8 @@ RUN yarn build
 FROM nginx:alpine
 RUN rm -rf /usr/share/nginx/html/*
 
+
+COPY nginx.conf /etc/nginx/nginx.conf
 ## Remove default nginx website
 COPY --from=builder /srv/platform-frontend/build_webpack /usr/share/nginx/html
 
