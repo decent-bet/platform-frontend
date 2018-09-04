@@ -1,10 +1,10 @@
 apiVersion: certmanager.k8s.io/v1alpha1
 kind: Certificate
 metadata:
-  name: platform-frontend
+  name: slots-frontend
   namespace: default
 spec:
-  secretName: platform-frontend-cert-tls
+  secretName: slots-frontend-cert-tls
   issuerRef:
     kind: ClusterIssuer
     name: letsencrypt-production
