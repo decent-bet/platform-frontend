@@ -11,12 +11,10 @@
 }
 
 .login .login-card {
+    padding: 2em;
     max-width: 600px;
     margin: auto;
-}
-
-.login .login-card {
-    border-radius: 10px !important;
+    border-radius: 2px !important;
 }
 
 /* Login Dialog Actions */

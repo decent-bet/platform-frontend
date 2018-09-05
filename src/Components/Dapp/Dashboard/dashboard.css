@@ -45,7 +45,7 @@
 
 /** All Cards */
 .dashboard main .card {
-    border-radius: 16px !important;
+    border-radius: 2px !important;
 }
 
 .dashboard .details .logo {

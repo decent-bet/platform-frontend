@@ -3,21 +3,20 @@
  */
 
 import { createMuiTheme } from '@material-ui/core/styles'
-import { COLOR_GOLD, COLOR_GOLD_DARK, COLOR_PRIMARY_DARK, COLOR_ACCENT } from './../Constants'
+import { COLOR_GOLD, COLOR_PRIMARY, COLOR_BACKGROUND } from './../Constants'
 
 // Main Theme for all the Application
 export const MainTheme = createMuiTheme({
     palette: {
         type: 'dark',
         primary: {
-            light: COLOR_GOLD,
-            main: COLOR_GOLD_DARK
+            main: COLOR_PRIMARY
         },
         secondary: {
-            main: COLOR_ACCENT
+            main: COLOR_GOLD
         },
         background: {
-            paper: COLOR_PRIMARY_DARK
+            paper: COLOR_BACKGROUND,
         }
     },
 
@@ -32,15 +31,53 @@ export const MainTheme = createMuiTheme({
     },
 
     overrides: {
+        MuiDrawer: {
+            paper: {
+                backgroundColor: COLOR_BACKGROUND
+            }
+        },
         MuiAppBar: {
+            root: {
+                height: 60
+            },
             colorPrimary: {
-                backgroundColor: COLOR_PRIMARY_DARK
+                backgroundColor: COLOR_BACKGROUND
+            }
+        },
+        MuiAvatar: {
+            root: {
+                backgroundColor: COLOR_BACKGROUND
+            }
+        },
+        MuiToolbar: {
+            root: {
+                display: 'flex',
+                alignItems: 'center'
+            }
+        },
+        MuiButton: {
+            root: {
+                borderRadius: '2px'
             }
         },
         MuiInput: {
             input: {
                 fontFamily: 'Inconsolata, monospace'
             }
-        }
-    }
+        },
+        MuiButtonBase: {
+            root: {
+                '&:focus': {boxShadow: 'none', outline: 'none'},
+                containedPrimary: {
+                    color: '#29344f',
+                    textTransform: 'capitalize'
+                },
+                borderRadius: '2px'
+            }
+        },
+        MuiCard: {
+            root: {
+                borderRadius: '2px'
+            }
+        }}
 })

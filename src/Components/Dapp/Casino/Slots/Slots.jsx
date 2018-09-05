@@ -37,26 +37,24 @@ class Slots extends Component {
         const claimableChannels = []
 
         if (channels) {
-            for (const channelId in channels) {
-                if (channels.hasOwnProperty(channelId)) {
-                    const channel = channels[channelId]
-
-                    // Is channel still usable?
-                    const isUsable =
-                        channel.info &&
-                        channel.info.ready &&
-                        channel.info.activated &&
-                        !channel.info.finalized
-                    if (isUsable) {
-                        activeChannels.push(channelId)
-                    }
-
-                    if (!isChannelClaimed(channel)) {
-                        claimableChannels.push(channelId)
-                    }
+            channels.forEach((channel) => {
+                const channelId = channel.channelId
+                // Is channel still usable?
+                const isUsable =
+                    channel.info &&
+                    channel.info.ready &&
+                    channel.info.activated &&
+                    !channel.info.finalized
+                if (isUsable) {
+                    activeChannels.push(channelId)
                 }
-            }
+
+                if (!isChannelClaimed(channel)) {
+                    claimableChannels.push(channelId)
+                }
+            })
         }
+        
         this.setState({ activeChannels, claimableChannels })
 
         // If there is exactly one usable channel active, switch to it.

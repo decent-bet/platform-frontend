@@ -184,9 +184,9 @@
     lodash "^4.17.5"
     to-fast-properties "^2.0.0"
 
-"@decent-bet/contract-slots@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@decent-bet/contract-slots/-/contract-slots-0.1.0.tgz#a350e79b3c0921c5f8288640923d9fcc6f5b0096"
+"@decent-bet/contract-slots@1.0.0-alpha.1":
+  version "1.0.0-alpha.1"
+  resolved "https://registry.yarnpkg.com/@decent-bet/contract-slots/-/contract-slots-1.0.0-alpha.1.tgz#c8b3dd8ee60d16acff36e2623bc418fe9438a54d"
 
 "@fortawesome/fontawesome-common-types@^0.2.4":
   version "0.2.4"

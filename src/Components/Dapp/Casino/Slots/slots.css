@@ -31,7 +31,7 @@
 /* Game Card */
 .slots .game-card {
     cursor: pointer;
-    border-radius: 16px !important;
+    border-radius: 2px !important;
 }
 
 .slots .game-card > * {

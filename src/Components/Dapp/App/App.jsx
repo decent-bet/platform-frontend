@@ -29,18 +29,22 @@ export default class App extends Component {
         this.setState({ stateMachine: 'loaded' })
     }
 
+    onCloseSnackBar = () => {
+        this.setState({
+            isSnackBarOpen: false,
+            snackbarMessage: ''
+        })
+    }
+
     renderSnackBar = () => {
-        if (this.state.isSnackBarOpen === true) {
-            return (
-                <Snackbar
-                    message={this.state.snackbarMessage}
-                    open={this.state.isSnackBarOpen}
-                    autoHideDuration={6000}
-                />
-            )
-        } else {
-            return null
-        }
+        return (
+            <Snackbar
+                onClose={this.onCloseSnackBar}
+                message={this.state.snackbarMessage}
+                open={this.state.isSnackBarOpen}
+                autoHideDuration={6000}
+            />
+        )
     }
     renderStateLoaded() {
         return (
