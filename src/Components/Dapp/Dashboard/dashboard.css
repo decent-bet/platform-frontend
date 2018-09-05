@@ -4,7 +4,6 @@
 .dashboard h4,
 .dashboard h5 {
     color: #ffffff;
-    font-family: GothamLight;
 }
 
 .dashboard .appbar .logo-container {
@@ -25,7 +24,6 @@
 }
 
 .menu-item {
-    font-family: 'GothamLight' !important;
 }
 
 .menu-item svg {

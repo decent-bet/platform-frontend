@@ -22,12 +22,7 @@ export const MainTheme = createMuiTheme({
 
     typography: {
         fontFamily:
-            '"TradeGothic", "Lato", "Hind", "Oswald", "Arial Narrow", sans-serif',
-        button: {
-            fontFamily: 'Inconsolata, monospace',
-            fontSize: '0.75rem',
-            textTransform: 'capitalize'
-        }
+            '"Roboto", sans-serif'
     },
 
     overrides: {
@@ -60,17 +55,12 @@ export const MainTheme = createMuiTheme({
                 borderRadius: '2px'
             }
         },
-        MuiInput: {
-            input: {
-                fontFamily: 'Inconsolata, monospace'
-            }
-        },
         MuiButtonBase: {
             root: {
+                textTransform: 'capitalize',
                 '&:focus': {boxShadow: 'none', outline: 'none'},
                 containedPrimary: {
                     color: '#29344f',
-                    textTransform: 'capitalize'
                 },
                 borderRadius: '2px'
             }

@@ -9,7 +9,7 @@ export default function LoginActions({
     return (
         <CardActions className="login-actions">
             <Button
-                variant="raised"
+                variant="outlined"
                 onClick={onGenerateMnemonicListener}
                 className="generate"
             >
