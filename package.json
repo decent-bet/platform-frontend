@@ -114,8 +114,8 @@
     "wowjs": "^1.1.3"
   },
   "scripts": {
-    "start": "node scripts/start.js DEBT_PLATFORM_FRONTEND",
-    "stop": "pkill -a -i \"DEBT_PLATFORM_FRONTEND\"",
+    "start": "node scripts/start.js DBET_PLATFORM_FRONTEND",
+    "stop": "pkill -a -i \"DBET_PLATFORM_FRONTEND\"",
     "build": "NODE_OPTIONS=--max_old_space_size=4096 node scripts/build.js",
     "test": "node scripts/testBuild.js --env=jsdom",
     "lint": "eslint src test",

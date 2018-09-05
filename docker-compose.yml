@@ -2,7 +2,7 @@ version: "3"
 
 services:
   platform-frontend:
-    image: us.gcr.io/dbet-platform/platform-fronend:latest
+    image: us.gcr.io/dbet-platform/platform-frontend:latest
     container_name: "platform-frontend-nginx"
     ports:
       - 80:80
