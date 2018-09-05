@@ -23,7 +23,8 @@ export default function DashboardAppBarToolbar({
     }
     let addressText = `Public Address: ${address}`
     let tokenText = `Tokens: ${tokenBalance.toFixed(2)} DBETs`
-    let etherText = `Balance: ${etherBalance.toFixed(5)} VTHO`
+    let etherText = `Balance: ${etherBalance.toFixed(5)} VET`
+    
     return (
         <Fragment>
             <CopyToClipboard

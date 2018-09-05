@@ -10,9 +10,11 @@ metadata:
   name: platform-frontend
 spec:
   ports:
-  - name: "80"
+  - name: "http"
+    protocol: TCP
     port: 80
     targetPort: 80
+  type: NodePort
   selector:
     io.kompose.service: platform-frontend
 status:

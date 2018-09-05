@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: platform-frontend-ingress
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    kubernetes.io/ingress.global-static-ip-name: platform-frontend-ip
+spec:
+  tls:
+  - hosts:
+    - platform-frontend.decent.bet
+    secretName: slots-frontend-cert-tls
+  rules:
+  - host: platform-test.decent.bet
+    http:
+     paths:
+     - backend:
+         serviceName: platform-frontend
+         servicePort: 80
