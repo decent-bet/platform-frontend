@@ -216,7 +216,7 @@ async function getChannel(channelId, chainProvider) {
         getChannelDetails(channelId, chainProvider),
         getLastSpin(channelId, chainProvider)
     ])
-    
+
     return {
         ...channelDetails,
         ...lastSpin
@@ -229,33 +229,36 @@ async function getChannel(channelId, chainProvider) {
 async function getChannels(chainProvider) {
     return new Promise(async (resolve, reject) => {
         try {
+            const topRequests = 3
+            let totalRequests = 0
             const { contractFactory } = chainProvider
             const contract = await contractFactory.slotsChannelManagerContract()
-            let channelCount = await contract.getChannelCount()
-            console.log('channelCount', channelCount)
-            if (channelCount > 0) {
-                let promises = []
-                const getChannelsEventSubscription = contract.getEventSubscription(
-                    contract.getChannels()
-                )
 
-                const getChannelsSubscription = getChannelsEventSubscription.subscribe(
-                    async events => {
-                        if (events.length >= 1) {
-                            getChannelsSubscription.unsubscribe()
-                            for (const channel of events) {
-                                const id = channel.returnValues.id
-                                promises.push(getChannel(id, chainProvider))
-                            }
-                            // Execute all promises simultaneously.
-                            let result = await Promise.all(promises)
-                            resolve(result)
+            const getChannelsEventSubscription = contract.getEventSubscription(
+                contract.getChannels()
+            )
+
+            const getChannelsSubscription = getChannelsEventSubscription.subscribe(
+                async events => {
+                    totalRequests++
+                    console.log('getChannels', totalRequests)
+                    if (events.length >= 1 || totalRequests >= topRequests) {
+                        getChannelsSubscription.unsubscribe()
+                        let promises = []
+                        for (const channel of events) {
+                            const id = channel.returnValues.id
+                            promises.push(getChannel(id, chainProvider))
                         }
+                        // Execute all promises simultaneously.
+                        let result = await Promise.all(promises)
+                        let parsedResult = result.reduce((mem, channel) => {
+                            mem[channel.channelId] = channel
+                            return mem
+                        }, {})
+                        resolve(parsedResult)
                     }
-                )
-            } else {
-                resolve(null)
-            }
+                }
+            )
         } catch (error) {
             reject(error)
         }

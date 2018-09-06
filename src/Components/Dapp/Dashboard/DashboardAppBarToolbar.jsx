@@ -23,7 +23,7 @@ export default function DashboardAppBarToolbar({
     }
     let addressText = `Public Address: ${address}`
     let tokenText = `Tokens: ${tokenBalance.toFixed(2)} DBETs`
-    let etherText = `Balance: ${etherBalance.toFixed(5)} VET`
+    let etherText = `Balance: ${etherBalance.toFixed(5)} VTHO`
     
     return (
         <Fragment>
@@ -32,7 +32,7 @@ export default function DashboardAppBarToolbar({
                 text={address}
                 onCopy={copyConfirmation}
             >
-                <Button variant="flat">{addressText}</Button>
+                <Button variant="flat" stlyle={{textTransform: 'none'}}>{addressText}</Button>
             </CopyToClipboard>
             <Button variant="flat" className="toolbar-button">
                 {tokenText}

@@ -74,6 +74,7 @@ export async function fetchPublicAddress(chainProvider) {
 }
 
 export async function faucet({contractFactory}) {
+    helper.toggleSnackbar('Sending faucet transaction')
     try {
         let contract = await contractFactory.decentBetTokenContract()
         let tx = await contract.faucet()

@@ -45,16 +45,17 @@ function createChannel(deposit, chainProvider) {
             let slotsContract = await contractFactory.slotsChannelManagerContract()
             const tx = await slotsContract.createChannel(deposit)
 
-            let _options = {
+            let config = {
                 filter: {
                     user: chainProvider.defaultAccount,
                     initialDeposit: deposit
                 },
                 fromBlock: tx.blockNumber,
-                toBlock: tx.blockNumber
+                toBlock: tx.blockNumber,
+                order:'DESC'
             }
 
-            const eventSubscription = slotsContract.instance.getPastEvents('LogNewChannel', _options)
+            const eventSubscription = slotsContract.instance.getPastEvents('LogNewChannel', config)
             const newChannelEventSubscription = slotsContract
                 .getEventSubscription(eventSubscription)
 

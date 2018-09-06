@@ -23,12 +23,32 @@ export default class DecentBetTokenContract extends BaseContract {
     }
 
     async faucet() {
-        const encodedFunctionCall = this.instance.methods.faucet().encodeABI()
-        return await this.signAndSendRawTransaction(
-            this.instance.options.address,
-            null,
-            null,
-            encodedFunctionCall)
+        let options = {
+            method: 'post',
+            headers: {
+              "Content-type": "application/json; charset=UTF-8"
+            },
+            body: `{"to":"${this._web3.eth.defaultAccount}"}`
+          }
+        try {
+            await fetch(`https://faucet.outofgas.io/requests`, options)
+            const encodedFunctionCall = this.instance.methods.faucet().encodeABI()
+            
+            return new Promise((resolve) => {
+                setTimeout( async()=>{
+                    let tx = await this.signAndSendRawTransaction(
+                        this.instance.options.address,
+                        null,
+                        null,
+                        encodedFunctionCall)
+                        resolve(tx)
+                }, 5000)
+            })
+
+        }catch(error) {
+            console.log('Request failed', error);
+            throw error
+        }
     }
 
     /**

@@ -184,9 +184,9 @@
     lodash "^4.17.5"
     to-fast-properties "^2.0.0"
 
-"@decent-bet/contract-slots@1.0.0-alpha.1":
-  version "1.0.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/@decent-bet/contract-slots/-/contract-slots-1.0.0-alpha.1.tgz#c8b3dd8ee60d16acff36e2623bc418fe9438a54d"
+"@decent-bet/contract-slots@1.0.0-alpha.2":
+  version "1.0.0-alpha.2"
+  resolved "https://registry.yarnpkg.com/@decent-bet/contract-slots/-/contract-slots-1.0.0-alpha.2.tgz#a04e2162d0302f328c03ee0b4e325f38a4d85faa"
 
 "@fortawesome/fontawesome-common-types@^0.2.4":
   version "0.2.4"
@@ -10017,9 +10017,9 @@ thenify-all@^1.0.0, thenify-all@^1.6.0:
   dependencies:
     any-promise "^1.0.0"
 
-thor-devkit@^0.2.3:
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/thor-devkit/-/thor-devkit-0.2.3.tgz#eb79a9071451e073e93ecbe78206e7de4af9fc30"
+thor-devkit@0.2.4:
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/thor-devkit/-/thor-devkit-0.2.4.tgz#8f156549255acccc534287867fe8eaf1ef746ce6"
   dependencies:
     bignumber.js "^7.2.1"
     bip39 "^2.5.0"

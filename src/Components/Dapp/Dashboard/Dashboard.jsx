@@ -65,7 +65,6 @@ class Dashboard extends Component {
 
     onViewChangeListener = newView => {
         if (this.props.location.pathname === newView) return
-        this.props.dispatch(AuthActions.logout())
         this.setState({ drawerOpen: false })
         this.props.history.push(newView)
     }

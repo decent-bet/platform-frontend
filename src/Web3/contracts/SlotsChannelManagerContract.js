@@ -47,12 +47,15 @@ export default class SlotsChannelManagerContract extends BaseContract {
     }
 
     async getChannels() {
-        let _options = {
+        let config = {
             filter: {
                 user: this._web3.eth.defaultAccount
-            }
+            },
+            toBlock: 'latest',
+            order:'DESC'
         }
-        return await this.instance.getPastEvents('LogNewChannel', _options)
+
+        return await this.instance.getPastEvents('LogNewChannel', config)
     }
 
     /**

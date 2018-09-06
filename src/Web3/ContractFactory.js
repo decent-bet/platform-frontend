@@ -30,20 +30,16 @@ export class ContractFactory {
         let contractItem = this._contracts.get(contractName)
 
         if(typeof contractItem === 'undefined') {
-            const json = JsonContracts[contractName]
-            const instance = new this._web3.eth.Contract(json.abi)
-            const chainTagObject = await this.getChainTagObject(json)
-            instance.options.address = chainTagObject.address
+            const contract = JsonContracts[contractName]
+            const instance = new this._web3.eth.Contract(contract.raw.abi)
+            const chainTag = await this._web3.eth.getChainTag()
+            const contractAddress = contract.address[chainTag]
+            instance.options.address = contractAddress
             contractItem = new Contracts[contractName](this._web3, instance, this._keyHandler)
             this._contracts.set(contractName, contractItem)
         }
 
         return contractItem
-    }
-
-    async getChainTagObject(json) {
-        const chainTag = await this._web3.eth.getChainTag()
-        return json.chain_tags[chainTag]
     }
 
     /**
