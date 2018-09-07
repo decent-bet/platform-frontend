@@ -3,5 +3,5 @@ VERSION=$(cat ./VERSION)
 yarn build
 echo "Building and pushing version $VERSION"
 docker build -t us.gcr.io/dbet-platform/platform-frontend:$VERSION .
-docker tag us.gcr.io/dbet-platform/platform-frontend:$VERSION us.gcr.io/dbet-platform/platform-frontend:latest
+docker tag us.gcr.io/dbet-platform/platform-frontend:$VERSION us.gcr.io/dbet-platform/platform-frontend:$VERSION
 docker push us.gcr.io/dbet-platform/platform-frontend
