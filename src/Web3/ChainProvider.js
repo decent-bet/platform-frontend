@@ -5,6 +5,7 @@ import {
     KEY_GETH_PROVIDER
 } from '../Components/Constants'
 import { ContractFactory } from './ContractFactory';
+import { webSocket } from 'rxjs/webSocket'
 
 export class ChainProvider {
     /**
@@ -58,6 +59,30 @@ export class ChainProvider {
         localStorage.setItem(KEY_GETH_PROVIDER, url)
         
         return url
+    }
+
+    /**
+     * Return the url for websocket connections
+     * 
+     * @returns {string}
+     */
+    get wsProviderUrl() {
+        let baseUrl = this.providerUrl
+        if(baseUrl.startsWith('https://')) {
+            return baseUrl.replace('https:', 'wss')
+        } else {
+            return baseUrl.replace('http:', 'ws')
+        }
+    }
+
+    /**
+     * 
+     * @param {string} path 
+     * @returns {WebSocketSubject}
+     */
+    makeWebSoketConnection(path) {
+        let baseUrl = this.wsProviderUrl
+        return webSocket(`${baseUrl}/${path}`)
     }
 
     /**
