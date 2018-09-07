@@ -6,9 +6,16 @@ import Actions, { PREFIX } from './actionTypes'
 import { getAesKey, getUserHashes } from '../functions'
 import BigNumber from 'bignumber.js'
 import moment from 'moment'
-import { forkJoin } from 'rxjs'
-import { filter, catchError, tap, toPromise } from 'rxjs/operators'
-import { switchMap } from 'rxjs-compat/operator/switchMap'
+import { zip, from, combineLatest, forkJoin } from 'rxjs'
+import {
+    filter,
+    catchError,
+    tap,
+    map,
+    mergeMap,
+    concatAll,
+    switchMap
+} from 'rxjs/operators'
 
 let decentApi = null
 
@@ -226,6 +233,18 @@ async function getChannel(channelId, chainProvider) {
     }
 }
 
+function logChannels(title) {
+    return event => {
+        console.log(title, event)
+    }
+}
+
+function hasChannels(totalRequests, topRequests) {
+    return events => {
+        return events.length >= 1 || totalRequests >= topRequests
+    }
+}
+
 /**
  * Get all channels for a user
  */
@@ -237,80 +256,43 @@ async function getChannels(chainProvider) {
             const { contractFactory } = chainProvider
             const contract = await contractFactory.slotsChannelManagerContract()
 
-            const getChannelsEventSubscription = contract.getEventSubscription(
+            //get the subscription
+            const getChannels$ = contract.getEventSubscription(
                 contract.getChannels()
             )
-
-            const getChannelsSubscription = getChannelsEventSubscription.subscribe(
-                async events => {
+            
+            
+            const channels$ = getChannels$.pipe(
+                tap(_ => {
                     totalRequests++
-                    console.log('getChannels', totalRequests)
-                    if (events.length >= 1 || totalRequests >= topRequests) {
-                        getChannelsSubscription.unsubscribe()
-                        let promises = []
-                        for (const channel of events) {
-                            const id = channel.returnValues.id
-                            promises.push(getChannel(id, chainProvider))
-                        }
-                        // Execute all promises simultaneously.
-                        let result = await Promise.all(promises)
-                        let parsedResult = result.reduce((mem, channel) => {
-                            mem[channel.channelId] = channel
-                            return mem
-                        }, {})
-                        resolve(parsedResult)
-                    }
-                }
+                }),
+                filter(hasChannels(totalRequests, topRequests)),
+                tap(logChannels('BEFORE mergeMap -----------')),
+                map(i => {
+                    console.log('ON MERGE MAP', i)
+                    return i.map(event =>
+                        getChannel(event.returnValues.id, chainProvider)
+                    )
+                })
             )
-        } catch (error) {
-            reject(error)
-        }
-    })
-}
 
-function logChannels(event) {
-    console.log(event)
-}
+            const subs = channels$.subscribe(async items => {
+                subs.unsubscribe()//stop making requests
+                let resolved = await Promise.all(items) //get all channels info
 
-function hasChannels(totalRequests, topRequests) {
-    return events => {
-        return events.length >= 1 || totalRequests >= topRequests
-    }
-}
-
-async function getChannels2(chainProvider) {
-    try {
-        const topRequests = 3
-        let totalRequests = 0
-        const { contractFactory } = chainProvider
-        const contract = await contractFactory.slotsChannelManagerContract()
-
-        const getChannels$ = contract.getEventSubscription(contract.getChannels)
-
-        const result$ = getChannels$.pipe(
-            tap(logChannels),
-            tap(_ => {
-                totalRequests++
-            }),
-            filter(hasChannels(totalRequests, topRequests)),
-            tap(logChannels),
-            map(i => getChannel(i.returnValues.id, chainProvider)),
-            tap(logChannels),
-            forkJoin(),
-            tap(logChannels),
-            switchMap(items => {
-                return items.reduce((mem, channel) => {
+                //convert into an object because all the components and reducers 
+                //are wating for this kind of structure
+                const result = resolved.reduce((mem, channel) => {
                     mem[channel.channelId] = channel
                     return mem
                 }, {})
-            }),            
-            catchError()
-        )
 
-        return toPromise()(result$)
-    } catch (e) {
-        return Promise.reject()
-    }
+                resolve(result)
+            }, reject)
+        } catch (e) {
+            return reject(e)
+        }
+    })
 }
 
 export default createActions({
