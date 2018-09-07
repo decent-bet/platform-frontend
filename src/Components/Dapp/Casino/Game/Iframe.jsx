@@ -17,7 +17,7 @@ const Iframe = props => {
             title={props.url}
             frameBorder="0"
             id={props.id}
-            src={props.url}
+            src={props.url + '/index.html'}
             target="_parent"
             allowFullScreen={props.allowFullScreen || false}
             style={styles}
