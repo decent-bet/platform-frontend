@@ -1,7 +1,8 @@
 import {cry, Transaction} from 'thor-devkit'
 
 import { interval, from } from 'rxjs'
-import { flatMap } from 'rxjs/operators'
+import { flatMap, switchMap, filter } from 'rxjs/operators'
+import { webSocket } from "rxjs/webSocket"
 
 export default class BaseContract {
 
@@ -15,6 +16,29 @@ export default class BaseContract {
         this.instance = instance
         this._eventSubscription = null
         this._keyHandler = keyHandler
+    }
+
+        /**
+     * Returns the past events for the event name and filter given
+     *
+     * @param {string} eventName
+     * @param {Object} options
+     */
+    getPastEventsWs$(eventName, options, config) {
+        webSocket.WebSocketSubject
+        const WS_URL = `wss://thor.test.decent.bet/subscriptions/event?addr=${options.address}&t0=${config.topic}&pos=${config.fromBlock}`
+
+        if (config.filter === {})
+            delete config.filter
+
+        console.log('getPastEvents', eventName, config)
+        const { WebSocketSubject } = rxjs.webSocket;
+        const socket$ = new WebSocketSubject(WS_URL);
+
+        // socket$.pipe(
+        //     filter(i => i.type === 'utf-8')
+        // )
+        return socket$
     }
 
     /**
@@ -41,7 +65,10 @@ export default class BaseContract {
      */
     getEventSubscription(eventPromise) {
         return interval(10000)
-            .pipe(flatMap(() => { return from(eventPromise) }))
+            .pipe(
+                flatMap(() => { return from(eventPromise) }),
+                switchMap(i => of(i)),
+            )
     }
 
     /**
