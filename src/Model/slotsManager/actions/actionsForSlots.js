@@ -6,6 +6,9 @@ import Actions, { PREFIX } from './actionTypes'
 import { getAesKey, getUserHashes } from '../functions'
 import BigNumber from 'bignumber.js'
 import moment from 'moment'
+import { forkJoin } from 'rxjs'
+import { filter, catchError, tap, toPromise } from 'rxjs/operators'
+import { switchMap } from 'rxjs-compat/operator/switchMap'
 
 let decentApi = null
 
@@ -263,6 +266,51 @@ async function getChannels(chainProvider) {
             reject(error)
         }
     })
+}
+
+function logChannels(event) {
+    console.log(event)
+}
+
+function hasChannels(totalRequests, topRequests) {
+    return events => {
+        return events.length >= 1 || totalRequests >= topRequests
+    }
+}
+
+async function getChannels2(chainProvider) {
+    try {
+        const topRequests = 3
+        let totalRequests = 0
+        const { contractFactory } = chainProvider
+        const contract = await contractFactory.slotsChannelManagerContract()
+
+        const getChannels$ = contract.getEventSubscription(contract.getChannels)
+
+        const result$ = getChannels$.pipe(
+            tap(logChannels),
+            tap(_ => {
+                totalRequests++
+            }),
+            filter(hasChannels(totalRequests, topRequests)),
+            tap(logChannels),
+            map(i => getChannel(i.returnValues.id, chainProvider)),
+            tap(logChannels),
+            forkJoin(),
+            tap(logChannels),
+            switchMap(items => {
+                return items.reduce((mem, channel) => {
+                    mem[channel.channelId] = channel
+                    return mem
+                }, {})
+            }),            
+            catchError()
+        )
+
+        return toPromise()(result$)
+    } catch (e) {
+        return Promise.reject()
+    }
 }
 
 export default createActions({
