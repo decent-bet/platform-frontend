@@ -1,5 +1,7 @@
+
 import Actions from './actions'
 const actions = Actions.balance
+let subscriptions = []
 
 export function watcherChannelClaimed(channelId) {
     return async (dispatch, getState, { chainProvider }) => {
@@ -34,7 +36,10 @@ export function watcherChannelClaimed(channelId) {
 
 export function listenForTransfers() {
     return async (dispatch, getState, { chainProvider }) => {
-        let subscriptions = []
+        // clear any previous transfer subscriptions
+
+        listenForTransfers_unsubscribe()
+
         try {
             let tokenContract = await chainProvider.contractFactory.decentBetTokenContract()
             const transferFromEvents = tokenContract.logTransfer(chainProvider.defaultAccount, true)
@@ -77,7 +82,13 @@ export function initialize() {
         await dispatch(actions.getEtherBalance(chainProvider))
     }     
 }
+export function listenForTransfers_unsubscribe() {
+    subscriptions.each(sub => {
+        sub.unsubscribe()
+    })
 
+    subscriptions = []
+}
 export function faucet() {
     return async (dispatch, getState, { chainProvider }) => {
         await dispatch(actions.faucet(chainProvider))
