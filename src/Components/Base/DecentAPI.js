@@ -67,30 +67,23 @@ class DecentAPI {
     /**
      * Get the latest encrypted spin saved by the house
      **/
-    getLastSpin = async (id, callback) => {
+    getLastSpin = async (id) => {
         let url = '/casino/channels/slots/' + id + '/spin'
-
+ 
         let timestamp = helper.getTimestampInMillis()
         let sign = await this._getSign(url, timestamp)
-
+ 
         let options = {
-            url: BASE_URL + url,
-            method: 'GET',
+            method: 'get',
             headers: {
                 Authorization: JSON.stringify({
-                    sign: sign,
-                    timestamp: timestamp
+                    sign,
+                    timestamp,
                 })
             }
         }
-        request(options, (err, response, body) => {
-            try {
-                body = JSON.parse(body)
-                callback(err, body)
-            } catch (e) {
-                callback(e, body)
-            }
-        })
+ 
+        return fetch(`${BASE_URL}${url}`, options)
     }
 
     /**

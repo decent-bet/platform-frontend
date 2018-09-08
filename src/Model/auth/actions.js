@@ -27,7 +27,7 @@ async function login(data) {
 
 async function logout() {
     keyHandler.clear()
-    return false
+    return false //authenticated false
 }
 
 async function getProviderUrl(chainProvider) {

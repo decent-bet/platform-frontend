@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-import { Button } from '@material-ui/core'
+import { Button, ButtonBase, Typography } from '@material-ui/core'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Helper from '../../Helper'
 
@@ -32,7 +32,9 @@ export default function DashboardAppBarToolbar({
                 text={address}
                 onCopy={copyConfirmation}
             >
-                <Button variant="flat" stlyle={{textTransform: 'none'}}>{addressText}</Button>
+                <ButtonBase component='button'>
+                    <Typography stlyle={{textTransform: 'none'}}>{addressText}</Typography>
+                </ButtonBase>
             </CopyToClipboard>
             <Button variant="flat" className="toolbar-button">
                 {tokenText}

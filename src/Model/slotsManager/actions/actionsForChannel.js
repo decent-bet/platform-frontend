@@ -2,7 +2,10 @@ import Actions, {PREFIX} from './actionTypes'
 import {createActions} from 'redux-actions'
 import Helper from '../../../Components/Helper'
 import {getChannelDepositParams} from '../functions'
-
+import {
+    distinctUntilChanged,
+    retry
+ } from 'rxjs/operators'
 const helper = new Helper()
 
 // Get the allowance
@@ -37,46 +40,65 @@ async function fetchBalance(chainProvider) {
     }
 }
 
-// Create a state channel
-function createChannel(deposit, chainProvider) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            let {contractFactory} = chainProvider
-            let slotsContract = await contractFactory.slotsChannelManagerContract()
-            const tx = await slotsContract.createChannel(deposit)
-
-            let config = {
-                filter: {
-                    user: chainProvider.defaultAccount,
-                    initialDeposit: deposit
-                },
-                fromBlock: tx.blockNumber,
-                toBlock: tx.blockNumber,
-                order:'DESC'
+/**
+ * 
+ * @param {Object} transaction 
+ * @param {ChanProvider} chanProvider 
+ */
+async function waitForChannelCreation(transaction, chainProvider) {
+    //LogNewChannel
+    let {contractFactory} = chainProvider
+    let slotsContract = await contractFactory.slotsChannelManagerContract()
+    helper.toggleSnackbar('Waiting for create channel confirmation')
+    const path = `subscriptions/event?pos=${transaction.blockHash}&addr=${slotsContract.instance.options.address}`
+    const ws = chainProvider.makeWebSocketConnection(path)
+    return new Promise((resolve, reject) => {
+        const subscription = ws.pipe(
+            distinctUntilChanged(),
+            retry(15),
+        ).subscribe(raw => {
+            if(raw) {
+                let decoded = slotsContract.logNewChannelDecode(raw.data, raw.topics)
+                if (decoded && decoded.id) {
+                    subscription.unsubscribe()
+                    helper.toggleSnackbar('Create channel transaction confirmed')
+                    resolve(decoded.id)
+                }
             }
-
-            const eventSubscription = slotsContract.instance.getPastEvents('LogNewChannel', config)
-            const newChannelEventSubscription = slotsContract
-                .getEventSubscription(eventSubscription)
-
-            const newChannelSubscription =
-                newChannelEventSubscription.subscribe(async (events) => {
-                    // Since getPastEvents() order option doesn't work, sort by block number manually
-                    if (events.length >= 1) {
-                        events.sort((eventA, eventB) => {
-                            return eventB.blockNumber - eventA.blockNumber
-                        })
-                        helper.toggleSnackbar('Successfully sent create channel transaction')
-                        let id = events[0].returnValues.id
-                        newChannelSubscription.unsubscribe()
-                        resolve(id)
-                    }
-                })
-        } catch (err) {
-            helper.toggleSnackbar('Error creating the channel transaction')
+            
+        }, (err) => {
+            console.log('Error: ', err)
             reject(err)
-        }
+        })
     })
+
+    // const eventSubscription = slotsContract.instance.getPastEvents('LogNewChannel', config)
+            // const newChannelEventSubscription = slotsContract
+            //     .getEventSubscription(eventSubscription)
+
+            // const newChannelSubscription =
+            //     newChannelEventSubscription.subscribe(async (events) => {
+            //         // Since getPastEvents() order option doesn't work, sort by block number manually
+            //         if (events.length >= 1) {
+            //             events.sort((eventA, eventB) => {
+            //                 return eventB.blockNumber - eventA.blockNumber
+            //             })
+            //             helper.toggleSnackbar('Successfully sent create channel transaction')
+            //             let id = events[0].returnValues.id
+            //             newChannelSubscription.unsubscribe()
+            //             resolve(id)
+            //         }
+            //     })
+}
+
+// Create a state channel
+async function createChannel(deposit, chainProvider) {
+
+    let {contractFactory} = chainProvider
+    let slotsContract = await contractFactory.slotsChannelManagerContract()
+    const transaction = await slotsContract.createChannel(deposit)
+    helper.toggleSnackbar('Successfully sent create channel transaction')
+    return transaction
 }
 
 // Send a deposit transaction to channel
@@ -222,6 +244,7 @@ export default createActions({
         [Actions.DEPOSIT_TO_CHANNEL]: depositToChannel,
         [Actions.DEPOSIT_CHIPS]: depositChips,
         [Actions.GET_ALLOWANCE]: fetchAllowance,
+        [Actions.WAIT_FOR_CHANNEL_CREATION]: waitForChannelCreation,
         [Actions.GET_BALANCE]: fetchBalance,
         [Actions.SET_CHANNEL]: channel => channel,
         [Actions.SET_CHANNEL_DEPOSITED]: channelId => ({channelId}),

@@ -1,8 +1,7 @@
 import {cry, Transaction} from 'thor-devkit'
 
-import { interval, from } from 'rxjs'
-import { flatMap, switchMap, filter } from 'rxjs/operators'
-import { webSocket } from "rxjs/webSocket"
+import { interval, from, of } from 'rxjs'
+import { flatMap, switchMap } from 'rxjs/operators'
 
 export default class BaseContract {
 
@@ -18,28 +17,25 @@ export default class BaseContract {
         this._keyHandler = keyHandler
     }
 
-        /**
+    /**
      * Returns the past events for the event name and filter given
      *
      * @param {string} eventName
      * @param {Object} options
      */
-    getPastEventsWs$(eventName, options, config) {
-        webSocket.WebSocketSubject
-        const WS_URL = `wss://thor.test.decent.bet/subscriptions/event?addr=${options.address}&t0=${config.topic}&pos=${config.fromBlock}`
+    // getPastEventsWs$(eventName, options) {
+    //     const WS_URL = `wss://thor.test.decent.bet/subscriptions/event?addr=${options.address}&pos=${options.fromBlock}`
 
-        if (config.filter === {})
-            delete config.filter
+    //     console.log('getPastEvents', eventName, options)
 
-        console.log('getPastEvents', eventName, config)
-        const { WebSocketSubject } = rxjs.webSocket;
-        const socket$ = new WebSocketSubject(WS_URL);
+    //     const { WebSocketSubject } = webSocket;
+    //     const socket$ = new WebSocketSubject(WS_URL);
 
-        // socket$.pipe(
-        //     filter(i => i.type === 'utf-8')
-        // )
-        return socket$
-    }
+    //     // socket$.pipe(
+    //     //     filter(i => i.type === 'utf-8')
+    //     // )
+    //     return socket$
+    // }
 
     /**
      * Returns the past events for the event name and filter given

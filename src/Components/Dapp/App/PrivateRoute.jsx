@@ -2,10 +2,12 @@ import React from 'react'
 import { Route, Redirect } from 'react-router-dom'
 import { KeyHandler } from '../../../Web3'
 import { VIEW_LOGIN } from '../../Constants'
+import { Thunks } from '../../../Model/balance'
 
 const keyHandler = new KeyHandler()
 
 export default class PrivateRoute extends React.Component {
+
     renderCaptiveComponent = props => {
         if (keyHandler.isLoggedIn()) {
             let { component: Component } = this.props
@@ -25,5 +27,9 @@ export default class PrivateRoute extends React.Component {
     render() {
         let { ...rest } = this.props
         return <Route {...rest} component={this.renderCaptiveComponent} />
+    }
+
+    componentWillUnmount() {
+        Thunks.listenForTransfers_unsubscribe()
     }
 }

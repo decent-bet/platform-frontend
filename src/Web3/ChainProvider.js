@@ -67,12 +67,9 @@ export class ChainProvider {
      * @returns {string}
      */
     get wsProviderUrl() {
-        let baseUrl = this.providerUrl
-        if(baseUrl.startsWith('https://')) {
-            return baseUrl.replace('https:', 'wss')
-        } else {
-            return baseUrl.replace('http:', 'ws')
-        }
+        let baseUrl = new URL(this.providerUrl)
+        baseUrl.protocol = baseUrl.protocol === 'https:' ? 'wss:' : 'ws:'
+        return baseUrl
     }
 
     /**
@@ -80,9 +77,9 @@ export class ChainProvider {
      * @param {string} path 
      * @returns {WebSocketSubject}
      */
-    makeWebSoketConnection(path) {
+    makeWebSocketConnection(path) {
         let baseUrl = this.wsProviderUrl
-        return webSocket(`${baseUrl}/${path}`)
+        return webSocket(`${baseUrl}${path}`)
     }
 
     /**

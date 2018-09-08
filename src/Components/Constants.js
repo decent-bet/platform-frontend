@@ -24,6 +24,7 @@ export const /** Colors */
     VIEW_SLOTS = '/slots/',
     VIEW_SLOTS_GAME = '/slots/:id/:gameName', // Parameter in the route
     VIEW_LOGIN = '/login',
+    VIEW_LOGOUT = '/logout',
     VIEW_DEFAULT = VIEW_CASINO,
     PROVIDER_INFURA = 'wss://rinkeby.infura.io/_ws',
     PROVIDER_DBET = 'https://thor.test.decent.bet',

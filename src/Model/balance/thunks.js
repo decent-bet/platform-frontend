@@ -49,7 +49,6 @@ export function listenForTransfers() {
             const transferToEventsSubscription = tokenContract.getEventSubscription(transferToEvents)
 
             const fromSubscription = transferFromEventsSubscription.subscribe( async (events) => {
-                console.log('transferFromEvents - Events:', events)
                 if (events.length >= 1) {
                     await dispatch(actions.getTokens(chainProvider))
                     await dispatch(actions.getEtherBalance(chainProvider))
@@ -58,7 +57,6 @@ export function listenForTransfers() {
             subscriptions.push(fromSubscription)
 
             const toSubscription = transferToEventsSubscription.subscribe( async (events) => {
-                console.log('transferToEvents - Events:', events)
                 if (events.length >= 1) {
                     await dispatch(actions.getTokens(chainProvider))
                     await dispatch(actions.getEtherBalance(chainProvider))
@@ -77,18 +75,21 @@ export function listenForTransfers() {
 
 export function initialize() {
     return async (dispatch, getState, { chainProvider }) => {
-        await dispatch(actions.getPublicAddress(chainProvider))
         await dispatch(actions.getTokens(chainProvider))
         await dispatch(actions.getEtherBalance(chainProvider))
+        setTimeout(async()=> {
+            await dispatch(actions.getPublicAddress(chainProvider))
+        })
     }     
 }
 export function listenForTransfers_unsubscribe() {
-    subscriptions.each(sub => {
+    subscriptions.forEach(sub => {
         sub.unsubscribe()
     })
 
     subscriptions = []
 }
+
 export function faucet() {
     return async (dispatch, getState, { chainProvider }) => {
         await dispatch(actions.faucet(chainProvider))

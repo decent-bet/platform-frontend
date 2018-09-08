@@ -73,21 +73,25 @@ export function buildChannel(amount, allowance, balance) {
         }
 
         // Create Channel
-        const result = await dispatch(
+        const channelTransaction = await dispatch(
             Actions.createChannel(amount, chainProvider)
         )
-        const value = result.value
+        if (channelTransaction && channelTransaction.value) {
 
-        if (value) {
+            const createdChannelIdResult = await dispatch(Actions.waitForChannelCreation(channelTransaction.value, chainProvider))
+            const channelId = createdChannelIdResult.value
             // Deposit Tokens to channel
-            await dispatch(Actions.depositToChannel(value, chainProvider))
+            await dispatch(Actions.depositToChannel(channelId, chainProvider))
 
             // Query the channel's data and add it to the redux state
-            await dispatch(Actions.getChannel(value, chainProvider))
-
+            
+            setTimeout(async () => {
+                await dispatch(Actions.getChannel(channelId, chainProvider))
+            }, 10000)
+            
             // Update the ether balance
             await dispatch(BalanceActions.getEtherBalance(chainProvider))
-            return value
+            return channelId
         }
 
         return 0

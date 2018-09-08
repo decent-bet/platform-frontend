@@ -14,7 +14,10 @@ import {
     map,
     mergeMap,
     concatAll,
-    switchMap
+    switchMap,
+    timeout,
+    takeWhile,
+    every
 } from 'rxjs/operators'
 
 let decentApi = null
@@ -239,16 +242,10 @@ function logChannels(title) {
     }
 }
 
-function hasChannels(totalRequests, topRequests) {
-    return events => {
-        return events.length >= 1 || totalRequests >= topRequests
-    }
-}
-
 /**
  * Get all channels for a user
  */
-async function getChannels(chainProvider) {
+function getChannels(chainProvider) {
     return new Promise(async (resolve, reject) => {
         try {
             const topRequests = 3
@@ -260,13 +257,11 @@ async function getChannels(chainProvider) {
             const getChannels$ = contract.getEventSubscription(
                 contract.getChannels()
             )
-            
-            
+
             const channels$ = getChannels$.pipe(
                 tap(_ => {
                     totalRequests++
                 }),
-                filter(hasChannels(totalRequests, topRequests)),
                 tap(logChannels('BEFORE mergeMap -----------')),
                 map(i => {
                     console.log('ON MERGE MAP', i)
@@ -277,17 +272,19 @@ async function getChannels(chainProvider) {
             )
 
             const subs = channels$.subscribe(async items => {
-                subs.unsubscribe()//stop making requests
-                let resolved = await Promise.all(items) //get all channels info
+                if (items.length >= 1 || totalRequests >= topRequests) {
+                    subs.unsubscribe() //stop making requests
+                    let resolved = await Promise.all(items) //get all channels info
 
-                //convert into an object because all the components and reducers 
-                //are wating for this kind of structure
-                const result = resolved.reduce((mem, channel) => {
-                    mem[channel.channelId] = channel
-                    return mem
-                }, {})
+                    //convert into an object because all the components and reducers
+                    //are wating for this kind of structure
+                    const result = resolved.reduce((mem, channel) => {
+                        mem[channel.channelId] = channel
+                        return mem
+                    }, {})
 
-                resolve(result)
+                    resolve(result)
+                }
             }, reject)
         } catch (e) {
             return reject(e)
