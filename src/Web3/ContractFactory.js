@@ -14,10 +14,10 @@ export class ContractFactory {
     }
     /**
      * Creates a contract wrapper based on the passed name
-     * @param {string} contractName 
+     * @param {string} contractName
      */
-    async makeContract(contractName) {
-        
+    async makeContract(contractName, jsonName) {
+
         if (!JsonContracts.hasOwnProperty(contractName)) {
             throw new Error(`Json contract doesn't exists for the name given: ${contractName}`)
         }
@@ -33,7 +33,7 @@ export class ContractFactory {
             const contract = JsonContracts[contractName]
             const instance = new this._web3.eth.Contract(contract.raw.abi)
             const chainTag = await this._web3.eth.getChainTag()
-            const contractAddress = contract.address[chainTag]
+            const contractAddress = require(`../../build/contracts/${jsonName}.json`).chain_tags[chainTag].address //contract.address[chainTag]
             instance.options.address = contractAddress
             contractItem = new Contracts[contractName](this._web3, instance, this._keyHandler)
             this._contracts.set(contractName, contractItem)
@@ -46,21 +46,21 @@ export class ContractFactory {
      * @returns {SlotsChannelFinalizerContract}
     */
    async slotsChannelFinalizerContract() {
-    return await this.makeContract('SlotsChannelFinalizerContract')
+    return await this.makeContract('SlotsChannelFinalizerContract', 'SlotsChannelFinalizer')
     }
 
     /**
      * @returns {SlotsChannelManagerContract}
     */
    async slotsChannelManagerContract() {
-    return await this.makeContract('SlotsChannelManagerContract')
+    return await this.makeContract('SlotsChannelManagerContract', 'SlotsChannelManager')
     }
 
     /**
      * @returns {DecentBetTokenContract}
     */
    async decentBetTokenContract() {
-        return await this.makeContract('DecentBetTokenContract')
+        return await this.makeContract('DecentBetTokenContract', 'TestDecentBetToken')
     }
 
 }

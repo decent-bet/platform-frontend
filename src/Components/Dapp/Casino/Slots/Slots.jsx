@@ -14,6 +14,7 @@ import './slots.css'
 class Slots extends Component {
     state = {
         stateMachine: 'loading',
+        buildStatus: null,
         claimableChannels: [],
         activeChannels: [],
         currentChannel: '0x'
@@ -30,10 +31,12 @@ class Slots extends Component {
 
         // Get channels and wait
         const result = await this.props.dispatch(Thunks.fetchChannels())
+        console.log('fetchChannels', result)
         const channels = result.value
 
         // Make a list of all usable channels for the user and publish it
         const activeChannels = []
+        const nonDepositedChannels = []
         const claimableChannels = []
 
         if (channels) {
@@ -47,18 +50,27 @@ class Slots extends Component {
                         channel.info.ready &&
                         channel.info.activated &&
                         !channel.info.finalized
-                    if (isUsable) {
+                    if (isUsable)
                         activeChannels.push(channelId)
-                    }
 
-                    if (!isChannelClaimed(channel)) {
+                    // Channel has not been deposited into yet, continue building channel
+                    const isNotReady =
+                        channel.info &&
+                        !channel.info.ready &&
+                        !channel.info.activated &&
+                        !channel.info.finalized
+
+                    if(isNotReady)
+                        nonDepositedChannels.push(channelId)
+
+                    if (channel.info.finalized && !isChannelClaimed(channel))
                         claimableChannels.push(channelId)
-                    }
                 }
             }
         }
-        
+
         this.setState({ activeChannels, claimableChannels })
+        console.log({activeChannels, claimableChannels, nonDepositedChannels})
 
         // If there is exactly one usable channel active, switch to it.
         if (activeChannels.length === 1) {
@@ -66,6 +78,23 @@ class Slots extends Component {
                 stateMachine: 'select_game',
                 currentChannel: activeChannels[0]
             })
+        } else if(nonDepositedChannels.length >= 1) {
+            // Continue building channel
+            const channel = nonDepositedChannels[0]
+            console.log('Continue building channel', channel)
+
+            // Update UI. Tell the user we are building the channel
+            this.setState({ stateMachine: 'building_game' })
+
+            // Create the channel
+            const thunk = Thunks.depositIntoCreatedChannel(
+                channel,
+                this.onUpdateBuildStatusListener
+            )
+            const currentChannel = await this.props.dispatch(thunk)
+
+            // Update UI
+            this.setState({ stateMachine: 'select_game', currentChannel })
         } else {
             // Ask the user to either select a channel or create a new one
             this.setState({ stateMachine: 'select_channels' })
@@ -82,11 +111,16 @@ class Slots extends Component {
         this.setState({ stateMachine: 'building_game' })
 
         // Create the channel
-        const thunk = Thunks.buildChannel(parsedAmount, allowance, balance)
+        const thunk = Thunks.buildChannel(parsedAmount, allowance, balance, this.onUpdateBuildStatusListener)
         const currentChannel = await this.props.dispatch(thunk)
 
         // Update UI
         this.setState({ stateMachine: 'select_game', currentChannel })
+    }
+
+    onUpdateBuildStatusListener = buildStatus => {
+        console.log('onUpdateBuildStatusListener', buildStatus)
+        this.setState({buildStatus})
     }
 
     // Claims the tokens from a Channel
@@ -113,7 +147,7 @@ class Slots extends Component {
         />
     )
 
-    renderLoadingState = message => <StateChannelWaiter message={message} />
+    renderLoadingState = message => <StateChannelWaiter message={message ? message : this.state.buildStatus}/>
 
     renderSelectChannelsState = () => (
         <Fragment>
@@ -162,7 +196,7 @@ class Slots extends Component {
                 return this.renderSelectGameState()
 
             case 'claiming':
-                return this.renderLoadingState()
+                return this.renderLoadingState('Claiming DBETs..')
 
             default:
                 return null

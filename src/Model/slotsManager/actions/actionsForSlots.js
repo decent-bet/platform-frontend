@@ -107,6 +107,12 @@ async function getDeposited(channelId, isHouse = false, { contractFactory }) {
     return new BigNumber(rawBalance)
 }
 
+async function getFinalBalances(channelId, isHouse = false, {contractFactory}) {
+    const contract = await contractFactory.slotsChannelManagerContract()
+    const finalBalance = await contract.finalBalances(channelId, isHouse)
+    return new BigNumber(finalBalance)
+}
+
 /**
  * Get info and hashes required to interact with an active channel
  * @param id
@@ -115,20 +121,33 @@ async function getDeposited(channelId, isHouse = false, { contractFactory }) {
 async function getChannelDetails(id, chainProvider) {
     let [
         deposited,
+        finalBalances,
         info,
         houseAuthorizedAddress,
         closed,
         hashes
     ] = await Promise.all([
         getDeposited(id, false, chainProvider),
+        getFinalBalances(id, false, chainProvider),
         getChannelInfo(id, chainProvider),
         getAuthorizedAddress(id, chainProvider),
         isChannelClosed(id, chainProvider),
         getChannelHashes(id, chainProvider)
     ])
 
+    console.log('getChannelDetails', {
+        deposited,
+        finalBalances,
+        channelId: id,
+        info,
+        houseAuthorizedAddress,
+        closed,
+        hashes
+    })
+
     return {
         deposited,
+        finalBalances,
         channelId: id,
         info,
         houseAuthorizedAddress,
@@ -148,13 +167,23 @@ async function loadLastSpin(id, hashes, aesKey, chainProvider) {
     if (!decentApi) {
         decentApi = new DecentAPI(chainProvider.web3)
     }
+    let result
 
-    let result = await Bluebird.fromCallback(cb =>
-        decentApi.getLastSpin(id, cb)
-    )
+    try {
+        result = await Bluebird.fromCallback(cb =>
+            decentApi.getLastSpin(id, cb)
+        )
+    } catch (e) {
+        result = {
+            userSpin: null,
+            houseSpin: null,
+            nonce: 0,
+        }
+    }
+    console.log('loadLastSpin', result)
     let encryptedSpin = result.userSpin
     let houseSpin = result.houseSpin
-    let nonce = result.nonce + 1
+    let nonce = result.nonce ? result.nonce + 1 : 1
     let userSpin, houseSpins
     if (encryptedSpin) {
         try {
@@ -169,6 +198,7 @@ async function loadLastSpin(id, hashes, aesKey, chainProvider) {
     } else {
         houseSpins = []
     }
+    console.log('Last spin', result, nonce)
     console.log('loadLastSpin', {
         result,
         encryptedSpin,
@@ -208,6 +238,7 @@ async function getLastSpin(channelId, chainProvider) {
     let aesKey = await getAesKey(channelId, chainProvider)
     let { hashes } = await getChannelDetails(channelId, chainProvider)
     let data = await loadLastSpin(channelId, hashes, aesKey, chainProvider)
+    console.log('getLastSpin', {aesKey, hashes, data})
 
     return {
         channelId,
@@ -225,10 +256,14 @@ async function getLastSpin(channelId, chainProvider) {
  */
 async function getChannel(channelId, chainProvider) {
     // Execute both actions in parallel
-    let [channelDetails, lastSpin] = await Promise.all([
-        getChannelDetails(channelId, chainProvider),
-        getLastSpin(channelId, chainProvider)
-    ])
+    console.log('getChannel', channelId)
+    let channelDetails = await getChannelDetails(channelId, chainProvider)
+    console.log('getChannel', {channelDetails})
+    let lastSpin
+    if (channelDetails &&
+        channelDetails.info &&
+        channelDetails.info.activated)
+        lastSpin = getLastSpin(channelId, chainProvider)
 
     return {
         ...channelDetails,
@@ -270,18 +305,23 @@ function getChannels(chainProvider) {
                     )
                 })
             )
+            console.log('channels$', channels$)
 
             const subs = channels$.subscribe(async items => {
+                console.log('channels$.subscribe', items)
                 if (items.length >= 1 || totalRequests >= topRequests) {
                     subs.unsubscribe() //stop making requests
                     let resolved = await Promise.all(items) //get all channels info
+                    console.log('channels$.subscribe resolved', resolved)
 
                     //convert into an object because all the components and reducers
                     //are wating for this kind of structure
                     const result = resolved.reduce((mem, channel) => {
+                        console.log('channels$.subscribe reduce', mem, channel)
                         mem[channel.channelId] = channel
                         return mem
                     }, {})
+                    console.log('channels$.subscribe result', result)
 
                     resolve(result)
                 }

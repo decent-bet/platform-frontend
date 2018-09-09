@@ -41,9 +41,9 @@ async function fetchBalance(chainProvider) {
 }
 
 /**
- * 
- * @param {Object} transaction 
- * @param {ChanProvider} chanProvider 
+ *
+ * @param {Object} transaction
+ * @param {ChainProvider} chainProvider
  */
 async function waitForChannelCreation(transaction, chainProvider) {
     //LogNewChannel
@@ -59,41 +59,58 @@ async function waitForChannelCreation(transaction, chainProvider) {
         ).subscribe(raw => {
             if(raw) {
                 let decoded = slotsContract.logNewChannelDecode(raw.data, raw.topics)
-                if (decoded && decoded.id) {
+                if (decoded && decoded.id && decoded.user === chainProvider.web3.eth.defaultAccount) {
                     subscription.unsubscribe()
                     helper.toggleSnackbar('Create channel transaction confirmed')
                     resolve(decoded.id)
                 }
             }
-            
+
         }, (err) => {
             console.log('Error: ', err)
             reject(err)
         })
     })
-
-    // const eventSubscription = slotsContract.instance.getPastEvents('LogNewChannel', config)
-            // const newChannelEventSubscription = slotsContract
-            //     .getEventSubscription(eventSubscription)
-
-            // const newChannelSubscription =
-            //     newChannelEventSubscription.subscribe(async (events) => {
-            //         // Since getPastEvents() order option doesn't work, sort by block number manually
-            //         if (events.length >= 1) {
-            //             events.sort((eventA, eventB) => {
-            //                 return eventB.blockNumber - eventA.blockNumber
-            //             })
-            //             helper.toggleSnackbar('Successfully sent create channel transaction')
-            //             let id = events[0].returnValues.id
-            //             newChannelSubscription.unsubscribe()
-            //             resolve(id)
-            //         }
-            //     })
 }
+
+/**
+ *
+ * @param channelId
+ * @param {Object} transaction
+ * @param {ChainProvider} chainProvider
+ */
+async function waitForChannelActivation(channelId, transaction, chainProvider) {
+    //LogChannelActivate
+    let {contractFactory} = chainProvider
+    let slotsContract = await contractFactory.slotsChannelManagerContract()
+    helper.toggleSnackbar('Waiting for channel activation confirmation')
+    const path = `subscriptions/event?pos=${transaction.blockHash}&addr=${slotsContract.instance.options.address}`
+    const ws = chainProvider.makeWebSocketConnection(path)
+    return new Promise((resolve, reject) => {
+        const subscription = ws.pipe(
+            distinctUntilChanged(),
+            retry(15),
+        ).subscribe(raw => {
+            if(raw) {
+                let decoded = slotsContract.logChannelActivateDecode(raw.data, raw.topics)
+                if (decoded && decoded.id && decoded.id === channelId) {
+                    subscription.unsubscribe()
+                    helper.toggleSnackbar('Deposit channel transaction confirmed')
+                    resolve(decoded.id)
+                }
+            }
+
+        }, (err) => {
+            console.log('Error: ', err)
+            reject(err)
+        })
+    })
+}
+
+
 
 // Create a state channel
 async function createChannel(deposit, chainProvider) {
-
     let {contractFactory} = chainProvider
     let slotsContract = await contractFactory.slotsChannelManagerContract()
     const transaction = await slotsContract.createChannel(deposit)
@@ -168,7 +185,7 @@ async function depositChips(amount, chainProvider) {
         console.warn('depositChips', new Date())
         let slotsContract = await contractFactory.slotsChannelManagerContract()
         const tx = await slotsContract.deposit(amount.toFixed())
-        
+
         const depositEventSubscription = slotsContract
         .getEventSubscription(slotsContract.getPastEvents('LogDeposit', {
             _address: chainProvider.defaultAccount,
@@ -185,7 +202,7 @@ async function depositChips(amount, chainProvider) {
                 resolve(tx)
             }
         })
-        
+
     } catch (err) {
         reject(err)
     }
@@ -245,6 +262,7 @@ export default createActions({
         [Actions.DEPOSIT_CHIPS]: depositChips,
         [Actions.GET_ALLOWANCE]: fetchAllowance,
         [Actions.WAIT_FOR_CHANNEL_CREATION]: waitForChannelCreation,
+        [Actions.WAIT_FOR_CHANNEL_ACTIVATION]: waitForChannelActivation,
         [Actions.GET_BALANCE]: fetchBalance,
         [Actions.SET_CHANNEL]: channel => channel,
         [Actions.SET_CHANNEL_DEPOSITED]: channelId => ({channelId}),

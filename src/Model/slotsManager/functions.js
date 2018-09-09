@@ -66,6 +66,7 @@ export async function getChannelDepositParams(id, chainProvider) {
  * @param {BigNumber} betSize
  * @param {state} state
  * @param {Boolean} finalize
+ * @param chainProvider
  */
 export async function getSpin(betSize, state, finalize, chainProvider) {
     const lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]

@@ -20,7 +20,7 @@ class DecentAPI {
     spin = async (address, spin, aesKey, callback) => {
         /**
          * Spin:
-         * 
+         *
          *      reelHash - reelHash from the house for this turn - finalReelHash if nonce == 1
          *      reel - empty if user and nonce == 1
          *      reelSeedHash - reelSeedHash from the house for this turn - finalReelSeedHash if nonce == 1
@@ -32,10 +32,11 @@ class DecentAPI {
          *      houseBalance - initialDeposit if nonce == 1
          *      betSize - betSize for this turn, determined by user
          *      sign - signed spin object
-         * 
+         *
          *
          * aesKey - send encrypted spin to server to save state
          */
+        console.log('Spin', address, spin, aesKey)
         let encryptedSpin = cryptoJs.AES.encrypt(JSON.stringify(spin), aesKey).toString()
         let url = '/casino/channels/slots/' + address + '/spin'
 
@@ -67,12 +68,12 @@ class DecentAPI {
     /**
      * Get the latest encrypted spin saved by the house
      **/
-    getLastSpin = async (id) => {
+    getLastSpin = async (id, cb) => {
         let url = '/casino/channels/slots/' + id + '/spin'
- 
+
         let timestamp = helper.getTimestampInMillis()
         let sign = await this._getSign(url, timestamp)
- 
+
         let options = {
             method: 'get',
             headers: {
@@ -82,8 +83,10 @@ class DecentAPI {
                 })
             }
         }
- 
-        return fetch(`${BASE_URL}${url}`, options)
+
+        let res = await fetch(`${BASE_URL}${url}`, options)
+        let body = await res.json()
+        cb(!res.ok, body)
     }
 
     /**

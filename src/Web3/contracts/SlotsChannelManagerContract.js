@@ -11,7 +11,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
     async getChannelHashes(id) {
         return await this.instance.methods.getChannelHashes(id).call()
     }
-    
+
     async checkSig(id, msgHash, sign, turn) {
         return await this.instance.methods.checkSig(id, msgHash, sign, turn).call()
     }
@@ -145,12 +145,12 @@ export default class SlotsChannelManagerContract extends BaseContract {
             user: this._web3.eth.defaultAccount,
             id: id
         }
-        
+
         return await this.getPastEvents('LogChannelFinalized', filter,( fromBlock ? fromBlock : 0), (toBlock ? toBlock : 'latest'))
     }
 
     async logClaimChannelTokens(id, fromBlock, toBlock) {
-        
+
         let _options = {
             fromBlock: (fromBlock ? fromBlock : 0),
             toBlock: (toBlock ? toBlock : 'latest')
@@ -159,7 +159,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
         if(id) {
             _options.filter = { id: id }
         }
-        
+
         return await this.instance.getPastEvents('LogClaimChannelTokens', _options)
     }
 
@@ -206,4 +206,52 @@ export default class SlotsChannelManagerContract extends BaseContract {
         ]
         return this._web3.eth.abi.decodeLog(params, log, topics)
     }
+
+    logChannelDepositDecode(log, topics) {
+        const params = [
+            {
+                indexed: true,
+                name: 'id',
+                type: 'bytes32'
+            },
+            {
+                indexed: false,
+                name: 'user',
+                type: 'address'
+            },
+            {
+                indexed: false,
+                name: 'finalUserHash',
+                type: 'string'
+            }
+        ]
+        return this._web3.eth.abi.decodeLog(params, log, topics)
+    }
+
+    logChannelActivateDecode(log, topics) {
+        const params = [
+            {
+                indexed: true,
+                name: 'id',
+                type: 'bytes32'
+            },
+            {
+                indexed: false,
+                name: 'user',
+                type: 'address'
+            },
+            {
+                indexed: false,
+                name: 'finalSeedHash',
+                type: 'string'
+            },
+            {
+                indexed: false,
+                name: 'finalReelHash',
+                type: 'string'
+            }
+        ]
+        return this._web3.eth.abi.decodeLog(params, log, topics)
+    }
+
 }
