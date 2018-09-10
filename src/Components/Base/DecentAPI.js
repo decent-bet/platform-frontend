@@ -128,7 +128,8 @@ class DecentAPI {
          */
         return new Promise((resolve, reject) => {
             let msgHash = ethUtil.sha3(text)
-            let privateKey = ethUtil.toBuffer(keyHandler.get())
+            let { privateKey } = keyHandler.get()
+            privateKey = ethUtil.toBuffer(privateKey)
 
             console.log('Signing', text, ethUtil.bufferToHex(msgHash), 'as', this.web3.eth.defaultAccount,
                 ethUtil.isValidPrivate(privateKey))

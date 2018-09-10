@@ -5,7 +5,7 @@ import LoginActions from './LoginActions'
 import LoginInner from './LoginInner'
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import { Actions, Thunks } from '../../../Model/auth'
-import bip39 from 'bip39'
+import { cry } from 'thor-devkit'
 import './login.css'
 
 class Login extends Component {
@@ -33,7 +33,7 @@ class Login extends Component {
     }
 
     generateMnemonic = () => {
-        let mnemonic = bip39.generateMnemonic()
+        let mnemonic = cry.mnemonic.generate().join(' ')
         this.setState({ value: mnemonic })
     }
 
