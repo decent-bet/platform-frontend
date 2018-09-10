@@ -48,7 +48,7 @@ export function claimAndWithdrawFromChannel(channelId) {
         console.log('claimAndWithdrawFromChannel', {tokensInContract})
 
         if (tokensInContract)
-            await dispatch(Actions.withdrawChips(tokensInContract.value))
+            await dispatch(Actions.withdrawChips(tokensInContract.value, chainProvider))
 
         // Update the ether balance
         await dispatch(BalanceActions.getTokens(chainProvider))
