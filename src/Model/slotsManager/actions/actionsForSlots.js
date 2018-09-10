@@ -6,19 +6,7 @@ import Actions, { PREFIX } from './actionTypes'
 import { getAesKey, getUserHashes } from '../functions'
 import BigNumber from 'bignumber.js'
 import moment from 'moment'
-import { zip, from, combineLatest, forkJoin } from 'rxjs'
-import {
-    filter,
-    catchError,
-    tap,
-    map,
-    mergeMap,
-    concatAll,
-    switchMap,
-    timeout,
-    takeWhile,
-    every
-} from 'rxjs/operators'
+import { tap, map } from 'rxjs/operators'
 
 let decentApi = null
 

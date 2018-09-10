@@ -75,9 +75,9 @@ export function listenForTransfers() {
 
 export function initialize() {
     return async (dispatch, getState, { chainProvider }) => {
-        await dispatch(actions.getTokens(chainProvider))
-        await dispatch(actions.getEtherBalance(chainProvider))
         setTimeout(async()=> {
+            await dispatch(actions.getTokens(chainProvider))
+            await dispatch(actions.getEtherBalance(chainProvider))
             await dispatch(actions.getPublicAddress(chainProvider))
         })
     }     

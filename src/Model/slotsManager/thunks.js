@@ -1,8 +1,7 @@
 import Actions from './actions'
 import {Actions as BalanceActions} from '../balance'
 import SlotsChannelHandler from './SlotsChannelHandler'
-import {Thunks} from "./index";
-import BigNumber from 'bignumber.js'
+import {Thunks} from "./index"
 import { units } from 'ethereum-units'
 
 let slotsChannelHandler = null
@@ -90,10 +89,8 @@ export function buildChannel(amount, allowance, balance, statusUpdateListener) {
             Actions.createChannel(amount, chainProvider)
         )
         if (channelTransaction && channelTransaction.value) {
-            const createdChannelIdResult =
-                await dispatch(Actions.waitForChannelCreation(channelTransaction.value, chainProvider))
-            const channelId = createdChannelIdResult.value
-
+            const channelId = channelTransaction.value
+            
             await dispatch(Thunks.depositIntoCreatedChannel(channelId, statusUpdateListener))
             return channelId
         } else

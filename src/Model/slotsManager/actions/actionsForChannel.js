@@ -2,10 +2,7 @@ import Actions, {PREFIX} from './actionTypes'
 import {createActions} from 'redux-actions'
 import Helper from '../../../Components/Helper'
 import {getChannelDepositParams} from '../functions'
-import {
-    distinctUntilChanged,
-    retry
- } from 'rxjs/operators'
+
 const helper = new Helper()
 
 // Get the allowance
@@ -42,90 +39,29 @@ async function fetchBalance(chainProvider) {
 
 /**
  *
- * @param {Object} transaction
- * @param {ChainProvider} chainProvider
- */
-async function waitForChannelCreation(transaction, chainProvider) {
-    //LogNewChannel
-    let {contractFactory} = chainProvider
-    let slotsContract = await contractFactory.slotsChannelManagerContract()
-    helper.toggleSnackbar('Waiting for create channel confirmation')
-    const path = `subscriptions/event?pos=${transaction.blockHash}&addr=${slotsContract.instance.options.address}`
-    const ws = chainProvider.makeWebSocketConnection(path)
-    return new Promise((resolve, reject) => {
-        const subscription = ws.pipe(
-            distinctUntilChanged(),
-            retry(15),
-        ).subscribe(raw => {
-            if(raw) {
-                let decoded = slotsContract.logNewChannelDecode(raw.data, raw.topics)
-                if (decoded && decoded.id && decoded.user === chainProvider.web3.eth.defaultAccount) {
-                    subscription.unsubscribe()
-                    console.log(`waitForChannelCreation-----------------------`)
-                    console.log(`decoded.id`, decoded.id)
-                    console.log(`decoded.id`, decoded.id)
-                    console.log(`transaction.blockHash`, transaction.blockHash)
-                    console.log(`-----------------------`)
-                    helper.toggleSnackbar('Create channel transaction confirmed')
-                    resolve(decoded.id)
-                }
-            }
-
-        }, (err) => {
-            console.log('Error: ', err)
-            reject(err)
-        })
-    })
-}
-
-/**
- *
  * @param channelId
  * @param {Object} transaction
  * @param {ChainProvider} chainProvider
  */
 async function waitForChannelActivation(channelId, transaction, chainProvider) {
-    //LogChannelActivate
     let {contractFactory} = chainProvider
     let slotsContract = await contractFactory.slotsChannelManagerContract()
     helper.toggleSnackbar('Waiting for channel activation confirmation')
-    const path = `subscriptions/event?pos=${transaction.blockHash}&addr=${slotsContract.instance.options.address}`
-    const ws = chainProvider.makeWebSocketConnection(path)
-    return new Promise((resolve, reject) => {
-        const subscription = ws.pipe(
-            distinctUntilChanged(),
-            retry(15),
-        ).subscribe(raw => {
-            if(raw) {
-                let decoded = slotsContract.logChannelActivateDecode(raw.data, raw.topics)
-                console.log(`waitForChannelActivation-----------------------`)
-                console.log(`transaction.blockHash`, transaction.blockHash)
-                console.log(`decoded.id`, decoded.id)
-                console.log(`channelId`, channelId)
-                console.log(`-----------------------`)
-                if (decoded && decoded.id && decoded.id === channelId) {
-                    subscription.unsubscribe()
-                    helper.toggleSnackbar('Deposit channel transaction confirmed')
-                    resolve(decoded.id)
-                }
-            }
-
-        }, (err) => {
-            console.log('Error: ', err)
-            reject(err)
-        })
-    })
+    return await slotsContract.logChannelDeposit(channelId, transaction)
+    //return await slotsContract.logChannelActivate(channelId)
 }
 
 
 
 // Create a state channel
 async function createChannel(deposit, chainProvider) {
+    helper.toggleSnackbar('Sending create channel transaction')
     let {contractFactory} = chainProvider
     let slotsContract = await contractFactory.slotsChannelManagerContract()
     const transaction = await slotsContract.createChannel(deposit)
-    helper.toggleSnackbar('Successfully sent create channel transaction')
-    return transaction
+    helper.toggleSnackbar('Waiting for create channel confirmation')
+    
+    return await slotsContract.logNewChannel(transaction)
 }
 
 // Send a deposit transaction to channel
@@ -227,7 +163,7 @@ async function withdrawChips(amount, {contractFactory}) {
             const tx = await contract.withdraw(amount)
 
             const withdrawEventSubscription = contract
-                .getEventSubscription(contract.logClaimChannelTokens(tx.blockNumber))
+                .getEventSubscription(contract.logWithdraw(tx.blockNumber))
 
             const withdrawSubscription =
                 withdrawEventSubscription.subscribe(async (events) => {
@@ -285,7 +221,6 @@ export default createActions({
         [Actions.DEPOSIT_TO_CHANNEL]: depositToChannel,
         [Actions.DEPOSIT_CHIPS]: depositChips,
         [Actions.GET_ALLOWANCE]: fetchAllowance,
-        [Actions.WAIT_FOR_CHANNEL_CREATION]: waitForChannelCreation,
         [Actions.WAIT_FOR_CHANNEL_ACTIVATION]: waitForChannelActivation,
         [Actions.GET_BALANCE]: fetchBalance,
         [Actions.SET_CHANNEL]: channel => channel,

@@ -1,7 +1,7 @@
 import { cry, Transaction } from 'thor-devkit'
 
 import { interval, from, of } from 'rxjs'
-import { flatMap, switchMap } from 'rxjs/operators'
+import { flatMap, switchMap, tap } from 'rxjs/operators'
 
 export default class BaseContract {
     /**
@@ -29,38 +29,36 @@ export default class BaseContract {
         settings = { config: {}, interval: 5000, top: null },
         unsubscribeCondition
     ) {
-        let totalRequests = 0
-
-        if (settings.config && config.filter === {}) delete config.filter
-
-        const promiseEvent = this.instance.getPastEvents(
-            eventName,
-            settings.config || {}
-        )
-
-        subscription$ = interval(settings.interval || 5000).pipe(
-            flatMap(() => {
-                return from(promiseEvent)
-            }),
-            switchMap(i => of(i)),
-            tap(() => {
-                totalRequests++
-            })
-        )
-
         return new Promise((resolve, reject) => {
             try {
-                subscription$.subscribe(events => {
+                let totalRequests = 0
+
+                if (settings.config && settings.config.filter === {}) delete settings.config.filter
+
+                const promiseEvent = this.instance.getPastEvents(
+                    eventName,
+                    settings.config || {}
+                )
+
+                const subscription$ = interval(settings.interval || 5000).pipe(
+                    flatMap(() => from(promiseEvent)),
+                    switchMap(i => of(i)),
+                    tap(() => {
+                        totalRequests++
+                    })
+                ).subscribe(events => {
+                    console.log(`----------listenForEvent: ${eventName} - requests: ${totalRequests}`, events)
                     if (
                         unsubscribeCondition(events) || //ask for the unsubscribeCondition function
-                        (top != null && totalRequests >= top) //validate the top vs totalRequests if it's not null
+                        (settings.top && settings.top != null && totalRequests >= settings.top) //validate the top vs totalRequests if it's not null
                     ) {
                         subscription$.unsubscribe() //stop making requests
                         resolve(events)
                     }
                 })
             } catch (error) {
-                return reject(e)
+                console.log(`Errro on listenForEvent: ${eventName}`, error)
+                return reject(error)
             }
         })
     }

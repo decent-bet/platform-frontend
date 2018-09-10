@@ -117,27 +117,80 @@ export default class SlotsChannelManagerContract extends BaseContract {
     /**
      * Events
      */
-    async logNewChannel(fromBlock, toBlock) {
-        let filter = {
-            user: this._web3.eth.defaultAccount
-        }
-        return await this.getPastEvents('LogNewChannel', filter, (fromBlock ? fromBlock : 'latest'), (toBlock ? toBlock : 'latest'))
+    async logNewChannel(transaction) {
+
+    let listenerSettings = {
+        config: { filter: { user: this._web3.eth.defaultAccount 
+                          }, 
+                            fromBlock: transaction.blockNumber, 
+                            toBlock: transaction.blockNumber, 
+                            order: 'DESC', 
+                            options: { offset: 0, limit: 1 } },
+        interval: 5000,
+        top: 30
     }
 
-    async logChannelDeposit(id, fromBlock, toBlock) {
-        let filter = {
-            user: this._web3.eth.defaultAccount,
-            id: id
-        }
-        return await this.getPastEvents('LogChannelDeposit', filter,( fromBlock ? fromBlock : 0), (toBlock ? toBlock : 'latest'))
+    let events = await this.listenForEvent('LogNewChannel', 
+                                                    listenerSettings, 
+                                                    (events) => events && events.length > 0)
+    let [event] = events
+    if (!event || !event.returnValues || !event.returnValues.id) {
+        throw new Error('Create channel confirmation error related to the event received.')
+    }
+    
+    //return the channel id
+    return event.returnValues.id
     }
 
-    async logChannelActivate(id, fromBlock, toBlock) {
-        let filter = {
-            user: this._web3.eth.defaultAccount,
-            id: id
+    async logChannelDeposit(channelId, transaction) {
+        
+        let listenerSettings = {
+            config: { filter: { id: channelId, user: this._web3.eth.defaultAccount 
+                              }, 
+                                fromBlock: transaction.blockNumber, 
+                                toBlock: transaction.blockNumber, 
+                                order: 'DESC', 
+                                options: { offset: 0, limit: 1 } },
+            interval: 5000,
+            top: 30
         }
-        return await this.getPastEvents('LogChannelActivate', filter,( fromBlock ? fromBlock : 0), (toBlock ? toBlock : 'latest'))
+    
+        let events = await this.listenForEvent('LogChannelDeposit', 
+                                                        listenerSettings, 
+                                                        (events) => events && events.length > 0)
+        let [event] = events
+        if (!event || !event.returnValues || !event.returnValues.id) {
+            throw new Error('Channel deposit confirmation error related to the event received.')
+        }
+        
+        //return true if the returned value id is equals to the channelId 
+        return event.returnValues.id 
+    }
+
+    async logChannelActivate(channelId) {
+        
+        const channelIdParam = this._web3.eth.abi.encodeParameter('bytes32', channelId)
+        let listenerSettings = {
+            config: { filter: { 
+                                id: channelIdParam,
+                                user: this._web3.eth.defaultAccount 
+                              },
+                                order: 'DESC', 
+                                options: { offset: 0, limit: 1 } },
+            interval: 5000,
+            top: 30
+        }
+    
+        let events = await this.listenForEvent('LogChannelActivate', 
+                                               listenerSettings, 
+                                               (events) => events && events.length > 0)
+    
+        let [event] = events
+        if (!event || !event.returnValues || !event.returnValues.id) {
+            throw new Error('Activate channel confirmation error related to the event received.')
+        }
+        //return the activated id
+        return event.returnValues.id
     }
 
     async logChannelFinalized(id, fromBlock, toBlock) {
