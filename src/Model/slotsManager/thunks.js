@@ -108,7 +108,7 @@ export function depositIntoCreatedChannel(id, statusUpdateListener) {
         const channelDepositTransaction = await dispatch(Actions.depositToChannel(id, chainProvider))
 
         statusUpdateListener(`Waiting for house to activate channel`)
-        await dispatch(Actions.waitForChannelActivation(id, channelDepositTransaction, chainProvider))
+        await dispatch(Actions.waitForChannelActivation(id, channelDepositTransaction.value, chainProvider))
 
         // Query the channel's data and add it to the redux state
         await dispatch(Actions.getChannel(id, chainProvider))

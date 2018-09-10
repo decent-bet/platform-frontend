@@ -210,16 +210,30 @@ async function depositChips(amount, chainProvider) {
 }
 
 // Withdraw Chips and return them as Tokens to the Wallet
-async function withdrawChips(amount, chainProvider) {
-    try {
-        let {contractFactory} = chainProvider
-        let contract = await contractFactory.slotsChannelManagerContract()
-        const tx = await contract.withdraw(amount)
-        helper.toggleSnackbar('Successfully sent withdraw transaction')
-        return tx
-    } catch (err) {
-        console.log('Error sending withdraw tx', err.message)
-    }
+async function withdrawChips(amount, {contractFactory}) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let contract = await contractFactory.slotsChannelManagerContract()
+            const tx = await contract.withdraw(amount)
+
+            const withdrawEventSubscription = contract
+                .getEventSubscription(contract.logClaimChannelTokens(tx.blockNumber))
+
+            const withdrawSubscription =
+                withdrawEventSubscription.subscribe(async (events) => {
+                    console.log('Withdraw subscription - Events:', events)
+                    if (events.length >= 1) {
+                        withdrawSubscription.unsubscribe()
+                        resolve(tx)
+                    }
+                })
+            helper.toggleSnackbar('Successfully sent withdraw transaction')
+            return tx
+        } catch (err) {
+            console.log('Error sending withdraw tx', err.message)
+            reject(err)
+        }
+    })
 }
 
 /**
