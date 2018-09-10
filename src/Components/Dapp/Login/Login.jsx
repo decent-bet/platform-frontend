@@ -33,7 +33,7 @@ class Login extends Component {
     }
 
     generateMnemonic = () => {
-        let mnemonic = cry.mnemonic.generate()
+        let mnemonic = cry.mnemonic.generate().join(' ')
         this.setState({ value: mnemonic })
     }
 
