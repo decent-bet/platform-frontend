@@ -142,38 +142,31 @@ export default class BaseContract {
 
         console.log('signAndSendRawTransaction - txBody:', txBody)
 
-        let privateKey = this._keyHandler.get()
-        let signed = await this._web3.eth.accounts.signTransaction(
-            txBody,
-            privateKey
-        )
+        let { privateKey } = this._keyHandler.get()
+        let signed = await this._web3.eth.accounts.signTransaction(txBody, privateKey)
         return await this._web3.eth.sendSignedTransaction(signed.rawTransaction)
     }
 
     async getSignedRawTx(to, value, data, gas, dependsOn) {
         let blockRef = await this._web3.eth.getBlockRef()
+        let { privateKey } = this._keyHandler.get()
+        let signedTx = await this._web3.eth.accounts.signTransaction({
+            to,
+            value,
+            data,
+            chainTag: '0x27',
+            blockRef,
+            expiration: 32,
+            gasPriceCoef: 128,
+            gas,
+            dependsOn,
+            nonce: 12345678
+        }, privateKey)
 
-        let signedTx = await this._web3.eth.accounts.signTransaction(
-            {
-                to,
-                value,
-                data,
-                chainTag: '0x27',
-                blockRef,
-                expiration: 32,
-                gasPriceCoef: 128,
-                gas,
-                dependsOn,
-                nonce: 12345678
-            },
-            this._keyHandler.get()
-        )
-
-        signedTx.id =
-            '0x' +
-            cry
-                .blake2b256(signedTx.messageHash, this._web3.eth.defaultAccount)
-                .toString('hex')
+        signedTx.id = '0x' + cry.blake2b256(
+            signedTx.messageHash,
+            this._web3.eth.defaultAccount
+        ).toString('hex')
 
         return signedTx
     }
@@ -202,7 +195,7 @@ export default class BaseContract {
 
         try {
             const tx = new Transaction(body)
-            let privateKey = this._keyHandler.get()
+            let { privateKey } = this._keyHandler.get()
             privateKey = privateKey.substring(2)
 
             const privateKeyBuffer = Buffer.from(privateKey, 'hex')

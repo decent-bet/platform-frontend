@@ -115,7 +115,7 @@ export class ChainProvider {
     }
 
     setupThorify() {
-        let privateKey = this._keyHandler.get()
+        let { privateKey } = this._keyHandler.get()
         if(privateKey && privateKey.length > 0 ) {
             this._web3.eth.accounts.wallet.add(privateKey)
             this._web3.eth.defaultAccount = this._keyHandler.getAddress()

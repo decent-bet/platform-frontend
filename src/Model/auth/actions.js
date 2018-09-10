@@ -10,7 +10,13 @@ async function login(data) {
     let wallet
     if (data.includes(' ')) {
         // Passphrase Mnemonic mode
-        wallet = Wallet.fromMnemonic(data)
+        const vetWallet = Wallet.fromMnemonic(data, "m/44'/818'/0'/0")
+        keyHandler.set({
+            vetPubAddress: vetWallet.address,
+            mnemonic: data,
+            privateKey: vetWallet.privateKey,
+            address: vetWallet.address,
+        })
     } else {
         // Private Key Mode
         // Adds '0x' to the beginning of the key if it is not there.
@@ -19,9 +25,14 @@ async function login(data) {
         }
 
         wallet = new Wallet(data)
+        keyHandler.set({
+            vetPubAddress: wallet.address,
+            privateKey: wallet.privateKey,
+            address: wallet.address,
+        })
     }
 
-    keyHandler.set(wallet.privateKey, wallet.address)
+    
     return true
 }
 
