@@ -61,6 +61,11 @@ async function waitForChannelCreation(transaction, chainProvider) {
                 let decoded = slotsContract.logNewChannelDecode(raw.data, raw.topics)
                 if (decoded && decoded.id && decoded.user === chainProvider.web3.eth.defaultAccount) {
                     subscription.unsubscribe()
+                    console.log(`waitForChannelCreation-----------------------`)
+                    console.log(`decoded.id`, decoded.id)
+                    console.log(`decoded.id`, decoded.id)
+                    console.log(`transaction.blockHash`, transaction.blockHash)
+                    console.log(`-----------------------`)
                     helper.toggleSnackbar('Create channel transaction confirmed')
                     resolve(decoded.id)
                 }
@@ -93,6 +98,11 @@ async function waitForChannelActivation(channelId, transaction, chainProvider) {
         ).subscribe(raw => {
             if(raw) {
                 let decoded = slotsContract.logChannelActivateDecode(raw.data, raw.topics)
+                console.log(`waitForChannelActivation-----------------------`)
+                console.log(`transaction.blockHash`, transaction.blockHash)
+                console.log(`decoded.id`, decoded.id)
+                console.log(`channelId`, channelId)
+                console.log(`-----------------------`)
                 if (decoded && decoded.id && decoded.id === channelId) {
                     subscription.unsubscribe()
                     helper.toggleSnackbar('Deposit channel transaction confirmed')

@@ -33,6 +33,10 @@ export class ChainProvider {
         return this._web3
     }
 
+    get keyHandler() {
+        return this._keyHandler
+    }
+
     /**
      * Returns the default account
      * @returns {string}
