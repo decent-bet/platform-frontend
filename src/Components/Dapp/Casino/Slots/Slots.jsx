@@ -127,9 +127,8 @@ class Slots extends Component {
     onClaimChannelListener = async channelId => {
         this.setState({ stateMachine: 'claiming' })
         await this.props.dispatch(Thunks.claimAndWithdrawFromChannel(channelId))
-
         // Refresh UI
-        this.refreshChannels()
+        await this.refreshChannels()
     }
 
     onGoToGameroomListener = gameName => {

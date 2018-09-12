@@ -36,6 +36,7 @@ async function login(data, chainProvider, keyHandler) {
 
 async function logout(keyHandler) {
     await keyHandler.clear()
+    return true
 }
 
 async function getProviderUrl(chainProvider) {

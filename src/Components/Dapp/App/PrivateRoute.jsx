@@ -11,9 +11,13 @@ class PrivateRoute extends React.Component {
         let isLoggedIn = this.props.dispatch(Thunks.userIsLoggedIn())
 
         if (isLoggedIn === true) {
+
             this.props.dispatch(Thunks.setupChainProvider())
+            this.props.dispatch(BalanceThunks.listenForTransfers())
+
             let { component: Component } = this.props
             return <Component {...props} />
+
         } else {
             return (
                 <Redirect
@@ -29,10 +33,6 @@ class PrivateRoute extends React.Component {
     render() {
         let { ...rest } = this.props
         return <Route {...rest} component={this.renderCaptiveComponent} />
-    }
-
-    componentWillUnmount() {
-        BalanceThunks.listenForTransfers_unsubscribe()
     }
 }
 

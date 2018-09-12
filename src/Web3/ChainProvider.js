@@ -41,7 +41,7 @@ export class ChainProvider {
      * @returns {string}
      */
     get defaultAccount() {
-        return this._web3.eth.defaultAccount || this._keyHandler.getAddress()
+        return this._keyHandler.getAddress()
     }
 
     /**

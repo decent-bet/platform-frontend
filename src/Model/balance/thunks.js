@@ -73,11 +73,9 @@ export function listenForTransfers() {
 
 export function initialize() {
     return async (dispatch, getState, { chainProvider, helper, keyHandler }) => {
-        setTimeout(async()=> {
             await dispatch(actions.getPublicAddress(keyHandler))
             await dispatch(actions.getTokens(chainProvider, helper, keyHandler))
             await dispatch(actions.getEtherBalance(chainProvider, helper, keyHandler))
-        })
     }     
 }
 export function listenForTransfers_unsubscribe() {
@@ -89,7 +87,10 @@ export function listenForTransfers_unsubscribe() {
 }
 
 export function faucet() {
-    return async (dispatch, getState, { chainProvider }) => {
-        await dispatch(actions.faucet(chainProvider))
+    return async (dispatch, getState, { chainProvider, helper, keyHandler }) => {
+        let { contractFactory } = chainProvider
+        await dispatch(actions.faucet(contractFactory, helper))
+        await dispatch(actions.getTokens(chainProvider, helper, keyHandler))
+        await dispatch(actions.getEtherBalance(chainProvider, helper, keyHandler))
     }     
 }

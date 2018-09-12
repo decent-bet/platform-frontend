@@ -78,6 +78,8 @@ function stateChannelSubreducer(
             break
 
         case `${PREFIX}/${Actions.GET_CHANNEL_DETAILS}/${FULFILLED}`:
+            channel = {...channel, ...action.payload}
+            break
         case `${PREFIX}/${Actions.GET_LAST_SPIN}/${FULFILLED}`:
             channel = { ...channel, ...action.payload }
             break

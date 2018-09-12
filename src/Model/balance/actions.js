@@ -6,7 +6,7 @@ import { units } from 'ethereum-units'
 export async function fetchTokens(chainProvider, helper, keyHandler) {
     try {
         let { contractFactory } = chainProvider
-        let address = await keyHandler.getAddress()
+        let address = keyHandler.getAddress()
         let contract = await contractFactory.decentBetTokenContract()
 
         let rawResult = await contract.balanceOf(address)
@@ -72,7 +72,7 @@ export async function fetchPublicAddress(keyHandler) {
     return keyHandler.getAddress()
 }
 
-export async function faucet({contractFactory}) {
+export async function faucet(contractFactory, helper) {
     helper.toggleSnackbar('Sending faucet transaction')
     try {
         let contract = await contractFactory.decentBetTokenContract()
@@ -90,7 +90,7 @@ export async function faucet({contractFactory}) {
 // Get Total Ether.
 export async function fetchEtherBalance(chainProvider, helper, keyHandler) {
     try {
-        let address = await keyHandler.getAddress()
+        let address = keyHandler.getAddress()
         let contract = await chainProvider.contractFactory.decentBetTokenContract()
         let rawAmount = await contract.getBalance(address)
         let balance = new BigNumber(rawAmount).dividedBy(units.ether)
