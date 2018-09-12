@@ -11,7 +11,7 @@ spec:
     - platform-frontend.decent.bet
     secretName: slots-frontend-cert-tls
   rules:
-  - host: platform-test.decent.bet
+  - host: platform-alpha.decent.bet
     http:
      paths:
      - backend:
