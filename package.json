@@ -73,6 +73,7 @@
     "chartnew.js": "^3.9.0",
     "countdown": "^2.6.0",
     "crypto-js": "^3.1.9-1",
+    "dexie": "^2.0.4",
     "dotenv": "^6.0.0",
     "ethereum-units": "0.0.1-b",
     "ethereumjs-util": "^5.1.5",
@@ -116,7 +117,7 @@
   "scripts": {
     "start": "node scripts/start.js DBET_PLATFORM_FRONTEND",
     "stop": "pkill -a -i \"DBET_PLATFORM_FRONTEND\"",
-    "build": "NODE_OPTIONS=--max_old_space_size=4096 node scripts/build.js",
+    "build": "export NODE_ENV=production && NODE_OPTIONS=--max_old_space_size=4096 node scripts/build.js",
     "test": "node scripts/testBuild.js --env=jsdom",
     "lint": "eslint src test",
     "lint:fix": "eslint --fix src test"

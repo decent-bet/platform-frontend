@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { BrowserRouter, Switch } from 'react-router-dom'
+import { BrowserRouter, Switch, Route } from 'react-router-dom'
 import { MuiThemeProvider, Snackbar, CircularProgress } from '@material-ui/core'
 import { Provider } from 'react-redux'
 import store from '../../../Model/store'
@@ -10,7 +10,7 @@ import LogoutRoute from './LogoutRoute'
 import EventBus from 'eventing-bus'
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import { MainTheme } from '../../Base/Themes'
-import { VIEW_LOGIN } from '../../Constants'
+import { VIEW_LOGIN, VIEW_LOGOUT } from '../../Constants'
 
 export default class App extends Component {
     state = {
@@ -51,7 +51,8 @@ export default class App extends Component {
             <Fragment>
                 <BrowserRouter>
                     <Switch>
-                        <LogoutRoute path={VIEW_LOGIN} component={Login} />
+                        <LogoutRoute path={VIEW_LOGOUT} />
+                        <Route path={VIEW_LOGIN} component={Login}/>
                         <PrivateRoute component={Dashboard} />
                     </Switch>
                 </BrowserRouter>

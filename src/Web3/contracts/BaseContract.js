@@ -94,8 +94,8 @@ export default class BaseContract {
      *
      * @param {Object} eventPromise
      */
-    getEventSubscription(eventPromise) {
-        return interval(10000).pipe(
+    getEventSubscription(eventPromise, intervaleAmount = 10000) {
+        return interval(intervaleAmount).pipe(
             flatMap(() => {
                 return from(eventPromise)
             }),
@@ -131,7 +131,7 @@ export default class BaseContract {
         }
 
         let txBody = {
-            from: this._web3.eth.defaultAccount,
+            from: this._keyHandler.getAddress(),
             to,
             gas,
             data,
@@ -140,14 +140,14 @@ export default class BaseContract {
 
         console.log('signAndSendRawTransaction - txBody:', txBody)
 
-        let { privateKey } = this._keyHandler.get()
+        let { privateKey } = await this._keyHandler.get()
         let signed = await this._web3.eth.accounts.signTransaction(txBody, privateKey)
         return await this._web3.eth.sendSignedTransaction(signed.rawTransaction)
     }
 
     async getSignedRawTx(to, value, data, gas, dependsOn) {
         let blockRef = await this._web3.eth.getBlockRef()
-        let { privateKey } = this._keyHandler.get()
+        let { privateKey } = await this._keyHandler.get()
         let signedTx = await this._web3.eth.accounts.signTransaction({
             to,
             value,
@@ -163,7 +163,7 @@ export default class BaseContract {
 
         signedTx.id = '0x' + cry.blake2b256(
             signedTx.messageHash,
-            this._web3.eth.defaultAccount
+            this._keyHandler.getAddress()
         ).toString('hex')
 
         return signedTx
@@ -193,7 +193,7 @@ export default class BaseContract {
 
         try {
             const tx = new Transaction(body)
-            let { privateKey } = this._keyHandler.get()
+            let { privateKey } = await this._keyHandler.get()
             privateKey = privateKey.substring(2)
 
             const privateKeyBuffer = Buffer.from(privateKey, 'hex')

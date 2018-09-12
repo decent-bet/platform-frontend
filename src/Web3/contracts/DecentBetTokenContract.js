@@ -46,17 +46,23 @@ export default class DecentBetTokenContract extends BaseContract {
     /**
      * Events
      * */
-    async logTransfer(address, isFrom, fromBlock, toBlock) {
+    async logTransfer(address, isFrom) {
 
         let filter = {}
         filter[isFrom ? 'from' : 'to'] = address
+        
+        let settings = { filter: filter,
+          fromBlock:'latest',
+          toBlock:'latest',
+            order: 'DESC', 
+            options: { offset: 0, limit: 1 } }
 
-        return await this.getPastEvents('Transfer', filter, (fromBlock ? fromBlock : 'latest'), (toBlock ? toBlock : 'latest'))
+        return await this.getPastEvents('Transfer', settings)
     }
 
     async logApproval(spender, value, fromBlock, toBlock) {
         let filter = {
-            owner: this._web3.eth.defaultAccount
+            owner: this._keyHandler.getAddress()
         }
         if(spender)
             filter.spender = spender

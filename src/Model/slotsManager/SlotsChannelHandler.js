@@ -1,7 +1,3 @@
-import DecentAPI from '../../Components/Base/DecentAPI'
-import { Utils } from '../../Web3/Utils'
-
-import Helper from '../../Components/Helper'
 import {
     reels as slotReels,
     paytable,
@@ -10,14 +6,14 @@ import {
 } from './Constants'
 import { SHA256 } from 'crypto-js'
 import BigNumber from 'bignumber.js'
-import { getSpin, getTightlyPackedSpin } from './functions'
 import Bluebird from 'bluebird'
-const helper = new Helper()
 
 export default class SlotsChannelHandler {
 
-    constructor(web3) {
-        this.decentApi = new DecentAPI(web3)
+    constructor(httpApi, helper, utils) {
+        this.httpApi = httpApi
+        this.helper = helper
+        this.utils = utils
     }
     /**
      *
@@ -25,14 +21,14 @@ export default class SlotsChannelHandler {
      * @param state
      * @param callback
      */
-    spin = async (betSize, state, chainProvider, callback) => {
+    spin = async (betSize, state, callback) => {
         const id = state.channelId
-        betSize = helper.convertToEther(betSize)
+        betSize = this.helper.convertToEther(betSize)
 
         try {
-            let userSpin = await getSpin(betSize, state, false, chainProvider)
+            let userSpin = await this.utils.getSpin(betSize, state, false )
             let response = await Bluebird.fromCallback(cb =>
-                this.decentApi.spin(id, userSpin, state.aesKey, cb)
+                this.httpApi.spin(id, userSpin, state.aesKey, cb)
             )
 
             if (response.error) {
@@ -59,11 +55,11 @@ export default class SlotsChannelHandler {
          *
          */
 
-        let nonSignatureSpin = helper.duplicate(houseSpin)
+        let nonSignatureSpin = this.helper.duplicate(houseSpin)
         delete nonSignatureSpin.sign
 
-        const msg = getTightlyPackedSpin(nonSignatureSpin)
-        const valid = Utils.verifySign(msg, houseSpin.sign, state.houseAuthorizedAddress)
+        const msg = this.utils.getTightlyPackedSpin(nonSignatureSpin)
+        const valid = this.utils.verifySign(msg, houseSpin.sign, state.houseAuthorizedAddress)
         if (!valid)
             callback(true, 'Invalid signature')
 
@@ -79,7 +75,7 @@ export default class SlotsChannelHandler {
             callback(true, 'Invalid betsize')
 
         let betSize = parseInt(houseSpin.betSize, 10)
-        let payout = helper.convertToEther(
+        let payout = this.helper.convertToEther(
             this.calculateReelPayout(reel, betSize)
         )
 
@@ -200,14 +196,14 @@ export default class SlotsChannelHandler {
 
     getAdjustedBetSize = betSize => {
         let ethBetSize = new BigNumber(betSize)
-            .dividedBy(helper.getEtherInWei())
+            .dividedBy(this.helper.getEtherInWei())
             .toNumber()
         let tenthEthBetSize = new BigNumber(betSize)
-            .dividedBy(helper.getEtherInWei())
+            .dividedBy(this.helper.getEtherInWei())
             .multipliedBy(10)
             .toNumber()
         let hundredthEthBetSize = new BigNumber(betSize)
-            .dividedBy(helper.getEtherInWei())
+            .dividedBy(this.helper.getEtherInWei())
             .multipliedBy(100)
             .toNumber()
 

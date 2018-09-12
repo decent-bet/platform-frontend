@@ -8,7 +8,33 @@ export function getProviderUrl() {
 }
 
 export function setProviderUrl(url) {
-    return (dispatch, getState, { chainProvider } ) => {
-        dispatch(actions.setProviderUrl(chainProvider, url))
+    return async (dispatch, getState, { chainProvider } ) => {
+        await dispatch(actions.setProviderUrl(chainProvider, url))
+    }
+}
+
+export function login(data) {
+    return async (dispatch, getState, { chainProvider, keyHandler } ) => {
+        await dispatch(actions.login(data, chainProvider, keyHandler))
+    }
+}
+
+export function logout() {
+    return async (dispatch, getState, { keyHandler } ) => {
+        if(keyHandler.isLoggedIn()) {
+            await dispatch(actions.logout(keyHandler))
+        }
+    }
+}
+
+export function userIsLoggedIn() {
+    return (dispatch, getState, { keyHandler }) => {
+        return keyHandler.isLoggedIn()
+    }
+}
+
+export function setupChainProvider() {
+    return async(dispatch, getState, { chainProvider }) => {
+        await chainProvider.setupThorify()
     }
 }

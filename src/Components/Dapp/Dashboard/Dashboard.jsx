@@ -7,36 +7,20 @@ import DashboardDrawer from './DashboardDrawer'
 import ProviderSelector from './ProviderSelector'
 import NoTokensWarning from './NoTokensWarning'
 import { Thunks } from '../../../Model/balance'
-import { Actions as AuthActions, Thunks as AuthThunks } from '../../../Model/auth'
+import { Thunks as AuthThunks } from '../../../Model/auth'
 import './dashboard.css'
 
 class Dashboard extends Component {
 
     state = {
         provider: '',
-        drawerOpen: false,
-        transferSubscriptions: []
+        drawerOpen: false
     }
 
     componentDidMount = async () => {
         // Initialize the datastore
         this.props.dispatch(Thunks.initialize())
-
-        let subscriptions = await this.props.dispatch(Thunks.listenForTransfers())
-        if(subscriptions && Array.isArray(subscriptions)) {
-            this.setState({transferSubscriptions: subscriptions})
-        }
-    }
-
-    componentWillUnmount() {
-
-        if(this.state.transferSubscriptions && Array.isArray(this.state.transferSubscriptions)) {
-            this.state.transferSubscriptions.forEach( subscription => {
-                subscription.unsubscribe()
-            })
-
-            this.setState({transferSubscriptions: []})
-        }
+        this.props.dispatch(Thunks.listenForTransfers())
     }
 
     // Faucet Button Clicked. Execute Faucet
@@ -52,7 +36,7 @@ class Dashboard extends Component {
         if (value !== this.state.provider) {
             this.setState({ provider: value })
             this.props.dispatch(AuthThunks.setProviderUrl(value))
-            this.props.dispatch(AuthActions.logout())
+            this.props.dispatch(AuthThunks.logout())
             // Wait for dropdown animation
             setTimeout(() => {
                 this.props.history.push('/login')

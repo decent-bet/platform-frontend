@@ -39,6 +39,7 @@ class Game extends Component {
     spin = (lines, betSize, callback) => {
         const { dispatch, channelId } = this.props
         const totalBetSize = lines * betSize
+        
         const listener = (err, msg, lines) => {
             if (!err) {
                 dispatch(Thunks.spinAndIncreaseNonce(channelId, msg))

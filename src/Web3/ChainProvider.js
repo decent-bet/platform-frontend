@@ -22,7 +22,6 @@ export class ChainProvider {
         this._rawWeb3 = web3
         this._web3 = thorify(web3, this.providerUrl)
         this._keyHandler = keyHandler
-        this.setupThorify()
     }
 
     /**
@@ -42,7 +41,7 @@ export class ChainProvider {
      * @returns {string}
      */
     get defaultAccount() {
-        return this._web3.eth.defaultAccount
+        return this._web3.eth.defaultAccount || this._keyHandler.getAddress()
     }
 
     /**
@@ -90,9 +89,12 @@ export class ChainProvider {
     * Set the provider url
      * @returns {string}
      */
-    set providerUrl(url) {
+    async setProviderUrl(url) {
         localStorage.setItem(KEY_GETH_PROVIDER, url)
-        this._web3 = thorify(this._rawWeb3, url)
+        if (this._keyHandler.isLoggedIn()) {
+            this._web3 = thorify(this._rawWeb3, url)
+        }
+        await this.setupThorify()
     }
     /**
      * Configure the web3 instance
@@ -110,15 +112,20 @@ export class ChainProvider {
      * Setup the contract factory
      */
     buildContractFactory() {
-        this.setupThorify()
         this._contractFactory = new ContractFactory(this._web3, this._keyHandler)
     }
 
-    setupThorify() {
-        let { privateKey } = this._keyHandler.get()
-        if(privateKey && privateKey.length > 0 ) {
+    async setupThorify(address, privateKey) {
+
+        if(address && privateKey) {
             this._web3.eth.accounts.wallet.add(privateKey)
-            this._web3.eth.defaultAccount = this._keyHandler.getAddress()
+            this._web3.eth.defaultAccount = address
+        } else if(this._keyHandler.isLoggedIn()) {
+            let { privateKey } = await this._keyHandler.get()
+            if(privateKey && privateKey.length > 0 ) {
+                this._web3.eth.accounts.wallet.add(privateKey)
+                this._web3.eth.defaultAccount = this._keyHandler.getAddress()
+            }   
         }
     }
 }

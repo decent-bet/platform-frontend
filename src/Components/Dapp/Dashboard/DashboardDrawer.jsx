@@ -6,7 +6,7 @@ import {
     VIEW_CASINO,
     VIEW_SLOTS,
     VIEW_SLOTS_GAME,
-    VIEW_LOGIN
+    VIEW_LOGOUT
 } from '../../Constants'
 
 export default function DashboardDrawer({
@@ -44,7 +44,7 @@ export default function DashboardDrawer({
                     />
 
                     <DashboardDrawerItem
-                        viewToSelect={VIEW_LOGIN}
+                        viewToSelect={VIEW_LOGOUT}
                         isSelected={false}
                         onViewChangeListener={onViewChangeListener}
                         title="Logout"

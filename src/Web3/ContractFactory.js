@@ -16,7 +16,7 @@ export class ContractFactory {
      * Creates a contract wrapper based on the passed name
      * @param {string} contractName
      */
-    async makeContract(contractName, jsonName) {
+    async makeContract(contractName) {
 
         if (!JsonContracts.hasOwnProperty(contractName)) {
             throw new Error(`Json contract doesn't exists for the name given: ${contractName}`)

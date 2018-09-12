@@ -4,7 +4,7 @@ import { Card } from '@material-ui/core'
 import LoginActions from './LoginActions'
 import LoginInner from './LoginInner'
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
-import { Actions, Thunks } from '../../../Model/auth'
+import { Thunks } from '../../../Model/auth'
 import { cry } from 'thor-devkit'
 import './login.css'
 
@@ -16,20 +16,25 @@ class Login extends Component {
     }
 
     componentDidMount() {
-        this.props.dispatch(Thunks.getProviderUrl())
+        if(this.props.dispatch(Thunks.userIsLoggedIn())) {
+            this.props.history.push('/') 
+        } else {
+            this.props.dispatch(Thunks.getProviderUrl())
+        }
+    
     }
 
     login = () => {
-        try {
-            this.props.dispatch(Actions.login(this.state.value))
+        this.props.dispatch(Thunks.login(this.state.value))
+        .then(() => {
             // Go to the Root
             this.props.history.push('/') 
-        } catch (e) {
-            // Login Failed. Open error dialog.
+        })
+        .catch(() => {
             this.setState({
                 isErrorDialogOpen: true
             })
-        }
+        })
     }
 
     generateMnemonic = () => {
@@ -41,15 +46,15 @@ class Login extends Component {
 
     loginWithKeyPress = ev => {
         if (ev.key === 'Enter') {
-            ev.preventDefault()
-            this.onLoginListener()
+            this.onLoginListener(ev)
         }
     }
 
     onCloseErrorDialogListener = () =>
         this.setState({ isErrorDialogOpen: false })
 
-    onLoginListener = () => {
+    onLoginListener = (e) => {
+        e.preventDefault()
         if (this.isValidCredentials()) {
             this.login()
         }

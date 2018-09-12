@@ -2,21 +2,19 @@
 import Actions, { Prefix } from './actionTypes'
 import { createActions } from 'redux-actions'
 import { Wallet } from 'ethers'
-import KeyHandler from '../../Web3/KeyHandler'
 
-const keyHandler = new KeyHandler()
-
-async function login(data) {
+async function login(data, chainProvider, keyHandler) {
     let wallet
+    let values
+
     if (data.includes(' ')) {
         // Passphrase Mnemonic mode
-        const vetWallet = Wallet.fromMnemonic(data, "m/44'/818'/0'/0")
-        keyHandler.set({
-            vetPubAddress: vetWallet.address,
+        wallet = Wallet.fromMnemonic(data, "m/44'/818'/0'/0")
+        values = {
             mnemonic: data,
-            privateKey: vetWallet.privateKey,
-            address: vetWallet.address,
-        })
+            privateKey: wallet.privateKey,
+            address: wallet.address
+        }
     } else {
         // Private Key Mode
         // Adds '0x' to the beginning of the key if it is not there.
@@ -25,28 +23,27 @@ async function login(data) {
         }
 
         wallet = new Wallet(data)
-        keyHandler.set({
-            vetPubAddress: wallet.address,
+        values = {
             privateKey: wallet.privateKey,
-            address: wallet.address,
-        })
+            address: wallet.address
+        }
     }
 
-    
-    return true
+    await keyHandler.initialize()
+    await keyHandler.set(values)
+    await chainProvider.setupThorify(values.address, values.privateKey)
 }
 
-async function logout() {
-    keyHandler.clear()
-    return false //authenticated false
+async function logout(keyHandler) {
+    await keyHandler.clear()
 }
 
 async function getProviderUrl(chainProvider) {
     return chainProvider.providerUrl
 }
 
-function setProviderUrl(chainProvider, url) {
-    chainProvider.providerUrl = url
+async function setProviderUrl(chainProvider, url) {
+    await chainProvider.setProviderUrl(url)
 }
 
 export default createActions({

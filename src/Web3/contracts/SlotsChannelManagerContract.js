@@ -49,7 +49,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
     async getChannels() {
         let config = {
             filter: {
-                user: this._web3.eth.defaultAccount
+                user: this._keyHandler.getAddress()
             },
             toBlock: 'latest',
             order:'DESC'
@@ -120,7 +120,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
     async logNewChannel(transaction) {
 
     let listenerSettings = {
-        config: { filter: { user: this._web3.eth.defaultAccount 
+        config: { filter: { user: this._keyHandler.getAddress() 
                           }, 
                             fromBlock: transaction.blockNumber, 
                             toBlock: transaction.blockNumber, 
@@ -145,7 +145,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
     async logChannelDeposit(channelId, transaction) {
         
         let listenerSettings = {
-            config: { filter: { id: channelId, user: this._web3.eth.defaultAccount 
+            config: { filter: { id: channelId, user: this._keyHandler.getAddress() 
                               }, 
                                 fromBlock: transaction.blockNumber, 
                                 toBlock: transaction.blockNumber, 
@@ -173,7 +173,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
         let listenerSettings = {
             config: { filter: { 
                                 id: channelIdParam,
-                                user: this._web3.eth.defaultAccount 
+                                user: this._keyHandler.getAddress() 
                               },
                                 order: 'DESC', 
                                 options: { offset: 0, limit: 1 } },
@@ -195,7 +195,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
 
     async logChannelFinalized(id, fromBlock, toBlock) {
         let filter = {
-            user: this._web3.eth.defaultAccount,
+            user: this._keyHandler.getAddress(),
             id: id
         }
 
@@ -218,7 +218,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
 
     async logDeposit(fromBlock, toBlock) {
         let filter = {
-            _address: this._web3.eth.defaultAccount
+            _address: this._keyHandler.getAddress()
         }
 
         return this.getPastEvents('LogDeposit', filter,( fromBlock ? fromBlock : 0), (toBlock ? toBlock : 'latest'))
@@ -226,7 +226,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
 
     async logWithdraw(fromBlock, toBlock) {
         let filter = {
-            _address: this._web3.eth.defaultAccount
+            _address: this._keyHandler.getAddress()
         }
         return await this.getPastEvents('LogWithdraw', filter,( fromBlock ? fromBlock : 0), (toBlock ? toBlock : 'latest'))
     }

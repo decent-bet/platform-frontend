@@ -1,12 +1,8 @@
 import Actions, {PREFIX} from './actionTypes'
 import {createActions} from 'redux-actions'
-import Helper from '../../../Components/Helper'
-import {getChannelDepositParams} from '../functions'
-
-const helper = new Helper()
 
 // Get the allowance
-async function fetchAllowance(chainProvider) {
+async function fetchAllowance(chainProvider, helper) {
     let {contractFactory} = chainProvider
     try {
         const defaultAccount = chainProvider.defaultAccount
@@ -20,12 +16,13 @@ async function fetchAllowance(chainProvider) {
         )
         return Number(allowance).toFixed()
     } catch (err) {
+        helper.toggleSnackbar('Error retrieving allowance')
         console.log('Error retrieving slots channel manager allowance', err)
     }
 }
 
 // Get the current session balance
-async function fetchBalance(chainProvider) {
+async function fetchBalance(chainProvider, helper) {
     let {contractFactory} = chainProvider
     try {
         let slotsContract = await contractFactory.slotsChannelManagerContract()
@@ -33,6 +30,7 @@ async function fetchBalance(chainProvider) {
         balance = balance || 0
         return parseFloat(balance).toFixed()
     } catch (err) {
+        helper.toggleSnackbar('Error retrieving the balance')
         console.log('Error retrieving balance', err.message)
     }
 }
@@ -43,8 +41,7 @@ async function fetchBalance(chainProvider) {
  * @param {Object} transaction
  * @param {ChainProvider} chainProvider
  */
-async function waitForChannelActivation(channelId, transaction, chainProvider) {
-    let {contractFactory} = chainProvider
+async function waitForChannelActivation(channelId, transaction, contractFactory, helper) {
     let slotsContract = await contractFactory.slotsChannelManagerContract()
     helper.toggleSnackbar('Waiting for channel activation confirmation')
     return await slotsContract.logChannelDeposit(channelId, transaction)
@@ -54,9 +51,8 @@ async function waitForChannelActivation(channelId, transaction, chainProvider) {
 
 
 // Create a state channel
-async function createChannel(deposit, chainProvider) {
+async function createChannel(deposit, contractFactory, helper) {
     helper.toggleSnackbar('Sending create channel transaction')
-    let {contractFactory} = chainProvider
     let slotsContract = await contractFactory.slotsChannelManagerContract()
     const transaction = await slotsContract.createChannel(deposit)
     helper.toggleSnackbar('Waiting for create channel confirmation')
@@ -65,11 +61,10 @@ async function createChannel(deposit, chainProvider) {
 }
 
 // Send a deposit transaction to channel
-async function depositToChannel(id, chainProvider) {
+async function depositToChannel(id, contractFactory, helper, utils) {
     try {
         console.log('Deposit to channel', id)
-        let {contractFactory} = chainProvider
-        const params = await getChannelDepositParams(id, chainProvider)
+        const params = await utils.getChannelDepositParams(id)
         const {initialUserNumber, finalUserHash} = params
 
         let slotsContract = await contractFactory.slotsChannelManagerContract()
@@ -88,7 +83,7 @@ async function depositToChannel(id, chainProvider) {
 }
 
 // Deposit new Chips, sourced from wallet's tokens
-function approve(amount, chainProvider) {
+function approve(amount, chainProvider, helper) {
     return new Promise(async (resolve, reject) => {
         try {
             let {contractFactory} = chainProvider
@@ -124,7 +119,7 @@ function approve(amount, chainProvider) {
 }
 
 // Deposit new Chips, sourced from wallet's tokens
-async function depositChips(amount, chainProvider) {
+async function depositChips(amount, chainProvider, helper) {
     return new Promise(async (resolve, reject) => {
     try {
         let {contractFactory} = chainProvider
@@ -156,10 +151,9 @@ async function depositChips(amount, chainProvider) {
 }
 
 // Withdraw Chips and return them as Tokens to the Wallet
-async function withdrawChips(amount, {contractFactory}) {
+async function withdrawChips(amount, contract, helper) {
     return new Promise(async (resolve, reject) => {
         try {
-            let contract = await contractFactory.slotsChannelManagerContract()
             const tx = await contract.withdraw(amount)
 
             const withdrawEventSubscription = contract
@@ -187,10 +181,9 @@ async function withdrawChips(amount, {contractFactory}) {
  * @param {number} channelId
  * @param state
  */
-async function claimChannel(channelId, {contractFactory}) {
+async function claimChannel(channelId, contract, helper) {
     return new Promise(async (resolve, reject) => {
         try {
-            let contract = await contractFactory.slotsChannelManagerContract()
             const txHash = await contract.claim(channelId)
 
             const claimChannelEventSubscription = contract
