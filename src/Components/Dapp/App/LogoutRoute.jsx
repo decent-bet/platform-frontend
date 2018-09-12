@@ -2,12 +2,17 @@ import React, { Component } from 'react'
 import { Route, Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Thunks } from '../../../Model/auth'
+import { Thunks as BalanceThunks } from '../../../Model/balance'
 import { VIEW_LOGIN } from '../../Constants'
 
 class LogoutRoute extends Component {
     
-    renderRedirect = () => {
+    componentDidMount() {
+        BalanceThunks.listenForTransfers_unsubscribe()
         this.props.dispatch(Thunks.logout())
+    }
+    
+    renderRedirect = () => {
         return <Redirect
         to={{
             pathname: VIEW_LOGIN,

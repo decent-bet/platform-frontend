@@ -4,6 +4,7 @@ echo "Updating submodules for games"
 git submodule foreach git pull origin master
 
 echo "Creating a build for production"
+nvm use
 yarn build
 
 echo "Building and pushing version $VERSION"

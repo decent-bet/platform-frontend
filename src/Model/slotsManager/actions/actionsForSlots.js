@@ -8,7 +8,7 @@ import { tap, map } from 'rxjs/operators'
 
 async function fetchAesKey(channelId, utils) {
     let key = await utils.getAesKey(channelId)
-    return Promise.resolve({ channelId, key })
+    return { channelId, key }
 }
 
 /**
@@ -217,9 +217,10 @@ async function loadLastSpin(id, hashes, aesKey, httpApi, utils) {
 
 async function getLastSpin(channelId, chainProvider, httpApi, helper, utils ) {
     let { contractFactory } = chainProvider
+    let contract = await contractFactory.slotsChannelManagerContract()
     console.log('getLastSpin', channelId)
-    let aesKey = await utils.getAesKey(channelId, chainProvider)
-    let { hashes } = await getChannelDetails(channelId, contractFactory, helper)
+    let aesKey = await utils.getAesKey(channelId)
+    let hashes = await getChannelHashes(channelId, contract, helper)
     let data = await loadLastSpin(channelId, hashes, aesKey, httpApi, utils)
     console.log('getLastSpin', {aesKey, hashes, data})
 
@@ -242,12 +243,12 @@ async function getChannel(channelId, chainProvider, httpApi, helper, utils) {
     console.log('getChannel', channelId)
     let { contractFactory } = chainProvider
     let channelDetails = await getChannelDetails(channelId, contractFactory, helper)
-    console.log('getChannel', {channelDetails})
+    console.log('getChannel', channelDetails)
     let lastSpin
     if (channelDetails &&
         channelDetails.info &&
         channelDetails.info.activated)
-        lastSpin = getLastSpin(channelId, chainProvider, httpApi, helper, utils)
+        lastSpin = await getLastSpin(channelId, chainProvider, httpApi, helper, utils)
 
     return {
         ...channelDetails,
@@ -278,7 +279,7 @@ function getChannels(chainProvider, httpApi, helper, utils) {
             )
 
             const channels$ = getChannels$.pipe(
-                tap(() => {
+                tap( _ => {
                     totalRequests++
                 }),
                 tap(logChannels('BEFORE mergeMap -----------')),

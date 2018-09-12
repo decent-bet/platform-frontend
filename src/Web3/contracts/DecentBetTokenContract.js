@@ -8,6 +8,7 @@ export default class DecentBetTokenContract extends BaseContract {
     }
 
     async balanceOf(address) {
+        console.log('get tokens', address);
         return await this.instance.methods.balanceOf(address).call()
     }
 

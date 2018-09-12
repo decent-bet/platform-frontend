@@ -51,10 +51,13 @@ class Game extends Component {
 
     }
 
-    getBalance = () => ({
-        user: helper.formatEther(this.props.userBalance),
-        house: helper.formatEther(this.props.houseBalance)
-    })
+    getBalance = () => {
+        let balance = {
+            user: helper.formatEther(this.props.userBalance),
+            house: helper.formatEther(this.props.houseBalance)
+        }
+        return balance
+    }
 
     onFinalizeListener = async () => {
         this.setState({ isFinalizing: true })

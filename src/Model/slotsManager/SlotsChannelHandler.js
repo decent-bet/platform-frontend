@@ -32,7 +32,7 @@ export default class SlotsChannelHandler {
             )
 
             if (response.error) {
-                throw new Error(response.message)
+                throw new Error(response.message ? response.message : response.error)
             }
 
             let houseSpin = response.message
@@ -44,7 +44,7 @@ export default class SlotsChannelHandler {
             // Increase nonce and add response.message to houseSpins in callback
             callback(null, response.message, lines)
         } catch (error) {
-            callback(error.message)
+            callback(error)
         }
     }
 
