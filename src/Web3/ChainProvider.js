@@ -5,6 +5,7 @@ import {
     KEY_GETH_PROVIDER
 } from '../Components/Constants'
 import { ContractFactory } from './ContractFactory';
+import { webSocket } from 'rxjs/webSocket'
 
 export class ChainProvider {
     /**
@@ -18,9 +19,9 @@ export class ChainProvider {
      * @param {KeyHandler} keyHandler 
      */
     constructor(web3, keyHandler) {
-        this._web3 = thorify(web3, this.url)
+        this._rawWeb3 = web3
+        this._web3 = thorify(web3, this.providerUrl)
         this._keyHandler = keyHandler
-        this.setupThorify()
     }
 
     /**
@@ -31,39 +32,70 @@ export class ChainProvider {
         return this._web3
     }
 
+    get keyHandler() {
+        return this._keyHandler
+    }
+
     /**
      * Returns the default account
      * @returns {string}
      */
     get defaultAccount() {
-        return this._web3.eth.defaultAccount
+        return this._keyHandler.getAddress()
     }
 
     /**
      * Get the provider url depending of the environtment
      * @returns {string}
      */
-    get url() {
-        return ChainProvider.getProviderUrl()
-    }
-    
-    set url(provider) {
-        localStorage.setItem(KEY_GETH_PROVIDER, provider)
-    }
-
-    static getProviderUrl() {
-        let provider = localStorage.getItem(KEY_GETH_PROVIDER)
-        if (!provider || provider === 'undefined') {
+    get providerUrl() {
+        let url = localStorage.getItem(KEY_GETH_PROVIDER)
+        if (!url || url === 'undefined') {
             // In Safari the localStorage returns the text 'undefined' as is
             if (process.env['NODE_ENV'] === 'production') {
-                return PROVIDER_DBET
+                url = PROVIDER_DBET
+            } else {
+                url = PROVIDER_LOCAL
             }
-            return PROVIDER_LOCAL
         }
 
-        return provider
+        localStorage.setItem(KEY_GETH_PROVIDER, url)
+        
+        return url
     }
 
+    /**
+     * Return the url for websocket connections
+     * 
+     * @returns {string}
+     */
+    get wsProviderUrl() {
+        let baseUrl = new URL(this.providerUrl)
+        baseUrl.protocol = baseUrl.protocol === 'https:' ? 'wss:' : 'ws:'
+        return baseUrl
+    }
+
+    /**
+     * 
+     * @param {string} path 
+     * @returns {WebSocketSubject}
+     */
+    makeWebSocketConnection(path) {
+        let baseUrl = this.wsProviderUrl
+        return webSocket(`${baseUrl}${path}`)
+    }
+
+    /**
+    * Set the provider url
+     * @returns {string}
+     */
+    async setProviderUrl(url) {
+        localStorage.setItem(KEY_GETH_PROVIDER, url)
+        if (this._keyHandler.isLoggedIn()) {
+            this._web3 = thorify(this._rawWeb3, url)
+        }
+        await this.setupThorify()
+    }
     /**
      * Configure the web3 instance
      * @returns {void}
@@ -80,26 +112,20 @@ export class ChainProvider {
      * Setup the contract factory
      */
     buildContractFactory() {
-        this.setupThorify()
         this._contractFactory = new ContractFactory(this._web3, this._keyHandler)
     }
 
-    setupThorify() {
-        let privateKey = this._keyHandler.get()
-        if(privateKey && privateKey.length > 0 ) {
-            this._web3.eth.accounts.wallet.add(privateKey)
-            this._web3.eth.defaultAccount = this._keyHandler.getAddress()
-        }
-    }
+    async setupThorify(address, privateKey) {
 
-    static buildThorify(web3, keyHandler) {
-        let url = ChainProvider.getProviderUrl()
-        let _thorify = thorify(web3, url)
-        let privateKey = keyHandler.get()
-        if(privateKey && privateKey.length > 0 ) {
-            _thorify.eth.accounts.wallet.add(privateKey)
-            _thorify.eth.defaultAccount = keyHandler.getAddress()
+        if(address && privateKey) {
+            this._web3.eth.accounts.wallet.add(privateKey)
+            this._web3.eth.defaultAccount = address
+        } else if(this._keyHandler.isLoggedIn()) {
+            let { privateKey } = await this._keyHandler.get()
+            if(privateKey && privateKey.length > 0 ) {
+                this._web3.eth.accounts.wallet.add(privateKey)
+                this._web3.eth.defaultAccount = this._keyHandler.getAddress()
+            }   
         }
-        return _thorify
     }
 }

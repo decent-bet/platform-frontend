@@ -7,8 +7,7 @@ export default class Helper {
     isDev = () => {
         return process.env['NODE_ENV'] !== 'production'
     }
-
-
+    
     getTimestamp = () => {
         return this.getTimestampInMillis() / 1000
     }

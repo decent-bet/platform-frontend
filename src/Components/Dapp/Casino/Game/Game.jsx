@@ -39,6 +39,7 @@ class Game extends Component {
     spin = (lines, betSize, callback) => {
         const { dispatch, channelId } = this.props
         const totalBetSize = lines * betSize
+        
         const listener = (err, msg, lines) => {
             if (!err) {
                 dispatch(Thunks.spinAndIncreaseNonce(channelId, msg))
@@ -50,10 +51,13 @@ class Game extends Component {
 
     }
 
-    getBalance = () => ({
-        user: helper.formatEther(this.props.userBalance),
-        house: helper.formatEther(this.props.houseBalance)
-    })
+    getBalance = () => {
+        let balance = {
+            user: helper.formatEther(this.props.userBalance),
+            house: helper.formatEther(this.props.houseBalance)
+        }
+        return balance
+    }
 
     onFinalizeListener = async () => {
         this.setState({ isFinalizing: true })

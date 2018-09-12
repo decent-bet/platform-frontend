@@ -1,15 +1,23 @@
 import React from 'react'
 import { Route, Redirect } from 'react-router-dom'
-import { KeyHandler } from '../../../Web3'
 import { VIEW_LOGIN } from '../../Constants'
+import { Thunks as BalanceThunks } from '../../../Model/balance'
+import { connect } from 'react-redux'
+import { Thunks } from '../../../Model/auth'
 
-const keyHandler = new KeyHandler()
+class PrivateRoute extends React.Component {
 
-export default class PrivateRoute extends React.Component {
-    renderCaptiveComponent = props => {
-        if (keyHandler.isLoggedIn()) {
+    renderCaptiveComponent = (props) => {
+        let isLoggedIn = this.props.dispatch(Thunks.userIsLoggedIn())
+
+        if (isLoggedIn === true) {
+
+            this.props.dispatch(Thunks.setupChainProvider())
+            this.props.dispatch(BalanceThunks.listenForTransfers())
+
             let { component: Component } = this.props
             return <Component {...props} />
+
         } else {
             return (
                 <Redirect
@@ -27,3 +35,6 @@ export default class PrivateRoute extends React.Component {
         return <Route {...rest} component={this.renderCaptiveComponent} />
     }
 }
+
+// Connect this component to Redux
+export default connect(state => state.auth)(PrivateRoute)

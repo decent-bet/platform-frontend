@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-import { Button } from '@material-ui/core'
+import { Button, ButtonBase, Typography } from '@material-ui/core'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Helper from '../../Helper'
 
@@ -23,7 +23,8 @@ export default function DashboardAppBarToolbar({
     }
     let addressText = `Public Address: ${address}`
     let tokenText = `Tokens: ${tokenBalance.toFixed(2)} DBETs`
-    let etherText = `Balance: ${etherBalance.toFixed(5)} Ether`
+    let etherText = `Balance: ${etherBalance.toFixed(5)} VTHO`
+    
     return (
         <Fragment>
             <CopyToClipboard
@@ -31,7 +32,9 @@ export default function DashboardAppBarToolbar({
                 text={address}
                 onCopy={copyConfirmation}
             >
-                <Button variant="flat">{addressText}</Button>
+                <ButtonBase component='button'>
+                    <Typography stlyle={{textTransform: 'none'}}>{addressText}</Typography>
+                </ButtonBase>
             </CopyToClipboard>
             <Button variant="flat" className="toolbar-button">
                 {tokenText}

@@ -7,25 +7,20 @@ import DashboardDrawer from './DashboardDrawer'
 import ProviderSelector from './ProviderSelector'
 import NoTokensWarning from './NoTokensWarning'
 import { Thunks } from '../../../Model/balance'
-import { Actions as AuthActions, Thunks as AuthThunks } from '../../../Model/auth'
+import { Thunks as AuthThunks } from '../../../Model/auth'
 import './dashboard.css'
-import { KeyHandler } from '../../../Web3'
-
-const keyHandler = new KeyHandler()
 
 class Dashboard extends Component {
+
     state = {
         provider: '',
         drawerOpen: false
     }
 
     componentDidMount = async () => {
-        if(!keyHandler.isLoggedIn()) {
-            this.props.history.push('/login')
-        } else {
-            // Initialize the datastore
-           await this.props.dispatch(Thunks.initialize())
-        }
+        // Initialize the datastore
+        this.props.dispatch(Thunks.initialize())
+        this.props.dispatch(Thunks.listenForTransfers())
     }
 
     // Faucet Button Clicked. Execute Faucet
@@ -41,7 +36,7 @@ class Dashboard extends Component {
         if (value !== this.state.provider) {
             this.setState({ provider: value })
             this.props.dispatch(AuthThunks.setProviderUrl(value))
-            this.props.dispatch(AuthActions.logout())
+            this.props.dispatch(AuthThunks.logout())
             // Wait for dropdown animation
             setTimeout(() => {
                 this.props.history.push('/login')
@@ -54,7 +49,6 @@ class Dashboard extends Component {
 
     onViewChangeListener = newView => {
         if (this.props.location.pathname === newView) return
-        this.props.dispatch(AuthActions.logout())
         this.setState({ drawerOpen: false })
         this.props.history.push(newView)
     }
@@ -86,7 +80,6 @@ class Dashboard extends Component {
 
     render() {
         // Print the rest of the content only if the user has DBETs
-
         const inner = this.props.balance > 0 ? <DashboardRouter /> : <NoTokensWarning />
         return (<div className="dashboard">
                 {this.renderAppbar()}

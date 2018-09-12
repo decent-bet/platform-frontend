@@ -1,5 +1,7 @@
+
 import Actions from './actions'
 const actions = Actions.balance
+let subscriptions = []
 
 export function watcherChannelClaimed(channelId) {
     return async (dispatch, getState, { chainProvider }) => {
@@ -33,49 +35,62 @@ export function watcherChannelClaimed(channelId) {
 }
 
 export function listenForTransfers() {
-    return async (dispatch, getState, { chainProvider }) => {
-        
+    return async (dispatch, getState, { chainProvider, helper, keyHandler }) => {
+        // clear any previous transfer subscriptions
+
+        listenForTransfers_unsubscribe()
+
         try {
             let tokenContract = await chainProvider.contractFactory.decentBetTokenContract()
-            const transferFromEvents = tokenContract.logTransfer(chainProvider.defaultAccount, true)
-            const transferFromEventsSubscription = tokenContract.getEventSubscription(transferFromEvents)
 
-            const transferToEvents = tokenContract.logTransfer(chainProvider.defaultAccount, false)
-            const transferToEventsSubscription = tokenContract.getEventSubscription(transferToEvents)
+            const transferFromEventsSubscription = tokenContract.getEventSubscription(tokenContract.logTransfer(chainProvider.defaultAccount, true), 5000)
+            const transferToEventsSubscription = tokenContract.getEventSubscription(tokenContract.logTransfer(chainProvider.defaultAccount, false), 5000)
 
-            transferFromEventsSubscription.subscribe( async (events) => {
-                console.log('transferFromEvents - Events:', events)
+            const fromSubscription = transferFromEventsSubscription.subscribe( async (events) => {
                 if (events.length >= 1) {
-                    await dispatch(actions.getTokens(chainProvider))
-                    await dispatch(actions.getEtherBalance(chainProvider))
+                    await dispatch(actions.getTokens(chainProvider, helper, keyHandler))
+                    await dispatch(actions.getEtherBalance(chainProvider, helper, keyHandler))
+                }
+            })
+            subscriptions.push(fromSubscription)
+
+            const toSubscription = transferToEventsSubscription.subscribe( async (events) => {
+                if (events.length >= 1) {
+                    await dispatch(actions.getTokens(chainProvider, helper, keyHandler))
+                    await dispatch(actions.getEtherBalance(chainProvider, helper, keyHandler))
                 }
             })
 
-            transferToEventsSubscription.subscribe( async (events) => {
-                console.log('transferToEvents - Events:', events)
-                if (events.length >= 1) {
-                    await dispatch(actions.getTokens(chainProvider))
-                    await dispatch(actions.getEtherBalance(chainProvider))
-                }
-            })
+            subscriptions.push(toSubscription)
 
         } catch (error) {
             console.error('listenToTransfers Error:', error)
         }
+
+        return subscriptions
     }
 }
 
 export function initialize() {
-    return async (dispatch, getState, { chainProvider }) => {
-        await dispatch(actions.getPublicAddress(chainProvider))
-        await dispatch(actions.getTokens(chainProvider))
-        await dispatch(actions.getEtherBalance(chainProvider))
-        await dispatch(listenForTransfers(chainProvider))
+    return async (dispatch, getState, { chainProvider, helper, keyHandler }) => {
+            await dispatch(actions.getPublicAddress(keyHandler))
+            await dispatch(actions.getTokens(chainProvider, helper, keyHandler))
+            await dispatch(actions.getEtherBalance(chainProvider, helper, keyHandler))
     }     
+}
+export function listenForTransfers_unsubscribe() {
+    subscriptions.forEach(sub => {
+        sub.unsubscribe()
+    })
+
+    subscriptions = []
 }
 
 export function faucet() {
-    return async (dispatch, getState, { chainProvider }) => {
-        await dispatch(actions.faucet(chainProvider))
+    return async (dispatch, getState, { chainProvider, helper, keyHandler }) => {
+        let { contractFactory } = chainProvider
+        await dispatch(actions.faucet(contractFactory, helper))
+        await dispatch(actions.getTokens(chainProvider, helper, keyHandler))
+        await dispatch(actions.getEtherBalance(chainProvider, helper, keyHandler))
     }     
 }

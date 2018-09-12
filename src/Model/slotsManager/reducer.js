@@ -9,8 +9,7 @@ import {
 const SlotsManagerDefaultState = {
     channels: {},
     allowance: 0,
-    balance: 0,
-    currentSession: -1
+    balance: 0
 }
 
 const ChannelDefaultState = {
@@ -79,6 +78,8 @@ function stateChannelSubreducer(
             break
 
         case `${PREFIX}/${Actions.GET_CHANNEL_DETAILS}/${FULFILLED}`:
+            channel = {...channel, ...action.payload}
+            break
         case `${PREFIX}/${Actions.GET_LAST_SPIN}/${FULFILLED}`:
             channel = { ...channel, ...action.payload }
             break
@@ -110,9 +111,6 @@ export default function slotsManagerReducer(
     switch (action.type) {
         case `${PREFIX}/${Actions.GET_BALANCE}/${FULFILLED}`:
             return { ...slotsManagerState, balance: action.payload }
-
-        case `${PREFIX}/${Actions.GET_SESSION_ID}/${FULFILLED}`:
-            return { ...slotsManagerState, currentSession: action.payload }
 
         case `${PREFIX}/${Actions.SET_CHANNEL}`:
             let newChannel = action.payload

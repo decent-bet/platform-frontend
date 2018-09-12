@@ -14,10 +14,10 @@ export class ContractFactory {
     }
     /**
      * Creates a contract wrapper based on the passed name
-     * @param {string} contractName 
+     * @param {string} contractName
      */
     async makeContract(contractName) {
-        
+
         if (!JsonContracts.hasOwnProperty(contractName)) {
             throw new Error(`Json contract doesn't exists for the name given: ${contractName}`)
         }
@@ -30,10 +30,11 @@ export class ContractFactory {
         let contractItem = this._contracts.get(contractName)
 
         if(typeof contractItem === 'undefined') {
-            const json = JsonContracts[contractName]
-            const instance = new this._web3.eth.Contract(json.abi)
-            const chainTagObject = await this.getChainTagObject(json)
-            instance.options.address = chainTagObject.address
+            const contract = JsonContracts[contractName]
+            const instance = new this._web3.eth.Contract(contract.raw.abi)
+            const chainTag = await this._web3.eth.getChainTag()
+            const contractAddress = contract.address[chainTag]
+            instance.options.address = contractAddress
             contractItem = new Contracts[contractName](this._web3, instance, this._keyHandler)
             this._contracts.set(contractName, contractItem)
         }
@@ -41,30 +42,25 @@ export class ContractFactory {
         return contractItem
     }
 
-    async getChainTagObject(json) {
-        const chainTag = await this._web3.eth.getChainTag()
-        return json.chain_tags[chainTag]
-    }
-
     /**
      * @returns {SlotsChannelFinalizerContract}
     */
    async slotsChannelFinalizerContract() {
-    return await this.makeContract('SlotsChannelFinalizerContract')
+    return await this.makeContract('SlotsChannelFinalizerContract', 'SlotsChannelFinalizer')
     }
 
     /**
      * @returns {SlotsChannelManagerContract}
     */
    async slotsChannelManagerContract() {
-    return await this.makeContract('SlotsChannelManagerContract')
+    return await this.makeContract('SlotsChannelManagerContract', 'SlotsChannelManager')
     }
 
     /**
      * @returns {DecentBetTokenContract}
     */
    async decentBetTokenContract() {
-        return await this.makeContract('DecentBetTokenContract')
+        return await this.makeContract('DecentBetTokenContract', 'TestDecentBetToken')
     }
 
 }

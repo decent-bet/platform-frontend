@@ -1,0 +1,14 @@
+node_modules
+Dockerfile
+docker-compose.yml
+.DS_Store
+.gitignore
+README.md
+.env
+.env.*
+deployment
+data
+.prettierrc
+
+
+
