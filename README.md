@@ -1,59 +1,53 @@
 # Decent.bet Platform Frontend
 
-Built with Truffle's [React Box](http://truffleframework.com/boxes/react)
+Consists of the platform pages - Slots betting casino and more. 
 
-Consists of the platform pages - Sports betting, casino, house and more. The decent.bet website's repository can be found [here](https://github.com/decent-bet/web-frontend)
+## Getting Started
 
-For a higher level overview on how the platform works, refer to [this document](https://github.com/decent-bet/platform-frontend/blob/master/docs/platform-architecture.md)
+### Requirements
+1. [Node](https://nodejs.org) v9.11.2 
+2. [NVM](https://github.com/creationix/nvm) (Recomended) 
+3. [Yarn](https://yarnpkg.com): `npm i -g yarn`
+4. Thor:
+*To work with the platform frontend, you'll have to deploy the contracts to a locally running [Vechain Thor](https://github.com/vechain/thor) instance, follow the instructions in [https://github.com/vechain/thor](https://github.com/vechain/thor) for local install or use with docker. For now, You can find the contracts published as a npm package [@decent-bet/contract-slots](https://www.npmjs.com/package/@decent-bet/contract-slots)*.
 
-## Development
 
-To work with the platform, you'll have to deploy the contract to a locally running ganache-cli instance. 
+### Development
 
-1. Install [Ganache-cli](https://github.com/trufflesuite/ganache-cli)
-
+1. Clone de repository:
+    ```bash
+    git clone git@github.com:decent-bet/platform-frontend.git
     ```
-    npm install -g ganache-cli@beta
+    ```bash
+    cd platform-frontend
     ```
+    *If you use nvm run:*
+    ```bash
+    nvm use
+    ```
+2. Go the the clone repo and install dependencies:
 
-2. Run Ganache-cli with the following configuration
+    ```bash
+    yarn install
+    ```
+3. Run the webpack server for front-end hot reloading:
     
-    **For development**
+    ```bash
+    yarn start
     ```
-    ganache-cli --mnemonic "mimic soda meat inmate cup someone labor odor invest scout fat ketchup" -l 6732810
-    ```
+    ---
+    You can open your browser and open [http://localhost:3007](http://localhost:3007).
     
-    **To mimic testnet**
-    ```
-    ganache-cli --mnemonic "mimic soda meat inmate cup someone labor odor invest scout fat ketchup" -b 20 -l 6732810
-    ```
-    
-3. Add a .env file to the current directory with the following variables
 
-    ```
-    MNEMONIC='<MNEMONIC TO DEPLOY CONTRACTS AND CONTROL THE PLATFORM>'
-    INFURA_KEY='<REGISTERED INFURA KEY>'
-    DEFAULT_ACCOUNT='<DEFAULT ACCOUNT LINKED TO YOUR MNEMONIC>'
-    ```
-    
-4. Migrate contracts to ganache-cli
+### Deployment
 
-    ```
-    truffle migrate
-    ```
-    
-5. Run [the platform init scripts](https://github.com/decent-bet/platform-contracts-init) to get the platform contracts initialized to a state with session one started with a functional Sportsbook and Slots.
-    
-6. Run the webpack server for front-end hot reloading. For now, smart contract changes must be manually recompiled and migrated.
+-  To build the application for production, use the build command. A production build will be in the build_webpack folder.
 
-    ```
-    npm run start
+    ```bash
+    yarn build
     ```
 
-7. To build the application for production, use the build command. A production build will be in the build_webpack folder.
+-  You can deploy the build files using a simple express server and [pm2](https://github.com/Unitech/pm2), [serve](https://github.com/zeit/serve) or [nginx](https://nginx.org/).
 
-    ```
-    npm run build
-    ```
+- If you want, you can deploy using docker, check or [Dockerfile](Dockerfile) and [docker-compose.yml](docker-compose.yml) files.
 
-8. Deploy the build files using a simple express server and [pm2](https://github.com/Unitech/pm2) or [serve](https://github.com/zeit/serve)
