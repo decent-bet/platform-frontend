@@ -30,9 +30,9 @@ Consists of the platform pages - Slots betting casino and more.
     ```bash
     yarn install
     ```
-3. Update git ubmodules for games:
+3. Update git submodules for games:
     ```bash
-    git submodule foreach git pull origin master
+    git submodule update --init
     ```
 4. Run the webpack server for frontend hot reloading:
     
