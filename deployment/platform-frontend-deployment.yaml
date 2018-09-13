@@ -18,7 +18,7 @@ spec:
         io.kompose.service: platform-frontend
     spec:
       containers:
-      - image: us.gcr.io/dbet-platform/platform-frontend:1.0.12-beta
+      - image: us.gcr.io/dbet-platform/platform-frontend:alpha-1.0.12
         name: platform-frontend
         readinessProbe:
           httpGet:

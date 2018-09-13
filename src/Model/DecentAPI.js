@@ -2,7 +2,7 @@ const cryptoJs = require("crypto-js")
 const request = require('request')
 const ethUtil = require('ethereumjs-util')
 const LOCAL_URL = 'http://localhost:3010/api'
-const PUBLIC_URL = 'https://slots-staging.decent.bet/api'
+const PUBLIC_URL = 'https://channels-api-alpha.decent.bet/api'
 
 class DecentAPI {
 

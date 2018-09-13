@@ -4,11 +4,11 @@ metadata:
   name: platform-frontend-ingress
   annotations:
     kubernetes.io/tls-acme: "true"
-    kubernetes.io/ingress.global-static-ip-name: platform-frontend-ip
+    kubernetes.io/ingress.global-static-ip-name: platform-alpha-frontend-ip
 spec:
   tls:
   - hosts:
-    - platform-frontend.decent.bet
+    - platform-alpha.decent.bet
     secretName: slots-frontend-cert-tls
   rules:
   - host: platform-alpha.decent.bet
