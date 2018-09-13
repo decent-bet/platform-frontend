@@ -25,12 +25,12 @@ Consists of the platform pages - Slots betting casino and more.
     ```bash
     nvm use
     ```
-2. Go the the clone repo and install dependencies:
+2. Install dependencies:
 
     ```bash
     yarn install
     ```
-3. Run the webpack server for front-end hot reloading:
+3. Run the webpack server for frontend hot reloading:
     
     ```bash
     yarn start
