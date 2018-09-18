@@ -279,7 +279,7 @@ function getChannels(chainProvider, httpApi, helper, utils) {
             )
 
             const channels$ = getChannels$.pipe(
-                tap( _ => {
+                tap( () => {
                     totalRequests++
                 }),
                 tap(logChannels('BEFORE mergeMap -----------')),

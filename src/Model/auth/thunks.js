@@ -1,5 +1,7 @@
 import Actions from './actions'
+import { Thunks as BalanceThunks } from '../balance'
 const actions = Actions.auth
+
 
 export function getProviderUrl() {
     return (dispatch, getState, { chainProvider }) => {
@@ -16,14 +18,14 @@ export function setProviderUrl(url) {
 export function login(data) {
     return async (dispatch, getState, { chainProvider, keyHandler } ) => {
         await dispatch(actions.login(data, chainProvider, keyHandler))
+        await dispatch(BalanceThunks.listenForTransfers())
     }
 }
 
 export function logout() {
     return async (dispatch, getState, { keyHandler } ) => {
-        if(keyHandler.isLoggedIn()) {
-            await dispatch(actions.logout(keyHandler))
-        }
+        BalanceThunks.listenForTransfers_unsubscribe()
+        await dispatch(actions.logout(keyHandler))
     }
 }
 

@@ -143,8 +143,8 @@ class DecentAPI {
             console.log('Generated sign address', adr, defaultAccount)
 
             console.log('Generated msgHash', msgHash, 'Sign', sgn)
-
-            if (adr !== (this.keyHandler.getAddress()).toLowerCase())
+            let address = this.keyHandler.getAddress()
+            if (address && adr !== address.toLowerCase())
                 reject(new Error("Invalid address for signed message"))
 
             resolve({msgHash: msgHash, sig: sgn})

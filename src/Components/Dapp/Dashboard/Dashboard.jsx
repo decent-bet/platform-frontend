@@ -20,7 +20,6 @@ class Dashboard extends Component {
     componentDidMount = async () => {
         // Initialize the datastore
         this.props.dispatch(Thunks.initialize())
-        this.props.dispatch(Thunks.listenForTransfers())
     }
 
     // Faucet Button Clicked. Execute Faucet
