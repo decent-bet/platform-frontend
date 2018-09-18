@@ -56,7 +56,7 @@ export class KeyStore {
 
     async getVariable(name) {
         const record = await this.db.keys.get(name)
-        return record.value
+        return record && record.value ? record.value : null
     }
 
     async addVariable(name, value) {
