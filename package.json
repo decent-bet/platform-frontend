@@ -110,7 +110,8 @@
     "web3": "^1.0.0-beta.35"
   },
   "scripts": {
-    "start": "node scripts/start.js DBET_PLATFORM_FRONTEND",
+    "start": "export NODE_ENV=development && node scripts/start.js DBET_PLATFORM_FRONTEND",
+    "start:prod": "export NODE_ENV=production && node scripts/start.js DBET_PLATFORM_FRONTEND",
     "stop": "pkill -a -i \"DBET_PLATFORM_FRONTEND\"",
     "build": "export NODE_ENV=production && NODE_OPTIONS=--max_old_space_size=4096 node scripts/build.js",
     "test": "node scripts/testBuild.js --env=jsdom",
