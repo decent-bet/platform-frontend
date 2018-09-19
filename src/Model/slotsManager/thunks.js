@@ -23,6 +23,13 @@ export function fetchChannels() {
     }
 }
 
+export function fetchChannel(channelId) {
+    return async (dispatch, getState, {chainProvider, helper}) => {
+        let {contractFactory} = chainProvider
+        return await dispatch(Actions.getChannelDetails(channelId, contractFactory, helper))
+    }
+}
+
 /**
  * Claims all the tokens in a channel and withdraws all tokens from the wallet
  * @param {string} channelId

@@ -44,7 +44,9 @@ class Game extends Component {
             if (!err) {
                 dispatch(Thunks.spinAndIncreaseNonce(channelId, msg))
             }
-            callback(err, msg, lines)
+            dispatch(Thunks.fetchChannel(channelId))
+            let updatedBalances = this.getBalance()
+            callback(err, msg, lines, updatedBalances)
         }
 
         dispatch(Thunks.spin(totalBetSize, this.props, listener))
