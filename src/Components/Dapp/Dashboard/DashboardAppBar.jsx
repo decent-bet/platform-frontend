@@ -17,7 +17,6 @@ export default function DashboardAppBar({ children, onToggleDrawerListener }) {
         <AppBar className="appbar" position="fixed" color="primary">
             <Toolbar>
                 <IconButton
-                    color="inherit"
                     aria-label="Menu"
                     onClick={onToggleDrawerListener}
                 >

@@ -1,17 +1,14 @@
 import Bluebird from 'bluebird'
 import cryptoJs, { AES } from 'crypto-js'
 import { createActions } from 'redux-actions'
-import DecentAPI from '../../../Components/Base/DecentAPI'
 import Actions, { PREFIX } from './actionTypes'
-import { getAesKey, getUserHashes } from '../functions'
 import BigNumber from 'bignumber.js'
 import moment from 'moment'
+import { tap, map } from 'rxjs/operators'
 
-let decentApi = null
-
-async function fetchAesKey(channelId, chainProvider) {
-    let key = getAesKey(channelId, chainProvider)
-    return Promise.resolve({ channelId, key })
+async function fetchAesKey(channelId, utils) {
+    let key = await utils.getAesKey(channelId)
+    return { channelId, key }
 }
 
 /**
@@ -19,9 +16,8 @@ async function fetchAesKey(channelId, chainProvider) {
  * @param channelId
  * @param contractFactory
  */
-async function getChannelInfo(channelId, { contractFactory }) {
+async function getChannelInfo(channelId, contract, helper) {
     try {
-        const contract = await contractFactory.slotsChannelManagerContract()
         const info = await contract.getChannelInfo(channelId)
         const playerAddress = info[0]
         return {
@@ -35,6 +31,7 @@ async function getChannelInfo(channelId, { contractFactory }) {
             exists: playerAddress === '0x0'
         }
     } catch (error) {
+        helper.toggleSnackbar('Error retrieving channel details')
         console.log('Error retrieving channel details', error.message)
     }
 }
@@ -44,11 +41,11 @@ async function getChannelInfo(channelId, { contractFactory }) {
  * @param channelId
  * @param contractFactory
  */
-async function getAuthorizedAddress(channelId, { contractFactory }) {
+async function getAuthorizedAddress(channelId, contract, helper) {
     try {
-        const contract = await contractFactory.slotsChannelManagerContract()
         return await contract.getPlayer(channelId, true)
     } catch (error) {
+        helper.toggleSnackbar('Error retrieving house authorized address')
         console.log('Error retrieving house authorized address', error.message)
     }
 }
@@ -58,11 +55,11 @@ async function getAuthorizedAddress(channelId, { contractFactory }) {
  * @param channelId
  * @param contractFactory
  */
-async function isChannelClosed(channelId, { contractFactory }) {
+async function isChannelClosed(channelId, contract) {
     try {
-        const contract = await contractFactory.slotsChannelManagerContract()
         return await contract.isChannelClosed(channelId)
     } catch (err) {
+        helper.toggleSnackbar('Error retrieving is channel closed')
         console.log('Error retrieving is channel closed', err.message)
     }
 }
@@ -70,11 +67,10 @@ async function isChannelClosed(channelId, { contractFactory }) {
 /**
  * Get the other channel hashes
  * @param {number} id
- * @param contractFactory
+ * @param {Object} contract
  */
-async function getChannelHashes(id, { contractFactory }) {
+async function getChannelHashes(id, contract, helper) {
     try {
-        const contract = await contractFactory.slotsChannelManagerContract()
         const hashes = await contract.getChannelHashes(id)
         console.log('Hashes', hashes, id)
         return {
@@ -84,14 +80,19 @@ async function getChannelHashes(id, { contractFactory }) {
             finalSeedHash: hashes[3]
         }
     } catch (err) {
+        helper.toggleSnackbar('Error retrieving channel hashes')
         console.log('Error retrieving channel hashes', err.message)
     }
 }
 
-async function getDeposited(channelId, isHouse = false, { contractFactory }) {
-    const contract = await contractFactory.slotsChannelManagerContract()
+async function getDeposited(channelId, isHouse = false, contract) {
     const rawBalance = await contract.channelDeposits(channelId, isHouse)
     return new BigNumber(rawBalance)
+}
+
+async function getFinalBalances(channelId, isHouse = false, contract) {
+    const finalBalance = await contract.finalBalances(channelId, isHouse)
+    return new BigNumber(finalBalance)
 }
 
 /**
@@ -99,23 +100,38 @@ async function getDeposited(channelId, isHouse = false, { contractFactory }) {
  * @param id
  * @param chainProvider
  */
-async function getChannelDetails(id, chainProvider) {
+async function getChannelDetails(id, contractFactory, helper) {
+    let contract = await contractFactory.slotsChannelManagerContract()
+    
     let [
         deposited,
+        finalBalances,
         info,
         houseAuthorizedAddress,
         closed,
         hashes
     ] = await Promise.all([
-        getDeposited(id, false, chainProvider),
-        getChannelInfo(id, chainProvider),
-        getAuthorizedAddress(id, chainProvider),
-        isChannelClosed(id, chainProvider),
-        getChannelHashes(id, chainProvider)
+        getDeposited(id, false, contract),
+        getFinalBalances(id, false, contract),
+        getChannelInfo(id, contract, helper),
+        getAuthorizedAddress(id, contract, helper),
+        isChannelClosed(id, contract, helper),
+        getChannelHashes(id, contract, helper)
     ])
+
+    console.log('getChannelDetails', {
+        deposited,
+        finalBalances,
+        channelId: id,
+        info,
+        houseAuthorizedAddress,
+        closed,
+        hashes
+    })
 
     return {
         deposited,
+        finalBalances,
         channelId: id,
         info,
         houseAuthorizedAddress,
@@ -131,17 +147,25 @@ async function getChannelDetails(id, chainProvider) {
  * @param aesKey
  * @param chainProvider
  */
-async function loadLastSpin(id, hashes, aesKey, chainProvider) {
-    if (!decentApi) {
-        decentApi = new DecentAPI(chainProvider.web3)
-    }
+async function loadLastSpin(id, hashes, aesKey, httpApi, utils) {
+    
+    let result
 
-    let result = await Bluebird.fromCallback(cb =>
-        decentApi.getLastSpin(id, cb)
-    )
+    try {
+        result = await Bluebird.fromCallback(cb =>
+            httpApi.getLastSpin(id, cb)
+        )
+    } catch (e) {
+        result = {
+            userSpin: null,
+            houseSpin: null,
+            nonce: 0,
+        }
+    }
+    console.log('loadLastSpin', result)
     let encryptedSpin = result.userSpin
     let houseSpin = result.houseSpin
-    let nonce = result.nonce + 1
+    let nonce = result.nonce ? result.nonce + 1 : 1
     let userSpin, houseSpins
     if (encryptedSpin) {
         try {
@@ -156,6 +180,7 @@ async function loadLastSpin(id, hashes, aesKey, chainProvider) {
     } else {
         houseSpins = []
     }
+    console.log('Last spin', result, nonce)
     console.log('loadLastSpin', {
         result,
         encryptedSpin,
@@ -171,7 +196,7 @@ async function loadLastSpin(id, hashes, aesKey, chainProvider) {
         hashes.initialUserNumber,
         aesKey
     ).toString(cryptoJs.enc.Utf8)
-    let userHashes = getUserHashes(initialUserNumber)
+    let userHashes = utils.getUserHashes(initialUserNumber)
     let index = userHashes.length - 1
     if (userHashes[index] !== hashes.finalUserHash) {
         console.warn(
@@ -190,11 +215,14 @@ async function loadLastSpin(id, hashes, aesKey, chainProvider) {
     }
 }
 
-async function getLastSpin(channelId, chainProvider) {
+async function getLastSpin(channelId, chainProvider, httpApi, helper, utils ) {
+    let { contractFactory } = chainProvider
+    let contract = await contractFactory.slotsChannelManagerContract()
     console.log('getLastSpin', channelId)
-    let aesKey = await getAesKey(channelId, chainProvider)
-    let { hashes } = await getChannelDetails(channelId, chainProvider)
-    let data = await loadLastSpin(channelId, hashes, aesKey, chainProvider)
+    let aesKey = await utils.getAesKey(channelId)
+    let hashes = await getChannelHashes(channelId, contract, helper)
+    let data = await loadLastSpin(channelId, hashes, aesKey, httpApi, utils)
+    console.log('getLastSpin', {aesKey, hashes, data})
 
     return {
         channelId,
@@ -210,54 +238,81 @@ async function getLastSpin(channelId, chainProvider) {
  * @param {string} channelId
  * @param chainProvider
  */
-async function getChannel(channelId, chainProvider) {
+async function getChannel(channelId, chainProvider, httpApi, helper, utils) {
     // Execute both actions in parallel
-    let [channelDetails, lastSpin] = await Promise.all([
-        getChannelDetails(channelId, chainProvider),
-        getLastSpin(channelId, chainProvider)
-    ])
-    
+    console.log('getChannel', channelId)
+    let { contractFactory } = chainProvider
+    let channelDetails = await getChannelDetails(channelId, contractFactory, helper)
+    console.log('getChannel', channelDetails)
+    let lastSpin
+    if (channelDetails &&
+        channelDetails.info &&
+        channelDetails.info.activated)
+        lastSpin = await getLastSpin(channelId, chainProvider, httpApi, helper, utils)
+
     return {
         ...channelDetails,
         ...lastSpin
     }
 }
 
+function logChannels(title) {
+    return event => {
+        console.log(title, event)
+    }
+}
+
 /**
  * Get all channels for a user
  */
-async function getChannels(chainProvider) {
+function getChannels(chainProvider, httpApi, helper, utils) {
     return new Promise(async (resolve, reject) => {
         try {
+            const topRequests = 3
+            let totalRequests = 0
             const { contractFactory } = chainProvider
             const contract = await contractFactory.slotsChannelManagerContract()
-            let channelCount = await contract.getChannelCount()
-            console.log('channelCount', channelCount)
-            if (channelCount > 0) {
-                let promises = []
-                const getChannelsEventSubscription = contract.getEventSubscription(
-                    contract.getChannels()
-                )
 
-                const getChannelsSubscription = getChannelsEventSubscription.subscribe(
-                    async events => {
-                        if (events.length >= 1) {
-                            getChannelsSubscription.unsubscribe()
-                            for (const channel of events) {
-                                const id = channel.returnValues.id
-                                promises.push(getChannel(id, chainProvider))
-                            }
-                            // Execute all promises simultaneously.
-                            let result = await Promise.all(promises)
-                            resolve(result)
-                        }
-                    }
-                )
-            } else {
-                resolve(null)
-            }
-        } catch (error) {
-            reject(error)
+            //get the subscription
+            const getChannels$ = contract.getEventSubscription(
+                contract.getChannels()
+            )
+
+            const channels$ = getChannels$.pipe(
+                tap( () => {
+                    totalRequests++
+                }),
+                tap(logChannels('BEFORE mergeMap -----------')),
+                map(i => {
+                    console.log('ON MERGE MAP', i)
+                    return i.map(event =>
+                        getChannel(event.returnValues.id, chainProvider, httpApi, helper, utils)
+                    )
+                })
+            )
+            console.log('channels$', channels$)
+
+            const subs = channels$.subscribe(async items => {
+                console.log('channels$.subscribe', items)
+                if (items.length >= 1 || totalRequests >= topRequests) {
+                    subs.unsubscribe() //stop making requests
+                    let resolved = await Promise.all(items) //get all channels info
+                    console.log('channels$.subscribe resolved', resolved)
+
+                    //convert into an object because all the components and reducers
+                    //are wating for this kind of structure
+                    const result = resolved.reduce((mem, channel) => {
+                        console.log('channels$.subscribe reduce', mem, channel)
+                        mem[channel.channelId] = channel
+                        return mem
+                    }, {})
+                    console.log('channels$.subscribe result', result)
+
+                    resolve(result)
+                }
+            }, reject)
+        } catch (e) {
+            return reject(e)
         }
     })
 }

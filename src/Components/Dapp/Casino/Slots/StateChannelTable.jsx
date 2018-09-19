@@ -1,6 +1,7 @@
 import React from 'react'
 import { Card, CardContent, CardHeader, Typography } from '@material-ui/core'
-import { channelBalanceParser } from '../functions'
+
+import { units } from 'ethereum-units'
 
 export default function StateChannelTable({
     claimableChannels,
@@ -12,7 +13,7 @@ export default function StateChannelTable({
         const channel = channelMap[channelId]
 
         // Parse the balance from the state
-        const totalTokens = channelBalanceParser(channel)
+        const totalTokens = channel.finalBalances.dividedBy(units.ether).toFixed()
         return (
             <CardContent key={channelId}>
                 <Typography>You have {totalTokens} chips</Typography>

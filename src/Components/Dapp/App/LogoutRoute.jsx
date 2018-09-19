@@ -1,18 +1,12 @@
-import React, { Component } from 'react'
-import { Route } from 'react-router-dom'
+import { connect } from 'react-redux'
+import { Thunks } from '../../../Model/auth'
+import { VIEW_LOGIN } from '../../Constants'
 
-import { KeyHandler } from '../../../Web3'
-
-const keyHandler = new KeyHandler()
-
-export default class LogoutRoute extends Component {
-    renderRedirect = routeProps => {
-        keyHandler.clear()
-        let { component: Component } = this.props
-        return <Component {...routeProps} />
-    }
-    render() {
-        let { ...rest } = this.props
-        return <Route {...rest} component={this.renderRedirect} />
-    }
+function LogoutRoute(props) {
+    props.dispatch(Thunks.logout()).then(()=>{
+        location.href = VIEW_LOGIN
+        return null
+    })
 }
+// Connect this component to Redux
+export default connect(state => state.auth)(LogoutRoute)

@@ -1,14 +1,12 @@
-import Helper from '../../Components/Helper'
 import { createActions } from 'redux-actions'
 import Actions, { Prefix } from './actionTypes'
 import BigNumber from 'bignumber.js'
 import { units } from 'ethereum-units'
-const helper = new Helper()
 
-export async function fetchTokens(chainProvider) {
+export async function fetchTokens(chainProvider, helper, keyHandler) {
     try {
         let { contractFactory } = chainProvider
-        let address = await fetchPublicAddress(chainProvider)
+        let address = keyHandler.getAddress()
         let contract = await contractFactory.decentBetTokenContract()
 
         let rawResult = await contract.balanceOf(address)
@@ -17,11 +15,12 @@ export async function fetchTokens(chainProvider) {
                                 .toNumber()
         return tokens
     } catch (err) {
+        helper.toggleSnackbar('Error retrieving token balance')
         console.log('Error retrieving token balance', err)
     }
 }
 
-export async function executeDepositTokens(amount, chainProvider) {
+export async function executeDepositTokens(amount, chainProvider, helper) {
     try {
         let { contractFactory } = chainProvider
         let contract = await contractFactory.bettingProviderContract()
@@ -49,7 +48,7 @@ export async function executeWithdrawTokens(amount, session, { contractFactory }
     }
 }
 
-export async function executeApproveAndDepositTokens(amount, dispatch, chainProvider) {
+export async function executeApproveAndDepositTokens(amount, chainProvider, helper) {
         let { contractFactory } = chainProvider
         let bettingProviderContract = await contractFactory.bettingProviderContract()
         let bettingProvider = bettingProviderContract.options.address
@@ -61,7 +60,7 @@ export async function executeApproveAndDepositTokens(amount, dispatch, chainProv
                 amount
             )
             helper.toggleSnackbar('Successfully sent approve transaction')
-            let txHash2 = await executeDepositTokens(amount, chainProvider)
+            let txHash2 = await executeDepositTokens(amount, chainProvider, helper)
             return [txHash, txHash2]
         } catch (err) {
             console.log('Error approving dbets', err.message)
@@ -69,11 +68,12 @@ export async function executeApproveAndDepositTokens(amount, dispatch, chainProv
         }
 }
 
-export function fetchPublicAddress(chainProvider) {
-    return Promise.resolve(chainProvider.defaultAccount)
+export async function fetchPublicAddress(keyHandler) {
+    return keyHandler.getAddress()
 }
 
-export async function faucet({contractFactory}) {
+export async function faucet(contractFactory, helper) {
+    helper.toggleSnackbar('Sending faucet transaction')
     try {
         let contract = await contractFactory.decentBetTokenContract()
         let tx = await contract.faucet()
@@ -88,14 +88,15 @@ export async function faucet({contractFactory}) {
 }
 
 // Get Total Ether.
-export async function fetchEtherBalance(chainProvider) {
+export async function fetchEtherBalance(chainProvider, helper, keyHandler) {
     try {
-        let address = await fetchPublicAddress(chainProvider)
+        let address = keyHandler.getAddress()
         let contract = await chainProvider.contractFactory.decentBetTokenContract()
         let rawAmount = await contract.getBalance(address)
         let balance = new BigNumber(rawAmount).dividedBy(units.ether)
         return balance
     } catch (error) {
+        helper.toggleSnackbar('Error retrieving ether balance')
         console.log('error retrieving ether balance', error)
     }
 }

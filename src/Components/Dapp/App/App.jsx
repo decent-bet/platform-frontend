@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { BrowserRouter, Switch } from 'react-router-dom'
+import { BrowserRouter, Switch, Route } from 'react-router-dom'
 import { MuiThemeProvider, Snackbar, CircularProgress } from '@material-ui/core'
 import { Provider } from 'react-redux'
 import store from '../../../Model/store'
@@ -10,7 +10,7 @@ import LogoutRoute from './LogoutRoute'
 import EventBus from 'eventing-bus'
 import ConfirmationDialog from '../../Base/Dialogs/ConfirmationDialog'
 import { MainTheme } from '../../Base/Themes'
-import { VIEW_LOGIN } from '../../Constants'
+import { VIEW_LOGIN, VIEW_LOGOUT } from '../../Constants'
 
 export default class App extends Component {
     state = {
@@ -29,25 +29,30 @@ export default class App extends Component {
         this.setState({ stateMachine: 'loaded' })
     }
 
+    onCloseSnackBar = () => {
+        this.setState({
+            isSnackBarOpen: false,
+            snackbarMessage: ''
+        })
+    }
+
     renderSnackBar = () => {
-        if (this.state.isSnackBarOpen === true) {
-            return (
-                <Snackbar
-                    message={this.state.snackbarMessage}
-                    open={this.state.isSnackBarOpen}
-                    autoHideDuration={6000}
-                />
-            )
-        } else {
-            return null
-        }
+        return (
+            <Snackbar
+                onClose={this.onCloseSnackBar}
+                message={this.state.snackbarMessage}
+                open={this.state.isSnackBarOpen}
+                autoHideDuration={6000}
+            />
+        )
     }
     renderStateLoaded() {
         return (
             <Fragment>
                 <BrowserRouter>
                     <Switch>
-                        <LogoutRoute path={VIEW_LOGIN} component={Login} />
+                        <LogoutRoute path={VIEW_LOGOUT} />
+                        <Route path={VIEW_LOGIN} component={Login}/>
                         <PrivateRoute component={Dashboard} />
                     </Switch>
                 </BrowserRouter>

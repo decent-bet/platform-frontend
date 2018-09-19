@@ -10,11 +10,11 @@ import './css/main.css'
 
 // Load Fontawesome
 import { library } from '@fortawesome/fontawesome-svg-core'
-import faSolid from '@fortawesome/fontawesome-free-solid'
-import { faEthereum } from '@fortawesome/fontawesome-free-brands'
-library.add(faSolid, faEthereum)
+import { fas } from '@fortawesome/free-solid-svg-icons'
+import { faEthereum } from '@fortawesome/free-brands-svg-icons'
+library.add(fas, faEthereum)
 
 // Inject tap event plugin
 injectTapEventPlugin()
 
-ReactDOM.render(<App/>, document.getElementById('root'))
+ReactDOM.render(<App />, document.getElementById('root'))

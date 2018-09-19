@@ -1,5 +1,3 @@
-process.env.NODE_ENV = 'development'
-
 // Load environment variables from .env file. Suppress warnings using silent
 // if this file is missing. dotenv will never modify any environment variables
 // that have already been set.
@@ -300,7 +298,9 @@ function runDevServer(host, port, protocol) {
         },
         // Enable HTTPS if the HTTPS environment variable is set to 'true'
         https: protocol === 'https',
-        host: host
+        host: host,
+        public: host
+
     })
 
     // Our custom middleware proxies requests to /index.html or a remote API.

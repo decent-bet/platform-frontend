@@ -3,7 +3,6 @@ import { FULFILLED } from 'redux-promise-middleware'
 
 const DefaultAuthState = {
     provider: '',
-    authenticated: false,
     isErrorDialogOpen: false
 }
 
@@ -15,12 +14,11 @@ export default function authReducer(
         case `${Prefix}/${Actions.LOGIN}/${FULFILLED}`:
             return {
                 ...authState,
-                authenticated: action.payload
+                authStatus: action.payload
             }
         case `${Prefix}/${Actions.LOGOUT}/${FULFILLED}`:
             return {
-                ...authState,
-                authenticated: action.payload
+                ...authState
             }
         case `${Prefix}/${Actions.GET_PROVIDER_URL}/${FULFILLED}`:
             return {

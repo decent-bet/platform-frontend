@@ -1,26 +1,23 @@
-import Helper from '../Helper'
-import { KeyHandler } from '../../Web3'
-
 const cryptoJs = require("crypto-js")
 const request = require('request')
-const helper = new Helper()
-const keyHandler = new KeyHandler()
 const ethUtil = require('ethereumjs-util')
 const LOCAL_URL = 'http://localhost:3010/api'
-const PUBLIC_URL = 'https://slots-api.decent.bet/api'
-const BASE_URL = helper.isDev() ? LOCAL_URL : PUBLIC_URL
+const PUBLIC_URL = 'https://channels-api-alpha.decent.bet/api'
 
 class DecentAPI {
 
-    constructor(web3) {
+    constructor(web3, keyHandler, helper) {
+        this.baseUrl = helper.isDev() ? LOCAL_URL : PUBLIC_URL
         this.web3 = web3
+        this.keyHandler = keyHandler
+        this.helper = helper
     }
 
     /** Off-chain finally verifiable slot spins */
     spin = async (address, spin, aesKey, callback) => {
         /**
          * Spin:
-         * 
+         *
          *      reelHash - reelHash from the house for this turn - finalReelHash if nonce == 1
          *      reel - empty if user and nonce == 1
          *      reelSeedHash - reelSeedHash from the house for this turn - finalReelSeedHash if nonce == 1
@@ -32,18 +29,19 @@ class DecentAPI {
          *      houseBalance - initialDeposit if nonce == 1
          *      betSize - betSize for this turn, determined by user
          *      sign - signed spin object
-         * 
+         *
          *
          * aesKey - send encrypted spin to server to save state
          */
+        console.log('Spin', address, spin, aesKey)
         let encryptedSpin = cryptoJs.AES.encrypt(JSON.stringify(spin), aesKey).toString()
         let url = '/casino/channels/slots/' + address + '/spin'
 
-        let timestamp = helper.getTimestampInMillis()
+        let timestamp = this.helper.getTimestampInMillis()
         let sign = await this._getSign(url, timestamp)
 
         let options = {
-            url: BASE_URL + url,
+            url: this.baseUrl + url,
             method: 'POST',
             body: {
                 spin: spin,
@@ -67,30 +65,25 @@ class DecentAPI {
     /**
      * Get the latest encrypted spin saved by the house
      **/
-    getLastSpin = async (id, callback) => {
+    getLastSpin = async (id, cb) => {
         let url = '/casino/channels/slots/' + id + '/spin'
 
-        let timestamp = helper.getTimestampInMillis()
+        let timestamp = this.helper.getTimestampInMillis()
         let sign = await this._getSign(url, timestamp)
 
         let options = {
-            url: BASE_URL + url,
-            method: 'GET',
+            method: 'get',
             headers: {
                 Authorization: JSON.stringify({
-                    sign: sign,
-                    timestamp: timestamp
+                    sign,
+                    timestamp,
                 })
             }
         }
-        request(options, (err, response, body) => {
-            try {
-                body = JSON.parse(body)
-                callback(err, body)
-            } catch (e) {
-                callback(e, body)
-            }
-        })
+
+        let res = await fetch(`${this.baseUrl}${url}`, options)
+        let body = await res.json()
+        cb(!res.ok, body)
     }
 
     /**
@@ -101,11 +94,11 @@ class DecentAPI {
         let encryptedSpin = cryptoJs.AES.encrypt(JSON.stringify(spin), aesKey).toString()
         let url = '/casino/channels/slots/' + id + '/finalize'
 
-        let timestamp = helper.getTimestampInMillis()
+        let timestamp = this.helper.getTimestampInMillis()
         let sign = await this._getSign(url, timestamp)
 
         let options = {
-            url: BASE_URL + url,
+            url: this.baseUrl + url,
             method: 'POST',
             headers: {
                 Authorization: JSON.stringify({
@@ -130,11 +123,12 @@ class DecentAPI {
         /*
          * Sign a string and return (hash, v, r, s) used by ecrecover to regenerate the user's address;
          */
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             let msgHash = ethUtil.sha3(text)
-            let privateKey = ethUtil.toBuffer(keyHandler.get())
-
-            console.log('Signing', text, ethUtil.bufferToHex(msgHash), 'as', this.web3.eth.defaultAccount,
+            let { privateKey } = await this.keyHandler.get()
+            privateKey = ethUtil.toBuffer(privateKey)
+            let defaultAccount = this.keyHandler.getAddress()
+            console.log('Signing', text, ethUtil.bufferToHex(msgHash), 'as', defaultAccount,
                 ethUtil.isValidPrivate(privateKey))
 
             const {v, r, s} = ethUtil.ecsign(msgHash, privateKey)
@@ -146,11 +140,11 @@ class DecentAPI {
             let pub = ethUtil.ecrecover(m, v, r, s)
             let adr = '0x' + ethUtil.pubToAddress(pub).toString('hex')
 
-            console.log('Generated sign address', adr, this.web3.eth.defaultAccount)
+            console.log('Generated sign address', adr, defaultAccount)
 
             console.log('Generated msgHash', msgHash, 'Sign', sgn)
-
-            if (adr !== (this.web3.eth.defaultAccount).toLowerCase())
+            let address = this.keyHandler.getAddress()
+            if (address && adr !== address.toLowerCase())
                 reject(new Error("Invalid address for signed message"))
 
             resolve({msgHash: msgHash, sig: sgn})

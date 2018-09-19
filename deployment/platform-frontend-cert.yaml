@@ -1,0 +1,19 @@
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: slots-frontend
+  namespace: default
+spec:
+  secretName: slots-frontend-cert-tls
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-production
+  commonName: platform-alpha.decent.bet
+  dnsNames:
+  - platform-alpha.decent.bet
+  acme:
+    config:
+    - http01:
+        ingress: platform-frontend-ingress
+      domains:
+      - platform-alpha.decent.bet

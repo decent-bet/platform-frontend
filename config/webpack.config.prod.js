@@ -6,6 +6,7 @@ var InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
 var url = require('url')
 var paths = require('./paths')
 var getClientEnvironment = require('./env')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 function ensureSlash(path, needsSlash) {
     var hasSlash = path.endsWith('/')
@@ -231,17 +232,19 @@ module.exports = {
         // Try to dedupe duplicated modules, if any:
         new webpack.optimize.DedupePlugin(),
         // Minify the code.
-        new webpack.optimize.UglifyJsPlugin({
-            compress: {
-                screw_ie8: true, // React doesn't support IE8
-                warnings: false
-            },
-            mangle: {
-                screw_ie8: true
-            },
-            output: {
-                comments: false,
-                screw_ie8: true
+        new UglifyJsPlugin({
+            uglifyOptions: {
+                compress: {
+                    ie8: true, // React doesn't support IE8
+                    warnings: false
+                },
+                mangle: {
+                    ie8: true
+                },
+                output: {
+                    comments: false,
+                    ie8: true
+                }
             }
         }),
         // Note: this won't work without ExtractTextPlugin.extract(..) in `loaders`.
