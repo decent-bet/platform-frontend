@@ -3,15 +3,15 @@ import { Thunks as BalanceThunks } from '../balance'
 const actions = Actions.auth
 
 
-export function getProviderUrl() {
-    return (dispatch, getState, { chainProvider }) => {
-        dispatch(actions.getProviderUrl(chainProvider))
+export function getCurrentStage() {
+    return (dispatch, getState, { keyHandler }) => {
+         dispatch(actions.getCurrentStage(keyHandler))
     }
 }
 
-export function setProviderUrl(url) {
-    return async (dispatch, getState, { chainProvider } ) => {
-        await dispatch(actions.setProviderUrl(chainProvider, url))
+export function setCurrentStage(stage) {
+    return async (dispatch, getState, { keyHandler } ) => {
+        await dispatch(actions.setCurrentStage(keyHandler, stage))
     }
 }
 

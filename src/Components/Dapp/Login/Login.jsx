@@ -19,9 +19,8 @@ class Login extends Component {
         if(this.props.dispatch(Thunks.userIsLoggedIn())) {
             this.props.history.push('/') 
         } else {
-            this.props.dispatch(Thunks.getProviderUrl())
+            this.props.dispatch(Thunks.getCurrentStage())
         }
-    
     }
 
     login = () => {
@@ -63,8 +62,8 @@ class Login extends Component {
     onLoginTextChangedListener = event =>
         this.setState({ value: event.target.value })
     
-    onProviderChangedListener = async (event) => {
-        await this.props.dispatch(Thunks.setProviderUrl(event.target.value))
+    onStageChangeListener = async (event) => {
+        await this.props.dispatch(Thunks.setCurrentStage(event.target.value))
         // Wait for dropdown animation
         setTimeout(() => {
             window.location.reload()
@@ -85,11 +84,11 @@ class Login extends Component {
         <Card className="login-card">
             <LoginInner
                 loginMethod={this.state.login}
-                provider={this.props.provider}
+                currentStage={this.props.currentStage}
                 value={this.state.value}
                 onChange={this.onLoginTextChangedListener}
                 onLoginKeypress={this.loginWithKeyPress}
-                onProviderChangedListener={this.onProviderChangedListener}
+                onStageChangeListener={this.onStageChangeListener}
             />
 
             <LoginActions

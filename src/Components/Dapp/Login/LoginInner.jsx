@@ -5,19 +5,19 @@ import LoginNodeTypes from './LoginNodeTypes'
 const logoUrl = `${process.env.PUBLIC_URL}/assets/img/logos/dbet-white.svg`
 
 export default function LoginInner({
-    provider,
+    currentStage,
     value,
     onChange,
     onLoginKeypress,
-    onProviderChangedListener
+    onStageChangeListener
 }) {
     return (
         <CardContent className="login-inner">
             <img className="logo" src={logoUrl} alt="Decent.bet Logo" />
 
             <LoginNodeTypes
-                provider={provider}
-                onProviderChangedListener={onProviderChangedListener}
+                currentStage={currentStage}
+                onStageChangeListener={onStageChangeListener}
             />
 
             <TextField

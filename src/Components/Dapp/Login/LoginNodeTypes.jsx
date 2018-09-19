@@ -1,24 +1,23 @@
 import React from 'react'
 import { MenuItem, Select, FormControl, InputLabel } from '@material-ui/core'
-import { PROVIDER_DBET, PROVIDER_LOCAL, PROVIDER_INFURA } from '../../Constants'
+import { stages } from '../../../config'
 
 export default function LoginNodeTypes({
-    provider,
-    onProviderChangedListener
+    currentStage,
+    onStageChangeListener
 }) {
+    
     return (
         <FormControl>
             <InputLabel>Connection:</InputLabel>
             <Select
                 className="node-types"
-                value={provider}
-                onChange={onProviderChangedListener}
+                value={currentStage}
+                onChange={onStageChangeListener}
             >
-                <MenuItem value={PROVIDER_DBET}>DBET Node</MenuItem>
-                <MenuItem value={PROVIDER_LOCAL}>
-                    Local Node
-                </MenuItem>
-                <MenuItem value={PROVIDER_INFURA}>Infura</MenuItem>
+            {
+                stages.map(stage => <MenuItem key={stage.key} value={stage.key}>{stage.name}</MenuItem>)
+            }
             </Select>
         </FormControl>
     )

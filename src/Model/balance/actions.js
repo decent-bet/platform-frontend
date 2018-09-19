@@ -35,7 +35,7 @@ export async function executeDepositTokens(amount, chainProvider, helper) {
     }
 }
 
-export async function executeWithdrawTokens(amount, session, { contractFactory }) {
+export async function executeWithdrawTokens(amount, session, { contractFactory, helper }) {
     try {
         let contract = await contractFactory.bettingProviderContract()
         let txHash = await contract.withdraw(amount, session)

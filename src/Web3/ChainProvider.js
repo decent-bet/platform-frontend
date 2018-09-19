@@ -1,26 +1,22 @@
 import { thorify } from 'thorify'
-import {
-    PROVIDER_LOCAL,
-    PROVIDER_DBET,
-    KEY_GETH_PROVIDER
-} from '../Components/Constants'
 import { ContractFactory } from './ContractFactory';
 import { webSocket } from 'rxjs/webSocket'
+import { getConfig } from '../config'
 
 export class ChainProvider {
     /**
      * @var {ContractFactory}
      */
     _contractFactory = null
-
+    _web3 = null
     /**
      * 
      * @param {Web3} web3 
      * @param {KeyHandler} keyHandler 
      */
-    constructor(web3, keyHandler) {
+    constructor(web3, 
+                keyHandler) {
         this._rawWeb3 = web3
-        this._web3 = thorify(web3, this.providerUrl)
         this._keyHandler = keyHandler
     }
 
@@ -29,6 +25,9 @@ export class ChainProvider {
      * @returns {Web3}
      */
     get web3() {
+        if(this._web3 === null) {
+            this._web3 = thorify(this._rawWeb3, this.providerUrl)
+        }
         return this._web3
     }
 
@@ -49,19 +48,9 @@ export class ChainProvider {
      * @returns {string}
      */
     get providerUrl() {
-        let url = localStorage.getItem(KEY_GETH_PROVIDER)
-        if (!url || url === 'undefined') {
-            // In Safari the localStorage returns the text 'undefined' as is
-            if (process.env['NODE_ENV'] === 'production') {
-                url = PROVIDER_DBET
-            } else {
-                url = PROVIDER_LOCAL
-            }
-        }
-
-        localStorage.setItem(KEY_GETH_PROVIDER, url)
-        
-        return url
+        let stage = this._keyHandler.getStage()
+        let config = getConfig(stage)
+        return config.thorNode
     }
 
     /**
@@ -83,18 +72,6 @@ export class ChainProvider {
     makeWebSocketConnection(path) {
         let baseUrl = this.wsProviderUrl
         return webSocket(`${baseUrl}${path}`)
-    }
-
-    /**
-    * Set the provider url
-     * @returns {string}
-     */
-    async setProviderUrl(url) {
-        localStorage.setItem(KEY_GETH_PROVIDER, url)
-        if (this._keyHandler.isLoggedIn()) {
-            this._web3 = thorify(this._rawWeb3, url)
-        }
-        await this.setupThorify()
     }
     /**
      * Configure the web3 instance
@@ -118,13 +95,14 @@ export class ChainProvider {
     async setupThorify(address, privateKey) {
 
         if(address && privateKey) {
-            this._web3.eth.accounts.wallet.add(privateKey)
-            this._web3.eth.defaultAccount = address
+            this.web3.eth.accounts.wallet.add(privateKey)
+            this.web3.eth.defaultAccount = address
         } else if(this._keyHandler.isLoggedIn()) {
             let { privateKey } = await this._keyHandler.get()
+            console.log('this.web3', this.web3)
             if(privateKey && privateKey.length > 0 ) {
-                this._web3.eth.accounts.wallet.add(privateKey)
-                this._web3.eth.defaultAccount = this._keyHandler.getAddress()
+                this.web3.eth.accounts.wallet.add(privateKey)
+                this.web3.eth.defaultAccount = this._keyHandler.getAddress()
             }   
         }
     }

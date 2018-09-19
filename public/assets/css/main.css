@@ -1,13 +1,33 @@
 html,
 body {
-    height: 100%;
+    overflow-x: hidden;
+    font-family: 'Roboto';
 }
 
 body {
-    background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
-        url('../public/assets/img/backgrounds/platform.PNG');
+    background-repeat: repeat-y;
+    background-position: top center;
+    background-image: url('../img/backgrounds/bg_patterns.png');
     background-size: cover;
-    background-attachment: fixed;
+    background-color: #2a324e !important;
+}
+
+.logo-text {
+    font-weight: bold;
+    color: #e8b863;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.hvr-underline-from-left::before {
+    background-color: #a40c1a;
+}
+
+.btn {
+    cursor: pointer;
+    font-family: 'Roboto';
 }
 
 /* Scrollbars */

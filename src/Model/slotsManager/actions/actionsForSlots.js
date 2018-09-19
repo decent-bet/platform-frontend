@@ -55,7 +55,7 @@ async function getAuthorizedAddress(channelId, contract, helper) {
  * @param channelId
  * @param contractFactory
  */
-async function isChannelClosed(channelId, contract) {
+async function isChannelClosed(channelId, contract, helper) {
     try {
         return await contract.isChannelClosed(channelId)
     } catch (err) {

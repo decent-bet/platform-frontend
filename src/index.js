@@ -4,9 +4,7 @@ import ReactDOM from 'react-dom'
 import injectTapEventPlugin from 'react-tap-event-plugin'
 import App from './Components/Dapp'
 
-import './index.css'
 import './css/bootstrap.min.css'
-import './css/main.css'
 
 // Load Fontawesome
 import { library } from '@fortawesome/fontawesome-svg-core'

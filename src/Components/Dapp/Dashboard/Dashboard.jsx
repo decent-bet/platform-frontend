@@ -32,9 +32,9 @@ class Dashboard extends Component {
     onDrawerCloseListener = () => this.setState({ drawerOpen: false })
 
     onProviderChangeListener = value => {
-        if (value !== this.state.provider) {
+        if (value !== this.state.currentStage) {
             this.setState({ provider: value })
-            this.props.dispatch(AuthThunks.setProviderUrl(value))
+            this.props.dispatch(AuthThunks.setCurrentStage(value))
             this.props.dispatch(AuthThunks.logout())
             // Wait for dropdown animation
             setTimeout(() => {

@@ -44,6 +44,7 @@
         "beforeEach": true,
         "process": true,
         "describe": true,
-        "console": true
+        "console": true,
+        "location": true
     }
 }

@@ -4,7 +4,7 @@ import { VIEW_LOGIN } from '../../Constants'
 
 function LogoutRoute(props) {
     props.dispatch(Thunks.logout()).then(()=>{
-        location.href = VIEW_LOGIN
+        window.location.href = VIEW_LOGIN
         return null
     })
 }
