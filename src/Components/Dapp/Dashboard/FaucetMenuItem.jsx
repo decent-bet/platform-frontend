@@ -14,8 +14,7 @@ export default function FaucetMenuItem({ onFaucetClickedListener }) {
             onClick={onFaucetClickedListener}
         >
             <ListItemIcon>
-                <Avatar color="primary">
-                    <img style={{ width: '80%' }} src={imgSrc} />
+                <Avatar src={imgSrc} style={{height: '1.3em', width: '1.3em', padding: '0.1em', backgroundColor: '#ffffff'}}>
                 </Avatar>
             </ListItemIcon>
 
