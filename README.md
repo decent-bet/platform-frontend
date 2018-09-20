@@ -35,13 +35,8 @@ Consists of the platform pages - Slots betting casino and more.
     git submodule update --init
     ```
 4. Run the webpack server for frontend hot reloading:
-    - For local thor node and api
     ```bash
     yarn start
-    ```
-    - For production thor node and api
-    ```bash
-    yarn start:prod
     ```
     ---
     You can open your browser and open [http://localhost:3007](http://localhost:3007).

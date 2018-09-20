@@ -64,10 +64,6 @@ class Login extends Component {
     
     onStageChangeListener = async (event) => {
         await this.props.dispatch(Thunks.setCurrentStage(event.target.value))
-        // Wait for dropdown animation
-        setTimeout(() => {
-            window.location.reload()
-        }, 500)
     }
 
     renderErrorDialog = () => (

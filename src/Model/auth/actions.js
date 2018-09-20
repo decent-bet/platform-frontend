@@ -45,7 +45,7 @@ function getCurrentStage(keyHandler) {
 
 function setCurrentStage(keyHandler, stage) {
     keyHandler.setStage(stage)
-    return Promise.resolve()
+    return Promise.resolve(stage)
 }
 
 export default createActions({

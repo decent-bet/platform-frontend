@@ -76,14 +76,10 @@
     "web3": "^1.0.0-beta.36"
   },
   "scripts": {
-    "start": "export PORT=3007 && REACT_APP_STAGE=development react-scripts start DBET_PLATFORM_FRONTEND",
-    "start:testnet": "export PORT=3007 && REACT_APP_STAGE=staging react-scripts start DBET_PLATFORM_FRONTEND",
-    "start:main": "export PORT=3007 && REACT_APP_STAGE=production react-scripts start DBET_PLATFORM_FRONTEND",
+    "start": "export BROWSER=none && export PORT=3007 && react-scripts start DBET_PLATFORM_FRONTEND",
     "stop": "pkill -a -i \"DBET_PLATFORM_FRONTEND\"",
-    "build": "react-scripts build",
-    "build:dev": "export REACT_APP_STAGE=production yarn build",
-    "build:stag": "export REACT_APP_STAGE=staging yarn build",
-    "build:prod": "export REACT_APP_STAGE=production yarn build",
+    "build": "export REACT_APP_STAGE=main && react-scripts build",
+    "build:testnet": "export REACT_APP_STAGE=testnet && react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "lint": "eslint src test",

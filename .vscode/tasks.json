@@ -4,38 +4,9 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "open-chrome",
-            "type": "shell",
-            "command": "./scripts/open-chrome.sh",
-            "windows": {
-                "command": ".\\scripts\\open-chrome.cmd"
-            }
-        },
-        {
-            "label": "run-app",
+            "label": "run-app:local",
             "type": "npm",
             "script": "start"
-        },
-        {
-            "label": "open-chrome:run-app",
-            "dependsOn": ["open-chrome", "run-app"]
-        },
-        {
-            "label": "close-app",
-            "type": "npm",
-            "script": "stop"
-        },
-        {
-            "label": "close-chrome",
-            "type": "shell",
-            "command": "./scripts/close-chrome.sh",
-            "windows": {
-                "command": ".\\scripts\\close-chrome.cmd"
-            }
-        },
-        {
-            "label": "close-chrome:close-app",
-            "dependsOn": ["close-chrome", "close-app"]
-        },
+        }
     ]
 }

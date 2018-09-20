@@ -26,6 +26,11 @@ export default function authReducer(
                 ...authState,
                 currentStage: action.payload
             }
+        case `${Prefix}/${Actions.SET_CURRENT_STAGE}/${FULFILLED}`:
+            return {
+                ...authState,
+                currentStage: action.payload
+            }
         default:
             return { ...authState }
     }

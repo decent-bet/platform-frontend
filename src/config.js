@@ -1,4 +1,3 @@
-
 const STAGE_LOCAL = 'local'
 const STAGE_TESTNET = 'testnet'
 const STAGE_MAIN = 'main'
@@ -12,30 +11,34 @@ const config = {
     testnet: {
         channelsApiUrl: 'https://channels-api-alpha.decent.bet/api',
         kycApiUrl: '',
-        thorNode: 'https://thor-staging.decent.bet'
+        thorNode: 'https://thor.test.decent.bet'
     },
     main: {
-        channelsApiUrl: 'https://channels-api.decent.bet/api',
+        channelsApiUrl: 'https://channels-api-alpha.decent.bet/api',
         kycApiUrl: '',
-        thorNode: 'https://thor.decent.bet'
+        thorNode: 'https://thor.test.decent.bet'
     }
 }
 
 function getConfig(stage) {
-    switch(stage) {
+    switch (stage) {
         case STAGE_LOCAL:
-        return config.local
+            return config.local
         case STAGE_TESTNET:
-        return config.testnet
+            return config.testnet
         case STAGE_MAIN:
-        return config.main
+            return config.main
         default:
-        return config.local
+            return config.local
     }
 }
 
-const stages = [{key: STAGE_MAIN, name: 'DBET Node'}, {key: STAGE_TESTNET, name: 'Infura'}, {key: STAGE_LOCAL, name: 'Local Node'}]
+const stages = [
+    { key: STAGE_MAIN, name: 'DBET Node' },
+    { key: STAGE_TESTNET, name: 'Infura' },
+    { key: STAGE_LOCAL, name: 'Local Node' }
+]
 
 const defaultStage = process.env.REACT_APP_STAGE || STAGE_LOCAL
 
-export {defaultStage, config, stages, getConfig}
+export { defaultStage, config, stages, getConfig }

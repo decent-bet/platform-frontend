@@ -78,9 +78,8 @@ class KeyHandler {
     getStage = () => {
         let stage = localStorage.getItem('stage')
         
-        if(!stage) {
+        if(!stage || stage ==='undefined') {
             stage = defaultStage
-            this.setStage(stage)
         }
 
         return stage
