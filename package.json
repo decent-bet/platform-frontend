@@ -3,21 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
+    "@types/jest": "^23.3.2",
+    "@types/node": "^10.10.1",
     "@types/react": "^16.0.38",
     "@types/react-dom": "^16.0.4",
     "@types/react-redux": "^6.0.0",
     "@types/react-router-dom": "^4.2.4",
     "@types/redux-logger": "^3.0.5",
     "@types/redux-promise-middleware": "^0.0.10",
-    "babel-eslint": "^8.2.2",
-    "babel-jest": "^23.0.0",
-    "eslint": "^5.6.0",
-    "eslint-config-react-app": "^2.1.0",
-    "eslint-plugin-flowtype": "^2.46.1",
-    "eslint-plugin-import": "^2.9.0",
-    "eslint-plugin-jsx-a11y": "^6.0.3",
-    "eslint-plugin-react": "^7.7.0",
-    "react-scripts": "1.1.5"
+    "react-scripts-ts": "^2.17.0",
+    "typescript": "^3.0.3"
   },
   "dependencies": {
     "@decent-bet/contract-slots": "1.0.0-alpha.2",
@@ -56,7 +51,6 @@
     "react-load-script": "^0.0.6",
     "react-redux": "^5.0.7",
     "react-router-dom": "^4.2.2",
-    "react-tap-event-plugin": "^3.0.2",
     "react-transition-group": "^2.2.1",
     "redux": "^4.0.0",
     "redux-actions": "^2.3.0",
@@ -72,15 +66,14 @@
     "swarm-js": "^0.1.37",
     "thor-devkit": "0.2.4",
     "thorify": "^1.0.1",
-    "truffle-hdwallet-provider": "^0.0.6",
     "web3": "1.0.0-beta.35"
   },
   "scripts": {
-    "start": "export BROWSER=none && export PORT=3007 && react-scripts start",
-    "build": "REACT_APP_STAGE=main react-scripts build",
-    "build:testnet": "REACT_APP_STAGE=testnet react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "lint": "eslint src __tests__",
-    "lint:fix": "eslint --fix src __tests__"
+    "start": "export BROWSER=none && export PORT=3007 && react-scripts-ts start",
+    "build": "REACT_APP_STAGE=main react-scripts-ts build",
+    "build:testnet": "REACT_APP_STAGE=testnet react-scripts-ts build",
+    "test": "react-scripts-ts test --env=jsdom",
+    "lint": "tslint src __tests__",
+    "lint:fix": "tslint --fix src __tests__"
   }
 }

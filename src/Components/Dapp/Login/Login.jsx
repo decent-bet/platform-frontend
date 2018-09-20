@@ -64,6 +64,9 @@ class Login extends Component {
     
     onStageChangeListener = async (event) => {
         await this.props.dispatch(Thunks.setCurrentStage(event.target.value))
+        setTimeout(() => {
+            location.reload(true)
+        }, 500);
     }
 
     renderErrorDialog = () => (
