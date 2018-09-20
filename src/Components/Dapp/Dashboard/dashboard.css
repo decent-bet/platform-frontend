@@ -81,7 +81,7 @@
     max-width: 320px;
 }
 
-.drawer img {
+.drawer img.logo {
     height: 144px;
     width: 100%;
     object-fit: contain;
