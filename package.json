@@ -71,21 +71,16 @@
     "solidity-sha3": "^0.4.1",
     "swarm-js": "^0.1.37",
     "thor-devkit": "0.2.4",
-    "thorify": "0.3.6",
+    "thorify": "^1.0.1",
     "truffle-hdwallet-provider": "^0.0.6",
     "web3": "1.0.0-beta.35"
   },
   "scripts": {
     "start": "export BROWSER=none && export PORT=3007 && react-scripts start",
-    "build": "export REACT_APP_STAGE=main && react-scripts build",
-    "build:testnet": "export REACT_APP_STAGE=testnet && react-scripts build",
+    "build": "REACT_APP_STAGE=main react-scripts build",
+    "build:testnet": "REACT_APP_STAGE=testnet react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "lint": "eslint src __tests__",
     "lint:fix": "eslint --fix src __tests__"
-  },
-  "babel": {
-    "presets": [
-      "react-app"
-    ]
   }
 }

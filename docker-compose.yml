@@ -5,5 +5,5 @@ services:
     image: us.gcr.io/dbet-platform/platform-frontend:latest
     container_name: "platform-frontend-nginx"
     ports:
-      - 80:80
+      - 3007:80
     restart: always

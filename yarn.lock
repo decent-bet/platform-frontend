@@ -3727,7 +3727,7 @@ eventemitter3@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-1.1.1.tgz#47786bdaa087caf7b1b75e73abc5c7d540158cd0"
 
-eventemitter3@^3.0.0:
+eventemitter3@^3.0.0, eventemitter3@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-3.1.0.tgz#090b4d6cdbd645ed10bf750d4b5407942d7ba163"
 
@@ -5204,6 +5204,10 @@ isomorphic-fetch@^2.1.1:
   dependencies:
     node-fetch "^1.0.1"
     whatwg-fetch ">=0.10.0"
+
+isomorphic-ws@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/isomorphic-ws/-/isomorphic-ws-4.0.1.tgz#55fd4cd6c5e6491e76dc125938dd863f5cd4f2dc"
 
 isstream@~0.1.2:
   version "0.1.2"
@@ -8965,7 +8969,7 @@ thenify-all@^1.0.0, thenify-all@^1.6.0:
   dependencies:
     any-promise "^1.0.0"
 
-thor-devkit@0.2.4:
+thor-devkit@0.2.4, thor-devkit@^0.2.3:
   version "0.2.4"
   resolved "https://registry.yarnpkg.com/thor-devkit/-/thor-devkit-0.2.4.tgz#8f156549255acccc534287867fe8eaf1ef746ce6"
   dependencies:
@@ -8979,26 +8983,19 @@ thor-devkit@0.2.4:
     secp256k1 "^3.5.0"
     web3-eth-abi "^1.0.0-beta.34"
 
-thor-model-kit@^0.2.0:
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/thor-model-kit/-/thor-model-kit-0.2.2.tgz#24d310e41d8c2dfc7e3f97d3230b6e1a1d4bede0"
+thorify@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/thorify/-/thorify-1.0.1.tgz#1c965096d576692a9971522be263a56f401c95cc"
   dependencies:
-    bignumber.js "^7.2.1"
-    blakejs "^1.1.0"
-    keccak "^1.4.0"
-    rlp "^2.0.0"
-    secp256k1 "^3.5.0"
-
-thorify@0.3.6:
-  version "0.3.6"
-  resolved "https://registry.yarnpkg.com/thorify/-/thorify-0.3.6.tgz#95df9548b2fbdbcc7230c4f925689c364005a646"
-  dependencies:
-    blakejs "^1.1.0"
     debug "^3.1.0"
     elliptic "^6.4.0"
     eth-lib "^0.2.8"
-    thor-model-kit "^0.2.0"
-    web3-utils "1.0.0-beta.34"
+    eventemitter3 "^3.1.0"
+    isomorphic-ws "^4.0.1"
+    thor-devkit "^0.2.3"
+    web3-core-subscriptions "^1.0.0-beta.36"
+    web3-utils "^1.0.0-beta.36"
+    ws "^6.0.0"
     xhr2 "0.1.4"
 
 throat@^3.0.0:
@@ -9495,6 +9492,14 @@ web3-core-helpers@1.0.0-beta.35:
     web3-eth-iban "1.0.0-beta.35"
     web3-utils "1.0.0-beta.35"
 
+web3-core-helpers@1.0.0-beta.36:
+  version "1.0.0-beta.36"
+  resolved "https://registry.yarnpkg.com/web3-core-helpers/-/web3-core-helpers-1.0.0-beta.36.tgz#6f618e80f1a6588d846efbfdc28f92ae0477f8d2"
+  dependencies:
+    underscore "1.8.3"
+    web3-eth-iban "1.0.0-beta.36"
+    web3-utils "1.0.0-beta.36"
+
 web3-core-method@1.0.0-beta.35:
   version "1.0.0-beta.35"
   resolved "https://registry.yarnpkg.com/web3-core-method/-/web3-core-method-1.0.0-beta.35.tgz#fc10e2d546cf4886038e6130bd5726b0952a4e5f"
@@ -9529,6 +9534,14 @@ web3-core-subscriptions@1.0.0-beta.35:
     eventemitter3 "1.1.1"
     underscore "1.8.3"
     web3-core-helpers "1.0.0-beta.35"
+
+web3-core-subscriptions@^1.0.0-beta.36:
+  version "1.0.0-beta.36"
+  resolved "https://registry.yarnpkg.com/web3-core-subscriptions/-/web3-core-subscriptions-1.0.0-beta.36.tgz#20f1f20c85d5b40f1e5a49b070ba977a142621f3"
+  dependencies:
+    eventemitter3 "1.1.1"
+    underscore "1.8.3"
+    web3-core-helpers "1.0.0-beta.36"
 
 web3-core@1.0.0-beta.35:
   version "1.0.0-beta.35"
@@ -9590,6 +9603,13 @@ web3-eth-iban@1.0.0-beta.35:
   dependencies:
     bn.js "4.11.6"
     web3-utils "1.0.0-beta.35"
+
+web3-eth-iban@1.0.0-beta.36:
+  version "1.0.0-beta.36"
+  resolved "https://registry.yarnpkg.com/web3-eth-iban/-/web3-eth-iban-1.0.0-beta.36.tgz#00cb3aba7a5aeb15d02b07421042e263d7b2e01b"
+  dependencies:
+    bn.js "4.11.6"
+    web3-utils "1.0.0-beta.36"
 
 web3-eth-personal@1.0.0-beta.35:
   version "1.0.0-beta.35"
@@ -9708,18 +9728,6 @@ web3-shh@1.0.0-beta.35:
     web3-core-subscriptions "1.0.0-beta.35"
     web3-net "1.0.0-beta.35"
 
-web3-utils@1.0.0-beta.34:
-  version "1.0.0-beta.34"
-  resolved "https://registry.yarnpkg.com/web3-utils/-/web3-utils-1.0.0-beta.34.tgz#9411fc39aaef39ca4e06169f762297d9ff020970"
-  dependencies:
-    bn.js "4.11.6"
-    eth-lib "0.1.27"
-    ethjs-unit "0.1.6"
-    number-to-bn "1.7.0"
-    randomhex "0.1.5"
-    underscore "1.8.3"
-    utf8 "2.1.1"
-
 web3-utils@1.0.0-beta.35:
   version "1.0.0-beta.35"
   resolved "https://registry.yarnpkg.com/web3-utils/-/web3-utils-1.0.0-beta.35.tgz#ced9e1df47c65581c441c5f2af76b05a37a273d7"
@@ -9732,7 +9740,7 @@ web3-utils@1.0.0-beta.35:
     underscore "1.8.3"
     utf8 "2.1.1"
 
-web3-utils@1.0.0-beta.36:
+web3-utils@1.0.0-beta.36, web3-utils@^1.0.0-beta.36:
   version "1.0.0-beta.36"
   resolved "https://registry.yarnpkg.com/web3-utils/-/web3-utils-1.0.0-beta.36.tgz#dc19c9aeec009b1816cc91ef64d7fe9f8ee344c9"
   dependencies:
@@ -9999,6 +10007,12 @@ ws@^3.0.0:
 ws@^5.1.1:
   version "5.2.2"
   resolved "https://registry.yarnpkg.com/ws/-/ws-5.2.2.tgz#dffef14866b8e8dc9133582514d1befaf96e980f"
+  dependencies:
+    async-limiter "~1.0.0"
+
+ws@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-6.0.0.tgz#eaa494aded00ac4289d455bac8d84c7c651cef35"
   dependencies:
     async-limiter "~1.0.0"
 
