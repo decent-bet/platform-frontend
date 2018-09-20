@@ -10,6 +10,9 @@ deployment
 data
 .prettierrc
 build
+docker-build.sh
+docker-build.local.sh
+
 
 
 

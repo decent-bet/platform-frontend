@@ -18,8 +18,6 @@ WORKDIR /srv/platform-frontend
 COPY . .
 RUN yarn install --silent
 
-## Update game submodules
-RUN git submodule foreach git pull origin master
 ## Copy app source code and build
 RUN yarn build
 
