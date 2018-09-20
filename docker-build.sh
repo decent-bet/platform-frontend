@@ -5,7 +5,7 @@ git submodule foreach git pull origin master
 
 echo "Creating a build for production"
 nvm use
-yarn install --silent
+yarn install --silent --production=false
 yarn build
 
 echo "Building and pushing version $VERSION"
