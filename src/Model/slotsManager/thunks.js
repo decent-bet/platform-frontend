@@ -24,9 +24,10 @@ export function fetchChannels() {
 }
 
 export function fetchChannel(channelId) {
-    return async (dispatch, getState, {chainProvider, helper}) => {
+    return async (dispatch, getState, {chainProvider, httpApi, helper, utils}) => {
         let {contractFactory} = chainProvider
-        return await dispatch(Actions.getChannelDetails(channelId, contractFactory, helper))
+        await dispatch(Actions.getChannelDetails(channelId, contractFactory, helper))
+        await dispatch(Actions.getLastSpin(channelId, chainProvider, httpApi, helper, utils))
     }
 }
 

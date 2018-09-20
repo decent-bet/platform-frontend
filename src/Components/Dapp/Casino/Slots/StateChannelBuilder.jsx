@@ -4,10 +4,8 @@ import {
     CardActions,
     CardHeader,
     CardContent,
-    Checkbox,
     Button,
-    TextField,
-    FormControlLabel
+    TextField
 } from '@material-ui/core'
 import React, { Component } from 'react'
 
@@ -56,16 +54,6 @@ export default class StateChannelBuilder extends Component {
                         error={!isValid}
                         helperText={errorText}
                         fullWidth
-                    />
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                color="primary"
-                                checked={this.state.acceptanceChecked}
-                                onChange={this.onAcceptanceCheckedListener}
-                            />
-                        }
-                        label="Use XX eth to cover session gas costs"
                     />
                 </CardContent>
                 <CardActions>
