@@ -5,7 +5,6 @@
 /coverage
 
 # production
-/build
 
 # misc
 Dockerfile
@@ -20,8 +19,6 @@ deployment
 data
 .prettierrc
 images.d.ts
-tsconfig.*
-tslint.json
 VERSION
 __tests__
 docker-build.sh
