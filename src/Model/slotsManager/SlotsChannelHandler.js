@@ -95,10 +95,10 @@ export default class SlotsChannelHandler {
         // Balances below 0 should be corrected to 0 to ensure no party receives more tokens than
         // what is available in the created channel.
         if (userBalance.isLessThanOrEqualTo(0)) {
-            houseBalance = houseBalance.add(userBalance)
+            houseBalance = houseBalance.plus(userBalance)
             userBalance = new BigNumber(0)
         } else if (houseBalance.isLessThanOrEqualTo(0)) {
-            userBalance = userBalance.add(houseBalance)
+            userBalance = userBalance.plus(houseBalance)
             houseBalance = new BigNumber(0)
         }
 

@@ -1,16 +1,15 @@
+
 import Dexie from 'dexie'
 // Based partially from https://gist.github.com/saulshanabrook/b74984677bccd08b028b30d9968623f5
 
 export class KeyStore {
+
     constructor() {
+
         this.db = new Dexie('DbetKeystore')
 
         this.db.version(1).stores({
-            keys: '++id, key, value'
-        })
-
-        this.db.version(1).stores({
-            vars: '++id, name, value'
+            keys: 'id, value'
         })
     }
 
@@ -18,12 +17,12 @@ export class KeyStore {
      * Initializes crypto keystore
      */
     async initKeyStore() {
-        let keys = await this.db.keys.toArray()
+        let keys = await this.db.keys.get('keystoreKey')
 
-        if (keys.length === 0) {
+        if (!keys) {
             keys = await this.createCryptoKey()
-            await this.db.keys.add({
-                key: 'keystoreKey',
+            await this.db.keys.put({
+                id: 'keystoreKey',
                 value: keys
             })
         }
@@ -46,34 +45,23 @@ export class KeyStore {
     }
 
     async getCryptoKey() {
-        const keys = await this.db.keys
-            .where('key')
-            .equalsIgnoreCase('keystoreKey')
-            .toArray()
+        const keys = await this.db.keys.get('keystoreKey')
 
-        if (keys.length > 0) {
-            return keys[0].value
+        if (keys) {
+            return keys.value //
         } else {
             throw new Error('Invalid passphrase or key')
         }
     }
 
     async getVariable(name) {
-        const items = await this.db.vars
-            .where('name')
-            .equalsIgnoreCase(name)
-            .toArray()
-
-        if (items.length > 0) {
-            return items[0].value
-        } else {
-            return null
-        }
+        const record = await this.db.keys.get(name)
+        return record && record.value ? record.value : null
     }
 
     async addVariable(name, value) {
-        return await this.db.vars.add({
-            name,
+        return await this.db.keys.put({
+            id: name,
             value
         })
     }
@@ -90,21 +78,20 @@ export class KeyStore {
     }
 
     async decrypt(data, keys) {
-        return new Uint8Array(
-            await window.crypto.subtle.decrypt(
-                {
-                    name: 'RSA-OAEP'
-                    //label: Uint8Array([...]) //optional
-                },
-                keys.privateKey,
-                data
-            )
+
+        const decrypted = await window.crypto.subtle.decrypt(
+            {
+                name: 'RSA-OAEP'
+                //label: Uint8Array([...]) //optional
+            },
+            keys.privateKey,
+            data
         )
+        return this.ab2str(new Uint8Array(decrypted))
     }
 
     async clear() {
         await this.db.keys.clear()
-        await this.db.vars.clear()
     }
 
     ab2str(uint8array) {

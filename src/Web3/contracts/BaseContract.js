@@ -43,7 +43,7 @@ export default class BaseContract {
                 const subscription$ = interval(settings.interval || 5000).pipe(
                     flatMap(() => from(promiseEvent)),
                     switchMap(i => of(i)),
-                    tap( _ => {
+                    tap( () => {
                         totalRequests++
                     })
                 ).subscribe(events => {
