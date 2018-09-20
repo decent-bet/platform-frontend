@@ -41,4 +41,4 @@ const stages = [
 
 const defaultStage = process.env.REACT_APP_STAGE || STAGE_LOCAL
 
-export { defaultStage, config, stages, getConfig }
+export { defaultStage, config, stages, getConfig, STAGE_LOCAL, STAGE_TESTNET, STAGE_MAIN }

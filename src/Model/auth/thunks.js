@@ -4,8 +4,8 @@ const actions = Actions.auth
 
 
 export function getCurrentStage() {
-    return (dispatch, getState, { keyHandler }) => {
-         dispatch(actions.getCurrentStage(keyHandler))
+    return async (dispatch, getState, { keyHandler }) => {
+         return dispatch(actions.getCurrentStage(keyHandler))
     }
 }
 

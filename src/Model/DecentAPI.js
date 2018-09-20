@@ -5,15 +5,17 @@ const ethUtil = require('ethereumjs-util')
 
 class DecentAPI {
 
-    constructor(web3, keyHandler, helper) {
-        this.web3 = web3
+    constructor(keyHandler, helper) {
         this.keyHandler = keyHandler
         this.helper = helper
-        let stage = this.keyHandler.getStage()
-        let config = getConfig(stage)
-        this.baseUrl = config.channelsApiUrl
     }
 
+    get baseUrl() {
+        let stage = this.keyHandler.getStage()
+        let config = getConfig(stage)
+        return config.channelsApiUrl
+    }
+    
     /** Off-chain finally verifiable slot spins */
     spin = async (address, spin, aesKey, callback) => {
         /**

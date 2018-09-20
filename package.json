@@ -73,17 +73,15 @@
     "thor-devkit": "0.2.4",
     "thorify": "0.3.6",
     "truffle-hdwallet-provider": "^0.0.6",
-    "web3": "^1.0.0-beta.36"
+    "web3": "1.0.0-beta.35"
   },
   "scripts": {
-    "start": "export BROWSER=none && export PORT=3007 && react-scripts start DBET_PLATFORM_FRONTEND",
-    "stop": "pkill -a -i \"DBET_PLATFORM_FRONTEND\"",
+    "start": "export BROWSER=none && export PORT=3007 && react-scripts start",
     "build": "export REACT_APP_STAGE=main && react-scripts build",
     "build:testnet": "export REACT_APP_STAGE=testnet && react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
-    "lint": "eslint src test",
-    "lint:fix": "eslint --fix src test"
+    "lint": "eslint src __tests__",
+    "lint:fix": "eslint --fix src __tests__"
   },
   "babel": {
     "presets": [

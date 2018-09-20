@@ -1,6 +1,5 @@
 import { thorify } from 'thorify'
-import { ContractFactory } from './ContractFactory';
-import { webSocket } from 'rxjs/webSocket'
+import { ContractFactory } from './ContractFactory'
 import { getConfig } from '../config'
 
 export class ChainProvider {
@@ -20,14 +19,27 @@ export class ChainProvider {
         this._keyHandler = keyHandler
     }
 
+    async setupThorify(address, privateKey) {
+        this._web3 = thorify(this._rawWeb3, this.providerUrl)
+        
+        if(address && privateKey) {
+            this._web3.eth.accounts.wallet.add(privateKey)
+            this._web3.eth.defaultAccount = address
+        } else if(this._keyHandler.isLoggedIn()) {
+            let { privateKey } = await this._keyHandler.get()
+
+            if(privateKey && privateKey.length > 0 ) {
+                this._web3.eth.accounts.wallet.add(privateKey)
+                this._web3.eth.defaultAccount = this._keyHandler.getAddress()
+            }   
+        }
+    }
+
     /**
      * Get the thorify web3 instance
      * @returns {Web3}
      */
     get web3() {
-        if(this._web3 === null) {
-            this._web3 = thorify(this._rawWeb3, this.providerUrl)
-        }
         return this._web3
     }
 
@@ -54,56 +66,14 @@ export class ChainProvider {
     }
 
     /**
-     * Return the url for websocket connections
-     * 
-     * @returns {string}
-     */
-    get wsProviderUrl() {
-        let baseUrl = new URL(this.providerUrl)
-        baseUrl.protocol = baseUrl.protocol === 'https:' ? 'wss:' : 'ws:'
-        return baseUrl
-    }
-
-    /**
-     * 
-     * @param {string} path 
-     * @returns {WebSocketSubject}
-     */
-    makeWebSocketConnection(path) {
-        let baseUrl = this.wsProviderUrl
-        return webSocket(`${baseUrl}${path}`)
-    }
-    /**
      * Configure the web3 instance
      * @returns {void}
      */
     get contractFactory() {
-            if (!this._contractFactory) {
-                this.buildContractFactory()
+            if (this._contractFactory === null) {
+                this._contractFactory = new ContractFactory(this._web3, this._keyHandler)
             }
 
             return this._contractFactory
-    }
-
-    /**
-     * Setup the contract factory
-     */
-    buildContractFactory() {
-        this._contractFactory = new ContractFactory(this._web3, this._keyHandler)
-    }
-
-    async setupThorify(address, privateKey) {
-
-        if(address && privateKey) {
-            this.web3.eth.accounts.wallet.add(privateKey)
-            this.web3.eth.defaultAccount = address
-        } else if(this._keyHandler.isLoggedIn()) {
-            let { privateKey } = await this._keyHandler.get()
-            console.log('this.web3', this.web3)
-            if(privateKey && privateKey.length > 0 ) {
-                this.web3.eth.accounts.wallet.add(privateKey)
-                this.web3.eth.defaultAccount = this._keyHandler.getAddress()
-            }   
-        }
     }
 }
