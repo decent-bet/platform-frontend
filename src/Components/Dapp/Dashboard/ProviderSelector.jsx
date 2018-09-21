@@ -7,7 +7,7 @@ import {
     Collapse,
     List
 } from '@material-ui/core'
-import { stages } from '../../../config'
+import { STAGES } from '../../../config'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ProviderSelectorItem from './ProviderSelectorItem'
 
@@ -19,7 +19,7 @@ export default class ProviderSelector extends Component {
     onClickListener = () => this.setState({ isOpen: !this.state.isOpen })
 
     render() {
-        const currentStage = stages.find((stage) => stage.key === this.props.currentStage) || { name: ''}
+        const currentStage = STAGES.find((stage) => stage.key === this.props.currentStage) || { name: ''}
         const caretIcon = this.state.isOpen ? (
             <SvgIcon>
                 <FontAwesomeIcon icon="caret-up" />
@@ -53,7 +53,7 @@ export default class ProviderSelector extends Component {
                 <Collapse in={this.state.isOpen} unmountOnExit>
                     <List component="div" disablePadding>
                     {
-                    stages.map(stage => 
+                    STAGES.map(stage => 
                         <ProviderSelectorItem
                             label={stage.name}
                             currentStage={this.props.currentStage}

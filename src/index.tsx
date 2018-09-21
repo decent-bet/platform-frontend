@@ -10,4 +10,4 @@ library.add(fas, faEthereum)
 ReactDOM.render(
     <App />,
     document.getElementById('root') as HTMLElement
-  );
+);

@@ -1,9 +1,9 @@
 import Actions, { Prefix } from './actionTypes'
 import { FULFILLED } from 'redux-promise-middleware'
-import { defaultStage } from '../../config'
+import { DEFAULT_STAGE } from '../../config'
 
 const DefaultAuthState = {
-    currentStage: defaultStage,
+    currentStage: DEFAULT_STAGE,
     isErrorDialogOpen: false
 }
 

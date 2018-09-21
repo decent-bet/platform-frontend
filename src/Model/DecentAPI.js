@@ -1,4 +1,4 @@
-import { getConfig } from '../config'
+import { getStageConfig } from '../config'
 const cryptoJs = require("crypto-js")
 const request = require('request')
 const ethUtil = require('ethereumjs-util')
@@ -12,7 +12,7 @@ class DecentAPI {
 
     get baseUrl() {
         let stage = this.keyHandler.getStage()
-        let config = getConfig(stage)
+        let config = getStageConfig(stage)
         return config.channelsApiUrl
     }
     

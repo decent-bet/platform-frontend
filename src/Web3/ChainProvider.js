@@ -1,6 +1,6 @@
 import { thorify } from 'thorify'
 import { ContractFactory } from './ContractFactory'
-import { getConfig } from '../config'
+import { getStageConfig } from '../config'
 
 export class ChainProvider {
     /**
@@ -61,7 +61,7 @@ export class ChainProvider {
      */
     get providerUrl() {
         let stage = this._keyHandler.getStage()
-        let config = getConfig(stage)
+        let config = getStageConfig(stage)
         return config.thorNode
     }
 

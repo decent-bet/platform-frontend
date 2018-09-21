@@ -1,5 +1,5 @@
 
-import { defaultStage } from '../config'
+import { DEFAULT_STAGE } from '../config'
 
 class KeyHandler {
     constructor(keyStore) {
@@ -79,7 +79,7 @@ class KeyHandler {
         let stage = localStorage.getItem('stage')
         
         if(!stage || stage ==='undefined') {
-            stage = defaultStage
+            stage = DEFAULT_STAGE
         }
 
         return stage

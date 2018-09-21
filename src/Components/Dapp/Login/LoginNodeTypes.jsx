@@ -1,6 +1,6 @@
 import React from 'react'
 import { MenuItem, Select, FormControl, InputLabel } from '@material-ui/core'
-import { stages } from '../../../config'
+import { STAGES } from '../../../config'
 
 export default function LoginNodeTypes({
     currentStage,
@@ -16,7 +16,7 @@ export default function LoginNodeTypes({
                 onChange={onStageChangeListener}
             >
             {
-                stages.map(stage => <MenuItem key={stage.key} value={stage.key}>{stage.name}</MenuItem>)
+                STAGES.map(stage => <MenuItem key={stage.key} value={stage.key}>{stage.name}</MenuItem>)
             }
             </Select>
         </FormControl>

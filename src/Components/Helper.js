@@ -2,11 +2,11 @@ import React from 'react'
 import EventBus from 'eventing-bus'
 import ethUnits from 'ethereum-units'
 import BigNumber from 'bignumber.js'
-import { defaultStage, STAGE_LOCAL} from '../config'
+import { CURRENT_ENV, ENV_DEVELOPMENT} from '../config'
 
 export default class Helper {
     isDev = () => {
-        return defaultStage === STAGE_LOCAL
+        return CURRENT_ENV === ENV_DEVELOPMENT
     }
     
     getTimestamp = () => {
