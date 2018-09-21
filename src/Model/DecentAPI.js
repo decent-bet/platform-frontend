@@ -1,18 +1,21 @@
+import { getStageConfig } from '../config'
 const cryptoJs = require("crypto-js")
 const request = require('request')
 const ethUtil = require('ethereumjs-util')
-const LOCAL_URL = 'http://localhost:3010/api'
-const PUBLIC_URL = 'https://channels-api-alpha.decent.bet/api'
 
 class DecentAPI {
 
-    constructor(web3, keyHandler, helper) {
-        this.baseUrl = helper.isDev() ? LOCAL_URL : PUBLIC_URL
-        this.web3 = web3
+    constructor(keyHandler, helper) {
         this.keyHandler = keyHandler
         this.helper = helper
     }
 
+    get baseUrl() {
+        let stage = this.keyHandler.getStage()
+        let config = getStageConfig(stage)
+        return config.channelsApiUrl
+    }
+    
     /** Off-chain finally verifiable slot spins */
     spin = async (address, spin, aesKey, callback) => {
         /**

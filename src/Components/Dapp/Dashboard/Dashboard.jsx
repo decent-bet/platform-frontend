@@ -13,13 +13,16 @@ import './dashboard.css'
 class Dashboard extends Component {
 
     state = {
-        provider: '',
+        currentStage: '',
         drawerOpen: false
     }
 
-    componentDidMount = async () => {
+    componentDidMount() {
         // Initialize the datastore
         this.props.dispatch(Thunks.initialize())
+        this.props.dispatch(AuthThunks.getCurrentStage()).then((payload) => {
+            this.setState({currentStage: payload.value})
+        })
     }
 
     // Faucet Button Clicked. Execute Faucet
@@ -31,15 +34,9 @@ class Dashboard extends Component {
     onDrawerButtonPressedListener = open => this.setState({ drawerOpen: open })
     onDrawerCloseListener = () => this.setState({ drawerOpen: false })
 
-    onProviderChangeListener = value => {
-        if (value !== this.state.provider) {
-            this.setState({ provider: value })
-            this.props.dispatch(AuthThunks.setProviderUrl(value))
-            this.props.dispatch(AuthThunks.logout())
-            // Wait for dropdown animation
-            setTimeout(() => {
-                this.props.history.push('/login')
-            }, 500)
+    onStageChangeListener = value => {
+        if (value !== this.state.currentStage) {
+            this.props.history.push('/logout')
         }
     }
 
@@ -71,8 +68,8 @@ class Dashboard extends Component {
             onFaucetClickedListener={this.onFaucetClickedListener}
         >
             <ProviderSelector
-                onProviderChangeListener={this.onProviderChangeListener}
-                gethNodeProvider={this.state.provider}
+                onStageChangeListener={this.onStageChangeListener}
+                currentStage={this.state.currentStage}
             />
         </DashboardDrawer>
     )

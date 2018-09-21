@@ -39,20 +39,21 @@ async function logout(keyHandler) {
     return true
 }
 
-async function getProviderUrl(chainProvider) {
-    return chainProvider.providerUrl
+function getCurrentStage(keyHandler) {
+    return Promise.resolve(keyHandler.getStage())
 }
 
-async function setProviderUrl(chainProvider, url) {
-    await chainProvider.setProviderUrl(url)
+function setCurrentStage(keyHandler, stage) {
+    keyHandler.setStage(stage)
+    return Promise.resolve(stage)
 }
 
 export default createActions({
     [Prefix]: {
         [Actions.LOGIN]: login,
         [Actions.LOGOUT]: logout,
-        [Actions.GET_PROVIDER_URL]: getProviderUrl,
-        [Actions.SET_PROVIDER_URL]: setProviderUrl
+        [Actions.GET_CURRENT_STAGE]: getCurrentStage,
+        [Actions.SET_CURRENT_STAGE]: setCurrentStage
     }
 })
 

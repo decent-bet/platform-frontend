@@ -1,3 +1,6 @@
+
+import { DEFAULT_STAGE } from '../config'
+
 class KeyHandler {
     constructor(keyStore) {
         this.keyStore = keyStore
@@ -69,7 +72,21 @@ class KeyHandler {
      * Returns address of the logged in user
      */
     getAddress = () => {
-        return localStorage.getItem('address')
+        return localStorage.getItem('address') 
+    }
+
+    getStage = () => {
+        let stage = localStorage.getItem('stage')
+        
+        if(!stage || stage ==='undefined') {
+            stage = DEFAULT_STAGE
+        }
+
+        return stage
+    }
+
+    setStage = (stage) => {
+        localStorage.setItem('stage', stage)
     }
 
     /**

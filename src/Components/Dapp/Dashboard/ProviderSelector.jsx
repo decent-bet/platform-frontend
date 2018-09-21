@@ -7,7 +7,7 @@ import {
     Collapse,
     List
 } from '@material-ui/core'
-import { PROVIDER_DBET, PROVIDER_LOCAL, PROVIDER_INFURA } from '../../Constants'
+import { STAGES } from '../../../config'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ProviderSelectorItem from './ProviderSelectorItem'
 
@@ -19,6 +19,7 @@ export default class ProviderSelector extends Component {
     onClickListener = () => this.setState({ isOpen: !this.state.isOpen })
 
     render() {
+        const currentStage = STAGES.find((stage) => stage.key === this.props.currentStage) || { name: ''}
         const caretIcon = this.state.isOpen ? (
             <SvgIcon>
                 <FontAwesomeIcon icon="caret-up" />
@@ -41,39 +42,28 @@ export default class ProviderSelector extends Component {
                         </SvgIcon>
                     </ListItemIcon>
 
-                    <ListItemText primary="Connected to:" />
+                    <ListItemText inset={true}
+                                  primary={`Connected to:`} 
+                                  secondary={currentStage.name} 
+                    />
 
                     {caretIcon}
                 </ListItem>
 
                 <Collapse in={this.state.isOpen} unmountOnExit>
                     <List component="div" disablePadding>
+                    {
+                    STAGES.map(stage => 
                         <ProviderSelectorItem
-                            label="DBET Node"
-                            selectedProvider={this.props.gethNodeProvider}
-                            providerUrl={PROVIDER_DBET}
-                            onProviderChangeListener={
-                                this.props.onProviderChangeListener
+                            label={stage.name}
+                            currentStage={this.props.currentStage}
+                            stage={stage.key}
+                            key={stage.key}
+                            onStageChangeListener={
+                                this.props.onStageChangeListener
                             }
-                        />
-
-                        <ProviderSelectorItem
-                            label="Local Node"
-                            providerUrl={PROVIDER_LOCAL}
-                            selectedProvider={this.props.gethNodeProvider}
-                            onProviderChangeListener={
-                                this.props.onProviderChangeListener
-                            }
-                        />
-
-                        <ProviderSelectorItem
-                            label="Infura"
-                            providerUrl={PROVIDER_INFURA}
-                            selectedProvider={this.props.gethNodeProvider}
-                            onProviderChangeListener={
-                                this.props.onProviderChangeListener
-                            }
-                        />
+                        />)
+                     }
                     </List>
                 </Collapse>
             </Fragment>

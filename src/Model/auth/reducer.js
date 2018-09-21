@@ -1,8 +1,9 @@
 import Actions, { Prefix } from './actionTypes'
 import { FULFILLED } from 'redux-promise-middleware'
+import { DEFAULT_STAGE } from '../../config'
 
 const DefaultAuthState = {
-    provider: '',
+    currentStage: DEFAULT_STAGE,
     isErrorDialogOpen: false
 }
 
@@ -20,10 +21,15 @@ export default function authReducer(
             return {
                 ...authState
             }
-        case `${Prefix}/${Actions.GET_PROVIDER_URL}/${FULFILLED}`:
+        case `${Prefix}/${Actions.GET_CURRENT_STAGE}/${FULFILLED}`:
             return {
                 ...authState,
-                provider: action.payload
+                currentStage: action.payload
+            }
+        case `${Prefix}/${Actions.SET_CURRENT_STAGE}/${FULFILLED}`:
+            return {
+                ...authState,
+                currentStage: action.payload
             }
         default:
             return { ...authState }

@@ -20,12 +20,12 @@ export const mockEth = {
     defaultAccount: '0x',
 
     accounts: {
-        wallet: mockWallet,
         signTransaction: jest.fn(() => {
             return Promise.resolve({
                 rawTransaction: '9u9345932u58935u42u525u2435'
             })
-        })
+        }),
+        wallet: mockWallet
     },
 
     getBlockNumber: jest.fn(),
@@ -42,6 +42,14 @@ export const mockEth = {
 
     getBlock: jest.fn(),
 
+    getChainTag: jest.fn(() => {
+        return Promise.resolve({
+            '0': {
+                address: '0xc7'
+            }
+        })
+    }),
+    
     getTransaction: jest.fn(),
 
     getTransactionReceipt: jest.fn(),
@@ -57,14 +65,6 @@ export const mockEth = {
     getPastLogs: jest.fn(),
 
     getEnergy: jest.fn(),
-    
-    getChainTag: jest.fn(() => {
-        return Promise.resolve({
-            '0': {
-                address: '0xc7'
-            }
-        })
-    }),
 
     getBlockRef: jest.fn()
 }

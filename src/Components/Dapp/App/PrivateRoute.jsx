@@ -11,7 +11,6 @@ class PrivateRoute extends React.Component {
         let isLoggedIn = this.props.dispatch(Thunks.userIsLoggedIn())
 
         if (isLoggedIn === true) {
-
             this.props.dispatch(Thunks.setupChainProvider())
             this.props.dispatch(BalanceThunks.listenForTransfers())
 

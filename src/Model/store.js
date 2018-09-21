@@ -24,8 +24,8 @@ const helper = new Helper()
 
 const keyHandler = new KeyHandler(new KeyStore()) //setup the key store and the key handler
 const chainProvider = new ChainProvider(new Web3(), keyHandler) //setup the ChainProvider and 
-const httpApi = new DecentAPI(chainProvider.web3, keyHandler, helper)
-const utils = new Utils(chainProvider.web3, keyHandler, httpApi)
+const httpApi = new DecentAPI(keyHandler, helper)
+const utils = new Utils(chainProvider, keyHandler, httpApi)
 const slotsChannelHandler = new SlotsChannelHandler(httpApi, helper, utils)
 
 // Setup middleware

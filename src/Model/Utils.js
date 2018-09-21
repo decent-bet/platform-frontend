@@ -10,16 +10,16 @@ const initialChannelHouseBalance = new BigNumber(10).pow(18).times(10000)
 export class Utils {
     
     
-    constructor(web3, keyHandler, httpApi) {
-        this.web3 = web3
+    constructor(chainProvider, keyHandler, httpApi) {
+        this.chainProvider = chainProvider
         this.keyHandler = keyHandler
         this.httpApi = httpApi
     }
 
     async getAesKey(id) {
-        const idHash = this.web3.utils.soliditySha3(id)
+        const idHash = this.chainProvider.web3.utils.soliditySha3(id)
         let { privateKey } = await this.keyHandler.get()
-        let sign = this.web3.eth.accounts.sign(idHash, privateKey)
+        let sign = this.chainProvider.web3.eth.accounts.sign(idHash, privateKey)
         return sign.signature
     }
 
