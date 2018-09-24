@@ -1,6 +1,6 @@
 import {
     PROVIDER_LOCAL
-} from '../../src/Components/Constants'
+} from 'src/common/Constants'
 import { ContractFactory } from '../../src/Web3/ContractFactory'
 import { ChainProvider } from '../../src/Web3/ChainProvider'
 import KeyHandler from '../../src/Web3/KeyHandler'
