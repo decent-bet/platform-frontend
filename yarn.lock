@@ -3899,6 +3899,12 @@ hoist-non-react-statics@^2.3.1, hoist-non-react-statics@^2.5.0:
   version "2.5.5"
   resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-2.5.5.tgz#c5903cf409c0dfd908f388e619d86b9c1174cb47"
 
+hoist-non-react-statics@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-3.0.1.tgz#fba3e7df0210eb9447757ca1a7cb607162f0a364"
+  dependencies:
+    react-is "^16.3.2"
+
 home-or-tmp@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/home-or-tmp/-/home-or-tmp-2.0.0.tgz#e36c3f2d2cae7d746a857e38d18d5f32a7882db8"
@@ -6626,7 +6632,7 @@ promise@^7.1.1:
   dependencies:
     asap "~2.0.3"
 
-prop-types@^15.5.10, prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2:
+prop-types@^15.5.0, prop-types@^15.5.10, prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2:
   version "15.6.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.6.2.tgz#05d5ca77b4453e985d60fc7ff8c859094a497102"
   dependencies:
@@ -6802,6 +6808,13 @@ react-animations@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/react-animations/-/react-animations-1.0.0.tgz#d96222920dfeabec8984d9b2ef2c5a5aadb40f06"
 
+react-async-script@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/react-async-script/-/react-async-script-1.0.0.tgz#3578153247bc3f9654a5878c4142539ffbf65c2d"
+  dependencies:
+    hoist-non-react-statics "^3.0.1"
+    prop-types "^15.5.0"
+
 react-copy-to-clipboard@^5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/react-copy-to-clipboard/-/react-copy-to-clipboard-5.0.1.tgz#8eae107bb400be73132ed3b6a7b4fb156090208e"
@@ -6853,9 +6866,20 @@ react-event-listener@^0.6.2:
     prop-types "^15.6.0"
     warning "^4.0.1"
 
+react-google-recaptcha@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/react-google-recaptcha/-/react-google-recaptcha-1.0.2.tgz#d77d0c91558d07c2f9f22b8ec05c383cbdbcabac"
+  dependencies:
+    prop-types "^15.5.0"
+    react-async-script "^1.0.0"
+
 react-iframe@^1.1.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/react-iframe/-/react-iframe-1.2.0.tgz#c5ce1f21595537f95ff7838288b60d830498b289"
+
+react-is@^16.3.2:
+  version "16.5.2"
+  resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.5.2.tgz#e2a7b7c3f5d48062eb769fcb123505eb928722e3"
 
 react-jss@^8.1.0:
   version "8.6.1"

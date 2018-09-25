@@ -1,113 +1,148 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
-import { Card, Grid, Paper } from '@material-ui/core'
-import LoginActions from './LoginActions'
-import LoginInner from './LoginInner'
+import {
+    Button,
+    Card,
+    Grid,
+    CardHeader,
+    CardActions,
+    CardContent,
+    Typography
+} from '@material-ui/core'
 import ConfirmationDialog from '../../shared/dialogs/ConfirmationDialog'
 import * as Thunks from '../thunks'
-import { cry } from 'thor-devkit'
-import './login.css'
+import logo from '../../assets/img/dbet-white.svg'
 
 class Login extends React.Component<any> {
     public state = {
-        value: '',
+        email: '',
+        password: '',
+        recaptchaKey: '',
         isErrorDialogOpen: false
     }
 
     private login = () => {
         this.props
-            .dispatch(Thunks.login(this.state.value, '', ''))
+            .dispatch(
+                Thunks.login(
+                    this.state.email,
+                    this.state.password,
+                    this.state.recaptchaKey
+                )
+            )
             .then(() => {
                 // Go to the Root
                 this.props.history.push('/')
             })
-            .catch(() => {
+            .catch(error => {
                 this.setState({
                     isErrorDialogOpen: true
                 })
             })
     }
 
-    private generateMnemonic = () => {
-        let mnemonic = cry.mnemonic.generate().join(' ')
-        this.setState({ value: mnemonic })
+    private isValidCredentials() {
+        return (
+            this.state.email.length > 0 &&
+            this.state.password.length > 0 &&
+            this.state.recaptchaKey.length > 0
+        )
     }
 
-    private isValidCredentials = () => this.state.value.length > 0
-
-    private loginWithKeyPress = ev => {
-        if (ev.key === 'Enter') {
-            this.onLoginListener(ev)
-        }
-    }
-
-    private onCloseErrorDialogListener = () =>
-        this.setState({ isErrorDialogOpen: false })
-
-        public onLoginListener = e => {
+    public onLoginListener = e => {
         e.preventDefault()
         if (this.isValidCredentials()) {
             this.login()
+        } else {
+            this.setState({
+                isErrorDialogOpen: true
+            })
         }
     }
 
-    private onLoginTextChangedListener = event =>
-        this.setState({ value: event.target.value })
-
-        public onStageChangeListener = async event => {
-        // await this.props.dispatch(Thunks.setCurrentStage(event.target.value))
-        setTimeout(() => {
-            location.reload(true)
-        }, 500)
+    private onCloseErrorDialogListener = () => {
+        this.setState({ isErrorDialogOpen: false })
     }
-
-    private renderErrorDialog = () => (
-        <ConfirmationDialog
-            onClick={this.onCloseErrorDialogListener}
-            onClose={this.onCloseErrorDialogListener}
-            title="Invalid Login"
-            message="Please make sure you're entering a valid Private Key or Passphase"
-            open={this.state.isErrorDialogOpen}
-        />
-    )
-
-    private renderCard = () => (
-        <Card>
-            <LoginInner
-                currentStage={this.props.currentStage}
-                value={this.state.value}
-                onChange={this.onLoginTextChangedListener}
-                onLoginKeypress={this.loginWithKeyPress}
-                onStageChangeListener={this.onStageChangeListener}
-            />
-
-            <LoginActions
-                onGenerateMnemonicListener={this.generateMnemonic}
-                isLoginDisabled={!this.isValidCredentials()}
-                onLoginListener={this.onLoginListener}
-            />
-        </Card>
-    )
 
     public render() {
         return (
-            <div className="login">
-                <Grid container={true} spacing={24} direction="column">
-                    <Grid
-                        container={true}
-                        item={true}
-                        spacing={0}
-                        justify="center"
-                    >
-                        <Grid item={true} xs={12} md={6}>
-                            <Paper>
-                                {this.renderCard()}
-                                {this.renderErrorDialog()}
-                            </Paper>
-                        </Grid>
-                    </Grid>
+            <Grid
+                container={true}
+                style={{ height: '95vh', overflow:"hidden"}}
+                direction="column"
+                alignItems="center"
+                justify="center"
+            >
+                <Grid item={true} xs={12} sm={3} md={5} justify="center">
+                <Card>
+                            <CardHeader
+                                avatar={
+                                    <img
+                                        src={logo}
+                                        alt="Decent.bet Logo"
+                                        style={{ maxHeight: 26 }}
+                                    />
+                                }
+                            />
+                            <CardContent>
+                                <Grid
+                                    container={true}
+                                    spacing={24}
+                                    direction="column"
+                                    alignItems="center"
+                                >
+                                    <Grid
+                                        item={true}
+                                        xs={12}
+                                        alignContent="center"
+                                    >
+                                        <Typography
+                                            variant="title"
+                                            align="center"
+                                        >
+                                            Please login to continue
+                                        </Typography>
+                                    </Grid>
+                                    <Grid
+                                        item={true}
+                                        xs={12}
+                                        alignContent="center"
+                                    >
+                                        <Typography
+                                            variant="title"
+                                            align="center"
+                                        >
+                                            Please login to continue
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+
+                                <Typography component="p">
+                                    This impressive paella is a perfect party
+                                    dish and a fun meal to cook together with
+                                    your guests. Add 1 cup of frozen peas along
+                                    with the mussels, if you like.
+                                </Typography>
+                            </CardContent>
+                            <CardActions>
+                                <Button
+                                    color="primary"
+                                    variant="contained"
+                                    fullWidth={true}
+                                >
+                                    Login
+                                </Button>
+                            </CardActions>
+                        </Card>
+                        <ConfirmationDialog
+                            onClick={this.onCloseErrorDialogListener}
+                            onClose={this.onCloseErrorDialogListener}
+                            title="Invalid Login"
+                            message="Please make sure you're entering a valid Private Key or Passphase"
+                            open={this.state.isErrorDialogOpen}
+                        />
                 </Grid>
-            </div>
+            </Grid>
         )
     }
 }

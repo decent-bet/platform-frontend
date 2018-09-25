@@ -1,16 +1,24 @@
 import * as React from 'react'
-import { Route, Redirect } from 'react-router-dom'
+import { Route, Redirect, RouteProps } from 'react-router-dom'
 import { VIEW_LOGIN } from '../shared/routes'
 import { userIsLoggedIn } from './thunks'
+import { connect } from 'react-redux'
 
-export default class PrivateRoute extends React.Component<any> {
+interface IPrivateRouteProps extends RouteProps {
+    dispatch?: (action) => void,
+    isLoggedIn: boolean
+}
+
+class PrivateRoute extends React.Component<IPrivateRouteProps> {
     
-    constructor(props: any) {
+    constructor(props: IPrivateRouteProps) {
         super(props)
     }
 
     public async componentDidMount () {
-        await this.props.dispatch(userIsLoggedIn())
+        if(this.props.dispatch) {
+            await this.props.dispatch(userIsLoggedIn())
+        }
     }
 
     private renderCaptiveComponent = (props) => {
@@ -18,8 +26,8 @@ export default class PrivateRoute extends React.Component<any> {
 
         if (isLoggedIn === true) {
 
-            let { component: Component } = this.props
-            return <Component {...props} />
+            let { component } = this.props
+            return <React.Component component={component} {...props} />
 
         } else {
             return (
@@ -38,3 +46,5 @@ export default class PrivateRoute extends React.Component<any> {
         return <Route {...rest} component={this.renderCaptiveComponent} />
     }
 }
+
+export default connect((state: any) => state.app)(PrivateRoute)

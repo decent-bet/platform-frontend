@@ -2,7 +2,8 @@ import createMuiTheme from '@material-ui/core/styles/createMuiTheme'
 
 const COLOR_PRIMARY = '#ffcb79',
       COLOR_SECONDARY = '#ffcb79',
-      COLOR_BACKGROUND = '#475480'
+      COLOR_BACKGROUND = '#475480',
+      COLOR_BLUE_DARK = '#2a324e'
 
 // Main Theme for all the Application
 export const AppTheme = createMuiTheme({
@@ -26,7 +27,7 @@ export const AppTheme = createMuiTheme({
     overrides: {
         MuiDrawer: {
             paper: {
-                backgroundColor: COLOR_BACKGROUND
+                backgroundColor: COLOR_BLUE_DARK
             }
         },
         MuiAppBar: {
