@@ -7,7 +7,7 @@ import {
     Collapse,
     List
 } from '@material-ui/core'
-import { STAGES } from '../shared/config'
+import { STAGES } from '../config'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ProviderSelectorItem from './ProviderSelectorItem'
 

@@ -2,12 +2,12 @@ import React from 'react'
 import { AppBar, Toolbar, IconButton } from '@material-ui/core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Link } from 'react-router-dom'
+import dbetLogo from '../assets/img/dbet-white.svg'
 
 function DashboardAppBarLogo() {
-    let imageUrl = process.env.PUBLIC_URL + '/assets/img/logos/dbet-white.svg'
     return (
         <Link to="/" className="logo-container">
-            <img src={imageUrl} className="logo" alt="Decent.bet" />
+            <img src={dbetLogo} className="logo" alt="Decent.bet" />
         </Link>
     )
 }

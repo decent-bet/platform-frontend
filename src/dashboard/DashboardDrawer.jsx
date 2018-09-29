@@ -7,7 +7,8 @@ import {
     VIEW_SLOTS,
     VIEW_SLOTS_GAME,
     VIEW_LOGOUT
-} from '../shared/routes'
+} from '../routes'
+import dbetLogo from '../assets/img/dbet-white.svg'
 
 export default function DashboardDrawer({
     isDrawerOpen,
@@ -17,7 +18,7 @@ export default function DashboardDrawer({
     onFaucetClickedListener,
     children
 }) {
-    let imgSrc = process.env.PUBLIC_URL + '/assets/img/logos/dbet-white.svg'
+    
     return (
         <Drawer
             className="drawer"
@@ -25,7 +26,7 @@ export default function DashboardDrawer({
             onClose={onDrawerCloseListener}
         >
             <div className="drawerInner">
-                <img className="logo" src={imgSrc} alt="Decent Bet Logo" />
+                <img className="logo" src={dbetLogo} alt="Decent Bet Logo" />
                 <List component="nav">
                     <DashboardDrawerItem
                         viewToSelect={VIEW_CASINO}

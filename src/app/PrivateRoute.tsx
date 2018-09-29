@@ -1,35 +1,19 @@
 import * as React from 'react'
-import { Route, Redirect, RouteProps } from 'react-router-dom'
-import { VIEW_LOGIN } from '../shared/routes'
-import { userIsLoggedIn } from './thunks'
-import { connect } from 'react-redux'
+import { Route, Redirect } from 'react-router-dom'
+import { VIEW_LOGIN, VIEW_DEFAULT } from '../routes'
 
-interface IPrivateRouteProps extends RouteProps {
-    dispatch?: (action) => void,
-    isLoggedIn: boolean
-}
-
-class PrivateRoute extends React.Component<IPrivateRouteProps> {
+export default function PrivateRoute({ component: Component, ...rest }) {
+    let { isLoggedIn } = rest
     
-    constructor(props: IPrivateRouteProps) {
-        super(props)
-    }
-
-    public async componentDidMount () {
-        if(this.props.dispatch) {
-            await this.props.dispatch(userIsLoggedIn())
-        }
-    }
-
-    private renderCaptiveComponent = (props) => {
-        let { isLoggedIn } = this.props
-
-        if (isLoggedIn === true) {
-
-            let { component } = this.props
-            return <React.Component component={component} {...props} />
-
+    const toRender = props => {
+        if (isLoggedIn) {
+            const view =
+                props.location.pathname === VIEW_DEFAULT
+                    ? VIEW_DEFAULT
+                    : props.location.pathname
+            return <Component view={view} {...props} />
         } else {
+            // Redirect to login screen
             return (
                 <Redirect
                     to={{
@@ -41,10 +25,5 @@ class PrivateRoute extends React.Component<IPrivateRouteProps> {
         }
     }
 
-    public render() {
-        let { ...rest } = this.props
-        return <Route {...rest} component={this.renderCaptiveComponent} />
-    }
+    return <Route {...rest} render={toRender} />
 }
-
-export default connect((state: any) => state.app)(PrivateRoute)

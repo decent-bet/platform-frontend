@@ -1,7 +1,2 @@
-import Login from './Login'
-import Logout from './Logout'
-
-export {
-    Login,
-    Logout
-}
+import Auth from './Auth'
+export default Auth

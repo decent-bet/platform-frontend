@@ -6,28 +6,22 @@ body {
 }
 
 body {
-    background-repeat: repeat-y;
+    background-repeat: repeat;
     background-position: top center;
-    background-image: url('../img/backgrounds/app-bg.png');
-    background-size: cover;
+    background-image: url('../img/app-bg.png');
+    background-size: contain;
     background-color: #2a324e !important;
 }
 
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0; 
-}
-
-::-webkit-scrollbar {
+::scrollbar {
     width: 8px; 
     height: 8px;
 }
 
-::-webkit-scrollbar-track {
+::scrollbar-track {
     background: rgb(47, 49, 62);
 }
 
-::-webkit-scrollbar-thumb {
+::scrollbar-thumb {
     background: #f2b45c;
 }

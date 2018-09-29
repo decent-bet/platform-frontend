@@ -1,7 +1,0 @@
-export const Prefix = 'DASHBOARD'
-export default {
-    GET_PUBLIC_ADDRESS: 'GET_PUBLIC_ADDRESS',
-    GET_TOKENS: 'GET_TOKENS',
-    GET_ETHER_BALANCE: 'GET_ETHER_BALANCE',
-    FAUCET: 'FAUCET',
-}

@@ -6,7 +6,7 @@ import DashboardRouter from './DashboardRouter'
 import DashboardDrawer from './DashboardDrawer'
 import ProviderSelector from './ProviderSelector'
 import NoTokensWarning from './NoTokensWarning'
-import * as Thunks from './thunks'
+import * as thunks from './state/thunks'
 import './dashboard.css'
 
 class Dashboard extends Component {
@@ -18,13 +18,13 @@ class Dashboard extends Component {
 
     componentDidMount() {
         // Initialize the datastore
-        this.props.dispatch(Thunks.initialize())
+        this.props.dispatch(thunks.initialize())
     }
 
     // Faucet Button Clicked. Execute Faucet
     onFaucetClickedListener = () => {
         this.onToggleDrawerListener()
-        this.props.dispatch(Thunks.faucet())
+        this.props.dispatch(thunks.faucet())
     }
 
     onDrawerButtonPressedListener = open => this.setState({ drawerOpen: open })

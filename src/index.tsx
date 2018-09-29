@@ -1,12 +1,15 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import App from './app'
+import { Provider } from 'react-redux'
+import App from './App'
+import store from './store'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fas } from '@fortawesome/free-solid-svg-icons'
-import { faEthereum } from '@fortawesome/free-brands-svg-icons'
-library.add(fas, faEthereum)
+library.add(fas)
 
 ReactDOM.render(
-    <App />,
+    <Provider store={store}>
+        <App />
+    </Provider>,
     document.getElementById('root') as HTMLElement
 );

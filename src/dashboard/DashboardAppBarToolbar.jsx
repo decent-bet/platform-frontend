@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react'
 import { Button, ButtonBase, Typography } from '@material-ui/core'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import Utils from '../shared/helpers/Utils'
+import Utils from '../common/helpers/Utils'
 
 function copyConfirmation() {
     Utils.toggleSnackbar('Copied address to clipboard')

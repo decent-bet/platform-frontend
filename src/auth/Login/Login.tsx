@@ -2,150 +2,210 @@ import * as React from 'react'
 import { connect } from 'react-redux'
 import {
     Button,
-    Card,
     Grid,
-    CardHeader,
     CardActions,
     CardContent,
-    Typography
+    Typography,
+    TextField
 } from '@material-ui/core'
-import ConfirmationDialog from '../../shared/dialogs/ConfirmationDialog'
-import * as Thunks from '../thunks'
-import logo from '../../assets/img/dbet-white.svg'
+import ReCaptcha from '../../common/components/ReCaptcha'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import * as thunks from '../state/thunks'
+import { VIEW_FORGOT_PASSWORD, VIEW_SIGNUP } from '../../routes'
 
 class Login extends React.Component<any> {
-    public state = {
-        email: '',
-        password: '',
-        recaptchaKey: '',
-        isErrorDialogOpen: false
+    constructor(props) {
+        super(props)
     }
 
-    private login = () => {
+    public state = {
+        formData: {
+            email: '',
+            password: '',
+            recaptchaKey: ''
+        },
+        errors: {
+            email: false,
+            password: false,
+            recaptcha: false
+        },
+        errorsMessages: {
+            email: '',
+            password: '',
+            recaptcha: ''
+        },
+        isValidCredentials: false
+    }
+
+    private didClicOnSignUp = () => {
+        this.props.history.push(VIEW_SIGNUP)
+    }
+
+    private didClicOnForgotPassword = () => {
+        this.props.history.push(VIEW_FORGOT_PASSWORD)
+    }
+
+    private onValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        let { formData, errorsMessages, errors } = this.state
+        const value = event.target.value
+        const name = event.target.name
+
+        formData[name] = value
+        if (!event.target.validity.valid || !value || value.length < 4) {
+            errorsMessages[name] = event.target.validationMessage
+            errors[name] = true
+        } else {
+            errorsMessages[name] = ''
+            errors[name] = false
+        }
+        const isValidCredentials = this.isValidCredentials(formData)
+        this.setState({ formData, errorsMessages, errors, isValidCredentials })
+    }
+
+    private isValidCredentials = formData => {
+        let { email, password, recaptchaKey } = formData
+        const isValidCredentials =
+            email.length > 3 && password.length > 4 && recaptchaKey.length > 0
+
+        return isValidCredentials
+    }
+
+    private onRecapchaKeyChange = key => {
+        let { formData } = this.state
+        formData.recaptchaKey = key || ''
+        const isValidCredentials = this.isValidCredentials(formData)
+        this.setState({ formData, isValidCredentials })
+    }
+
+    private handleSubmit = (event: React.FormEvent) => {
+        event.preventDefault()
+        let { formData } = this.state
         this.props
-            .dispatch(
-                Thunks.login(
-                    this.state.email,
-                    this.state.password,
-                    this.state.recaptchaKey
-                )
-            )
+            .dispatch(thunks.login(formData))
             .then(() => {
-                // Go to the Root
                 this.props.history.push('/')
             })
             .catch(error => {
-                this.setState({
-                    isErrorDialogOpen: true
-                })
+                console.log(error)
             })
-    }
-
-    private isValidCredentials() {
-        return (
-            this.state.email.length > 0 &&
-            this.state.password.length > 0 &&
-            this.state.recaptchaKey.length > 0
-        )
-    }
-
-    public onLoginListener = e => {
-        e.preventDefault()
-        if (this.isValidCredentials()) {
-            this.login()
-        } else {
-            this.setState({
-                isErrorDialogOpen: true
-            })
-        }
-    }
-
-    private onCloseErrorDialogListener = () => {
-        this.setState({ isErrorDialogOpen: false })
     }
 
     public render() {
         return (
-            <Grid
-                container={true}
-                style={{ height: '95vh', overflow:"hidden"}}
-                direction="column"
-                alignItems="center"
-                justify="center"
-            >
-                <Grid item={true} xs={12} sm={3} md={5} justify="center">
-                <Card>
-                            <CardHeader
-                                avatar={
-                                    <img
-                                        src={logo}
-                                        alt="Decent.bet Logo"
-                                        style={{ maxHeight: 26 }}
-                                    />
-                                }
-                            />
-                            <CardContent>
-                                <Grid
-                                    container={true}
-                                    spacing={24}
-                                    direction="column"
-                                    alignItems="center"
-                                >
-                                    <Grid
-                                        item={true}
-                                        xs={12}
-                                        alignContent="center"
-                                    >
-                                        <Typography
-                                            variant="title"
-                                            align="center"
-                                        >
-                                            Please login to continue
-                                        </Typography>
-                                    </Grid>
-                                    <Grid
-                                        item={true}
-                                        xs={12}
-                                        alignContent="center"
-                                    >
-                                        <Typography
-                                            variant="title"
-                                            align="center"
-                                        >
-                                            Please login to continue
-                                        </Typography>
-                                    </Grid>
-                                </Grid>
-
-                                <Typography component="p">
-                                    This impressive paella is a perfect party
-                                    dish and a fun meal to cook together with
-                                    your guests. Add 1 cup of frozen peas along
-                                    with the mussels, if you like.
-                                </Typography>
-                            </CardContent>
-                            <CardActions>
-                                <Button
-                                    color="primary"
-                                    variant="contained"
-                                    fullWidth={true}
-                                >
-                                    Login
-                                </Button>
-                            </CardActions>
-                        </Card>
-                        <ConfirmationDialog
-                            onClick={this.onCloseErrorDialogListener}
-                            onClose={this.onCloseErrorDialogListener}
-                            title="Invalid Login"
-                            message="Please make sure you're entering a valid Private Key or Passphase"
-                            open={this.state.isErrorDialogOpen}
+            <React.Fragment>
+                <CardContent>
+                    <Typography
+                        variant="headline"
+                        align="center"
+                        style={{ fontWeight: 'lighter' }}
+                    >
+                        Please login to continue
+                    </Typography>
+                    <form onSubmit={this.handleSubmit}>
+                        <TextField
+                            label="Email"
+                            type="email"
+                            name="email"
+                            error={this.state.errors.email}
+                            value={this.state.formData.email}
+                            required={true}
+                            fullWidth={true}
+                            onChange={this.onValueChange}
+                            helperText={this.state.errorsMessages.email}
                         />
-                </Grid>
-            </Grid>
+
+                        <TextField
+                            label="Password"
+                            type="password"
+                            name="password"
+                            error={this.state.errors.password}
+                            value={this.state.formData.password}
+                            onChange={this.onValueChange}
+                            required={true}
+                            fullWidth={true}
+                            helperText={this.state.errorsMessages.password}
+                        />
+
+                        <Typography variant="subheading">
+                            Forgot your password ?
+                            <Button
+                                onClick={this.didClicOnForgotPassword}
+                                disableRipple={true}
+                                color="primary"
+                                style={{
+                                    textTransform: 'none',
+                                    margin: '0 !important'
+                                }}
+                            >
+                                Click here
+                            </Button>
+                        </Typography>
+                        <Grid
+                            container={true}
+                            direction="column"
+                            justify="center"
+                            alignItems="center"
+                            style={{ paddingTop: '1em', paddingBottom: '1em' }}
+                        >
+                            <Grid item={true} xs={12}>
+                                <ReCaptcha
+                                    onChange={this.onRecapchaKeyChange}
+                                />
+                            </Grid>
+                        </Grid>
+                        <p>
+                            <Button
+                                color="primary"
+                                variant="contained"
+                                fullWidth={true}
+                                disabled={
+                                    !this.state.isValidCredentials ||
+                                    this.props.loading
+                                }
+                                type="submit"
+                            >
+                                {this.props.loading ? (
+                                    <FontAwesomeIcon icon="spinner" />
+                                ) : (
+                                    'Login'
+                                )}
+                            </Button>
+                        </p>
+                    </form>
+                </CardContent>
+                <CardActions>
+                    <Grid
+                        container={true}
+                        direction="column"
+                        alignItems="center"
+                        spacing={16}
+                    >
+                        <Grid item={true} xs={12}>
+                            <Typography variant="body2">
+                                Don’t have an account?
+                            </Typography>
+                        </Grid>
+                        <Grid
+                            item={true}
+                            xs={12}
+                            direction="row"
+                            justify="center"
+                            alignItems="center"
+                        >
+                            <Button
+                                color="secondary"
+                                variant="contained"
+                                onClick={this.didClicOnSignUp}
+                            >
+                                Create New Account
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </CardActions>
+            </React.Fragment>
         )
     }
 }
 
 // Connect this component to Redux
-export default connect(state => state)(Login)
+export default connect((state: any) => state.auth)(Login)
