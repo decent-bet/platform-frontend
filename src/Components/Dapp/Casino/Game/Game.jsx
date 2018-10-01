@@ -130,7 +130,7 @@ class Game extends Component {
     renderHeader = () => (
         <section className="controls">
             <Button variant="raised" color="primary" onClick={this.back}>
-                Switch Game
+                Lobby
             </Button>
             <Button
                 variant="raised"
