@@ -165,7 +165,7 @@ class Login extends React.Component<any> {
                                 type="submit"
                             >
                                 {this.props.loading ? (
-                                    <FontAwesomeIcon icon="spinner" />
+                                    <FontAwesomeIcon icon="spinner" color="white"/>
                                 ) : (
                                     'Login'
                                 )}
@@ -188,9 +188,6 @@ class Login extends React.Component<any> {
                         <Grid
                             item={true}
                             xs={12}
-                            direction="row"
-                            justify="center"
-                            alignItems="center"
                         >
                             <Button
                                 color="secondary"

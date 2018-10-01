@@ -23,7 +23,6 @@ const getIconVariant = (variant): IconName => {
     }
 }
 
-
 const contentStyles = (theme: Theme) => createStyles({
     success: {
         backgroundColor: green[600],

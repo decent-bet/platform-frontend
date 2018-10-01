@@ -8,6 +8,7 @@ import {
 import AuthRouter from './AuthRouter'
 import { closeAlert } from './state/thunks'
 import Alert from '../common/components/Alert'
+import { AlertVariant } from '../common/components/Alert/Alert'
 import logo from '../assets/img/dbet-white.svg'
 import { WithStyles, withStyles, createStyles } from '@material-ui/core'
 
@@ -25,6 +26,7 @@ const styles = () => createStyles({
 
 interface IAuthProps extends WithStyles<typeof styles> { 
     alertIsOpen: boolean,
+    alertType: AlertVariant,
     errorMessage: string
     dispatch: (any) => void
 }
@@ -62,7 +64,7 @@ class Auth extends React.Component<IAuthProps> {
 
                         <Alert
                             onClose={this.handleAlertClose}
-                            variant="error"
+                            variant={this.props.alertType || 'error'}
                             transition="down"
                             anchorOrigin={{
                                 vertical: 'top',

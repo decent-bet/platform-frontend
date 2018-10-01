@@ -1,7 +1,7 @@
-export const Prefix = 'AUTH'
+export const PREFIX = 'AUTH'
 export default {
     LOGIN: 'LOGIN',
     LOGOUT: 'LOGOUT',
-    SET_RECAPTCHA_KEY: 'SET_RECAPTCHA_KEY',
+    SIGN_UP: 'SIGN_UP',
     CLOSE_ALERT: 'CLOSE_ALERT'
 }

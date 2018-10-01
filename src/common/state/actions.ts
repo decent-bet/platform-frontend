@@ -3,7 +3,6 @@ import Actions, { PREFIX } from './actionTypes'
 import { AUTH_TOKEN_NAME } from '../../config'
 import IKeyStore from '../../common/helpers/IKeyStore'
 
-
 async function userIsLoggedIn(KeyStore: IKeyStore) {
     let token = await KeyStore.getVariable(AUTH_TOKEN_NAME)
     return token !== null && token !== undefined

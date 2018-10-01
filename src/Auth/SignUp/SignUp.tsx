@@ -47,7 +47,7 @@ class SignUp extends React.Component<any> {
         return isValidCredentials
     }
 
-    private onValueChange(event: React.ChangeEvent<HTMLInputElement>) {
+    private onValueChange = (event: React.ChangeEvent<HTMLInputElement>)=>  {
         let { formData, errorsMessages, errors } = this.state
         const value = event.target.value
         const name = event.target.name
@@ -191,9 +191,6 @@ class SignUp extends React.Component<any> {
                         <Grid
                             item={true}
                             xs={12}
-                            direction="row"
-                            justify="center"
-                            alignItems="center"
                         >
                             <Button
                                 color="secondary"

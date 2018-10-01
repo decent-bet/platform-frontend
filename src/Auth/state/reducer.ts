@@ -1,10 +1,11 @@
-import Actions, { Prefix } from './actionTypes'
+import Actions, { PREFIX } from './actionTypes'
 import { PENDING, FULFILLED, REJECTED } from 'redux-promise-middleware'
 
 const DefaultAuthState = {
     isLoggedIn: false,
     recaptchaKey: '',
     errorMessage: '',
+    alertType: 'error',
     loading: false,
     alertIsOpen: false
 }
@@ -14,36 +15,36 @@ export default function authReducer(
     action: any = { type: null }
 ) {
     switch (action.type) {
-        case `${Prefix}/${Actions.LOGIN}/${FULFILLED}`:
+        case `${PREFIX}/${Actions.LOGIN}/${FULFILLED}`:
+        
             return {
                 ...authState,
                 loading: false,
-                isLoggedIn: action.payload
+                errorMessage: action.payload,
+                isLoggedIn: true,
             }
-        case `${Prefix}/${Actions.LOGIN}/${PENDING}`:
+
+        case `${PREFIX}/${Actions.LOGIN}/${PENDING}`:
             return {
                 ...authState,
                 loading: true
         }
-        case `${Prefix}/${Actions.LOGIN}/${REJECTED}`:
-            let errorMessage = action.payload && 
-                          action.payload.response && 
-                          action.payload.response.data ? action.payload.response.data.message : 'Error trying to login, please check later.'
+        case `${PREFIX}/${Actions.LOGIN}/${REJECTED}`:
             
             return {
                 ...authState,
                 loading: false,
                 alertIsOpen: true,
-                errorMessage,
+                errorMessage: action.payload,
                 isLoggedIn: false
         }
-        case `${Prefix}/${Actions.CLOSE_ALERT}/${FULFILLED}`:
+        case `${PREFIX}/${Actions.CLOSE_ALERT}/${FULFILLED}`:
         return {
             ...authState,
             alertIsOpen: false,
             errorMessage: ''
     }
-        case `${Prefix}/${Actions.LOGOUT}/${FULFILLED}`:
+        case `${PREFIX}/${Actions.LOGOUT}/${FULFILLED}`:
             return DefaultAuthState
         default:
             return { ...authState }
