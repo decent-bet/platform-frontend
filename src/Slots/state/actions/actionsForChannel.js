@@ -46,8 +46,7 @@ async function fetchBalance(chainProvider, helper) {
 async function waitForChannelActivation(channelId, transaction, contractFactory, helper) {
     let slotsContract = await contractFactory.slotsChannelManagerContract()
     helper.toggleSnackbar('Waiting for channel activation confirmation')
-    return await slotsContract.logChannelDeposit(channelId, transaction)
-    //return await slotsContract.logChannelActivate(channelId)
+    return await slotsContract.logChannelActivate(channelId, transaction)
 }
 
 

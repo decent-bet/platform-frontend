@@ -14,7 +14,7 @@ async function authWallet(data, chainProvider, keyHandler) {
 
     if (data.includes(' ')) {
         // Passphrase Mnemonic mode
-        wallet = Wallet.fromMnemonic(data, "m/44'/818'/0'/0")
+        wallet = Wallet.fromMnemonic(data, "m/44'/818'/0'/0/0")
         values = {
             mnemonic: data,
             privateKey: wallet.privateKey,

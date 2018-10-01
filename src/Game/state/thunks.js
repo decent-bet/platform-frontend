@@ -101,7 +101,7 @@ export function buildChannel(amount, allowance, balance, statusUpdateListener) {
                 depositAmount.dividedBy(units.ether).toFixed()
 
             if (allowance.isLessThan(depositAmount)) {
-                statusUpdateListener(`Approving ${formattedDepositAmount} DBETs for token deposit`)
+                statusUpdateListener(`Approving DBETs for token deposit`)
                 await dispatch(Actions.approve(depositAmount, chainProvider, helper))
             }
 
