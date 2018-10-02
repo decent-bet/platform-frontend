@@ -123,12 +123,7 @@ export default class BaseContract {
      * @param {String} data
      */
     async signAndSendRawTransaction(to, gasPriceCoef, gas, data) {
-        if (!gasPriceCoef) gasPriceCoef = 128
-
-        //check the gas
-        if (!gas || gas < 0) {
-            gas = 5000000
-        }
+        if (!gasPriceCoef) gasPriceCoef = 0
 
         let txBody = {
             from: this._keyHandler.getAddress(),
@@ -155,7 +150,7 @@ export default class BaseContract {
             chainTag: '0x27',
             blockRef,
             expiration: 32,
-            gasPriceCoef: 128,
+            gasPriceCoef: 0,
             gas,
             dependsOn,
             nonce: 12345678
@@ -185,7 +180,7 @@ export default class BaseContract {
             blockRef,
             expiration: 32,
             clauses: clauses,
-            gasPriceCoef: 128,
+            gasPriceCoef: 0,
             gas: 200000,
             dependsOn: null,
             nonce: 12345678

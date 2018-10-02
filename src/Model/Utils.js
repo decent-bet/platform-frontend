@@ -8,8 +8,7 @@ const BigNumber = require('bignumber.js')
 const initialChannelHouseBalance = new BigNumber(10).pow(18).times(10000)
 
 export class Utils {
-    
-    
+
     constructor(chainProvider, keyHandler, httpApi) {
         this.chainProvider = chainProvider
         this.keyHandler = keyHandler
@@ -46,12 +45,12 @@ export class Utils {
      */
     async getChannelDepositParams(id) {
         let randomNumber = this.random(18).toString()
-    
+
         const key = await this.getAesKey(id)
         let initialUserNumber = AES.encrypt(randomNumber, key).toString()
         let userHashes = this.getUserHashes(randomNumber)
         let finalUserHash = userHashes[userHashes.length - 1]
-        
+
         return {
             initialUserNumber: initialUserNumber,
             finalUserHash: finalUserHash
@@ -62,12 +61,12 @@ export class Utils {
         let randomValuesArray = new Uint32Array(length)
         let crypto = window.crypto || window.msCrypto
         crypto.getRandomValues(randomValuesArray)
-    
+
         let outputString = ""
         for (let i = 0; i < randomValuesArray.length; i++) {
             outputString += randomValuesArray[i]
         }
-    
+
         return outputString.slice(0, length)
     }
 
