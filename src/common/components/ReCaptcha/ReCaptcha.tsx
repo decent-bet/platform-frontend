@@ -1,20 +1,34 @@
 import { RECAPTCHA_SITE_KEY } from '../../../constants'
 import * as React from 'react'
 import ReCAPTCHA from 'react-google-recaptcha'
-import { CircularProgress } from '@material-ui/core'
+import { Grow, CircularProgress, Grid } from '@material-ui/core'
 
 interface IRecaptchaProps {
     onChange: (key: string) => void
+    onReceiveRecaptchaInstance: (instance: React.RefObject<ReCAPTCHA>) => void
 }
 
 export default class ReCaptcha extends React.Component<IRecaptchaProps> {
-    private _reCaptchaRef?: React.RefObject<ReCAPTCHA>
+    private _reCaptchaRef: React.RefObject<ReCAPTCHA>
+    private _interval: NodeJS.Timer
     public state = {
         loaded: false
     }
 
     constructor(props: IRecaptchaProps) {
         super(props)
+        this._reCaptchaRef = React.createRef<ReCAPTCHA>()
+    }
+
+    public componentDidMount() {
+        this._interval = setInterval(() => {
+            const { grecaptcha } = window as any
+            if (grecaptcha) {
+                clearInterval(this._interval)
+                this.setState({ loaded: true })
+                this.props.onReceiveRecaptchaInstance(this._reCaptchaRef)
+            }
+        }, 500)
     }
 
     public componentWillUnmount = () => {
@@ -23,36 +37,48 @@ export default class ReCaptcha extends React.Component<IRecaptchaProps> {
         }
     }
 
-    private setRef = (ref: any) => {
-        this._reCaptchaRef = ref
-        if (this._reCaptchaRef) {
-            setTimeout(() => {
-                this.setState({ loaded: true })
-            }, 1000)
-        }
-    }
-
     private onChange = recaptchaToken => {
-        this.props.onChange(recaptchaToken)
+        this.props.onChange(recaptchaToken || '')
     }
 
     public render() {
         return (
-            <React.Fragment>
-                <div style={{ display: this.state.loaded ? 'block' : 'none' }}>
-                    <ReCAPTCHA
-                        ref={this.setRef}
-                        sitekey={RECAPTCHA_SITE_KEY}
-                        onChange={this.onChange}
-                        theme="light"
-                    />
-                </div>
-                <div style={{ display: this.state.loaded ? 'none' : 'block' }}>
-                    <div style={{ padding: '1em' }}>
-                        <CircularProgress />
+            <Grid
+                container={true}
+                direction="column"
+                alignItems="center"
+                justify="center"
+            >
+                <Grid
+                    item={true}
+                    xs={12}
+                    style={{
+                        paddingTop: '2em',
+                        paddingBottom: '1em'
+                    }}
+                >
+                    <div
+                        style={{ maxWidth: '260px !important', height: '78px' }}
+                    >
+                        <div
+                            style={{
+                                display: this.state.loaded ? 'none' : 'block',
+                                textAlign: 'center'
+                            }}
+                        >
+                            <CircularProgress size={24} color="secondary" />
+                        </div>
+                        <Grow in={this.state.loaded} timeout={1000}>
+                            <ReCAPTCHA
+                                ref={this._reCaptchaRef}
+                                sitekey={RECAPTCHA_SITE_KEY}
+                                onChange={this.onChange}
+                                theme="light"
+                            />
+                        </Grow>
                     </div>
-                </div>
-            </React.Fragment>
+                </Grid>
+            </Grid>
         )
     }
 }

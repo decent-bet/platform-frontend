@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import {
     Card,
@@ -6,41 +7,37 @@ import {
     CardHeader
 } from '@material-ui/core'
 import AuthRouter from './AuthRouter'
-import { closeAlert } from './state/thunks'
+import actions from './state/actions'
 import Alert from '../common/components/Alert'
-import { AlertVariant } from '../common/components/Alert/Alert'
 import logo from '../assets/img/dbet-white.svg'
-import { WithStyles, withStyles, createStyles } from '@material-ui/core'
+import { withStyles, createStyles } from '@material-ui/core'
 
 const styles = () => createStyles({
     root: { height: '100vh' },
     grid: { 
         width: '35rem', 
-        boxShadow: '0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22)' 
+        height: '100%'
     },
     card: {
         paddingBottom: '1em',
-        paddingTop: '1em'
+        paddingTop: '1em',
+        marginTop: '1em',
+        boxShadow: '0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22)'
     }
 })
 
-interface IAuthProps extends WithStyles<typeof styles> { 
-    alertIsOpen: boolean,
-    alertType: AlertVariant,
-    errorMessage: string
-    dispatch: (any) => void
-}
+class Auth extends React.Component<any> {
 
-class Auth extends React.Component<IAuthProps> {
-
-    constructor(props: IAuthProps) {
+    constructor(props: any) {
         super(props)
     }
 
     private handleAlertClose = ()=> {
-        this.props.dispatch(closeAlert())
+        const { closeAlert } = this.props as any
+        closeAlert()
     }
     
+
     public render() {
         return (
             <Grid
@@ -50,7 +47,7 @@ class Auth extends React.Component<IAuthProps> {
                 alignItems="center"
                 justify="center"
             >
-                <Grid item={true} xs={11} sm={5} md={5} className={this.props.classes.grid}>
+                <Grid item={true} xs={12} sm={5} md={5} className={this.props.classes.grid}>
                     <Card className={this.props.classes.card}>
                         <CardHeader
                             avatar={
@@ -61,7 +58,6 @@ class Auth extends React.Component<IAuthProps> {
                                 />
                             }
                         />
-
                         <Alert
                             onClose={this.handleAlertClose}
                             variant={this.props.alertType || 'error'}
@@ -71,9 +67,9 @@ class Auth extends React.Component<IAuthProps> {
                                 horizontal: 'right'
                             }}
                             open={this.props.alertIsOpen}
-                            message={this.props.errorMessage}
+                            message={this.props.alertMessage}
                         />
-                        <AuthRouter />
+                        <AuthRouter/>
                     </Card>
                 </Grid>
             </Grid>
@@ -81,5 +77,13 @@ class Auth extends React.Component<IAuthProps> {
     }
 }
 
-// Connect this component to Redux
-export default withStyles(styles)(connect((state: any) => state.auth)(Auth))
+const styledAuthComponent = withStyles(styles)(Auth)
+
+const mapStateToProps = state => Object.assign({}, state.auth)
+const mapDispatchToProps = dispatch => bindActionCreators(Object.assign(
+        {},
+        actions.auth
+    ), dispatch)
+
+const AuthContainer = connect(mapStateToProps, mapDispatchToProps)(styledAuthComponent)
+export default withStyles(styles)(AuthContainer)

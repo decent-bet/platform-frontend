@@ -1,16 +1,19 @@
 import * as React from 'react'
+import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
+import { Link } from 'react-router-dom'
 import {
     Button,
     Grid,
     CardActions,
     CardContent,
     Typography,
-    TextField
+    TextField,
+    CircularProgress
 } from '@material-ui/core'
 import ReCaptcha from '../../common/components/ReCaptcha'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as thunks from '../state/thunks'
+import actions from '../state/actions'
 import { VIEW_FORGOT_PASSWORD, VIEW_SIGNUP } from '../../routes'
 
 class Login extends React.Component<any> {
@@ -18,31 +21,27 @@ class Login extends React.Component<any> {
         super(props)
     }
 
+    public componentDidMount() {
+        this.props.setDefaultStatus()
+    }
+    
     public state = {
+        recaptchaKey: '',
+        recaptcha: null,
         formData: {
             email: '',
-            password: '',
-            recaptchaKey: ''
+            password: ''
         },
         errors: {
             email: false,
             password: false,
-            recaptcha: false
+            recaptchaKey: false
         },
         errorsMessages: {
             email: '',
             password: '',
-            recaptcha: ''
-        },
-        isValidCredentials: false
-    }
-
-    private didClicOnSignUp = () => {
-        this.props.history.push(VIEW_SIGNUP)
-    }
-
-    private didClicOnForgotPassword = () => {
-        this.props.history.push(VIEW_FORGOT_PASSWORD)
+            recaptchaKey: ''
+        }
     }
 
     private onValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,39 +57,41 @@ class Login extends React.Component<any> {
             errorsMessages[name] = ''
             errors[name] = false
         }
-        const isValidCredentials = this.isValidCredentials(formData)
-        this.setState({ formData, errorsMessages, errors, isValidCredentials })
+
+        this.setState({ formData, errorsMessages, errors })
     }
 
-    private isValidCredentials = formData => {
-        let { email, password, recaptchaKey } = formData
-        const isValidCredentials =
+    private get isValidCredentials() {
+        let { email, password } = this.state.formData
+        let { recaptchaKey } = this.props
+        return (
             email.length > 3 && password.length > 4 && recaptchaKey.length > 0
-
-        return isValidCredentials
+        )
     }
 
-    private onRecapchaKeyChange = key => {
-        let { formData } = this.state
-        formData.recaptchaKey = key || ''
-        const isValidCredentials = this.isValidCredentials(formData)
-        this.setState({ formData, isValidCredentials })
-    }
-
-    private handleSubmit = (event: React.FormEvent) => {
+    private handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()
-        let { formData } = this.state
-        this.props
-            .dispatch(thunks.login(formData))
-            .then(() => {
-                this.props.history.push('/')
-            })
-            .catch(error => {
-                console.log(error)
-            })
+        let { formData, recaptchaKey } = this.state
+        if(this.props.recapcha && this.props.recapcha.current) {
+            this.props.recapcha.current.reset()
+        }
+        await this.props.login({ recaptchaKey, ...formData })
+        this.setState({
+            formData: {
+                email: '',
+                password: ''
+            },
+            recaptchaKey: ''
+        })
+        this.props.history.push('/')
     }
 
     public render() {
+        const signUpLink = props => <Link to={VIEW_SIGNUP} {...props} />
+        const forgotPasswordLink = props => (
+            <Link to={VIEW_FORGOT_PASSWORD} {...props} />
+        )
+
         return (
             <React.Fragment>
                 <CardContent>
@@ -118,6 +119,7 @@ class Login extends React.Component<any> {
                             label="Password"
                             type="password"
                             name="password"
+                            autoComplete="none"
                             error={this.state.errors.password}
                             value={this.state.formData.password}
                             onChange={this.onValueChange}
@@ -129,7 +131,7 @@ class Login extends React.Component<any> {
                         <Typography variant="subheading">
                             Forgot your password ?
                             <Button
-                                onClick={this.didClicOnForgotPassword}
+                                component={forgotPasswordLink}
                                 disableRipple={true}
                                 color="primary"
                                 style={{
@@ -140,32 +142,30 @@ class Login extends React.Component<any> {
                                 Click here
                             </Button>
                         </Typography>
-                        <Grid
-                            container={true}
-                            direction="column"
-                            justify="center"
-                            alignItems="center"
-                            style={{ paddingTop: '1em', paddingBottom: '1em' }}
-                        >
-                            <Grid item={true} xs={12}>
-                                <ReCaptcha
-                                    onChange={this.onRecapchaKeyChange}
-                                />
-                            </Grid>
-                        </Grid>
+
+                        <ReCaptcha
+                            onChange={this.props.setRecaptchaKey}
+                            onReceiveRecaptchaInstance={
+                                this.props.setRecaptchaInstance
+                            }
+                        />
+
                         <p>
                             <Button
                                 color="primary"
                                 variant="contained"
                                 fullWidth={true}
                                 disabled={
-                                    !this.state.isValidCredentials ||
+                                    !this.isValidCredentials ||
                                     this.props.loading
                                 }
                                 type="submit"
                             >
-                                {this.props.loading ? (
-                                    <FontAwesomeIcon icon="spinner" color="white"/>
+                                {this.props.loading === true ? (
+                                    <CircularProgress
+                                        size={24}
+                                        color="secondary"
+                                    />
                                 ) : (
                                     'Login'
                                 )}
@@ -185,14 +185,11 @@ class Login extends React.Component<any> {
                                 Don’t have an account?
                             </Typography>
                         </Grid>
-                        <Grid
-                            item={true}
-                            xs={12}
-                        >
+                        <Grid item={true} xs={12}>
                             <Button
                                 color="secondary"
                                 variant="contained"
-                                onClick={this.didClicOnSignUp}
+                                component={signUpLink}
                             >
                                 Create New Account
                             </Button>
@@ -204,5 +201,12 @@ class Login extends React.Component<any> {
     }
 }
 
-// Connect this component to Redux
-export default connect((state: any) => state.auth)(Login)
+const mapStateToProps = state => Object.assign({}, state.auth)
+const mapDispatchToProps = dispatch =>
+    bindActionCreators(Object.assign({}, thunks, actions.auth), dispatch)
+
+const LoginContainer = connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Login)
+export default LoginContainer

@@ -1,17 +1,30 @@
 import * as React from 'react'
-import { Route, Switch } from 'react-router-dom'
+import { Route, Redirect, Switch } from 'react-router-dom'
 import ForgotPassword from './ForgotPassword'
 import SignUp from './SignUp'
 import Login from './Login'
-import { VIEW_LOGIN, VIEW_FORGOT_PASSWORD, VIEW_SIGNUP } from '../routes'
+import ResetPassword from './ResetPassword'
+import ActivateAccount from './ActivateAccount'
+import {
+    VIEW_LOGIN,
+    VIEW_FORGOT_PASSWORD,
+    VIEW_SIGNUP,
+    VIEW_RESET_PASSWROD,
+    VIEW_ACTIVATE_ACCOUNT,
+    VIEW_DEFAULT
+} from '../routes'
 
-// Renders the page inside the Dashboard
-const AuthRouter = () => (
-    <Switch>
-        <Route exact={true} path={VIEW_LOGIN} component={Login} />
-        <Route path={VIEW_SIGNUP} component={SignUp} />
-        <Route path={VIEW_FORGOT_PASSWORD} component={ForgotPassword} />
-    </Switch>
-)
+const AuthRouter = () => {
+    return (
+        <Switch>
+            <Redirect exact={true} path={VIEW_DEFAULT} to={VIEW_LOGIN} />
+            <Route path={VIEW_LOGIN} component={Login} />
+            <Route path={VIEW_SIGNUP} component={SignUp} />
+            <Route path={VIEW_ACTIVATE_ACCOUNT} component={ActivateAccount} />
+            <Route path={VIEW_RESET_PASSWROD} component={ResetPassword} />
+            <Route path={VIEW_FORGOT_PASSWORD} component={ForgotPassword} />            
+        </Switch>
+    )
+}
 
 export default AuthRouter

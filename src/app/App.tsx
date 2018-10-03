@@ -1,24 +1,29 @@
 import * as React from 'react'
+import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
-import { Grid, CssBaseline, MuiThemeProvider, Snackbar, CircularProgress } from '@material-ui/core'
+import {
+    Grid,
+    CssBaseline,
+    MuiThemeProvider,
+    Snackbar,
+    CircularProgress
+} from '@material-ui/core'
 import Dashboard from '../Dashboard'
 import Auth from '../Auth'
 import Logout from '../Logout'
-import ActivateAccount from '../ActivateAccount'
 import PrivateRoute from './PrivateRoute'
 import PublicRoute from './PublicRoute'
 import EventBus from 'eventing-bus'
 import { DarkTheme } from '../common/themes/dark'
-import { VIEW_AUTH, VIEW_LOGOUT, VIEW_ACTIVATE } from '../routes'
-import { userIsLoggedIn } from '../common/state/thunks'
+import { VIEW_LOGOUT } from '../routes'
+import * as thunks from '../common/state/thunks'
 
 class App extends React.Component<any> {
-    
     constructor(props: any) {
         super(props)
     }
-    
+
     public state = {
         snackbarMessage: null,
         isSnackBarOpen: false,
@@ -26,7 +31,7 @@ class App extends React.Component<any> {
     }
 
     public async componentDidMount() {
-        await this.props.dispatch(userIsLoggedIn())
+        await this.props.userIsLoggedIn()
         EventBus.on('showSnackbar', message => {
             this.setState({
                 isSnackBarOpen: true,
@@ -43,37 +48,81 @@ class App extends React.Component<any> {
         })
     }
 
-    public render() {
+    private renderRoutes = () => {
         return (
-            <React.Fragment>
-            <CssBaseline />
-                <MuiThemeProvider theme={DarkTheme}>
-                    <Grid container={true} 
+            <Grid
+                container={true}
                 direction="row"
                 alignItems="center"
                 alignContent="center"
-                justify="center">
-                        <Grid item={true} xs={12} style={{ paddingLeft: '2em', paddingRight: '2em'}}>
-                            {this.state.stateMachine === 'loaded'? <BrowserRouter>
-                                <Switch>
-                                    <Route path={VIEW_LOGOUT} component={Logout}/>
-                                    <Route path={VIEW_ACTIVATE} component={ActivateAccount}/>
-                                    <PublicRoute path={VIEW_AUTH} component={Auth} isLoggedIn={this.props.isLoggedIn}/>
-                                    <PrivateRoute exact={true} component={Dashboard} isLoggedIn={this.props.isLoggedIn} />
-                                </Switch>
-                            </BrowserRouter> : <CircularProgress/>}
-                            <Snackbar onClose={this.onCloseSnackBar}
-                                    message={this.state.snackbarMessage}
-                                    open={this.state.isSnackBarOpen}
-                                    autoHideDuration={6000}
+                justify="center"
+            >
+                <Grid
+                    item={true}
+                    xs={12}
+                    style={{ paddingLeft: '2em', paddingRight: '2em' }}
+                >
+                    <BrowserRouter>
+                        <Switch>
+                            <Route path={VIEW_LOGOUT} component={Logout} />
+                            <PublicRoute
+                                component={Auth}
+                                isLoggedIn={this.props.isLoggedIn}
                             />
-                        </Grid>
+                            <PrivateRoute
+                                exact={true}
+                                component={Dashboard}
+                                isLoggedIn={this.props.isLoggedIn}
+                            />
+                        </Switch>
+                    </BrowserRouter>
+                    <Snackbar
+                        onClose={this.onCloseSnackBar}
+                        message={this.state.snackbarMessage}
+                        open={this.state.isSnackBarOpen}
+                        autoHideDuration={6000}
+                    />
+                </Grid>
+            </Grid>
+        )
+    }
+
+    private renderLoading = () => {
+        return (
+            <Grid
+                container={true}
+                direction="column"
+                alignItems="center"
+                justify="center"
+                style={{ height: '100vh' }}
+            >
+                <Grid container={true} direction="column" alignItems="center">
+                    <Grid item={true} xs={12}>
+                        <CircularProgress/>
                     </Grid>
+                </Grid>
+            </Grid>
+        )
+    }
+    public render() {
+        return (
+            <React.Fragment>
+                <CssBaseline />
+                <MuiThemeProvider theme={DarkTheme}>
+                    {this.state.stateMachine === 'loaded'
+                        ? this.renderRoutes()
+                        : this.renderLoading()}
                 </MuiThemeProvider>
-          </React.Fragment>
+            </React.Fragment>
         )
     }
 }
 
+const mapStateToProps = state => Object.assign({}, state.main)
+const mapDispatchToProps = dispatch => bindActionCreators(Object.assign(
+        {},
+        thunks
+    ), dispatch)
 
-export default connect((state: any) => state.main)(App)
+const AppContainer = connect(mapStateToProps, mapDispatchToProps)(App)
+export default AppContainer
