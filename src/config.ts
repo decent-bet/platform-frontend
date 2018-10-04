@@ -17,14 +17,17 @@ const DEFAULT_STAGE: string = process.env.REACT_APP_STAGE || STAGE_LOCAL
 const STAGE_CONFIGS = {
     local: {
         channelsApiUrl: 'http://localhost:3010/api',
+        wsApiUrl: 'ws://localhost:3010',
         thorNode: 'http://localhost:8669'
     },
     testnet: {
         channelsApiUrl: 'https://channels-api-alpha.decent.bet/api',
+        wsApiUrl: '',
         thorNode: 'https://thor-staging.decent.bet'
     },
     main: {
         channelsApiUrl: 'https://channels-api-alpha.decent.bet/api',
+        wsApiUrl: '',
         thorNode: 'https://thor-staging.decent.bet'
     }
 }

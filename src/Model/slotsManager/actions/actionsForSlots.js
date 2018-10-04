@@ -102,7 +102,7 @@ async function getFinalBalances(channelId, isHouse = false, contract) {
  */
 async function getChannelDetails(id, contractFactory, helper) {
     let contract = await contractFactory.slotsChannelManagerContract()
-    
+
     let [
         deposited,
         finalBalances,
@@ -145,16 +145,14 @@ async function getChannelDetails(id, contractFactory, helper) {
  * @param id
  * @param hashes
  * @param aesKey
- * @param chainProvider
+ * @param wsApi
+ * @param utils
  */
-async function loadLastSpin(id, hashes, aesKey, httpApi, utils) {
-    
+async function loadLastSpin(id, hashes, aesKey, wsApi, utils) {
     let result
 
     try {
-        result = await Bluebird.fromCallback(cb =>
-            httpApi.getLastSpin(id, cb)
-        )
+        result = await wsApi.getLastSpin(id)
     } catch (e) {
         result = {
             userSpin: null,
@@ -215,13 +213,13 @@ async function loadLastSpin(id, hashes, aesKey, httpApi, utils) {
     }
 }
 
-async function getLastSpin(channelId, chainProvider, httpApi, helper, utils ) {
+async function getLastSpin(channelId, chainProvider, wsApi, helper, utils ) {
     let { contractFactory } = chainProvider
     let contract = await contractFactory.slotsChannelManagerContract()
     console.log('getLastSpin', channelId)
     let aesKey = await utils.getAesKey(channelId)
     let hashes = await getChannelHashes(channelId, contract, helper)
-    let data = await loadLastSpin(channelId, hashes, aesKey, httpApi, utils)
+    let data = await loadLastSpin(channelId, hashes, aesKey, wsApi, utils)
     console.log('getLastSpin', {aesKey, hashes, data})
 
     return {
@@ -238,7 +236,7 @@ async function getLastSpin(channelId, chainProvider, httpApi, helper, utils ) {
  * @param {string} channelId
  * @param chainProvider
  */
-async function getChannel(channelId, chainProvider, httpApi, helper, utils) {
+async function getChannel(channelId, chainProvider, wsApi, helper, utils) {
     // Execute both actions in parallel
     console.log('getChannel', channelId)
     let { contractFactory } = chainProvider
@@ -248,7 +246,7 @@ async function getChannel(channelId, chainProvider, httpApi, helper, utils) {
     if (channelDetails &&
         channelDetails.info &&
         channelDetails.info.activated)
-        lastSpin = await getLastSpin(channelId, chainProvider, httpApi, helper, utils)
+        lastSpin = await getLastSpin(channelId, chainProvider, wsApi, helper, utils)
 
     return {
         ...channelDetails,
@@ -265,7 +263,7 @@ function logChannels(title) {
 /**
  * Get all channels for a user
  */
-function getChannels(chainProvider, httpApi, helper, utils) {
+function getChannels(chainProvider, wsApi, helper, utils) {
     return new Promise(async (resolve, reject) => {
         try {
             const topRequests = 3
@@ -286,7 +284,7 @@ function getChannels(chainProvider, httpApi, helper, utils) {
                 map(i => {
                     console.log('ON MERGE MAP', i)
                     return i.map(event =>
-                        getChannel(event.returnValues.id, chainProvider, httpApi, helper, utils)
+                        getChannel(event.returnValues.id, chainProvider, wsApi, helper, utils)
                     )
                 })
             )

@@ -9,7 +9,7 @@ import Actions, { PREFIX } from './actionTypes'
  * @param {Object} state
  * @param {Object} injectedDependencies
  */
-async function finalizeChannel(channelId, state, {chainProvider, httpApi, helper, utils}) {
+async function finalizeChannel(channelId, state, {chainProvider, wsApi, helper, utils}) {
     let aesKey = state.aesKey
     try {
         let { contractFactory } = chainProvider
@@ -33,7 +33,7 @@ async function finalizeChannel(channelId, state, {chainProvider, httpApi, helper
          */
 
         await Bluebird.fromCallback(cb =>
-            httpApi.finalizeChannel(channelId, userSpin, aesKey, cb)
+            wsApi.finalizeChannel(channelId, userSpin, aesKey, cb)
         )
 
         let message = 'Successfully sent finalize channel transaction'

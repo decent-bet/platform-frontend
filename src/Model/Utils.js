@@ -9,10 +9,10 @@ const initialChannelHouseBalance = new BigNumber(10).pow(18).times(10000)
 
 export class Utils {
 
-    constructor(chainProvider, keyHandler, httpApi) {
+    constructor(chainProvider, keyHandler, wsApi) {
         this.chainProvider = chainProvider
         this.keyHandler = keyHandler
-        this.httpApi = httpApi
+        this.wsApi = wsApi
     }
 
     async getAesKey(id) {
@@ -141,7 +141,7 @@ export class Utils {
         console.log('getSpin', spin)
 
         let packedString = this.getTightlyPackedSpin(spin)
-        let sign = await this.httpApi.signString(packedString)
+        let sign = await this.wsApi.signString(packedString)
         spin.sign = sign.sig
 
         return spin

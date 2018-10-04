@@ -10,8 +10,8 @@ import Bluebird from 'bluebird'
 
 export default class SlotsChannelHandler {
 
-    constructor(httpApi, helper, utils) {
-        this.httpApi = httpApi
+    constructor(wsApi, helper, utils) {
+        this.wsApi = wsApi
         this.helper = helper
         this.utils = utils
     }
@@ -27,9 +27,7 @@ export default class SlotsChannelHandler {
 
         try {
             let userSpin = await this.utils.getSpin(betSize, state, false )
-            let response = await Bluebird.fromCallback(cb =>
-                this.httpApi.spin(id, userSpin, state.aesKey, cb)
-            )
+            let response = await this.wsApi.spin(id, userSpin, state.aesKey)
 
             if (response.error) {
                 throw new Error(response.message ? response.message : response.error)

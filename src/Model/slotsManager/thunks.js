@@ -18,16 +18,16 @@ export function spin(totalBetSize, props, listener) {
 }
 
 export function fetchChannels() {
-    return async (dispatch, getState, {chainProvider, httpApi, helper, utils}) => {
-        return await dispatch(Actions.getChannels(chainProvider, httpApi, helper, utils))
+    return async (dispatch, getState, {chainProvider, wsApi, helper, utils}) => {
+        return await dispatch(Actions.getChannels(chainProvider, wsApi, helper, utils))
     }
 }
 
 export function fetchChannel(channelId) {
-    return async (dispatch, getState, {chainProvider, httpApi, helper, utils}) => {
+    return async (dispatch, getState, {chainProvider, wsApi, helper, utils}) => {
         let {contractFactory} = chainProvider
         await dispatch(Actions.getChannelDetails(channelId, contractFactory, helper))
-        await dispatch(Actions.getLastSpin(channelId, chainProvider, httpApi, helper, utils))
+        await dispatch(Actions.getLastSpin(channelId, chainProvider, wsApi, helper, utils))
     }
 }
 
@@ -94,7 +94,7 @@ export function buildChannel(amount, allowance, balance, statusUpdateListener) {
         )
         if (channelTransaction && channelTransaction.value) {
             const channelId = channelTransaction.value
-            
+
             await dispatch(Thunks.depositIntoCreatedChannel(channelId, statusUpdateListener))
             return channelId
         } else
@@ -103,8 +103,8 @@ export function buildChannel(amount, allowance, balance, statusUpdateListener) {
 }
 
 export function depositIntoCreatedChannel(id, statusUpdateListener) {
-    return async (dispatch, getState, {chainProvider, httpApi, helper, utils, keyHandler}) => {
-        
+    return async (dispatch, getState, {chainProvider, wsApi, helper, utils, keyHandler}) => {
+
         const {contractFactory} = chainProvider
         // Deposit Tokens to channel
         statusUpdateListener(`Depositing DBETs into created channel`)
@@ -114,7 +114,7 @@ export function depositIntoCreatedChannel(id, statusUpdateListener) {
         await dispatch(Actions.waitForChannelActivation(id, channelDepositTransaction.value, contractFactory, helper ))
 
         // Query the channel's data and add it to the redux state
-        await dispatch(Actions.getChannel(id, chainProvider, httpApi, helper, utils ))
+        await dispatch(Actions.getChannel(id, chainProvider, wsApi, helper, utils ))
 
         // Update the ether balance
         await dispatch(BalanceActions.getEtherBalance(chainProvider, helper, keyHandler))
@@ -136,12 +136,12 @@ export function spinAndIncreaseNonce(channelId, msg) {
 }
 
 export function initializeGame(channelId) {
-    return async (dispatch, getState, { chainProvider, httpApi, helper, utils }) => {
+    return async (dispatch, getState, { chainProvider, wsApi, helper, utils }) => {
         let { contractFactory } = chainProvider
 
         await dispatch(Actions.getAesKey(channelId, utils))
         await dispatch(Actions.getChannelDetails(channelId, contractFactory, helper))
-        await dispatch(Actions.getLastSpin(channelId, chainProvider, httpApi, helper, utils))
+        await dispatch(Actions.getLastSpin(channelId, chainProvider, wsApi, helper, utils))
         await dispatch(watcherChannelFinalized(channelId))
         await dispatch(watcherChannelClaimed(channelId))
     }
