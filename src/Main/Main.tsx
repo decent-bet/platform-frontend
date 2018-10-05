@@ -9,7 +9,7 @@ import MainRouter from './MainRouter'
 import AppDrawer from './AppDrawer'
 import ProviderSelector from './ProviderSelector'
 import { Redirect } from 'react-router-dom'
-import { VIEW_PROFILE, VIEW_MAIN } from '../routes'
+import { VIEW_ACCOUNT, VIEW_MAIN } from '../routes'
 import * as thunks from './state/thunks'
 import './dashboard.css'
 import { Grid, Fade, Paper } from '@material-ui/core'
@@ -64,9 +64,9 @@ class Main extends React.Component<any> {
     public render() {
         if (
             !this.isBasicProfileVerified &&
-            this.props.location.pathname !== VIEW_PROFILE
+            this.props.location.pathname !== VIEW_ACCOUNT
         ) {
-            return <Redirect exact={true} from={VIEW_MAIN} to={VIEW_PROFILE} />
+            return <Redirect exact={true} from={VIEW_MAIN} to={VIEW_ACCOUNT} />
         }
 
         const { profile } = this.props

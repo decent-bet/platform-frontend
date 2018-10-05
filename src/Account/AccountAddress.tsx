@@ -9,11 +9,11 @@ import {
 import EditIcon from '@material-ui/icons/Edit'
 import SaveIcon from '@material-ui/icons/Save'
 
-interface IProfileAddressState {
+interface IAccountAddressState {
     editing: boolean
 }
 
-class ProfileAddress extends React.Component<any, IProfileAddressState> {
+class AccountAddress extends React.Component<any, IAccountAddressState> {
 
     constructor(props) {
         super(props)
@@ -47,4 +47,4 @@ class ProfileAddress extends React.Component<any, IProfileAddressState> {
     }
 }
 
-export default ProfileAddress
+export default AccountAddress

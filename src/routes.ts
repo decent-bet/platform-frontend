@@ -10,4 +10,4 @@ export const
     VIEW_RESET_PASSWROD = '/auth/reset-password/:id/:key',
     VIEW_SIGNUP = '/auth/signup/',
     VIEW_LOGOUT = '/logout/',
-    VIEW_PROFILE = '/profile/'
+    VIEW_ACCOUNT = '/profile/'

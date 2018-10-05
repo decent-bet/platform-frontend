@@ -3,8 +3,8 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as thunks from './state/thunks'
 import { Grid } from '@material-ui/core'
-import ProfileAddress from './ProfileAddress'
-import ProfileInfo from './ProfileInfo'
+import AccountAddress from './AccountAddress'
+import AccountInfo from './AccountInfo'
 // import Alert from '../common/components/Alert'
 
 class Profile extends React.Component<any> {
@@ -17,10 +17,10 @@ class Profile extends React.Component<any> {
         return (
             <Grid container={true} direction="column" spacing={40}>
                 <Grid item={true} xs={12}>
-                    <ProfileAddress profile={profile} />
+                    <AccountAddress profile={profile} />
                 </Grid>
                 <Grid item={true} xs={12}>
-                    <ProfileInfo profile={profile} />
+                    <AccountInfo profile={profile} />
                 </Grid>
             </Grid>
         )

@@ -3,7 +3,7 @@ import cryptoJs, { AES } from 'crypto-js'
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from './actionTypes'
 import BigNumber from 'bignumber.js'
-import * as moment from 'moment'
+import { toDate } from 'date-fns'
 import { tap, map } from 'rxjs/operators'
 import { Wallet } from 'ethers'
 
@@ -69,7 +69,7 @@ async function getChannelInfo(channelId, contract, helper) {
             finalized: info[3],
             initialDeposit: info[4],
             finalNonce: info[5],
-            endTime: moment(info[6]),
+            endTime: toDate(info[6]),
             exists: playerAddress === '0x0'
         }
     } catch (error) {

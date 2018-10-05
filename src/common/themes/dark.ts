@@ -6,7 +6,7 @@ const COLOR_PRIMARY = '#ffcb79',
       COLOR_BLUE_DRAWER = '#3b466c'
 
 // Main Theme for all the Application
-export const DarkTheme = createMuiTheme({
+let theme = createMuiTheme({
     palette: {
         type: 'dark',
         primary: {
@@ -47,8 +47,9 @@ export const DarkTheme = createMuiTheme({
             root: {
                 display: 'flex',
                 alignItems: 'center'
-            }
+            },
         },
+        
         MuiButton: {
             root: {
                 borderRadius: '2px'
@@ -71,3 +72,12 @@ export const DarkTheme = createMuiTheme({
         }
     }
 })
+
+let darkTheme: any = theme
+darkTheme.overrides.MuiPickersToolbar = {
+    toolbar: {
+      backgroundColor: COLOR_BLUE_DRAWER,
+    },
+}
+
+export default darkTheme

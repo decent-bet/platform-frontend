@@ -15,7 +15,7 @@ import PrivateRoute from './PrivateRoute'
 import PublicRoute from './PublicRoute'
 import AppLoading from '../common/components/AppLoading'
 import EventBus from 'eventing-bus'
-import { DarkTheme } from '../common/themes/dark'
+import DarkTheme from '../common/themes/dark'
 import { VIEW_LOGOUT, VIEW_MAIN, VIEW_AUTH } from '../routes'
 import * as thunks from '../common/state/thunks'
 

@@ -2,7 +2,8 @@ import Actions, { PREFIX } from './actionTypes'
 import { FULFILLED } from 'redux-promise-middleware'
 
 const DefaultState = {
-    profileSaved: false
+    accountInfoSaved: false,
+    accountAddressSaved: false
 }
 
 export default function reducer(
@@ -10,9 +11,13 @@ export default function reducer(
     action: any = { type: null }
 ) {
     switch (action.type) {
-        case `${PREFIX}/${Actions.SAVE_USER_PROFILE}/${FULFILLED}`:
+        case `${PREFIX}/${Actions.SAVE_ACCOUNT_ADDRESS}/${FULFILLED}`:
             return {
-                profileSaved: true
+                accountInfoSaved: true
+            }
+        case `${PREFIX}/${Actions.SAVE_ACCOUNT_INFO}/${FULFILLED}`:
+            return {
+                accountAddressSaved: true
             }
         default:
             return { ...state }

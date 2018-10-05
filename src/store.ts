@@ -5,6 +5,7 @@ import logger from 'redux-logger'
 import appReducer from './common/state'
 import mainReducer from './Main/state'
 import authReducer from './Auth/state'
+import accountReducer from './Account/state'
 import slotsManagerReducer from './Slots/state'
 import ContractFactory from './common/ContractFactory'
 import ThorifyFactory from './common/helpers/ThorifyFactory'
@@ -15,6 +16,7 @@ import { CURRENT_ENV, ENV_DEVELOPMENT} from './config'
 // Combine all Reducers
 const CombinedReducers = combineReducers({
     app: appReducer,
+    account: accountReducer,
     slotsManager: slotsManagerReducer,
     main: mainReducer,
     auth: authReducer

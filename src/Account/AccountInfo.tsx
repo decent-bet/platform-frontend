@@ -9,15 +9,20 @@ import {
 } from '@material-ui/core'
 import EditIcon from '@material-ui/icons/Edit'
 import SaveIcon from '@material-ui/icons/Save'
+import { DatePicker } from 'material-ui-pickers'
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
+import ChevronRightIcon from '@material-ui/icons/ChevronRight'
+import CalendarTodayIcon from '@material-ui/icons/CalendarToday'
+import { subYears } from 'date-fns'
 
-interface IProfileInfoState {
+interface IAccountInfoState {
     editing: boolean
     formData: {
         firstName: string
         middleName: string
         lastName: string
         sex: string
-        dob: string
+        dob: Date
         country: string
         state: string
         streetAddress: string
@@ -27,7 +32,9 @@ interface IProfileInfoState {
     }
 }
 
-class ProfileInfo extends React.Component<any, IProfileInfoState> {
+class AccountInfo extends React.Component<any, IAccountInfoState> {
+    private maxDateOfBirth = subYears(new Date(), 18)
+
     constructor(props: any) {
         super(props)
 
@@ -38,7 +45,7 @@ class ProfileInfo extends React.Component<any, IProfileInfoState> {
                 middleName: '',
                 lastName: '',
                 sex: '',
-                dob: '',
+                dob: this.maxDateOfBirth,
                 country: '',
                 state: '',
                 streetAddress: '',
@@ -47,6 +54,12 @@ class ProfileInfo extends React.Component<any, IProfileInfoState> {
                 town: ''
             }
         }
+    }
+
+    private handleDateOfBirthChange = (date) => {
+        let {formData} = this.state
+        formData.dob = date
+        this.setState({ formData });
     }
 
     private onFormValueChange = (
@@ -70,7 +83,7 @@ class ProfileInfo extends React.Component<any, IProfileInfoState> {
         return (
             <Card>
                 <CardHeader
-                    title="Profile Info"
+                    title="Account Info"
                     action={
                         <IconButton>
                             {this.state.editing ? <SaveIcon /> : <EditIcon />}
@@ -120,17 +133,21 @@ class ProfileInfo extends React.Component<any, IProfileInfoState> {
                                 />
                         </Grid>
                         <Grid item={true} xs={12} sm={4}>
-                                <TextField
-                                    label="First name"
-                                    type="text"
-                                    name="firstName"
-                                    error={false}
-                                    value={this.state.formData.firstName}
-                                    required={true}
-                                    fullWidth={true}
-                                    onChange={this.onFormValueChange}
-                                    helperText={''}
+                        
+                        <DatePicker
+                        keyboardIcon={<CalendarTodayIcon/>}
+                            leftArrowIcon={<ChevronLeftIcon/>}
+                            rightArrowIcon={<ChevronRightIcon/>}
+                            disableFuture={true}
+                            maxDate={this.maxDateOfBirth}
+                            required={true}
+                            format="MM/dd/yyyy"
+                            autoOk={true}
+                            adornmentPosition="end"
+                                value={this.state.formData.dob}
+                                onChange={this.handleDateOfBirthChange}
                                 />
+                                    
                         </Grid>
                     </Grid>
                     </form>
@@ -140,4 +157,4 @@ class ProfileInfo extends React.Component<any, IProfileInfoState> {
     }
 }
 
-export default ProfileInfo
+export default AccountInfo

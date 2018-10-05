@@ -7,7 +7,7 @@ import {
     VIEW_SLOTS,
     VIEW_SLOTS_GAME,
     VIEW_LOGOUT,
-    VIEW_PROFILE
+    VIEW_ACCOUNT
 } from '../routes'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
@@ -45,12 +45,12 @@ export default function AppDrawer({
                     />
 
                     <AppDrawerItem
-                        viewToSelect={VIEW_PROFILE}
+                        viewToSelect={VIEW_ACCOUNT}
                         isSelected={
-                            selectedView === VIEW_PROFILE
+                            selectedView === VIEW_ACCOUNT
                         }
                         onViewChangeListener={onViewChangeListener}
-                        title="Profile"
+                        title="Account"
                         icon={<AccountCircleIcon/>}   
                     />
 
