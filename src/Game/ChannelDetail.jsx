@@ -8,7 +8,8 @@ import {
     IconButton,
     Typography
 } from '@material-ui/core'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp'
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown'
 import React, { Component } from 'react'
 import FormatEther from '../common/components/FormatEther'
 import SpinHistory from './SpinHistory'
@@ -26,11 +27,11 @@ export default class ChannelDetail extends Component {
 
         const caretIcon = this.state.isOpen ? (
             <SvgIcon>
-                <FontAwesomeIcon icon="caret-up" />
+                <KeyboardArrowUpIcon/>
             </SvgIcon>
         ) : (
             <SvgIcon>
-                <FontAwesomeIcon icon="caret-down" />
+                <KeyboardArrowDownIcon/>
             </SvgIcon>
         )
         return (

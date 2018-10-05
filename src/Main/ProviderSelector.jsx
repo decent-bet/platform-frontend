@@ -2,13 +2,14 @@ import React, { Component, Fragment } from 'react'
 import {
     ListItemText,
     ListItem,
-    SvgIcon,
     ListItemIcon,
     Collapse,
     List
 } from '@material-ui/core'
 import { STAGES } from '../config'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp'
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
+import BuildIcon from '@material-ui/icons/Build'
 import ProviderSelectorItem from './ProviderSelectorItem'
 
 export default class ProviderSelector extends Component {
@@ -23,13 +24,9 @@ export default class ProviderSelector extends Component {
             stage => stage.key === this.props.currentStage
         ) || { name: '' }
         const caretIcon = this.state.isOpen ? (
-            <SvgIcon>
-                <FontAwesomeIcon icon="caret-up" />
-            </SvgIcon>
+            <ArrowDropUpIcon/>
         ) : (
-            <SvgIcon>
-                <FontAwesomeIcon icon="caret-down" />
-            </SvgIcon>
+            <ArrowDropDownIcon/>
         )
         return (
             <Fragment>
@@ -40,7 +37,7 @@ export default class ProviderSelector extends Component {
                 >
                     <ListItemIcon>
                         <SvgIcon>
-                            <FontAwesomeIcon icon="wrench" className="fa-fw" />
+                            <BuildIcon/>
                         </SvgIcon>
                     </ListItemIcon>
 

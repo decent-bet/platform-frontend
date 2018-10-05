@@ -1,22 +1,22 @@
 import * as React from 'react'
 import { Route, Redirect } from 'react-router-dom'
-import { VIEW_LOGIN, VIEW_DEFAULT } from '../routes'
+import { VIEW_LOGIN, VIEW_MAIN, VIEW_CASINO } from '../routes'
 
 export default function PublicRoute({ component: Component, ...rest }) {
-    let { isLoggedIn } = rest
+    let { userIsAuthenticated } = rest
 
     const toRender = props => {
-        if (isLoggedIn) {
-            return (
-                <Redirect
+        if (userIsAuthenticated) {
+            const pathname = props.location.pathname !== VIEW_MAIN ? VIEW_MAIN : VIEW_CASINO
+                return <Redirect
                     to={{
-                        pathname: VIEW_DEFAULT,
+                        pathname,
                         state: { from: props.location }
                     }}
-                />
-            )
+                /> 
+
         } else {
-            const view = props.location.pathname === VIEW_DEFAULT
+            const view = props.location.pathname !== VIEW_LOGIN
                     ? VIEW_LOGIN
                     : props.location.pathname
             return <Component view={view} {...props} />

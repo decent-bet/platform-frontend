@@ -9,14 +9,14 @@ import {
     Snackbar,
     CircularProgress
 } from '@material-ui/core'
-import Dashboard from '../Dashboard'
+import Main from '../Main'
 import Auth from '../Auth'
 import Logout from '../Logout'
 import PrivateRoute from './PrivateRoute'
 import PublicRoute from './PublicRoute'
 import EventBus from 'eventing-bus'
 import { DarkTheme } from '../common/themes/dark'
-import { VIEW_LOGOUT } from '../routes'
+import { VIEW_LOGOUT, VIEW_MAIN, VIEW_AUTH} from '../routes'
 import * as thunks from '../common/state/thunks'
 
 class App extends React.Component<any> {
@@ -27,18 +27,20 @@ class App extends React.Component<any> {
     public state = {
         snackbarMessage: null,
         isSnackBarOpen: false,
-        stateMachine: 'loading'
+        appLoaded: false
     }
 
     public async componentDidMount() {
-        await this.props.userIsLoggedIn()
+        await this.props.setHttpAuthBaseUrl()
+        await this.props.setUserAuthenticationStatus()
+
         EventBus.on('showSnackbar', message => {
             this.setState({
                 isSnackBarOpen: true,
                 snackbarMessage: message
             })
         })
-        this.setState({ stateMachine: 'loaded' })
+        this.setState({ appLoaded: true })
     }
 
     private onCloseSnackBar = () => {
@@ -49,6 +51,7 @@ class App extends React.Component<any> {
     }
 
     private renderRoutes = () => {
+
         return (
             <Grid
                 container={true}
@@ -63,19 +66,24 @@ class App extends React.Component<any> {
                     style={{ paddingLeft: '2em', paddingRight: '2em' }}
                 >
                     <BrowserRouter>
-                        <Switch>
-                            <Route path={VIEW_LOGOUT} component={Logout} />
-                            <PublicRoute
-                                component={Auth}
-                                isLoggedIn={this.props.isLoggedIn}
-                            />
-                            <PrivateRoute
-                                exact={true}
-                                component={Dashboard}
-                                isLoggedIn={this.props.isLoggedIn}
-                            />
-                        </Switch>
-                    </BrowserRouter>
+                            <Switch>
+                                <Route
+                                    exact={true}
+                                    path={VIEW_LOGOUT}
+                                    component={Logout}
+                                />
+                                <PublicRoute
+                                    path={VIEW_AUTH}    
+                                    component={Auth}
+                                    userIsAuthenticated={this.props.userIsAuthenticated}
+                                />
+                                <PrivateRoute
+                                     path={VIEW_MAIN}
+                                    component={Main}
+                                    userIsAuthenticated={this.props.userIsAuthenticated}
+                                />
+                            </Switch>
+                        </BrowserRouter>
                     <Snackbar
                         onClose={this.onCloseSnackBar}
                         message={this.state.snackbarMessage}
@@ -98,7 +106,7 @@ class App extends React.Component<any> {
             >
                 <Grid container={true} direction="column" alignItems="center">
                     <Grid item={true} xs={12}>
-                        <CircularProgress/>
+                        <CircularProgress />
                     </Grid>
                 </Grid>
             </Grid>
@@ -109,7 +117,7 @@ class App extends React.Component<any> {
             <React.Fragment>
                 <CssBaseline />
                 <MuiThemeProvider theme={DarkTheme}>
-                    {this.state.stateMachine === 'loaded'
+                    {this.state.appLoaded === true
                         ? this.renderRoutes()
                         : this.renderLoading()}
                 </MuiThemeProvider>
@@ -118,11 +126,12 @@ class App extends React.Component<any> {
     }
 }
 
-const mapStateToProps = state => Object.assign({}, state.main)
-const mapDispatchToProps = dispatch => bindActionCreators(Object.assign(
-        {},
-        thunks
-    ), dispatch)
+const mapStateToProps = state => Object.assign({}, state.app)
+const mapDispatchToProps = dispatch =>
+    bindActionCreators(Object.assign({}, thunks), dispatch)
 
-const AppContainer = connect(mapStateToProps, mapDispatchToProps)(App)
+const AppContainer = connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(App)
 export default AppContainer

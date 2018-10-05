@@ -1,21 +1,21 @@
 
-import { DEFAULT_STAGE } from '../../config'
+import { DEFAULT_STAGE, StageType } from '../../config'
+import IKeyStore from './IKeyStore'
+import IKeyHandler from './IKeyHandler'
+import { AUTH_TOKEN_NAME } from '../../config'
 
-class KeyHandler {
+class KeyHandler implements IKeyHandler {
 
     /**
-     * @param {KeyStore} keyStore
+     * @param {IKeyStore} keyStore
      */
-    constructor(private keyStore) {}
+    constructor(private keyStore: IKeyStore) {}
     /**
      * Caches a wallet's private key
      */
-    public set = async ({
-        privateKey,
-        address,
-        mnemonic
-    }) => {
+    public async setupWallet(privateKey: string, address: string, mnemonic: string): Promise<void> {
         const cryptoKey = await this.keyStore.getCryptoKey()
+       
         await this.keyStore.addVariable(
             'key',
             await this.keyStore.encrypt(privateKey, cryptoKey)
@@ -28,59 +28,79 @@ class KeyHandler {
                 await this.keyStore.encrypt(mnemonic, cryptoKey)
             )
         }
-
-        return Promise.resolve()
     }
 
     /**
      * Returns private key and mnemonic of the logged in user
      */
-    public get = async () => {
+    public async getWalletValues(): Promise<{ mnemonic: string, privateKey: string, address: string }> {
         let privateKey
         let mnemonic
         let address
-        try {
+        
+        const cryptoKey = await this.keyStore.getCryptoKey()
+        address = this.getPublicAddress()
 
-            const cryptoKey = await this.keyStore.getCryptoKey()
-            address = localStorage.getItem('address')
+        const keyBlob = await this.keyStore.getVariable('key')
+        if(keyBlob){
+            privateKey = await this.keyStore.decrypt(keyBlob, cryptoKey)
+        }
 
-            const keyBlob = await this.keyStore.getVariable('key')
-            if(keyBlob){
-                privateKey = await this.keyStore.decrypt(keyBlob, cryptoKey)
-            }
-
-            const mnemonicBlob = await this.keyStore.getVariable('mnemonic')
-            if(mnemonicBlob) {
-                mnemonic = await this.keyStore.decrypt(mnemonicBlob, cryptoKey)
-            }
-        } catch (e) {
-            console.log(
-                `KeyHandler.js: Error getting private key: ${e.message}`
-            )
+        const mnemonicBlob = await this.keyStore.getVariable('mnemonic')
+        if(mnemonicBlob) {
+            mnemonic = await this.keyStore.decrypt(mnemonicBlob, cryptoKey)
         }
 
         return { mnemonic, privateKey, address }
     }
 
     /**
-     * Returns address of the logged in user
+     * Returns public address of the logged in user
      */
-    public getAddress = () => {
-        return localStorage.getItem('address') 
+    public getPublicAddress(): string | null {
+        let address = localStorage.getItem('address')
+
+        if(!address || address ==='undefined') {
+            return null
+        }
+
+        return address
     }
 
-    public getStage = () => {
+    public getStage(): StageType {
         let stage = localStorage.getItem('stage')
         
         if(!stage || stage ==='undefined') {
             stage = DEFAULT_STAGE
         }
 
-        return stage
+        return stage as StageType
     }
 
-    public setStage = (stage) => {
+    public setStage(stage): void {
         localStorage.setItem('stage', stage)
+    }
+
+    /**
+     * Store the jwt token
+     * @param {string} token
+     * @returns {Promise<void>}
+     */
+    public async setAuthToken(token: string): Promise<void> {
+        await this.keyStore.addVariable(AUTH_TOKEN_NAME, token)
+    }
+
+    /**
+     * Return the stored jwt token if exists
+     * @returns {Promise<string>}
+     */
+    public async getAuthToken(): Promise<string> {
+        return await this.keyStore.getVariable(AUTH_TOKEN_NAME)
+    }
+
+    public async clearStorage(): Promise<void> {
+        localStorage.clear()
+        await this.keyStore.clear()
     }
 }
 

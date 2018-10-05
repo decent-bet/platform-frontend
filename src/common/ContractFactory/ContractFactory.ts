@@ -4,17 +4,18 @@ import { TestDecentBetToken, SlotsChannelManager, SlotsChannelFinalizer } from '
 export default class ContractFactory {
     private _jsonContracts = { TestDecentBetToken, SlotsChannelManager, SlotsChannelFinalizer }
     private _contracts = new Map()
+    private _thorify
     /**
      *
-     * @param {Web3} thorify
+     * @param {ThorifyFactory} horifyFactory
      */
-    constructor(private thorify, private keyHandler) {}
+    constructor(private thorifyFactory, private keyHandler) {}
     /**
      * Creates a contract wrapper based on the passed name
      * @param {string} contractName
      * @returns {Promise<any>}
      */
-    public async makeContract(contractName): Promise<any> {
+    public async makeContract(contractName: string): Promise<any> {
 
         if (!Contracts.hasOwnProperty(contractName)) {
             throw new Error(`Contract class doesn't exists for the name given: ${contractName}`)
@@ -24,12 +25,16 @@ export default class ContractFactory {
         let contractItem = this._contracts.get(contractName)
 
         if(typeof contractItem === 'undefined') {
+            if(!this._thorify) {
+                this._thorify = await this.thorifyFactory.make()
+            }
+
             const contract = this._jsonContracts[contractName]
-            const instance = new this.thorify.eth.Contract(contract.raw.abi)
-            const chainTag = await this.thorify.eth.getChainTag()
+            const instance = new this._thorify.eth.Contract(contract.raw.abi)
+            const chainTag = await this._thorify.eth.getChainTag()
             const contractAddress = contract.address[chainTag]
             instance.options.address = contractAddress
-            contractItem = new Contracts[contractName](this.thorify, instance, this.keyHandler)
+            contractItem = new Contracts[contractName](this._thorify, instance, this.keyHandler)
             this._contracts.set(contractName, contractItem)
         }
 
@@ -54,7 +59,7 @@ export default class ContractFactory {
      * @returns {DecentBetTokenContract}
     */
    public async decentBetTokenContract(): Promise<any> {
-        return await this.makeContract('TestDecentBetToken')
+        return await this.makeContract('DecentBetTokenContract')
     }
 
 }

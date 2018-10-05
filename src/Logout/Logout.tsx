@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Grid from '@material-ui/core/Grid'
 import { connect } from 'react-redux'
-import { logout } from '../common/state/thunks'
+import * as thunks from '../common/state/thunks'
 import { VIEW_LOGIN } from '../routes'
 
 function Logout(props) {
@@ -26,10 +26,10 @@ function Logout(props) {
     )
 }
 
-const mapStateToProps = state => Object.assign({}, state.main)
+const mapStateToProps = state => Object.assign({}, state.app)
 const mapDispatchToProps = dispatch => bindActionCreators(Object.assign(
         {},
-        logout
+        thunks
     ), dispatch)
 
 

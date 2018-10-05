@@ -2,11 +2,11 @@ import { createStore, applyMiddleware, combineReducers } from 'redux'
 import promiseMiddleware from 'redux-promise-middleware'
 import ReduxThunk from 'redux-thunk'
 import logger from 'redux-logger'
-import mainReducer from './common/state'
-import balanceReducer from './Dashboard/state'
+import appReducer from './common/state'
+import mainReducer from './Main/state'
 import authReducer from './Auth/state'
 import slotsManagerReducer from './Slots/state'
-
+import ContractFactory from './common/ContractFactory'
 import ThorifyFactory from './common/helpers/ThorifyFactory'
 import KeyStore from './common/helpers/KeyStore'
 import KeyHandler from './common/helpers/KeyHandler'
@@ -14,19 +14,19 @@ import { CURRENT_ENV, ENV_DEVELOPMENT} from './config'
 
 // Combine all Reducers
 const CombinedReducers = combineReducers({
-    main: mainReducer,
+    app: appReducer,
     slotsManager: slotsManagerReducer,
-    balance: balanceReducer,
+    main: mainReducer,
     auth: authReducer
 })
 
-const keyStore = new KeyStore()
-const keyHandler = new KeyHandler(keyStore)
+const keyHandler = new KeyHandler(new KeyStore())
 const thorifyFactory = new ThorifyFactory(keyHandler)
+const contractFactory = new ContractFactory(thorifyFactory, keyHandler)
 
 // Setup middlewares
 const middlewares = [
-    ReduxThunk.withExtraArgument({ keyStore, thorifyFactory, keyHandler }), // inject dependencies
+    ReduxThunk.withExtraArgument({  thorifyFactory, contractFactory, keyHandler }), // inject dependencies
     promiseMiddleware({ promiseTypeDelimiter: '/' })
 ]
 // Only log redux on development

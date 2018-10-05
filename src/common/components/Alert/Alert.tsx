@@ -1,7 +1,5 @@
 import * as React from 'react'
 import classNames from 'classnames'
-import { IconName } from '@fortawesome/fontawesome-common-types'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import green from '@material-ui/core/colors/green'
 import amber from '@material-ui/core/colors/amber'
 import IconButton from '@material-ui/core/IconButton'
@@ -9,17 +7,22 @@ import Snackbar, { SnackbarProps } from '@material-ui/core/Snackbar'
 import SnackbarContent from '@material-ui/core/SnackbarContent'
 import { WithStyles, withStyles, createStyles, Theme } from '@material-ui/core'
 import Slide from '@material-ui/core/Slide'
+import CheckCircleIcon from '@material-ui/icons/CheckCircle'
+import WarningIcon from '@material-ui/icons/Warning'
+import ErrorIcon from '@material-ui/icons/Error'
+import InfoIcon from '@material-ui/icons/Info'
+import CloseIcon from '@material-ui/icons/Close'
 
-const getIconVariant = (variant): IconName => {
+const getIconVariant = (variant, varianClassName) => {
     switch (variant) {
         case 'success':
-            return 'check-circle'
+            return <CheckCircleIcon className={varianClassName}/>
         case 'warning':
-            return 'exclamation-triangle'
+            return <WarningIcon className={varianClassName}/>
         case 'error':
-            return 'exclamation'
+            return <ErrorIcon className={varianClassName}/>
         default:
-            return 'info'
+            return <InfoIcon className={varianClassName}/>
     }
 }
 
@@ -74,8 +77,12 @@ export interface IAlertProps extends SnackbarProps {
 
 function AlertContent(props: IAlertContentProps) {
     const { classes, className, message, onClose, variant } = props
-    const iconVariant = getIconVariant(variant)
-
+    const varianClassName = classNames(
+        classes.icon,
+        classes.iconVariant
+    )
+    const iconVariant = getIconVariant(variant, varianClassName)
+    
     const handleClick = event => {
         if (onClose) {
             onClose(event, 'IconButton')
@@ -88,12 +95,7 @@ function AlertContent(props: IAlertContentProps) {
             aria-describedby="client-snackbar"
             message={
                 <span id="client-snackbar" className={classes.message}>
-                    <FontAwesomeIcon
-                        icon={iconVariant}
-                        className={classNames(
-                            classes.icon,
-                            classes.iconVariant
-                        )}
+                    {iconVariant}
                     />
                     {message}
                 </span>
@@ -106,7 +108,7 @@ function AlertContent(props: IAlertContentProps) {
                     className={classes.close}
                     onClick={handleClick}
                 >
-                    <FontAwesomeIcon icon="times" className={classes.icon} />
+                    <CloseIcon className={classes.icon} />
                 </IconButton>
             ]}
         />

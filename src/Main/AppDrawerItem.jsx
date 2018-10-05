@@ -2,12 +2,11 @@ import React, { Component } from 'react'
 import {
     ListItem,
     ListItemIcon,
-    ListItemText,
-    SvgIcon
+    ListItemText
 } from '@material-ui/core'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 
-export default class DashboardDrawerItem extends Component {
+export default class AppDrawerItem extends Component {
     onClick = () => this.props.onViewChangeListener(this.props.viewToSelect)
     render() {
         let itemClasses = this.props.isSelected
@@ -16,12 +15,7 @@ export default class DashboardDrawerItem extends Component {
         return (
             <ListItem button className={itemClasses} onClick={this.onClick}>
                 <ListItemIcon>
-                    <SvgIcon>
-                        <FontAwesomeIcon
-                            icon={this.props.iconClass}
-                            className="fa-fw"
-                        />
-                    </SvgIcon>
+                    {this.props.icon}
                 </ListItemIcon>
                 <ListItemText primary={this.props.title} />
             </ListItem>

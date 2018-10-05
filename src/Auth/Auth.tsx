@@ -37,6 +37,11 @@ class Auth extends React.Component<any> {
         closeAlert()
     }
     
+    public componentWillUnmount() {
+        if (this.props.recaptcha && this.props.recaptcha.current) {
+            this.props.recaptcha.current.reset()
+        }
+    }
 
     public render() {
         return (

@@ -1,6 +1,5 @@
 import React from 'react'
 import { ListItem, ListItemIcon, ListItemText, Avatar } from '@material-ui/core'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import vechainIcon from '../assets/img/vechain-96x96.png'
 
 export default function FaucetMenuItem({ onFaucetClickedListener }) {

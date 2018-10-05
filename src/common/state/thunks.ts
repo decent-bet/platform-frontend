@@ -1,14 +1,29 @@
 import Actions from './actions'
-const actions: any = Actions.main
+import IKeyHandler from '../../common/helpers/IKeyHandler'
+const actions: any = Actions.app
 
 export function logout() {
-    return async (dispatch, _getState, { keyStore }) => {
-        return await dispatch(actions.logout(keyStore))
+    return async (dispatch, _getState, { keyHandler }: {keyHandler: IKeyHandler}) => {
+        return await dispatch(actions.logout(keyHandler))
     }
 }
 
-export function userIsLoggedIn() {
-    return async (dispatch, _getState, { keyStore }) => {
-        return await dispatch(actions.userIsLoggedin(keyStore))
+export function setUserAuthenticationStatus() {
+    return async (dispatch, _getState, { keyHandler }: {keyHandler: IKeyHandler}) => {
+        return await dispatch(actions.setUserAuthenticationStatus(keyHandler))
     }
 }
+
+export function setHttpAuthHeader() {
+    return async (dispatch, _getState, { keyHandler }) => {
+        await dispatch(actions.setHttpAuthHeader(keyHandler))
+    }
+}
+
+export function setHttpAuthBaseUrl() {
+    return async (dispatch) => {
+        await dispatch(actions.setHttpAuthBaseUrl())
+    }
+}
+
+

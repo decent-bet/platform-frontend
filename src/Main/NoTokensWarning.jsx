@@ -1,6 +1,6 @@
 import React from 'react'
 import { Card, CardHeader, CardContent, Typography } from '@material-ui/core'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import WarningIcon from '@material-ui/icons/Warning'
 
 export default function NoTokensWarning() {
     return (
@@ -9,10 +9,7 @@ export default function NoTokensWarning() {
                 <CardHeader title="No DBET Tokens Available in this Wallet" />
                 <CardContent>
                     <Typography>
-                        <FontAwesomeIcon
-                            icon="exclamation-triangle"
-                            className="fa-5x"
-                        />
+                        <WarningIcon/>
                     </Typography>
                 </CardContent>
             </Card>

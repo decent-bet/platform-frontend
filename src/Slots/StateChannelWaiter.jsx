@@ -1,6 +1,5 @@
 import React from 'react'
 import { Card, CardHeader, CardContent, Typography } from '@material-ui/core'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export default function StateChannelWaiter({ message = null }) {
     return (
@@ -8,7 +7,7 @@ export default function StateChannelWaiter({ message = null }) {
             <CardHeader title="Loading" subheader={message} />
             <CardContent className="progress-text">
                 <Typography>
-                    <FontAwesomeIcon icon="cog" spin className="fa-5x" />
+                    <CircularProgress color="secundary"/>
                 </Typography>
             </CardContent>
         </Card>

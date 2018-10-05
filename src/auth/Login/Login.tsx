@@ -14,7 +14,7 @@ import {
 import ReCaptcha from '../../common/components/ReCaptcha'
 import * as thunks from '../state/thunks'
 import actions from '../state/actions'
-import { VIEW_FORGOT_PASSWORD, VIEW_SIGNUP } from '../../routes'
+import { VIEW_FORGOT_PASSWORD, VIEW_SIGNUP, VIEW_MAIN } from '../../routes'
 
 class Login extends React.Component<any> {
     constructor(props) {
@@ -24,10 +24,8 @@ class Login extends React.Component<any> {
     public componentDidMount() {
         this.props.setDefaultStatus()
     }
-    
+
     public state = {
-        recaptchaKey: '',
-        recaptcha: null,
         formData: {
             email: '',
             password: ''
@@ -71,19 +69,15 @@ class Login extends React.Component<any> {
 
     private handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()
-        let { formData, recaptchaKey } = this.state
+
+        let { email, password } = this.state.formData
+        await this.props.makeLogin(email, password, this.props.recaptchaKey)
+
         if(this.props.recapcha && this.props.recapcha.current) {
             this.props.recapcha.current.reset()
         }
-        await this.props.login({ recaptchaKey, ...formData })
-        this.setState({
-            formData: {
-                email: '',
-                password: ''
-            },
-            recaptchaKey: ''
-        })
-        this.props.history.push('/')
+
+        this.props.history.push(VIEW_MAIN)
     }
 
     public render() {

@@ -1,9 +1,8 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { Button, TextField } from '@material-ui/core'
+import { Button, TextField, CircularProgress } from '@material-ui/core'
 import actions from '../state/actions'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ReCaptcha from '../../common/components/ReCaptcha'
 
 class SignUpForm extends React.Component<any> {
@@ -71,24 +70,21 @@ class SignUpForm extends React.Component<any> {
 
     private handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()
-        let data = {
-            recaptchaKey: this.props.recaptchaKey,
-            ...this.state.formData
-        }
 
+        let { email, password, passwordConfirmation } = this.state.formData
+        const { signUp } = this.props as any
+        await signUp(email, password, passwordConfirmation, this.props.recaptchaKey)
+        
         if(this.props.recapcha && this.props.recapcha.current) {
             this.props.recapcha.current.reset()
         }
-
-        const { signUp } = this.props as any
-        await signUp(data)
+        
         this.setState({
             formData: {
                 email: '',
                 password: '',
                 passwordConfirmation: ''
-            },
-            recaptchaKey: ''
+            }
         })
         this.props.onSubmitForm()
     }
@@ -146,7 +142,7 @@ class SignUpForm extends React.Component<any> {
                         type="submit"
                     >
                         {loading ? (
-                            <FontAwesomeIcon icon="spinner" />
+                             <CircularProgress color="secondary" size={24}/>
                         ) : (
                             'Create New Account'
                         )}

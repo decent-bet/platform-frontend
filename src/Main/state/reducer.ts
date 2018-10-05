@@ -1,35 +1,42 @@
 import Actions, { PREFIX } from './actionTypes'
 import { FULFILLED } from 'redux-promise-middleware'
 
-const DefaultBalanceState = {
+const DefaultMainState = {
+    profile: null,
     balance: 0,
     etherBalance: 0,
     address: '0x'
 }
 
-export default function balanceReducer(
-    balanceState = DefaultBalanceState,
-    action = { type: null }
+export default function reducer(
+    mainState = DefaultMainState,
+    action: any = { type: null }
 ) {
     switch (action.type) {
         case `${PREFIX}/${Actions.GET_PUBLIC_ADDRESS}/${FULFILLED}`:
             return {
-                ...balanceState,
+                ...mainState,
                 address: action.payload
             }
         
         case `${PREFIX}/${Actions.GET_TOKENS}/${FULFILLED}`:
             return {
-                ...balanceState,
+                ...mainState,
                 balance: action.payload
             }
+        
+        case `${PREFIX}/${Actions.GET_USER_PROFILE}/${FULFILLED}`:
+            return {
+                ...mainState,
+                profile: action.payload
+        }
         case `${PREFIX}/${Actions.GET_ETHER_BALANCE}/${FULFILLED}`:
             return {
-                ...balanceState,
+                ...mainState,
                 etherBalance: action.payload
             }
 
         default:
-            return { ...balanceState }
+            return { ...mainState }
     }
 }

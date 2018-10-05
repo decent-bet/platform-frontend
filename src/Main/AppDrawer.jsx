@@ -1,16 +1,17 @@
 import React from 'react'
 import { Drawer, Divider, List } from '@material-ui/core'
-import DashboardDrawerItem from './DashboardDrawerItem'
+import AppDrawerItem from './AppDrawerItem'
 import FaucetMenuItem from './FaucetMenuItem'
 import {
     VIEW_CASINO,
     VIEW_SLOTS,
     VIEW_SLOTS_GAME,
-    VIEW_LOGOUT
+    VIEW_LOGOUT,
+    VIEW_PROFILE
 } from '../routes'
 import dbetLogo from '../assets/img/dbet-white.svg'
 
-export default function DashboardDrawer({
+export default function AppDrawer({
     isDrawerOpen,
     onDrawerCloseListener,
     onViewChangeListener,
@@ -28,7 +29,7 @@ export default function DashboardDrawer({
             <div className="drawerInner">
                 <img className="logo" src={dbetLogo} alt="Decent Bet Logo" />
                 <List component="nav">
-                    <DashboardDrawerItem
+                    <AppDrawerItem
                         viewToSelect={VIEW_CASINO}
                         isSelected={
                             selectedView === VIEW_CASINO ||
@@ -40,11 +41,21 @@ export default function DashboardDrawer({
                         iconClass="gamepad"
                     />
 
+                    <AppDrawerItem
+                        viewToSelect={VIEW_PROFILE}
+                        isSelected={
+                            selectedView === VIEW_PROFILE
+                        }
+                        onViewChangeListener={onViewChangeListener}
+                        title="Profile"
+                        iconClass="user-check"
+                    />
+
                     <FaucetMenuItem
                         onFaucetClickedListener={onFaucetClickedListener}
                     />
 
-                    <DashboardDrawerItem
+                    <AppDrawerItem
                         viewToSelect={VIEW_LOGOUT}
                         isSelected={false}
                         onViewChangeListener={onViewChangeListener}

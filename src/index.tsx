@@ -3,9 +3,6 @@ import * as ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import App from './App'
 import store from './store'
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { fas } from '@fortawesome/free-solid-svg-icons'
-library.add(fas)
 
 ReactDOM.render(
     <Provider store={store}>

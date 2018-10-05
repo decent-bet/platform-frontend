@@ -7,7 +7,7 @@ function copyConfirmation() {
     Utils.toggleSnackbar('Copied address to clipboard')
 }
 
-export default function DashboardAppBarToolbar({
+export default function AppBarToolbar({
     address,
     tokenBalance,
     etherBalance

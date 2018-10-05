@@ -1,8 +1,7 @@
 import * as React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { Button, TextField } from '@material-ui/core'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Button, TextField, CircularProgress } from '@material-ui/core'
 import ReCaptcha from '../../common/components/ReCaptcha'
 import actions from '../state/actions'
 
@@ -34,12 +33,10 @@ class ForgotPasswordForm extends React.Component<any> {
     private handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()
         let { forgotPassword } = this.props as any
-        let { email } = this.state
+        await forgotPassword(this.state.email, this.props.recapchaKey)
         if(this.props.recapcha && this.props.recapcha.current) {
             this.props.recapcha.current.reset()
         }
-
-        await forgotPassword(email, this.props.recapchaKey)
         this.setState({email: ''})
     }
 
@@ -71,7 +68,7 @@ class ForgotPasswordForm extends React.Component<any> {
                         type="submit"
                     >
                         {loading ? (
-                            <FontAwesomeIcon icon="spinner" />
+                            <CircularProgress color="secondary" size={24}/>
                         ) : (
                             'Reset Password'
                         )}

@@ -2,8 +2,7 @@
 import axios from 'axios'
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from './actionTypes'
-import { AUTH_URL, AUTH_TOKEN_NAME } from '../../config'
-import IKeyStore from '../../common/helpers/IKeyStore'
+import IKeyHandler from '../../common/helpers/IKeyHandler';
 
 async function setRecaptchaKey(key: string) {
     return Promise.resolve(key)
@@ -21,7 +20,7 @@ async function activateAccount(id: string, key: string) {
     const data = { id, key }
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await axios.post(`${AUTH_URL}/activate`, data)
+            const response = await axios.post('/activate', data)
             resolve(response.data.message || 'Account activated.')
         } catch (error) {
             let errorMessage =
@@ -33,11 +32,11 @@ async function activateAccount(id: string, key: string) {
     })
 }
 
-async function forgotPassword(password: string, captchaKey: string) {
-    const data = { password, captchaKey }
+async function forgotPassword(email: string, captchaKey: string) {
+    const data = { email, captchaKey }
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await axios.post(`${AUTH_URL}/password/reset`, data)
+            const response = await axios.post('/password/reset', data)
             resolve(response.data.message || 'Password recovery successfully requested.')
         } catch (error) {
             let errorMessage =
@@ -54,24 +53,22 @@ async function login(
     email: string,
     password: string,
     captchaKey: string,
-    keysStore: IKeyStore
+    keyHandler: IKeyHandler
 ) {
     const data = { email, password, captchaKey }
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await axios.post(`${AUTH_URL}/login`, data)
+            const response = await axios.post('/login', data)
             if (response.data.activated !== true) {
                 reject(
                     'Your account is not activated, please check your email to get the instructions.'
                 )
             } else {
-                await keysStore.addVariable(
-                    AUTH_TOKEN_NAME,
-                    response.data.accessToken
-                )
+                await keyHandler.setAuthToken(response.data.accessToken)
                 resolve(response.data.message || 'Successfully logged in')
             }
         } catch (error) {
+            console.log(error)
             let errorMessage =
                 error.response && error.response.data
                     ? error.response.data.message
@@ -85,7 +82,7 @@ async function resetPassword(email: string, captchaKey: string, key: string) {
     const data = { email, captchaKey, key }
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await axios.post(`${AUTH_URL}/password/reset/verify`, data)
+            const response = await axios.post('/password/reset/verify', data)
             resolve(response.data.message || 'Password reset success, please go to the login.')
         } catch (error) {
             let errorMessage =
@@ -101,13 +98,14 @@ async function resetPassword(email: string, captchaKey: string, key: string) {
 async function signUp(
     email: string,
     password: string,
+    passwordConfirmation: string,
     captchaKey: string
 ) {
     const data = { email, password, captchaKey }
 
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await axios.post(`${AUTH_URL}/register`, data)
+            const response = await axios.post('/register', data)
             resolve(response.data.message || 'A new account created successfully')
         } catch (error) {
             let errorMessage =

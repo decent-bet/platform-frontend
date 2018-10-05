@@ -1,14 +1,14 @@
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from './actionTypes'
 import IKeyHandler from '../../common/helpers/IKeyHandler'
+// import axios from 'axios'
 
-async function logout(keyHandler: IKeyHandler) {
-    localStorage.clear()
-    await keyHandler.clearStorage()
+async function saveUserProfile(keyHandler: IKeyHandler) {
+    return Promise.resolve()
 }
 
 export default createActions({
     [PREFIX]: {
-        [Actions.LOGOUT]: logout
+        [Actions.SAVE_USER_PROFILE]: saveUserProfile
     }
 })

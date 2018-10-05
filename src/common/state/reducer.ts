@@ -2,7 +2,7 @@ import Actions, { PREFIX } from './actionTypes'
 import { FULFILLED } from 'redux-promise-middleware'
 
 const DefaultMainState = {
-    isLoggedIn: false
+    userIsAuthenticated: false
 }
 
 export default function reducer(
@@ -10,10 +10,10 @@ export default function reducer(
     action: any = { type: null }
 ) {
     switch (action.type) {
-        case `${PREFIX}/${Actions.USER_IS_LOGGEDIN}/${FULFILLED}`:
+        case `${PREFIX}/${Actions.SET_USER_AUTHENTICATION_STATUS}/${FULFILLED}`:
             return {
                 ...mainState,
-                isLoggedIn: action.payload
+                userIsAuthenticated: action.payload
             }
         case `${PREFIX}/${Actions.LOGOUT}/${FULFILLED}`:
             return DefaultMainState

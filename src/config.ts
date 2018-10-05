@@ -2,15 +2,18 @@ const STAGE_LOCAL = 'local'
 const STAGE_TESTNET = 'testnet'
 const STAGE_MAIN = 'main'
 
-interface IStage {key: string, name: string}
+interface IStageItem {key: string, name: string}
 
-const STAGES: IStage[] = [
+const STAGES: IStageItem[] = [
     { key: STAGE_MAIN, name: 'DBET Node' },
     { key: STAGE_TESTNET, name: 'Infura' },
     { key: STAGE_LOCAL, name: 'Local Node' }
 ]
 
 interface IStageConfig {channelsApiUrl: string, thorNode: string}
+
+type StageType = 'main' | 'testnet' | 'local'
+
 
 const DEFAULT_STAGE: string = process.env.REACT_APP_STAGE || STAGE_LOCAL
 
@@ -29,7 +32,7 @@ const STAGE_CONFIGS = {
     }
 }
 
-function getStageConfig(stage): IStageConfig {
+function getStageConfig(stage: StageType): IStageConfig {
     switch (stage) {
         case STAGE_LOCAL:
             return STAGE_CONFIGS.local
@@ -47,7 +50,7 @@ const ENV_STAGING: string = 'staging'
 const ENV_PRODUCTION: string = 'production'
 const AUTH_TOKEN_NAME: string = 'token'
 
-function getAuthUrl(env): string {
+function getAuthApiUrl(env): string {
     switch (env) {
         case ENV_DEVELOPMENT:
             return 'http://localhost:3200/api'
@@ -61,12 +64,13 @@ function getAuthUrl(env): string {
 }
 
 const CURRENT_ENV: string = process.env.REACT_APP_ENV || ENV_DEVELOPMENT
-const AUTH_URL: string = getAuthUrl(CURRENT_ENV)
+const AUTH_API_URL: string = getAuthApiUrl(CURRENT_ENV)
 
 export {
     IStageConfig,
-    IStage,
-    AUTH_URL,
+    StageType,
+    IStageItem,
+    AUTH_API_URL,
     CURRENT_ENV,
     ENV_DEVELOPMENT,
     ENV_STAGING,
