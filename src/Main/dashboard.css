@@ -1,12 +1,5 @@
-.dashboard h1,
-.dashboard h2,
-.dashboard h3,
-.dashboard h4,
-.dashboard h5 {
-    color: #ffffff;
-}
 
-.dashboard .appbar .logo-container {
+.appbar .logo-container {
     flex: 1;
     display: flex;
     height: 100%;
@@ -14,16 +7,13 @@
     width: fit-content;
 }
 
-.dashboard .appbar .logo {
+.appbar .logo {
     height: 24px;
     object-fit: contain;
 }
 
-.dashboard .appbar .toolbar-button {
+.appbar .toolbar-button {
     align-self: center;
-}
-
-.menu-item {
 }
 
 .menu-item svg {
@@ -35,35 +25,31 @@
     color: #f2b45c !important;
 }
 
-.dashboard main {
+ main {
     padding-top: 80px;
     padding-bottom: 16px;
     height: 100%;
 }
 
-/** All Cards */
-.dashboard main .card {
-    border-radius: 2px !important;
-}
 
-.dashboard .details .logo {
+.details .logo {
     height: 95px;
     width: 95px;
     display: block;
     margin: 0 auto 10px auto;
 }
 
-.dashboard .details p {
+.details p {
     color: #3a4182;
 }
 
-.dashboard .event-card img {
+.event-card img {
     height: 225px;
     width: 225px;
     object-fit: cover;
 }
 
-.dashboard .games .game:hover {
+.games .game:hover {
     background: #3a4182;
     color: #ffffff;
 }
@@ -72,7 +58,7 @@
     overflow-y: scroll;
 }
 
-.dashboard #sidebar-wrapper::-webkit-scrollbar {
+#sidebar-wrapper::-webkit-scrollbar {
     width: 1px;
 }
 

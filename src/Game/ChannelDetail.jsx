@@ -26,13 +26,9 @@ export default class ChannelDetail extends Component {
         const { initialDeposit, hashes, houseSpins, userHashes } = this.props
 
         const caretIcon = this.state.isOpen ? (
-            <SvgIcon>
-                <KeyboardArrowUpIcon/>
-            </SvgIcon>
+            <KeyboardArrowUpIcon/>
         ) : (
-            <SvgIcon>
-                <KeyboardArrowDownIcon/>
-            </SvgIcon>
+            <KeyboardArrowDownIcon/>
         )
         return (
             <Card className="card">
@@ -43,7 +39,6 @@ export default class ChannelDetail extends Component {
                         {caretIcon}
                     </IconButton>
                 </CardActions>
-
                 <Collapse in={this.state.isOpen} unmountOnExit>
                     <CardContent>
                         <Typography component="dl">

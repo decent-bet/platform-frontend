@@ -9,6 +9,9 @@ import {
     VIEW_LOGOUT,
     VIEW_PROFILE
 } from '../routes'
+import AccountCircleIcon from '@material-ui/icons/AccountCircle'
+import ExitToAppIcon from '@material-ui/icons/ExitToApp'
+import VideogameAssetIcon from '@material-ui/icons/VideogameAsset'
 import dbetLogo from '../assets/img/dbet-white.svg'
 
 export default function AppDrawer({
@@ -38,7 +41,7 @@ export default function AppDrawer({
                         }
                         onViewChangeListener={onViewChangeListener}
                         title="Casino"
-                        iconClass="gamepad"
+                        icon={<VideogameAssetIcon/>} 
                     />
 
                     <AppDrawerItem
@@ -48,7 +51,7 @@ export default function AppDrawer({
                         }
                         onViewChangeListener={onViewChangeListener}
                         title="Profile"
-                        iconClass="user-check"
+                        icon={<AccountCircleIcon/>}   
                     />
 
                     <FaucetMenuItem
@@ -60,7 +63,7 @@ export default function AppDrawer({
                         isSelected={false}
                         onViewChangeListener={onViewChangeListener}
                         title="Logout"
-                        iconClass="sign-out-alt"
+                        icon={<ExitToAppIcon/>}
                     />
 
                     <Divider />

@@ -4,7 +4,6 @@ import {
     ListItemIcon,
     ListItemText
 } from '@material-ui/core'
-import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 
 export default class AppDrawerItem extends Component {
     onClick = () => this.props.onViewChangeListener(this.props.viewToSelect)

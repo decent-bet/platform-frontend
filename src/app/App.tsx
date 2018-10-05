@@ -6,17 +6,17 @@ import {
     Grid,
     CssBaseline,
     MuiThemeProvider,
-    Snackbar,
-    CircularProgress
+    Snackbar
 } from '@material-ui/core'
 import Main from '../Main'
 import Auth from '../Auth'
 import Logout from '../Logout'
 import PrivateRoute from './PrivateRoute'
 import PublicRoute from './PublicRoute'
+import AppLoading from '../common/components/AppLoading'
 import EventBus from 'eventing-bus'
 import { DarkTheme } from '../common/themes/dark'
-import { VIEW_LOGOUT, VIEW_MAIN, VIEW_AUTH} from '../routes'
+import { VIEW_LOGOUT, VIEW_MAIN, VIEW_AUTH } from '../routes'
 import * as thunks from '../common/state/thunks'
 
 class App extends React.Component<any> {
@@ -51,7 +51,6 @@ class App extends React.Component<any> {
     }
 
     private renderRoutes = () => {
-
         return (
             <Grid
                 container={true}
@@ -66,24 +65,28 @@ class App extends React.Component<any> {
                     style={{ paddingLeft: '2em', paddingRight: '2em' }}
                 >
                     <BrowserRouter>
-                            <Switch>
-                                <Route
-                                    exact={true}
-                                    path={VIEW_LOGOUT}
-                                    component={Logout}
-                                />
-                                <PublicRoute
-                                    path={VIEW_AUTH}    
-                                    component={Auth}
-                                    userIsAuthenticated={this.props.userIsAuthenticated}
-                                />
-                                <PrivateRoute
-                                     path={VIEW_MAIN}
-                                    component={Main}
-                                    userIsAuthenticated={this.props.userIsAuthenticated}
-                                />
-                            </Switch>
-                        </BrowserRouter>
+                        <Switch>
+                            <Route
+                                exact={true}
+                                path={VIEW_LOGOUT}
+                                component={Logout}
+                            />
+                            <PublicRoute
+                                path={VIEW_AUTH}
+                                component={Auth}
+                                userIsAuthenticated={
+                                    this.props.userIsAuthenticated
+                                }
+                            />
+                            <PrivateRoute
+                                path={VIEW_MAIN}
+                                component={Main}
+                                userIsAuthenticated={
+                                    this.props.userIsAuthenticated
+                                }
+                            />
+                        </Switch>
+                    </BrowserRouter>
                     <Snackbar
                         onClose={this.onCloseSnackBar}
                         message={this.state.snackbarMessage}
@@ -95,31 +98,16 @@ class App extends React.Component<any> {
         )
     }
 
-    private renderLoading = () => {
-        return (
-            <Grid
-                container={true}
-                direction="column"
-                alignItems="center"
-                justify="center"
-                style={{ height: '100vh' }}
-            >
-                <Grid container={true} direction="column" alignItems="center">
-                    <Grid item={true} xs={12}>
-                        <CircularProgress />
-                    </Grid>
-                </Grid>
-            </Grid>
-        )
-    }
     public render() {
         return (
             <React.Fragment>
                 <CssBaseline />
                 <MuiThemeProvider theme={DarkTheme}>
-                    {this.state.appLoaded === true
-                        ? this.renderRoutes()
-                        : this.renderLoading()}
+                    {this.state.appLoaded === true ? (
+                        this.renderRoutes()
+                    ) : (
+                        <AppLoading />
+                    )}
                 </MuiThemeProvider>
             </React.Fragment>
         )

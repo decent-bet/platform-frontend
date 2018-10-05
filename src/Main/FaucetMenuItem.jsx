@@ -13,7 +13,7 @@ export default function FaucetMenuItem({ onFaucetClickedListener }) {
             onClick={onFaucetClickedListener}
         >
             <ListItemIcon>
-                <Avatar src={vechainIcon} style={{height: '1.3em', width: '1.3em', padding: '0.1em', backgroundColor: '#ffffff'}}>
+                <Avatar src={vechainIcon} style={{height: 21, width: 21, padding: 3, backgroundColor: '#ffffff'}}>
                 </Avatar>
             </ListItemIcon>
 

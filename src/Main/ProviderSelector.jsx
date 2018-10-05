@@ -36,9 +36,7 @@ export default class ProviderSelector extends Component {
                     onClick={this.onClickListener}
                 >
                     <ListItemIcon>
-                        <SvgIcon>
-                            <BuildIcon/>
-                        </SvgIcon>
+                        <BuildIcon/>
                     </ListItemIcon>
 
                     <ListItemText
@@ -49,7 +47,6 @@ export default class ProviderSelector extends Component {
 
                     {caretIcon}
                 </ListItem>
-
                 <Collapse in={this.state.isOpen} unmountOnExit>
                     <List component="div" disablePadding>
                         {STAGES.map(stage => (

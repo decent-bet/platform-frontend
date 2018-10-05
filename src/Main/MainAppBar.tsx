@@ -6,10 +6,17 @@ import dbetLogo from '../assets/img/dbet-white.svg'
 
 export default function MainAppBar({ children, onToggleDrawerListener }) {
     return (
-        <AppBar className="appbar" position="fixed" color="primary">
+        <AppBar className="appbar" position="fixed">
             <Toolbar>
-                <IconButton aria-label="Menu" onClick={onToggleDrawerListener}>
-                    <MenuIcon/>
+                <IconButton
+                    aria-label="Menu"
+                    onClick={onToggleDrawerListener}
+                    style={{
+                        marginLeft: -12,
+                        marginRight: 20
+                    }}
+                >
+                    <MenuIcon />
                 </IconButton>
                 <Link to="/" className="logo-container">
                     <img src={dbetLogo} className="logo" alt="Decent.bet" />
