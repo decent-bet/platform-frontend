@@ -18,6 +18,8 @@ import { DatePicker } from 'material-ui-pickers'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import CalendarTodayIcon from '@material-ui/icons/CalendarToday'
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
+import CancelIcon from '@material-ui/icons/Cancel'
 import { subYears, format } from 'date-fns'
 // import validator from 'validator'
 import countries from 'iso-3166-1/src/iso-3166'
@@ -167,7 +169,7 @@ class AccountInfo extends React.Component<any, IAccountInfoState> {
         const name = event.target.name
 
         formData[name] = value
-        if (!event.target.validity.valid || !value || value.length < 4) {
+        if (event.target.validity && (!event.target.validity.valid || !value || value.length < 4)) {
             errorMessages[name] = event.target.validationMessage
             errors[name] = true
         } else {
@@ -188,9 +190,20 @@ class AccountInfo extends React.Component<any, IAccountInfoState> {
                 <CardHeader
                     title="Account Info"
                     action={
-                        <IconButton onClick={this.onToogleEdit}>
-                            {this.state.editing ? <SaveIcon /> : <EditIcon />}
-                        </IconButton>
+                        this.state.editing ? (
+                            <React.Fragment>
+                                <IconButton onClick={this.onToogleEdit}>
+                                    <CancelIcon />
+                                </IconButton>{' '}
+                                <IconButton onClick={this.onToogleEdit}>
+                                    <SaveIcon color="primary"/>
+                                </IconButton>{' '}
+                            </React.Fragment>
+                        ) : (
+                            <IconButton onClick={this.onToogleEdit}>
+                                <EditIcon />
+                            </IconButton>
+                        )
                     }
                 />
                 <CardContent>
@@ -258,7 +271,7 @@ class AccountInfo extends React.Component<any, IAccountInfoState> {
                                         disabled={!this.state.editing}
                                         type="text"
                                         placeholder="Last name"
-                                        name="middleName"
+                                        name="lastName"
                                         value={this.state.formData.lastName}
                                         onChange={this.onFormValueChange}
                                     />
@@ -274,6 +287,7 @@ class AccountInfo extends React.Component<any, IAccountInfoState> {
                                         disableUnderline={!this.state.editing}
                                         disabled={!this.state.editing}
                                         fullWidth={true}
+                                        IconComponent={!this.state.editing ? 'span' : ArrowDropDownIcon}
                                         value={this.state.formData.sex}
                                         onChange={this.onFormValueChange}
                                         name="sex"
@@ -334,6 +348,7 @@ class AccountInfo extends React.Component<any, IAccountInfoState> {
                                         error={this.state.errors.country}
                                         disableUnderline={!this.state.editing}
                                         disabled={!this.state.editing}
+                                        IconComponent={!this.state.editing ? 'span' : ArrowDropDownIcon}
                                         fullWidth={true}
                                         value={this.state.formData.country}
                                         onChange={this.onFormValueChange}

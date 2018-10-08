@@ -8,37 +8,51 @@ import {
     Input,
     InputLabel,
     FormControl,
-    FormHelperText
+    FormHelperText,
+    Slide
 } from '@material-ui/core'
 import EditIcon from '@material-ui/icons/Edit'
 import SaveIcon from '@material-ui/icons/Save'
+import CancelIcon from '@material-ui/icons/Cancel'
+import Tooltip from '@material-ui/core/Tooltip'
 
 interface IAccountAddressState {
-    editing: boolean,
+    editing: boolean
     address: string
     errors: {
         address: boolean
-    },
+    }
     errorMessages: {
         address: string
     }
 }
 
 class AccountAddress extends React.Component<any, IAccountAddressState> {
-
     constructor(props) {
         super(props)
-        
+
         this.state = {
             editing: false,
-    address: '',
-    errors: {
-        address: false
-    },
-    errorMessages: {
-        address: ''
-    }
+            address: '',
+            errors: {
+                address: false
+            },
+            errorMessages: {
+                address: ''
+            }
         }
+    }
+
+    private get hasAddress() {
+        let { profile } = this.props
+        console.log('profile', profile)
+
+        return (
+            profile &&
+            profile.verification &&
+            profile.verification.addressRegistration &&
+            profile.verification.addressRegistration.vetAddress !== null
+        )
     }
 
     private onToogleEdit = async () => {
@@ -71,20 +85,37 @@ class AccountAddress extends React.Component<any, IAccountAddressState> {
 
         this.setState({ formData, errorMessages, errors }) */
     }
-    
+
     private handleSubmit = async () => {
         return
     }
-    
+
     public render() {
         return (
             <Card>
                 <CardHeader
                     title="Public Address"
                     action={
-                        <IconButton onClick={this.onToogleEdit}>
-                            {this.state.editing ? <SaveIcon /> : <EditIcon />}
-                        </IconButton>
+                        this.state.editing ? (
+                            <Slide in={this.state.editing} direction="left">
+                                <Tooltip title="Cancel">
+                                        <IconButton onClick={this.onToogleEdit}>
+                                            <CancelIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title="Save">
+                                        <IconButton onClick={this.onToogleEdit}>
+                                            <SaveIcon color="primary" />
+                                        </IconButton>
+                                    </Tooltip>
+                            </Slide>
+                        ) : (
+                            <Tooltip title="Edit">
+                                <IconButton onClick={this.onToogleEdit}>
+                                    <EditIcon />
+                                </IconButton>
+                            </Tooltip>
+                        )
                     }
                 />
                 <CardContent>
@@ -97,7 +128,9 @@ class AccountAddress extends React.Component<any, IAccountAddressState> {
                                     fullWidth={true}
                                 >
                                     <InputLabel htmlFor="address">
-                                        Public Address
+                                        {!this.hasAddress && !this.state.editing
+                                            ? `You haven't registered an address yet`
+                                            : 'Public Address'}
                                     </InputLabel>
                                     <Input
                                         type="text"
