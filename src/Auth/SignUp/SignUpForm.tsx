@@ -21,7 +21,7 @@ class SignUpForm extends React.Component<any> {
             password: false,
             passwordConfirmation: false
         },
-        errorsMessages: {
+        errorMessages: {
             email: '',
             password: '',
             passwordConfirmation: ''
@@ -41,31 +41,31 @@ class SignUpForm extends React.Component<any> {
     }
 
     private onValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        let { formData, errorsMessages, errors } = this.state
+        let { formData, errorMessages, errors } = this.state
         const value = event.target.value
         const name = event.target.name
 
         formData[name] = value
         if (name === 'passwordConfirmation') {
             if (value !== this.state.formData.password) {
-                errorsMessages.passwordConfirmation =
+                errorMessages.passwordConfirmation =
                     'The password confirmation should be equals to the password'
                 errors.passwordConfirmation = true
             } else {
-                errorsMessages.passwordConfirmation = ''
+                errorMessages.passwordConfirmation = ''
                 errors.passwordConfirmation = false
             }
         } else {
             if (!event.target.validity.valid || !value || value.length < 4) {
-                errorsMessages[name] = event.target.validationMessage
+                errorMessages[name] = event.target.validationMessage
                 errors[name] = true
             } else {
-                errorsMessages[name] = ''
+                errorMessages[name] = ''
                 errors[name] = false
             }
         }
 
-        this.setState({ formData, errorsMessages, errors })
+        this.setState({ formData, errorMessages, errors })
     }
 
     private handleSubmit = async (event: React.FormEvent) => {
@@ -102,7 +102,7 @@ class SignUpForm extends React.Component<any> {
                     required={true}
                     fullWidth={true}
                     onChange={this.onValueChange}
-                    helperText={this.state.errorsMessages.email}
+                    helperText={this.state.errorMessages.email}
                 />
 
                 <TextField
@@ -115,7 +115,7 @@ class SignUpForm extends React.Component<any> {
                     onChange={this.onValueChange}
                     required={true}
                     fullWidth={true}
-                    helperText={this.state.errorsMessages.password}
+                    helperText={this.state.errorMessages.password}
                 />
                 <TextField
                     label="Confirm Password"
@@ -127,7 +127,7 @@ class SignUpForm extends React.Component<any> {
                     onChange={this.onValueChange}
                     required={true}
                     fullWidth={true}
-                    helperText={this.state.errorsMessages.passwordConfirmation}
+                    helperText={this.state.errorMessages.passwordConfirmation}
                 />
                 <ReCaptcha
                     onChange={this.props.setRecaptchaKey}

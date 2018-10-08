@@ -10,7 +10,7 @@ class AppLoading extends React.Component {
                 direction="column"
                 alignItems="center"
                 justify="center"
-                style={{ height: '100vh' }}
+                style={{ height: '100vh', width: '100%' }}
             >
                 <Grid container={true} direction="column" alignItems="center">
                     <Grid item={true} xs={12}>
