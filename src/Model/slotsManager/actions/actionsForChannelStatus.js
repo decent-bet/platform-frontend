@@ -1,7 +1,5 @@
 import { createActions } from 'redux-actions'
-import Bluebird from 'bluebird'
 import Actions, { PREFIX } from './actionTypes'
-
 
 /**
  * Finalizes a channel allowing users to claim DBETs
@@ -32,9 +30,7 @@ async function finalizeChannel(channelId, state, {chainProvider, wsApi, helper, 
          * the transaction was sent to make sure future spins aren't processed.
          */
 
-        await Bluebird.fromCallback(cb =>
-            wsApi.finalizeChannel(channelId, userSpin, aesKey, cb)
-        )
+        await wsApi.finalizeChannel(channelId, userSpin, aesKey)
 
         let message = 'Successfully sent finalize channel transaction'
         helper.toggleSnackbar(message)

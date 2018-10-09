@@ -1,5 +1,4 @@
-import Bluebird from 'bluebird'
-import cryptoJs, { AES } from 'crypto-js'
+import CryptoJs, { AES } from 'crypto-js'
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from './actionTypes'
 import BigNumber from 'bignumber.js'
@@ -14,7 +13,8 @@ async function fetchAesKey(channelId, utils) {
 /**
  * The Basic information of a State Channel
  * @param channelId
- * @param contractFactory
+ * @param contract
+ * @param helper
  */
 async function getChannelInfo(channelId, contract, helper) {
     try {
@@ -39,7 +39,8 @@ async function getChannelInfo(channelId, contract, helper) {
 /**
  * Get the player's house address
  * @param channelId
- * @param contractFactory
+ * @param contract
+ * @param helper
  */
 async function getAuthorizedAddress(channelId, contract, helper) {
     try {
@@ -53,7 +54,8 @@ async function getAuthorizedAddress(channelId, contract, helper) {
 /**
  * Is the channel closed?
  * @param channelId
- * @param contractFactory
+ * @param contract
+ * @param helper
  */
 async function isChannelClosed(channelId, contract, helper) {
     try {
@@ -68,6 +70,7 @@ async function isChannelClosed(channelId, contract, helper) {
  * Get the other channel hashes
  * @param {number} id
  * @param {Object} contract
+ * @param helper
  */
 async function getChannelHashes(id, contract, helper) {
     try {
@@ -98,7 +101,8 @@ async function getFinalBalances(channelId, isHouse = false, contract) {
 /**
  * Get info and hashes required to interact with an active channel
  * @param id
- * @param chainProvider
+ * @param contractFactory
+ * @param helper
  */
 async function getChannelDetails(id, contractFactory, helper) {
     let contract = await contractFactory.slotsChannelManagerContract()
@@ -153,6 +157,7 @@ async function loadLastSpin(id, hashes, aesKey, wsApi, utils) {
 
     try {
         result = await wsApi.getLastSpin(id)
+        result = result.res
     } catch (e) {
         result = {
             userSpin: null,
@@ -168,7 +173,7 @@ async function loadLastSpin(id, hashes, aesKey, wsApi, utils) {
     if (encryptedSpin) {
         try {
             let rawSpinData = AES.decrypt(encryptedSpin, aesKey)
-            userSpin = JSON.parse(rawSpinData.toString(cryptoJs.enc.Utf8))
+            userSpin = JSON.parse(rawSpinData.toString(CryptoJs.enc.Utf8))
         } catch (e) {
             throw e
         }
@@ -193,7 +198,7 @@ async function loadLastSpin(id, hashes, aesKey, wsApi, utils) {
     let initialUserNumber = AES.decrypt(
         hashes.initialUserNumber,
         aesKey
-    ).toString(cryptoJs.enc.Utf8)
+    ).toString(CryptoJs.enc.Utf8)
     let userHashes = utils.getUserHashes(initialUserNumber)
     let index = userHashes.length - 1
     if (userHashes[index] !== hashes.finalUserHash) {
@@ -216,7 +221,6 @@ async function loadLastSpin(id, hashes, aesKey, wsApi, utils) {
 async function getLastSpin(channelId, chainProvider, wsApi, helper, utils ) {
     let { contractFactory } = chainProvider
     let contract = await contractFactory.slotsChannelManagerContract()
-    console.log('getLastSpin', channelId)
     let aesKey = await utils.getAesKey(channelId)
     let hashes = await getChannelHashes(channelId, contract, helper)
     let data = await loadLastSpin(channelId, hashes, aesKey, wsApi, utils)
@@ -235,6 +239,9 @@ async function getLastSpin(channelId, chainProvider, wsApi, helper, utils ) {
  * Gets a single channel's data
  * @param {string} channelId
  * @param chainProvider
+ * @param wsApi
+ * @param helper
+ * @param utils
  */
 async function getChannel(channelId, chainProvider, wsApi, helper, utils) {
     // Execute both actions in parallel
@@ -315,6 +322,47 @@ function getChannels(chainProvider, wsApi, helper, utils) {
     })
 }
 
+/**
+ * Subscribe to spin responses from websockets API
+ * @param listener
+ * @param wsApi
+ * @param slotsChannelHandler
+ */
+async function subscribeToSpinResponses(listener, wsApi, slotsChannelHandler) {
+    wsApi.getProcessSpinResponseSubscription(null, async ({req, res}) => {
+        try {
+            if (res.error) {
+                throw new Error(res.message ? res.message : res.error)
+            }
+
+            let houseSpin = res.message
+            let userSpin = req.spin
+            let lines = slotsChannelHandler.getLines(res.message.reel)
+            listener(null, res.message, houseSpin, userSpin, lines)
+        } catch (e) {
+            listener(true, e.message)
+        }
+    }, true)
+}
+
+/**
+ * Subscribe to finalize responses from websockets API
+ * @param listener
+ * @param wsApi
+ */
+async function subscribeToFinalizeResponses(listener, wsApi) {
+    wsApi.getFinalizeChannelResponseSubscription(null, async ({req, res}) => {
+        try {
+            if (res.error) {
+                throw new Error(res.message ? res.message : res.error)
+            }
+            listener(null, res.message)
+        } catch (e) {
+            listener(true, e.message)
+        }
+    }, true)
+}
+
 export default createActions({
     [PREFIX]: {
         [Actions.GET_AES_KEY]: fetchAesKey,
@@ -322,6 +370,8 @@ export default createActions({
         [Actions.GET_CHANNELS]: getChannels,
         [Actions.GET_CHANNEL_DETAILS]: getChannelDetails,
         [Actions.GET_LAST_SPIN]: getLastSpin,
+        [Actions.SUBSCRIBE_TO_SPIN_RESPONSES]: subscribeToSpinResponses,
+        [Actions.SUBSCRIBE_TO_FINALIZE_RESPONSES]: subscribeToFinalizeResponses,
         [Actions.NONCE_INCREASE]: channelId => ({ channelId }),
         [Actions.POST_SPIN]: (channelId, spin) => ({ ...spin, channelId })
     }

@@ -30,15 +30,15 @@ class DecentWSAPI {
     }
 
     _initSocketEmitListener = (_path) => {
-        this.socket.on(_path, (data) => {
-            console.log(`Received event from: ${_path}. Data: ${JSON.stringify(data)}`)
+        this.socket.on(_path, ({req, res}) => {
+            console.log(`Received event from: ${_path}. Request: ${JSON.stringify(req)}, Response: ${JSON.stringify(res)}`)
             if (
                 this.subscriptions[_path] &&
                 this.subscriptions[_path].length > 0
             )
                 this.subscriptions[_path].map(subscription => {
                     if (subscription)
-                        subscription(data)
+                        subscription({req, res})
                 })
         })
     }
@@ -58,7 +58,6 @@ class DecentWSAPI {
     }
 
     _subscribe(_path, cb) {
-        console.log('_subscribe', _path)
         if (!this.subscriptions[_path])
             this.subscriptions[_path] = []
         const index = this.subscriptions[_path].length
@@ -67,31 +66,38 @@ class DecentWSAPI {
     }
 
     _unsubscribe(_path, index) {
-        console.log('_unsubscribe', _path, index)
         if (!this.subscriptions[_path])
             return
         delete this.subscriptions[_path][index]
     }
 
-    _getResponseSubscription(path, cb) {
-        const callback = (data) => {
-            console.log('_getResponseSubscription', path, data)
-            cb(data)
-            callback.unsubscribe()
+    _getResponseSubscription(path, _req, cb, keepAlive) {
+        const callback = ({req, res}) => {
+            if(_req) {
+                if(JSON.stringify(req) === JSON.stringify(_req)) {
+                    cb({req, res})
+                    if(!keepAlive)
+                        callback.unsubscribe()
+                }
+            } else {
+                cb({req, res})
+                if(!keepAlive)
+                    callback.unsubscribe()
+            }
         }
         return this._subscribe(path, callback)
     }
 
-    getProcessSpinResponseSubscription(cb) {
-        return this._getResponseSubscription(PATH_POST_PROCESS_SPIN, cb)
+    getProcessSpinResponseSubscription(req, cb, keepAlive) {
+        return this._getResponseSubscription(PATH_POST_PROCESS_SPIN, req, cb, keepAlive)
     }
 
-    getLastSpinResponseSubscription(cb) {
-        return this._getResponseSubscription(PATH_GET_LAST_SPIN, cb)
+    getLastSpinResponseSubscription(req, cb, keepAlive) {
+        return this._getResponseSubscription(PATH_GET_LAST_SPIN, req, cb, keepAlive)
     }
 
-    getFinalizeChannelResponseSubscription(cb) {
-        return this._getResponseSubscription(PATH_POST_FINALIZE_CHANNEL, cb)
+    getFinalizeChannelResponseSubscription(req, cb, keepAlive) {
+        return this._getResponseSubscription(PATH_POST_FINALIZE_CHANNEL, req, cb, keepAlive)
     }
 
     /** Off-chain finally verifiable slot spins */
@@ -122,8 +128,7 @@ class DecentWSAPI {
                 let path = PATH_POST_PROCESS_SPIN
                 let timestamp = this.helper.getTimestampInMillis()
                 let sign = await this._getSign(path, timestamp)
-
-                this.socket.emit(path, {
+                let req = {
                     headers: {
                         authorization: {
                             id,
@@ -134,8 +139,14 @@ class DecentWSAPI {
                     id,
                     spin,
                     encryptedSpin
-                })
-                this.getProcessSpinResponseSubscription(data => resolve(data))
+                }
+
+                this.socket.emit(path, req)
+                this.getProcessSpinResponseSubscription(req, ({req, res}) => resolve({
+                    req,
+                    res,
+                    spin
+                }))
             } catch (e) {
                 reject(e)
             }
@@ -152,8 +163,7 @@ class DecentWSAPI {
 
                 let timestamp = this.helper.getTimestampInMillis()
                 let sign = await this._getSign(path, timestamp)
-
-                this.socket.emit(path, {
+                let req = {
                     headers: {
                         authorization: {
                             id,
@@ -162,8 +172,12 @@ class DecentWSAPI {
                         }
                     },
                     id
-                })
-                this.getLastSpinResponseSubscription((data) => resolve(data))
+                }
+                this.socket.emit(path, req)
+                this.getLastSpinResponseSubscription(req, ({req, res}) => resolve({
+                    req,
+                    res
+                }))
             } catch (e) {
                 reject(e)
             }
@@ -174,26 +188,36 @@ class DecentWSAPI {
      * Notify the house when the user would like to finalize a channel to ensure the user can't spin while the
      * close channel transaction is being sent to the network
      *  */
-    finalizeChannel = async (id, spin, aesKey, cb) => {
-        let encryptedSpin = cryptoJs.AES.encrypt(JSON.stringify(spin), aesKey).toString()
+    finalizeChannel = (id, spin, aesKey) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                let encryptedSpin = cryptoJs.AES.encrypt(JSON.stringify(spin), aesKey).toString()
 
-        let path = PATH_POST_FINALIZE_CHANNEL
-        let timestamp = this.helper.getTimestampInMillis()
-        let sign = await this._getSign(url, timestamp)
-
-        this.socket.emit(path, {
-            headers: {
-                authorization: {
+                let path = PATH_POST_FINALIZE_CHANNEL
+                let timestamp = this.helper.getTimestampInMillis()
+                let sign = await this._getSign(path, timestamp)
+                let req = {
+                    headers: {
+                        authorization: {
+                            id,
+                            sign,
+                            timestamp
+                        }
+                    },
                     id,
-                    sign,
-                    timestamp
+                    spin,
+                    encryptedSpin
                 }
-            },
-            id,
-            spin,
-            encryptedSpin
+
+                this.socket.emit(path, req)
+                this.getFinalizeChannelResponseSubscription(req, ({req, res}) => resolve({
+                    req,
+                    res
+                }))
+            } catch (e) {
+                reject(e)
+            }
         })
-        return this.getFinalizeChannelResponseSubscription(cb)
     }
 
     /** Solidity ecsign implementation */

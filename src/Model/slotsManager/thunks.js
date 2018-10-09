@@ -17,6 +17,24 @@ export function spin(totalBetSize, props, listener) {
     }
 }
 
+export function verifyHouseSpin(props, houseSpin, userSpin) {
+    return async (dispatch, getState, {slotsChannelHandler}) => {
+        await slotsChannelHandler.verifyHouseSpin(props, houseSpin, userSpin)
+    }
+}
+
+export function subscribeToSpinResponses(listener) {
+    return async (dispatch, getState, {wsApi, slotsChannelHandler}) => {
+        await dispatch(Actions.subscribeToSpinResponses(listener, wsApi, slotsChannelHandler))
+    }
+}
+
+export function subscribeToFinalizeResponses(listener) {
+    return async (dispatch, getState, {wsApi, slotsChannelHandler}) => {
+        await dispatch(Actions.subscribeToFinalizeResponses(listener, wsApi, slotsChannelHandler))
+    }
+}
+
 export function fetchChannels() {
     return async (dispatch, getState, {chainProvider, wsApi, helper, utils}) => {
         return await dispatch(Actions.getChannels(chainProvider, wsApi, helper, utils))
@@ -160,19 +178,8 @@ export function watcherChannelFinalized(channelId) {
         try {
             let {contractFactory} = chainProvider
             const contract = await contractFactory.slotsChannelManagerContract()
-            const finalizedChannelEventSubscription =
-                await contract.getEventSubscription(contract.logChannelFinalized(channelId))
-
-            const finalizedChannelSubscription =
-                finalizedChannelEventSubscription.subscribe(async (events) => {
-                    if (events && events.length) {
-                        let [event] = events
-                        let id = event.returnValues.id.toString()
-                        await dispatch(Actions.setChannelFinalized(id))
-                        finalizedChannelSubscription.unsubscribe()
-                    }
-                })
-            return
+            const id = await contract.logChannelFinalized(channelId)
+            return await dispatch(Actions.setChannelFinalized(id))
         } catch (error) {
             console.error('Finalized channel event', error)
             return
@@ -186,25 +193,14 @@ export function watcherChannelClaimed(channelId) {
         try {
             const {contractFactory} = chainProvider
             const contract = await contractFactory.slotsChannelManagerContract()
-            const subscription = contract.logClaimChannelTokens(channelId)
-            const claimChannelEventSubscription = contract.getEventSubscription(subscription)
-
-            const claimChannelSubscription =
-                claimChannelEventSubscription.subscribe(async (events) => {
-                    if (events && events.length >= 1) {
-                        let [event] = events
-                        let id = event.returnValues.id.toString()
-                        await
-                            dispatch(
-                                Actions.setChannelClaimed(
-                                    id,
-                                    event.returnValues.isHouse
-                                )
-                            )
-                        claimChannelSubscription.unsubscribe()
-                    }
-                })
-            return
+            const {id, isHouse} = await contract.logClaimChannelTokens(channelId)
+            return await
+                dispatch(
+                    Actions.setChannelClaimed(
+                        id,
+                        isHouse
+                    )
+                )
         } catch (error) {
             console.error('Claim channel tokens event error', error)
             return

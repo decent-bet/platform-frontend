@@ -11,8 +11,9 @@ const STAGES: IStage[] = [
 ]
 
 interface IStageConfig {channelsApiUrl: string, thorNode: string}
+const OVERRIDE = false
 
-const DEFAULT_STAGE: string = process.env.REACT_APP_STAGE || STAGE_LOCAL
+const DEFAULT_STAGE: string = OVERRIDE ? STAGE_MAIN : process.env.REACT_APP_STAGE || STAGE_LOCAL
 
 const STAGE_CONFIGS = {
     local: {
@@ -48,7 +49,8 @@ function getStageConfig(stage: string): IStageConfig {
 const ENV_DEVELOPMENT = 'development'
 const ENV_STAGING = 'staging'
 const ENV_PRODUCTION = 'production'
-const CURRENT_ENV = process.env.NODE_ENV || ENV_DEVELOPMENT
+const CURRENT_ENV = OVERRIDE ? ENV_PRODUCTION : process.env.NODE_ENV || ENV_DEVELOPMENT
+console.log('Current env', CURRENT_ENV)
 
 function getAuthUrl(): string {
     switch (CURRENT_ENV) {
