@@ -2,7 +2,7 @@
 import { DEFAULT_STAGE, StageType } from '../../config'
 import IKeyStore from './IKeyStore'
 import IKeyHandler from './IKeyHandler'
-import { AUTH_TOKEN_NAME } from '../../config'
+import { AUTH_TOKEN_NAME, ACCOUTN_ACTIVATED_NAME } from '../../config'
 
 class KeyHandler implements IKeyHandler {
 
@@ -65,6 +65,14 @@ class KeyHandler implements IKeyHandler {
         }
 
         return address
+    }
+
+    public async setAccountActivated(activated: boolean): Promise<void> {
+        await this.keyStore.addVariable(ACCOUTN_ACTIVATED_NAME, activated)
+    }
+
+    public async getAccountActivationStatus(): Promise<boolean> {
+        return await this.keyStore.getVariable(ACCOUTN_ACTIVATED_NAME)
     }
 
     public getStage(): StageType {

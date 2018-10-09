@@ -3,6 +3,7 @@ import { FULFILLED } from 'redux-promise-middleware'
 
 const DefaultMainState = {
     account: null,
+    accountIsActivated: false,
     accountIsVerified: false,
     accountHasAddress: false,
     balance: 0,
@@ -26,7 +27,11 @@ export default function reducer(
                 ...mainState,
                 balance: action.payload
             }
-        
+        case `${PREFIX}/${Actions.GET_ACCOUNT_ACTIVATION_STATUS}/${FULFILLED}`:
+            return {
+                ...mainState,
+                accountIsActivated: action.payload
+        }
         case `${PREFIX}/${Actions.GET_USER_ACCOUNT}/${FULFILLED}`:
             return {
                 ...mainState,

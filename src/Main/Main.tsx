@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
+import { Redirect } from 'react-router-dom'
 import { bindActionCreators } from 'redux'
 import DateFnsUtils from 'material-ui-pickers/utils/date-fns-utils'
 import MuiPickersUtilsProvider from 'material-ui-pickers/utils/MuiPickersUtilsProvider'
@@ -8,12 +9,11 @@ import AppBarToolbar from './AppBarToolbar'
 import MainRouter from './MainRouter'
 import AppDrawer from './AppDrawer'
 import ProviderSelector from './ProviderSelector'
-import { Redirect } from 'react-router-dom'
-import { VIEW_ACCOUNT, VIEW_MAIN } from '../routes'
 import * as thunks from './state/thunks'
 import './dashboard.css'
 import { Grid, Fade, Paper } from '@material-ui/core'
 import AppLoading from '../common/components/AppLoading'
+import { VIEW_ACCOUNT, VIEW_ACCOUNT_NOTACTIVATED } from '../routes'
 
 class Main extends React.Component<any> {
     public state = {
@@ -51,38 +51,38 @@ class Main extends React.Component<any> {
         this.props.history.push(newView)
     }
 
-    private get isBasicProfileVerified() {
-        const { profile } = this.props
-        return (
-            profile &&
-            profile.basicVerification &&
-            (profile.basicVerification.verified &&
-                profile.basicVerification.verified === true)
-        )
-    }
-
     public render() {
-        if (
-            !this.isBasicProfileVerified &&
-            this.props.location.pathname !== VIEW_ACCOUNT
-        ) {
-            return <Redirect exact={true} from={VIEW_MAIN} to={VIEW_ACCOUNT} />
+        
+        if (!this.state.loaded) { 
+            return <AppLoading />
         }
 
-        const { profile } = this.props
+        const {
+            accountIsActivated,
+            accountIsVerified,
+            accountHasAddress
+        } = this.props
+
+        if (!accountIsActivated) {
+            if(this.props.location.pathname !== VIEW_ACCOUNT_NOTACTIVATED) {
+                return <Redirect to={VIEW_ACCOUNT_NOTACTIVATED} />
+            }
+        } else if (!accountIsVerified || !accountHasAddress) {
+            if(this.props.location.pathname !== VIEW_ACCOUNT) {
+                return <Redirect to={VIEW_ACCOUNT} />
+            }
+        } 
 
         return (
-            <React.Fragment>
-                {!this.state.loaded ? <AppLoading /> : null}
-                <Fade
-                    in={this.state.loaded}
-                    timeout={500}
-                >
-                    <Paper square={false} style={{
-                        backgroundColor: 'transparent',
-                        padding: 0,
-                        boxShadow: 'none'
-                    }}>
+                <Fade in={this.state.loaded} timeout={500}>
+                    <Paper
+                        square={false}
+                        style={{
+                            backgroundColor: 'transparent',
+                            padding: 0,
+                            boxShadow: 'none'
+                        }}
+                    >
                         <MainAppBar
                             onToggleDrawerListener={this.onToggleDrawerListener}
                         >
@@ -100,9 +100,9 @@ class Main extends React.Component<any> {
                             justify="center"
                         >
                             <Grid item={true} xs={12} sm={10} md={8}>
-                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                <MainRouter profile={profile} />
-                            </MuiPickersUtilsProvider>
+                                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                    <MainRouter />
+                                </MuiPickersUtilsProvider>
                             </Grid>
                         </Grid>
                         <AppDrawer
@@ -123,7 +123,6 @@ class Main extends React.Component<any> {
                         </AppDrawer>
                     </Paper>
                 </Fade>
-            </React.Fragment>
         )
     }
 }

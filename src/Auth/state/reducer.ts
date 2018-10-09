@@ -60,7 +60,7 @@ export default function authReducer(
                 loading: false,
                 processed: false,
                 alertIsOpen: true,
-                alertMessage: action.payload
+                alertMessage: action.payload.message
             }
         case `${PREFIX}/${Actions.CLOSE_ALERT}/${FULFILLED}`:
             return {

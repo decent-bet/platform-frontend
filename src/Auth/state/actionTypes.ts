@@ -9,5 +9,5 @@ export default {
     FORGOT_PASSWORD: 'FORGOT_PASSWORD',
     LOGIN: 'LOGIN',
     RESET_PASSWORD: 'RESET_PASSWORD',
-    SIGN_UP: 'SIGN_UP',
+    SIGN_UP: 'SIGN_UP'
 }

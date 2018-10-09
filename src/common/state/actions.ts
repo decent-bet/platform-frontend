@@ -18,10 +18,16 @@ async function setHttpAuthBaseUrl() {
     return AUTH_API_URL
 }
 
+async function setAccountIsActivated(activated: boolean, keyHandler: IKeyHandler) {
+    await keyHandler.setAccountActivated(activated)
+    return activated
+}
+
 export default createActions({
     [PREFIX]: {
         [Actions.LOGOUT]: logout,
         [Actions.SET_USER_AUTHENTICATION_STATUS]: setUserAuthenticationStatus,
-        [Actions.SET_HTTP_AUTH_BASE_URL]: setHttpAuthBaseUrl
+        [Actions.SET_HTTP_AUTH_BASE_URL]: setHttpAuthBaseUrl,
+        [Actions.SET_ACCOUNT_IS_ACTIVATED]: setAccountIsActivated
     }
 })

@@ -32,6 +32,7 @@ async function activateAccount(id: string, key: string) {
     })
 }
 
+
 async function forgotPassword(email: string, captchaKey: string) {
     const data = { email, captchaKey }
     return new Promise(async (resolve, reject) => {
@@ -59,21 +60,15 @@ async function login(
     return new Promise(async (resolve, reject) => {
         try {
             const response = await axios.post('/login', data)
-            if (response.data.activated !== true) {
-                reject(
-                    'Your account is not activated, please check your email to get the instructions.'
-                )
-            } else {
-                await keyHandler.setAuthToken(response.data.accessToken)
-                resolve(response.data.message || 'Successfully logged in')
-            }
+            await keyHandler.setAuthToken(response.data.accessToken)
+            resolve({activated: response.data.activated, message: response.data.message || 'Successfully logged in'})
+
         } catch (error) {
-            console.log(error)
-            let errorMessage =
+            let errorMessage = 
                 error.response && error.response.data
                     ? error.response.data.message
                     : 'Error trying to login, please check later.'
-            reject(errorMessage)
+            reject({activated: false, message: errorMessage})
         }
     })
 }

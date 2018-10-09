@@ -10,7 +10,13 @@ export function logout() {
 
 export function setUserAuthenticationStatus() {
     return async (dispatch, _getState, { keyHandler }: {keyHandler: IKeyHandler}) => {
-        return await dispatch(actions.setUserAuthenticationStatus(keyHandler))
+        await dispatch(actions.setUserAuthenticationStatus(keyHandler))
+    }
+}
+
+export function setAccountIsActivated(activated: boolean) {
+    return async (dispatch, _getState, { keyHandler }: {keyHandler: IKeyHandler}) => {
+        await dispatch(actions.setAccountIsActivated(activated, keyHandler))
     }
 }
 

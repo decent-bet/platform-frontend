@@ -49,6 +49,7 @@ const ENV_DEVELOPMENT: string = 'development'
 const ENV_STAGING: string = 'staging'
 const ENV_PRODUCTION: string = 'production'
 const AUTH_TOKEN_NAME: string = 'token'
+const ACCOUTN_ACTIVATED_NAME: string = 'account_activated'
 
 function getAuthApiUrl(env): string {
     switch (env) {
@@ -81,5 +82,6 @@ export {
     STAGE_LOCAL,
     STAGE_TESTNET,
     STAGE_MAIN,
-    AUTH_TOKEN_NAME
+    AUTH_TOKEN_NAME,
+    ACCOUTN_ACTIVATED_NAME
 }

@@ -10,6 +10,9 @@ export default interface IKeyHandler {
      * Returns private key and mnemonic of the logged in user
      */
     getWalletValues(): Promise<{ mnemonic: string, privateKey: string, address: string }>
+    
+    setAccountActivated(activated: boolean): Promise<void>
+    getAccountActivationStatus(): Promise<boolean>
 
     /**
      * Returns public address of the logged in user
