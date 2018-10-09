@@ -2,7 +2,9 @@ import Actions, { PREFIX } from './actionTypes'
 import { FULFILLED } from 'redux-promise-middleware'
 
 const DefaultMainState = {
-    profile: null,
+    account: null,
+    accountIsVerified: false,
+    accountHasAddress: false,
     balance: 0,
     etherBalance: 0,
     address: '0x'
@@ -25,10 +27,20 @@ export default function reducer(
                 balance: action.payload
             }
         
-        case `${PREFIX}/${Actions.GET_USER_PROFILE}/${FULFILLED}`:
+        case `${PREFIX}/${Actions.GET_USER_ACCOUNT}/${FULFILLED}`:
             return {
                 ...mainState,
-                profile: action.payload
+                account: action.payload
+        }
+        case `${PREFIX}/${Actions.SET_ACCOUNT_HAS_ADDRESS}/${FULFILLED}`:
+            return {
+                ...mainState,
+                accountHasAddress: action.payload
+        }
+        case `${PREFIX}/${Actions.SET_ACCOUNT_IS_VERIFIED}/${FULFILLED}`:
+            return {
+                ...mainState,
+                accountIsVerified: action.payload
         }
         case `${PREFIX}/${Actions.GET_ETHER_BALANCE}/${FULFILLED}`:
             return {

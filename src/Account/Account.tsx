@@ -2,37 +2,66 @@ import * as React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as thunks from './state/thunks'
-import { Grid } from '@material-ui/core'
+import { Grid, Stepper, StepButton, Step } from '@material-ui/core'
 import AccountAddress from './AccountAddress'
 import AccountInfo from './AccountInfo'
 // import Alert from '../common/components/Alert'
 
-class Profile extends React.Component<any> {
+export interface IAccountState {
+    activeStep: number
+}
+
+class Account extends React.Component<any, IAccountState> {
     constructor(props) {
         super(props)
+        this.state = {
+            activeStep: 0
+        }
+    }
+
+    private handleStep = step => () => {
+        this.setState({
+            activeStep: step
+        })
     }
 
     public render() {
-        const { profile } = this.props
         return (
             <Grid container={true} direction="column" spacing={40}>
                 <Grid item={true} xs={12}>
-                    <AccountAddress profile={profile} />
-                </Grid>
-                <Grid item={true} xs={12}>
-                    <AccountInfo profile={profile} />
+                    <Stepper
+                        alternativeLabel={true}
+                        nonLinear={true}
+                        activeStep={this.state.activeStep}
+                    >
+                        <Step completed={this.props.accountIsVerified}>
+                            <StepButton onClick={this.handleStep(0)}>
+                                Account info
+                            </StepButton>
+                        </Step>
+                        <Step completed={this.props.accountHasAddress}>
+                            <StepButton onClick={this.handleStep(1)}>
+                                Public address
+                            </StepButton>
+                        </Step>
+                    </Stepper>
+                    {this.state.activeStep === 0 ? (
+                        <AccountInfo />
+                    ) : (
+                        <AccountAddress />
+                    )}
                 </Grid>
             </Grid>
         )
     }
 }
 
-const mapStateToProps = state => Object.assign({}, state.profile, state.main)
+const mapStateToProps = state => Object.assign({}, state.account, state.main)
 const mapDispatchToProps = dispatch =>
     bindActionCreators(Object.assign({}, thunks), dispatch)
 
-const ProfileContainer = connect(
+const AccountContainer = connect(
     mapStateToProps,
     mapDispatchToProps
-)(Profile)
-export default ProfileContainer
+)(Account)
+export default AccountContainer

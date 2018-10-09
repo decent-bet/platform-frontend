@@ -6,7 +6,7 @@ import IKeyHandler from '../../common/helpers/IKeyHandler'
 import axios from 'axios'
 
 
-export async function setHttpAuthHeader(keyHandler: IKeyHandler) {
+function setHttpAuthHeader(keyHandler: IKeyHandler): Promise<any> {
     return new Promise(async (resolve, reject) => {
         const token = await keyHandler.getAuthToken()
         if(token) {
@@ -18,7 +18,7 @@ export async function setHttpAuthHeader(keyHandler: IKeyHandler) {
     })
 }
 
-export async function fetchTokens(contractFactory, keyHandler: IKeyHandler) {
+async function fetchTokens(contractFactory, keyHandler: IKeyHandler): Promise<any> {
         let address = keyHandler.getPublicAddress()
         let contract = await contractFactory.decentBetTokenContract()
 
@@ -29,18 +29,18 @@ export async function fetchTokens(contractFactory, keyHandler: IKeyHandler) {
         return tokens
 }
 
-export async function fetchPublicAddress(keyHandler: IKeyHandler) {
+async function fetchPublicAddress(keyHandler: IKeyHandler): Promise<any> {
     return keyHandler.getPublicAddress()
 }
 
-export async function faucet(contractFactory) {
+async function faucet(contractFactory): Promise<any> {
     let contract = await contractFactory.decentBetTokenContract()
         let tx = await contract.faucet()
         return tx
 }
 
 // Get Total Ether.
-export async function fetchEtherBalance(contractFactory, keyHandler: IKeyHandler) {
+export async function fetchEtherBalance(contractFactory, keyHandler: IKeyHandler): Promise<any> {
         let address = keyHandler.getPublicAddress()
         let contract = await contractFactory.decentBetTokenContract()
         let rawAmount = await contract.getBalance(address)
@@ -49,7 +49,7 @@ export async function fetchEtherBalance(contractFactory, keyHandler: IKeyHandler
 }
 
 
-export async function getUserProfile(keyHandler: IKeyHandler) {
+function getUserAccount(keyHandler: IKeyHandler): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
             const response = await axios.get('/user')
@@ -64,6 +64,28 @@ export async function getUserProfile(keyHandler: IKeyHandler) {
     })
 }
 
+async  function setAccountHasAddress(profile: any): Promise<boolean> {
+    if(profile &&
+        profile.verification &&
+        profile.verification.addressRegistration &&
+        profile.verification.addressRegistration.vetAddress !== null) {
+            return true
+        }
+
+    return false
+}
+
+async function setAccountIsVerified(profile: any): Promise<boolean> {
+    if(profile &&
+        profile.verification &&
+        profile.verification.basicVerification &&
+        profile.verification.basicVerification.verified === true) {
+            return true
+        }
+    
+    return false
+}
+
 export default createActions({
     [PREFIX]: {
         [Actions.SET_HTTP_AUTH_HEADER]: setHttpAuthHeader,
@@ -71,6 +93,8 @@ export default createActions({
         [Actions.GET_TOKENS]: fetchTokens,
         [Actions.GET_ETHER_BALANCE]: fetchEtherBalance,
         [Actions.FAUCET]: faucet,
-        [Actions.GET_USER_PROFILE]: getUserProfile
+        [Actions.GET_USER_ACCOUNT]: getUserAccount,
+        [Actions.SET_ACCOUNT_HAS_ADDRESS]: setAccountHasAddress,
+        [Actions.SET_ACCOUNT_IS_VERIFIED]: setAccountIsVerified
     }
 })

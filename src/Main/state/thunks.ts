@@ -3,10 +3,14 @@ import Actions from './actions'
 const actions: any = Actions.main
 let subscriptions: any[] = []
 
+
 export function initializeMain() {
     return async (dispatch, _getState, { keyHandler}) => {
         await dispatch(actions.setHttpAuthHeader(keyHandler))
-        await dispatch(actions.getUserProfile(keyHandler))
+        const actionResult = await dispatch(actions.getUserAccount(keyHandler))
+        const profile = actionResult.value
+        await dispatch(actions.setAccountIsVerified(profile))
+        await dispatch(actions.setAccountHasAddress(profile))
     }
 }
 

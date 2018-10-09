@@ -1,68 +1,64 @@
 import * as React from 'react'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+import * as thunks from './state/thunks'
 import {
     Grid,
     Card,
-    CardHeader,
-    IconButton,
     CardContent,
     Input,
     InputLabel,
     FormControl,
     FormHelperText,
-    Slide
+    Typography
 } from '@material-ui/core'
-import EditIcon from '@material-ui/icons/Edit'
-import SaveIcon from '@material-ui/icons/Save'
-import CancelIcon from '@material-ui/icons/Cancel'
-import Tooltip from '@material-ui/core/Tooltip'
+
+import AccountSectionHeader from './AccountSectionHeader'
+import AccountSectionActions from './AccountSectionActions'
 
 interface IAccountAddressState {
-    editing: boolean
+    isEditing: boolean
+    isSaving: boolean
     address: string
+    privateKey: string
     errors: {
         address: boolean
+        privateKey: boolean
     }
     errorMessages: {
         address: string
+        privateKey: string
     }
 }
 
-class AccountAddress extends React.Component<any, IAccountAddressState> {
+export interface IAccountAddressProps {
+    accountHasAddress: boolean
+    account: any
+}
+
+class AccountAddress extends React.Component<IAccountAddressProps, IAccountAddressState> {
     constructor(props) {
         super(props)
 
         this.state = {
-            editing: false,
+            isEditing: false,
+            isSaving: false,
             address: '',
+            privateKey: '',
             errors: {
-                address: false
+                address: false,
+                privateKey: false
             },
             errorMessages: {
-                address: ''
+                address: '',
+                privateKey: ''
             }
         }
     }
 
-    private get hasAddress() {
-        let { profile } = this.props
-        console.log('profile', profile)
-
-        return (
-            profile &&
-            profile.verification &&
-            profile.verification.addressRegistration &&
-            profile.verification.addressRegistration.vetAddress !== null
-        )
-    }
-
-    private onToogleEdit = async () => {
-        let { editing } = this.state
-
-        if (editing) {
-            await this.handleSubmit()
-        }
-
-        this.setState({ editing: !editing })
+    private didToogleEdit = (event: React.MouseEvent) => {
+        let { isEditing } = this.state
+        this.setState({ isEditing: !isEditing })
     }
 
     private onFormValueChange = (
@@ -86,56 +82,46 @@ class AccountAddress extends React.Component<any, IAccountAddressState> {
         this.setState({ formData, errorMessages, errors }) */
     }
 
-    private handleSubmit = async () => {
+    private handleSubmit = async (event: React.FormEvent) => {
+        event.preventDefault()
         return
+    }
+
+    public componentDidMount() {
+        if (!this.props.accountHasAddress) {
+            this.setState({ isEditing: true })
+        }
     }
 
     public render() {
         return (
             <Card>
-                <CardHeader
+                <AccountSectionHeader
                     title="Public Address"
-                    action={
-                        this.state.editing ? (
-                            <Slide in={this.state.editing} direction="left">
-                                <Tooltip title="Cancel">
-                                        <IconButton onClick={this.onToogleEdit}>
-                                            <CancelIcon />
-                                        </IconButton>
-                                    </Tooltip>
-                                    <Tooltip title="Save">
-                                        <IconButton onClick={this.onToogleEdit}>
-                                            <SaveIcon color="primary" />
-                                        </IconButton>
-                                    </Tooltip>
-                            </Slide>
-                        ) : (
-                            <Tooltip title="Edit">
-                                <IconButton onClick={this.onToogleEdit}>
-                                    <EditIcon />
-                                </IconButton>
-                            </Tooltip>
-                        )
-                    }
+                    isEditing={this.state.isEditing}
+                    isSaving={this.state.isSaving}
+                    didClickOnCancel={this.didToogleEdit}
+                    didClickOnEdit={this.didToogleEdit}
                 />
                 <CardContent>
-                    <form>
+                    <form onSubmit={this.handleSubmit}>
                         <Grid container={true} spacing={32}>
-                            <Grid item={true} xs={12} sm={6}>
+                            <Grid item={true} xs={12} sm={12}>
                                 <FormControl
                                     error={this.state.errors.address}
                                     required={true}
                                     fullWidth={true}
                                 >
                                     <InputLabel htmlFor="address">
-                                        {!this.hasAddress && !this.state.editing
+                                        {!this.props.accountHasAddress &&
+                                        !this.state.isEditing
                                             ? `You haven't registered an address yet`
                                             : 'Public Address'}
                                     </InputLabel>
                                     <Input
                                         type="text"
-                                        disableUnderline={!this.state.editing}
-                                        disabled={!this.state.editing}
+                                        disableUnderline={!this.state.isEditing}
+                                        disabled={!this.state.isEditing}
                                         placeholder="Public Address"
                                         name="address"
                                         value={this.state.address}
@@ -147,11 +133,54 @@ class AccountAddress extends React.Component<any, IAccountAddressState> {
                                 </FormControl>
                             </Grid>
                         </Grid>
+                        <Grid container={true} spacing={32}>
+                            <Grid item={true} xs={12} sm={12}>
+                                <FormControl
+                                    error={this.state.errors.privateKey}
+                                    required={true}
+                                    fullWidth={true}
+                                >
+                                    <InputLabel htmlFor="privateKey">
+                                        Private key
+                                    </InputLabel>
+                                    <Input
+                                        type="text"
+                                        disableUnderline={!this.state.isEditing}
+                                        disabled={!this.state.isEditing}
+                                        placeholder="Private key"
+                                        name="privateKey"
+                                        value={this.state.privateKey}
+                                        onChange={this.onFormValueChange}
+                                    />
+                                    <FormHelperText>
+                                        {this.state.errorMessages.address}
+                                    </FormHelperText>
+                                    <FormHelperText>
+                                    <Typography component="small">
+                                            Your private key will be used to
+                                            sign a message and prove ownership
+                                            of the address you would like to
+                                            register.
+                                        </Typography>
+                                    </FormHelperText>
+                                </FormControl>
+                            </Grid>
+                        </Grid>
                     </form>
                 </CardContent>
+                <AccountSectionActions isEditing={this.state.isEditing} isSaving={this.state.isSaving}/>
             </Card>
         )
     }
 }
 
-export default AccountAddress
+const mapStateToProps = state => Object.assign({}, state.account, state.main)
+const mapDispatchToProps = dispatch =>
+    bindActionCreators(Object.assign({}, thunks), dispatch)
+
+const AccountAddressContainer = connect<IAccountAddressProps>(
+    mapStateToProps,
+    mapDispatchToProps
+)(AccountAddress)
+export default AccountAddressContainer
+

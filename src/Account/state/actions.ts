@@ -3,12 +3,16 @@ import Actions, { PREFIX } from './actionTypes'
 import IKeyHandler from '../../common/helpers/IKeyHandler'
 // import axios from 'axios'
 
-async function saveAccountInfo(keyHandler: IKeyHandler) {
-    return Promise.resolve()
+function saveAccountInfo(keyHandler: IKeyHandler, formData: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+
+    })
 }
 
-async function saveAccountAddress(keyHandler: IKeyHandler) {
-    return Promise.resolve()
+function saveAccountAddress(keyHandler: IKeyHandler, publicAddress: string, privateKey: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+        
+    })
 }
 
 export default createActions({

@@ -13,9 +13,9 @@ async function logout(keyHandler: IKeyHandler) {
     await keyHandler.clearStorage()
 }
 
-export function setHttpAuthBaseUrl() {
+async function setHttpAuthBaseUrl() {
     axios.defaults.baseURL = AUTH_API_URL
-    return Promise.resolve(AUTH_API_URL)
+    return AUTH_API_URL
 }
 
 export default createActions({

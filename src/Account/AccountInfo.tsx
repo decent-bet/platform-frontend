@@ -1,9 +1,10 @@
 import * as React from 'react'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+import * as thunks from './state/thunks'
 import {
     Grid,
     Card,
-    CardHeader,
-    IconButton,
     CardContent,
     Input,
     Select,
@@ -12,18 +13,17 @@ import {
     FormControl,
     FormHelperText
 } from '@material-ui/core'
-import EditIcon from '@material-ui/icons/Edit'
-import SaveIcon from '@material-ui/icons/Save'
 import { DatePicker } from 'material-ui-pickers'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import CalendarTodayIcon from '@material-ui/icons/CalendarToday'
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
-import CancelIcon from '@material-ui/icons/Cancel'
 import { subYears, format } from 'date-fns'
 // import validator from 'validator'
 import countries from 'iso-3166-1/src/iso-3166'
-import { withStyles, createStyles } from '@material-ui/core'
+import { WithStyles, withStyles, createStyles } from '@material-ui/core'
+import AccountSectionHeader from './AccountSectionHeader'
+import AccountSectionActions from './AccountSectionActions'
 
 const styles = () =>
     createStyles({
@@ -36,7 +36,8 @@ const styles = () =>
     })
 
 interface IAccountInfoState {
-    editing: boolean
+    isEditing: boolean
+    isSaving: boolean
     formData: {
         firstName: string
         middleName: string
@@ -79,14 +80,21 @@ interface IAccountInfoState {
     }
 }
 
-class AccountInfo extends React.Component<any, IAccountInfoState> {
+export interface IAccountInfoProps extends WithStyles<typeof styles>{
+    accountIsVerified: boolean
+    account: any
+}
+
+
+class AccountInfo extends React.Component<IAccountInfoProps, IAccountInfoState> {
     private maxDateOfBirth = subYears(new Date(), 18)
 
     constructor(props: any) {
         super(props)
 
         this.state = {
-            editing: false,
+            isEditing: false,
+            isSaving: false,
             formData: {
                 firstName: '',
                 middleName: '',
@@ -142,14 +150,9 @@ class AccountInfo extends React.Component<any, IAccountInfoState> {
         </MenuItem>
     ))
 
-    private onToogleEdit = async () => {
-        let { editing } = this.state
-
-        if (editing) {
-            await this.handleSubmit()
-        }
-
-        this.setState({ editing: !editing })
+    private didToogleEdit = (event: React.MouseEvent) => {
+        let { isEditing } = this.state
+        this.setState({ isEditing: !isEditing })
     }
 
     private handleDateOfBirthChange = date => {
@@ -169,7 +172,10 @@ class AccountInfo extends React.Component<any, IAccountInfoState> {
         const name = event.target.name
 
         formData[name] = value
-        if (event.target.validity && (!event.target.validity.valid || !value || value.length < 4)) {
+        if (
+            event.target.validity &&
+            (!event.target.validity.valid || !value || value.length < 4)
+        ) {
             errorMessages[name] = event.target.validationMessage
             errors[name] = true
         } else {
@@ -180,34 +186,29 @@ class AccountInfo extends React.Component<any, IAccountInfoState> {
         this.setState({ formData, errorMessages, errors })
     }
 
-    private handleSubmit = async () => {
+    public componentDidMount() {
+        if (!this.props.accountIsVerified) {
+            this.setState({ isEditing: true })
+        }
+    }
+
+    private handleSubmit = async (event: React.FormEvent) => {
+        event.preventDefault()
         return
     }
 
     public render() {
         return (
             <Card>
-                <CardHeader
+                <AccountSectionHeader
                     title="Account Info"
-                    action={
-                        this.state.editing ? (
-                            <React.Fragment>
-                                <IconButton onClick={this.onToogleEdit}>
-                                    <CancelIcon />
-                                </IconButton>{' '}
-                                <IconButton onClick={this.onToogleEdit}>
-                                    <SaveIcon color="primary"/>
-                                </IconButton>{' '}
-                            </React.Fragment>
-                        ) : (
-                            <IconButton onClick={this.onToogleEdit}>
-                                <EditIcon />
-                            </IconButton>
-                        )
-                    }
+                    isEditing={this.state.isEditing}
+                    isSaving={this.state.isSaving}
+                    didClickOnCancel={this.didToogleEdit}
+                    didClickOnEdit={this.didToogleEdit}
                 />
                 <CardContent>
-                    <form>
+                    <form onSubmit={this.handleSubmit}>
                         <Grid container={true} spacing={32}>
                             <Grid item={true} xs={12} sm={6}>
                                 <FormControl
@@ -220,8 +221,8 @@ class AccountInfo extends React.Component<any, IAccountInfoState> {
                                     </InputLabel>
                                     <Input
                                         type="text"
-                                        disableUnderline={!this.state.editing}
-                                        disabled={!this.state.editing}
+                                        disableUnderline={!this.state.isEditing}
+                                        disabled={!this.state.isEditing}
                                         placeholder="First name"
                                         name="firstName"
                                         value={this.state.formData.firstName}
@@ -243,8 +244,8 @@ class AccountInfo extends React.Component<any, IAccountInfoState> {
                                     </InputLabel>
                                     <Input
                                         type="text"
-                                        disableUnderline={!this.state.editing}
-                                        disabled={!this.state.editing}
+                                        disableUnderline={!this.state.isEditing}
+                                        disabled={!this.state.isEditing}
                                         placeholder="Middle name"
                                         name="middleName"
                                         value={this.state.formData.middleName}
@@ -267,8 +268,8 @@ class AccountInfo extends React.Component<any, IAccountInfoState> {
                                         Last name
                                     </InputLabel>
                                     <Input
-                                        disableUnderline={!this.state.editing}
-                                        disabled={!this.state.editing}
+                                        disableUnderline={!this.state.isEditing}
+                                        disabled={!this.state.isEditing}
                                         type="text"
                                         placeholder="Last name"
                                         name="lastName"
@@ -284,10 +285,14 @@ class AccountInfo extends React.Component<any, IAccountInfoState> {
                                 <FormControl required={true} fullWidth={true}>
                                     <InputLabel htmlFor="sex">Sex</InputLabel>
                                     <Select
-                                        disableUnderline={!this.state.editing}
-                                        disabled={!this.state.editing}
+                                        disableUnderline={!this.state.isEditing}
+                                        disabled={!this.state.isEditing}
                                         fullWidth={true}
-                                        IconComponent={!this.state.editing ? 'span' : ArrowDropDownIcon}
+                                        IconComponent={
+                                            !this.state.isEditing
+                                                ? 'span'
+                                                : ArrowDropDownIcon
+                                        }
                                         value={this.state.formData.sex}
                                         onChange={this.onFormValueChange}
                                         name="sex"
@@ -314,14 +319,14 @@ class AccountInfo extends React.Component<any, IAccountInfoState> {
                                 >
                                     <DatePicker
                                         className={
-                                            !this.state.editing
+                                            !this.state.isEditing
                                                 ? this.props.classes
                                                       .datePickerDisabled
                                                 : ''
                                         }
                                         name="selectedDob"
                                         label="Date of birth"
-                                        disabled={!this.state.editing}
+                                        disabled={!this.state.isEditing}
                                         keyboardIcon={<CalendarTodayIcon />}
                                         leftArrowIcon={<ChevronLeftIcon />}
                                         rightArrowIcon={<ChevronRightIcon />}
@@ -346,9 +351,13 @@ class AccountInfo extends React.Component<any, IAccountInfoState> {
                                     </InputLabel>
                                     <Select
                                         error={this.state.errors.country}
-                                        disableUnderline={!this.state.editing}
-                                        disabled={!this.state.editing}
-                                        IconComponent={!this.state.editing ? 'span' : ArrowDropDownIcon}
+                                        disableUnderline={!this.state.isEditing}
+                                        disabled={!this.state.isEditing}
+                                        IconComponent={
+                                            !this.state.isEditing
+                                                ? 'span'
+                                                : ArrowDropDownIcon
+                                        }
                                         fullWidth={true}
                                         value={this.state.formData.country}
                                         onChange={this.onFormValueChange}
@@ -377,8 +386,8 @@ class AccountInfo extends React.Component<any, IAccountInfoState> {
                                     </InputLabel>
                                     <Input
                                         error={this.state.errors.state}
-                                        disableUnderline={!this.state.editing}
-                                        disabled={!this.state.editing}
+                                        disableUnderline={!this.state.isEditing}
+                                        disabled={!this.state.isEditing}
                                         type="text"
                                         placeholder="State"
                                         name="state"
@@ -401,8 +410,8 @@ class AccountInfo extends React.Component<any, IAccountInfoState> {
                                     </InputLabel>
                                     <Input
                                         type="text"
-                                        disableUnderline={!this.state.editing}
-                                        disabled={!this.state.editing}
+                                        disableUnderline={!this.state.isEditing}
+                                        disabled={!this.state.isEditing}
                                         placeholder="Street Address"
                                         name="streetAddress"
                                         value={
@@ -428,8 +437,8 @@ class AccountInfo extends React.Component<any, IAccountInfoState> {
                                     </InputLabel>
                                     <Input
                                         type="text"
-                                        disableUnderline={!this.state.editing}
-                                        disabled={!this.state.editing}
+                                        disableUnderline={!this.state.isEditing}
+                                        disabled={!this.state.isEditing}
                                         placeholder="Towm/City"
                                         name="town"
                                         value={this.state.formData.town}
@@ -451,8 +460,8 @@ class AccountInfo extends React.Component<any, IAccountInfoState> {
                                     </InputLabel>
                                     <Input
                                         type="text"
-                                        disableUnderline={!this.state.editing}
-                                        disabled={!this.state.editing}
+                                        disableUnderline={!this.state.isEditing}
+                                        disabled={!this.state.isEditing}
                                         placeholder="Postal Code"
                                         name="postCode"
                                         value={this.state.formData.postCode}
@@ -475,8 +484,8 @@ class AccountInfo extends React.Component<any, IAccountInfoState> {
                                         Phone Number
                                     </InputLabel>
                                     <Input
-                                        disableUnderline={!this.state.editing}
-                                        disabled={!this.state.editing}
+                                        disableUnderline={!this.state.isEditing}
+                                        disabled={!this.state.isEditing}
                                         type="text"
                                         placeholder="Phone Number"
                                         name="phoneNumber"
@@ -491,8 +500,19 @@ class AccountInfo extends React.Component<any, IAccountInfoState> {
                         </Grid>
                     </form>
                 </CardContent>
+                <AccountSectionActions isEditing={this.state.isEditing} isSaving={this.state.isSaving}/>
             </Card>
         )
     }
 }
-export default withStyles(styles)(AccountInfo)
+
+const styledAccountInfo = withStyles(styles)(AccountInfo)
+const mapStateToProps = state => Object.assign({}, state.account, state.main)
+const mapDispatchToProps = dispatch =>
+    bindActionCreators(Object.assign({}, thunks), dispatch)
+
+const AccountInfoContainer = connect<IAccountInfoProps>(
+    mapStateToProps,
+    mapDispatchToProps
+)(styledAccountInfo)
+export default AccountInfoContainer
