@@ -5,7 +5,6 @@ import * as thunks from './state/thunks'
 import { Grid, Stepper, StepButton, Step } from '@material-ui/core'
 import AccountAddress from './AccountAddress'
 import AccountInfo from './AccountInfo'
-// import Alert from '../common/components/Alert'
 
 export interface IAccountState {
     activeStep: number
@@ -27,8 +26,8 @@ class Account extends React.Component<any, IAccountState> {
 
     public render() {
         return (
-            <Grid container={true} direction="column" spacing={40}>
-                <Grid item={true} xs={12}>
+            <Grid container={true} direction="column" spacing={40} alignItems="center">
+                <Grid item={true} xs={10}>
                     <Stepper
                         alternativeLabel={true}
                         nonLinear={true}

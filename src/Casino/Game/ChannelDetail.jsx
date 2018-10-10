@@ -11,7 +11,7 @@ import {
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp'
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown'
 import React, { Component } from 'react'
-import FormatEther from '../common/components/FormatEther'
+import FormatEther from '../../common/components/FormatEther'
 import SpinHistory from './SpinHistory'
 
 export default class ChannelDetail extends Component {

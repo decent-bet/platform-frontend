@@ -6,37 +6,27 @@ import BigNumber from 'bignumber.js'
 import { toDate } from 'date-fns'
 import { tap, map } from 'rxjs/operators'
 import { Wallet } from 'ethers'
+import IKeyHandler from 'src/common/helpers/IKeyHandler'
 
-async function authWallet(data, chainProvider, keyHandler) {
-    let wallet
-    let values
-
+async function authWallet(data, keyHandler: IKeyHandler) {
     if (data.includes(' ')) {
         // Passphrase Mnemonic mode
-        wallet = Wallet.fromMnemonic(data, "m/44'/818'/0'/0/0")
-        values = {
-            mnemonic: data,
-            privateKey: wallet.privateKey,
-            address: wallet.address
-        }
+        const wallet = Wallet.fromMnemonic(data, "m/44'/818'/0'/0/0")
+
+    await keyHandler.setupWallet(wallet.privateKey, wallet.address, data)
     } else {
         // Private Key Mode
         // Adds '0x' to the beginning of the key if it is not there.
         if (data.substring(0, 2) !== '0x') {
             data = '0x' + data
         }
-
-        wallet = new Wallet(data)
-        values = {
-            privateKey: wallet.privateKey,
-            address: wallet.address
-        }
+        const wallet = new Wallet(data)
+        await keyHandler.setupWallet(wallet.privateKey, wallet.address)
     }
-    await keyHandler.set(values)
 }
 
-function getCurrentStage(keyHandler) {
-    return Promise.resolve(keyHandler.getStage())
+async function getCurrentStage(keyHandler: IKeyHandler) {
+    return keyHandler.getStage()
 }
 
 function setCurrentStage(keyHandler, stage) {
@@ -44,7 +34,7 @@ function setCurrentStage(keyHandler, stage) {
     return Promise.resolve(stage)
 }
 
-export async function fetchAesKey(channelId, keyHandler, web3) {
+async function fetchAesKey(channelId, keyHandler, web3) {
     const idHash = web3.utils.soliditySha3(channelId)
     let { privateKey } = await keyHandler.get()
     let sign = web3.eth.accounts.sign(idHash, privateKey)

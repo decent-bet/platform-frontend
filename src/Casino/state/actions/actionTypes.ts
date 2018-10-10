@@ -1,4 +1,4 @@
-export const PREFIX = 'SLOTS_MANAGER'
+export const PREFIX = 'CASINO'
 export default {
     GET_AES_KEY: 'GET_AES_KEY',
     GET_ALLOWANCE: 'GET_ALLOWANCE',

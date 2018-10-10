@@ -10,7 +10,7 @@ import MainRouter from './MainRouter'
 import AppDrawer from './AppDrawer'
 import ProviderSelector from './ProviderSelector'
 import * as thunks from './state/thunks'
-import './dashboard.css'
+import './main.css'
 import { Grid, Fade, Paper } from '@material-ui/core'
 import AppLoading from '../common/components/AppLoading'
 import { VIEW_ACCOUNT, VIEW_ACCOUNT_NOTACTIVATED } from '../routes'
@@ -52,7 +52,7 @@ class Main extends React.Component<any> {
     }
 
     public render() {
-        
+
         if (!this.state.loaded) { 
             return <AppLoading />
         }
@@ -99,7 +99,7 @@ class Main extends React.Component<any> {
                             alignItems="center"
                             justify="center"
                         >
-                            <Grid item={true} xs={12} sm={10} md={8}>
+                            <Grid item={true} xs={12}>
                                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                     <MainRouter />
                                 </MuiPickersUtilsProvider>

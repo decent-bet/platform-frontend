@@ -4,7 +4,7 @@ export default interface IKeyHandler {
     /**
      * Caches a wallet's private key
      */
-    setupWallet(privateKey: string, address: string, mnemonic: string): Promise<void>
+    setupWallet(privateKey: string, address: string, mnemonic?: string): Promise<void>
 
     /**
      * Returns private key and mnemonic of the logged in user

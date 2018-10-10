@@ -1,8 +1,6 @@
 /* Page structure with CSS Grid */
 .slots {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-gap: 30px;
+    
 }
 
 @media (max-width: 714px) {

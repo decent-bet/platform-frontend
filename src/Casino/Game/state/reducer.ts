@@ -1,11 +1,11 @@
 import Actions, { PREFIX } from './actions/actionTypes'
 import { FULFILLED } from 'redux-promise-middleware'
-import { DEFAULT_STAGE } from '../../config'
+import { DEFAULT_STAGE } from '../../../config'
 import {
     CHANNEL_STATUS_ACTIVATED,
     CHANNEL_STATUS_FINALIZED,
     CHANNEL_STATUS_DEPOSITED
-} from '../../constants'
+} from '../../../constants'
 
 const SlotsManagerDefaultState = {
     currentStage: DEFAULT_STAGE,

@@ -13,7 +13,7 @@ class KeyHandler implements IKeyHandler {
     /**
      * Caches a wallet's private key
      */
-    public async setupWallet(privateKey: string, address: string, mnemonic: string): Promise<void> {
+    public async setupWallet(privateKey: string, address: string, mnemonic?: string): Promise<void> {
         const cryptoKey = await this.keyStore.getCryptoKey()
        
         await this.keyStore.addVariable(

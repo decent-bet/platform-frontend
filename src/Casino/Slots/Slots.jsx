@@ -1,7 +1,7 @@
 import { BigNumber } from 'bignumber.js'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
-import * as thunks from './state/thunks'
+import * as thunks from '../state/thunks'
 import SlotsList from './SlotsList'
 import StateChannelBuilder from './StateChannelBuilder'
 import StateChannelTable from './StateChannelTable'
@@ -25,8 +25,11 @@ class Slots extends Component {
     }
 
     componentDidMount = () => {
-        this.props.dispatch(thunks.initializeSlots())
-        this.refreshChannels()
+        setTimeout(() => {
+            this.setState({ stateMachine: 'list_games' })
+        }, 3000)
+        //this.props.dispatch(thunks.initializeSlots())
+        //this.refreshChannels()
     }
 
     refreshChannels = async () => {
@@ -172,18 +175,24 @@ class Slots extends Component {
         return totalTokens.dividedBy(units.ether).toFixed(0)
     }
 
-    renderSelectGameState = () => {
-        const channel = this.props.channels[this.state.currentChannel]
-        const balance = this.channelBalanceParser(channel)
+    renderSelectGameState = (allowSelect) => {
+        let balance
+        if(allowSelect) {
+            const channel = this.props.channels[this.state.currentChannel]
+            const balance = this.channelBalanceParser(channel)
+        } else {
+            balance = 0
+        }
 
         return (
-            <Fragment>
+            <React.Fragment>
                 {this.renderChannelTable()}
                 <SlotsList
                     balance={balance}
+                    allowSelect={allowSelect}
                     onGameSelectedListener={this.onGoToGameroomListener}
                 />
-            </Fragment>
+            </React.Fragment>
         )
     }
 
@@ -196,29 +205,26 @@ class Slots extends Component {
             channelProp={this.renderStateChannelToolbar}
         />
     )
-
+    
     renderStateMachine = () => {
         switch (this.state.stateMachine) {
             case 'loading':
                 return this.renderLoadingState()
-
             case 'select_channels':
                 return this.renderSelectChannelsState()
-
             case 'building_game':
                 return this.renderLoadingState()
-
+            case 'list_games': 
+                return this.renderSelectGameState(false)
             case 'select_game':
-                return this.renderSelectGameState()
-
+                return this.renderSelectGameState(true)
             case 'claiming':
                 return this.renderLoadingState('Claiming DBETs..')
-
             default:
-                return null
+                return this.renderLoadingState()
         }
     }
-
+    
     render() {
         return (
             <main className="slots container">{this.renderStateMachine()}</main>
@@ -226,4 +232,4 @@ class Slots extends Component {
     }
 }
 
-export default connect(reduxState => reduxState.slotsManager)(Slots)
+export default connect(state => state.casino)(Slots)
