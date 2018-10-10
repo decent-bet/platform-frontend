@@ -32,8 +32,7 @@ class ForgotPasswordForm extends React.Component<any> {
 
     private handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()
-        let { forgotPassword } = this.props as any
-        await forgotPassword(this.state.email, this.props.recapchaKey)
+        await this.props.forgotPassword(this.state.email, this.props.recapchaKey)
         if(this.props.recapcha && this.props.recapcha.current) {
             this.props.recapcha.current.reset()
         }

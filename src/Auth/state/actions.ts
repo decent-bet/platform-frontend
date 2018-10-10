@@ -5,15 +5,15 @@ import Actions, { PREFIX } from './actionTypes'
 import IKeyHandler from '../../common/helpers/IKeyHandler';
 
 async function setRecaptchaKey(key: string) {
-    return Promise.resolve(key)
+    return key
 }
 
 async function closeAlert() {
-    return Promise.resolve(true)
+    return true
 }
 
 async function setSuccessMessage(message) {
-    return Promise.resolve(message)
+    return message
 }
 
 async function activateAccount(id: string, key: string) {
