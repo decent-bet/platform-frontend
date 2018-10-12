@@ -2,7 +2,15 @@ import * as React from 'react'
 import SlotsGameCard from './SlotsGameCard'
 import { Grid, Card, CardContent } from '@material-ui/core'
 
-export default function SlotsList({ balance, onGameSelectedListener, allowSelect }) {
+
+interface ISlotsListProps {
+    onGameSelectedListener: (name: string) => void
+    allowSelect: boolean
+    balance: number
+  }
+  
+
+export default function SlotsList({ balance, onGameSelectedListener, allowSelect }: ISlotsListProps) {
 
     return (
         <React.Fragment>
@@ -60,6 +68,7 @@ export default function SlotsList({ balance, onGameSelectedListener, allowSelect
                 </Grid>
                 <Grid item={true} xs={6} sm={4}>
                     <SlotsGameCard
+                        allowSelect={allowSelect}
                         imageUrl="backgrounds/slots-spaceman.jpg"
                         onGameSelectedListener={onGameSelectedListener}
                         gameName="spaceman"

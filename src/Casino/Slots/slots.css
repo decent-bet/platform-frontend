@@ -3,11 +3,6 @@
     
 }
 
-@media (max-width: 714px) {
-    .slots {
-        grid-template-columns: 1fr;
-    }
-}
 
 .slots > *:not(.game-card) {
     grid-column: 1 / -1;
