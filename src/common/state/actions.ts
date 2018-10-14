@@ -1,8 +1,17 @@
+import { AlertVariant } from './../components/Alert'
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from './actionTypes'
 import IKeyHandler from '../helpers/IKeyHandler'
 import axios from 'axios'
 import { AUTH_API_URL } from '../../config'
+
+async function openAlert(message: string, variant: AlertVariant) {
+    return { message: message || 'Sorry, an error occurred.', variant }
+}
+
+async function closeAlert() {
+    return false
+}
 
 async function setUserAuthenticationStatus(keyHandler: IKeyHandler) {
     let token = await keyHandler.getAuthToken()
@@ -18,13 +27,18 @@ async function setHttpAuthBaseUrl() {
     return AUTH_API_URL
 }
 
-async function setAccountIsActivated(activated: boolean, keyHandler: IKeyHandler) {
+async function setAccountIsActivated(
+    activated: boolean,
+    keyHandler: IKeyHandler
+) {
     await keyHandler.setAccountActivated(activated)
     return activated
 }
 
 export default createActions({
     [PREFIX]: {
+        [Actions.OPEN_ALERT]: openAlert,
+        [Actions.CLOSE_ALERT]: closeAlert,
         [Actions.LOGOUT]: logout,
         [Actions.SET_USER_AUTHENTICATION_STATUS]: setUserAuthenticationStatus,
         [Actions.SET_HTTP_AUTH_BASE_URL]: setHttpAuthBaseUrl,

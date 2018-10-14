@@ -1,18 +1,17 @@
-import Actions, { PREFIX } from './actions/actionTypes'
+import Actions, { PREFIX } from './actionTypes'
 import { FULFILLED } from 'redux-promise-middleware'
-import { DEFAULT_STAGE } from '../../config'
 import {
     CHANNEL_STATUS_ACTIVATED,
     CHANNEL_STATUS_FINALIZED,
     CHANNEL_STATUS_DEPOSITED
 } from '../../constants'
 
-const SlotsManagerDefaultState = {
-    currentStage: DEFAULT_STAGE,
-    authenticated: false,
+const casinoDefaultState = {
+    isCasinoLogedIn: false,
     channels: {},
     allowance: 0,
-    balance: 0
+    balance: 0,
+    etherBalance: 0
 }
 
 const ChannelDefaultState = {
@@ -47,7 +46,6 @@ function stateChannelSubreducer(
     if (!channel) channel = {}
 
     switch (action.type) {
-
         case `${PREFIX}/${Actions.GET_CHANNEL}/${FULFILLED}`:
             channel = action.payload
             break
@@ -81,7 +79,7 @@ function stateChannelSubreducer(
             break
 
         case `${PREFIX}/${Actions.GET_CHANNEL_DETAILS}/${FULFILLED}`:
-            channel = {...channel, ...action.payload}
+            channel = { ...channel, ...action.payload }
             break
         case `${PREFIX}/${Actions.GET_LAST_SPIN}/${FULFILLED}`:
             channel = { ...channel, ...action.payload }
@@ -108,52 +106,54 @@ function stateChannelSubreducer(
 }
 
 export default function slotsManagerReducer(
-    slotsManagerState: any = SlotsManagerDefaultState,
+    casinoState: any = casinoDefaultState,
     action: any = { type: null }
 ) {
     switch (action.type) {
         case `${PREFIX}/${Actions.GET_BALANCE}/${FULFILLED}`:
-            return { ...slotsManagerState, balance: action.payload }
+            return { ...casinoState, balance: action.payload }
 
         case `${PREFIX}/${Actions.SET_CHANNEL}`:
             let newChannel = action.payload
             return {
-                ...slotsManagerState,
+                ...casinoState,
                 channels: {
-                    ...slotsManagerState.channels,
+                    ...casinoState.channels,
                     [newChannel.id]: newChannel
                 }
             }
 
         case `${PREFIX}/${Actions.GET_CHANNELS}/${FULFILLED}`:
             return {
-                ...slotsManagerState,
+                ...casinoState,
                 channels: { ...action.payload }
             }
 
         case `${PREFIX}/${Actions.AUTH_WALLET}/${FULFILLED}`:
             return {
-                ...slotsManagerState,
-                authenticated: action.payload
+                ...casinoState,
+                isCasinoLogedIn: action.payload
             }
-        case `${PREFIX}/${Actions.GET_CURRENT_STAGE}/${FULFILLED}`:
+        case `${PREFIX}/${Actions.GET_CASINO_LOGIN_STATUS}/${FULFILLED}`:
             return {
-                ...slotsManagerState,
-                currentStage: action.payload
+                ...casinoState,
+                isCasinoLogedIn: action.payload
             }
-        case `${PREFIX}/${Actions.SET_CURRENT_STAGE}/${FULFILLED}`:
+        case `${PREFIX}/${Actions.GET_TOKENS}/${FULFILLED}`:
             return {
-                ...slotsManagerState,
-                currentStage: action.payload
+                ...casinoState,
+                balance: action.payload
+            }
+        case `${PREFIX}/${Actions.GET_ETHER_BALANCE}/${FULFILLED}`:
+            return {
+                ...casinoState,
+                etherBalance: action.payload
             }
 
         default:
             return {
-                ...slotsManagerState,
-                channels: stateChannelSubreducer(
-                    slotsManagerState.channels,
-                    action
-                )
+                ...casinoState,
+                channels: stateChannelSubreducer(casinoState.channels, action)
             }
     }
 }

@@ -1,11 +1,9 @@
-import actionsForChannel from './actionsForChannel'
-import actionsForSlots from './actionsForSlots'
-import actionsForChannelStatus from './actionsForChannelStatus'
+import casino from './casino'
+import slots from './slots'
 
 const actions: any = {
-  ...actionsForChannel.casino,
-  ...actionsForSlots.casino,
-  ...actionsForChannelStatus.casino
+    ...casino.casino,
+    ...slots.casino
 }
 
 export default actions

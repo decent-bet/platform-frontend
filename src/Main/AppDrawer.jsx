@@ -19,10 +19,8 @@ export default function AppDrawer({
     onDrawerCloseListener,
     onViewChangeListener,
     selectedView,
-    onFaucetClickedListener,
-    children
+    onFaucetClickedListener
 }) {
-    
     return (
         <Drawer
             className="drawer"
@@ -41,17 +39,15 @@ export default function AppDrawer({
                         }
                         onViewChangeListener={onViewChangeListener}
                         title="Casino"
-                        icon={<VideogameAssetIcon/>} 
+                        icon={<VideogameAssetIcon />}
                     />
 
                     <AppDrawerItem
                         viewToSelect={VIEW_ACCOUNT}
-                        isSelected={
-                            selectedView === VIEW_ACCOUNT
-                        }
+                        isSelected={selectedView === VIEW_ACCOUNT}
                         onViewChangeListener={onViewChangeListener}
                         title="Account"
-                        icon={<AccountCircleIcon/>}   
+                        icon={<AccountCircleIcon />}
                     />
 
                     <FaucetMenuItem
@@ -63,12 +59,10 @@ export default function AppDrawer({
                         isSelected={false}
                         onViewChangeListener={onViewChangeListener}
                         title="Logout"
-                        icon={<ExitToAppIcon/>}
+                        icon={<ExitToAppIcon />}
                     />
 
                     <Divider />
-
-                    {children}
                 </List>
             </div>
         </Drawer>

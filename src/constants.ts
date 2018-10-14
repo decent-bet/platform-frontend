@@ -1,34 +1,36 @@
 export const RECAPTCHA_SITE_KEY = '6LelAVoUAAAAAO-9CWfkBOG6pHuwX-J3fERUwfaw',
-            PORTAL_PAGE_DISCOVER = 'discover',
-            PORTAL_PAGE_SPORTSBOOK = 'sportsbook',
-            PORTAL_PAGE_SLOTS = 'slots',
-            SLOTS_CHANNEL_DEPOSIT_MIN = 5,
-            SLOTS_CHANNEL_DEPOSIT_MAX = 5000,
-            CHANNEL_STATUS_WAITING = 'Waiting',
-            CHANNEL_STATUS_DEPOSITED = 'Deposited',
-            CHANNEL_STATUS_ACTIVATED = 'Activated',
-            CHANNEL_STATUS_FINALIZED = 'Finalized',
-            FORMATTED_CHANNEL_STATUS_WAITING = 'Waiting for Deposit..',
-            FORMATTED_CHANNEL_STATUS_DEPOSITED =
-                'User Deposited, Waiting for house activation..',
-            FORMATTED_CHANNEL_STATUS_ACTIVATED = 'Ready to Play',
-            FORMATTED_CHANNEL_STATUS_FINALIZED = 'Channel finalized and closed',
-            /** As configured in Betting Provider Contract */
-            ODDS_TYPE_SPREAD = 1,
-            ODDS_TYPE_MONEYLINE = 2,
-            ODDS_TYPE_TOTALS = 3,
-            ODDS_TYPE_TEAM_TOTALS = 4,
-            FORMATTED_ODDS_TYPE_SPREAD = 'Spread',
-            FORMATTED_ODDS_TYPE_MONEYLINE = 'Moneyline',
-            FORMATTED_ODDS_TYPE_TOTALS = 'Totals',
-            FORMATTED_ODDS_TYPE_TEAM_TOTALS = 'Team Totals',
-            BET_CHOICE_TEAM1 = 1,
-            BET_CHOICE_DRAW = 2,
-            BET_CHOICE_TEAM2 = 3,
-            BET_CHOICE_OVER = 4,
-            BET_CHOICE_UNDER = 5,
-            SPREAD_OUTCOME_WIN = 1,
-            SPREAD_OUTCOME_DRAW = 2,
-            SPREAD_OUTCOME_LOSS = 3,
-            SPREAD_OUTCOME_HALF_WIN = 4,
-            SPREAD_OUTCOME_HALF_LOSS = 5
+    MNEMONIC_DPATH = "m/44'/818'/0'/0/0",
+    CHANNEL_STATUS_WAITING = 'Waiting',
+    CHANNEL_STATUS_DEPOSITED = 'Deposited',
+    CHANNEL_STATUS_ACTIVATED = 'Activated',
+    CHANNEL_STATUS_FINALIZED = 'Finalized',
+    // STAGES
+    STAGE_LOCAL = 'local',
+    STAGE_TESTNET = 'testnet',
+    STAGE_MAIN = 'main',
+    ENV_DEVELOPMENT: string = 'development',
+    ENV_STAGING: string = 'staging',
+    ENV_PRODUCTION: string = 'production',
+    AUTH_TOKEN_NAME: string = 'token',
+    ACCOUNT_ACTIVATED_NAME: string = 'account_activated'
+
+export const CURRENT_STAGE: string = process.env.REACT_APP_STAGE || STAGE_LOCAL
+export const CURRENT_ENV: string = process.env.REACT_APP_ENV || ENV_DEVELOPMENT
+
+export interface IStageItem {
+    key: string
+    name: string
+}
+
+export const STAGES: IStageItem[] = [
+    { key: STAGE_MAIN, name: 'DBET Node' },
+    { key: STAGE_TESTNET, name: 'Infura' },
+    { key: STAGE_LOCAL, name: 'Local Node' }
+]
+
+export interface IStageConfig {
+    channelsApiUrl: string
+    thorNode: string
+}
+
+export type StageType = 'main' | 'testnet' | 'local'

@@ -4,10 +4,7 @@ import { PENDING, FULFILLED, REJECTED } from 'redux-promise-middleware'
 const DefaultAuthState = {
     recaptcha: null,
     recaptchaKey: '',
-    alertMessage: '',
     resultMessage: '',
-    alertType: 'error',
-    alertIsOpen: false,
     loading: false,
     processed: false
 }
@@ -46,38 +43,28 @@ export default function authReducer(
         case `${PREFIX}/${Actions.RESET_PASSWORD}/${FULFILLED}`:
         case `${PREFIX}/${Actions.RESET_PASSWORD}/${REJECTED}`:
         case `${PREFIX}/${Actions.ACTIVATE_ACCOUNT}/${REJECTED}`:
-        return {
-            ...authState,
-            loading: false,
-            processed: true,
-            recaptchaKey: '',
-            recaptcha: null,
-            resultMessage: action.payload
-        }
+            return {
+                ...authState,
+                loading: false,
+                processed: true,
+                recaptchaKey: '',
+                recaptcha: null,
+                resultMessage: action.payload
+            }
         case `${PREFIX}/${Actions.SIGN_UP}/${REJECTED}`:
             return {
                 ...authState,
                 loading: false,
-                processed: false,
-                alertIsOpen: true,
-                alertMessage: action.payload.message
-            }
-        case `${PREFIX}/${Actions.CLOSE_ALERT}/${FULFILLED}`:
-            return {
-                ...authState,
-                alertIsOpen: false,
-                alertMessage: ''
+                processed: false
             }
         case `${PREFIX}/${Actions.FORGOT_PASSWORD}/${REJECTED}`:
         case `${PREFIX}/${Actions.LOGIN}/${REJECTED}`:
             return {
                 ...authState,
-                loading: false,
-                alertIsOpen: true,
-                alertMessage: action.payload
+                loading: false
             }
-        case `${PREFIX}/${Actions.SET_DEFAULT_STATUS}/${FULFILLED}`: 
-            return  DefaultAuthState
+        case `${PREFIX}/${Actions.SET_DEFAULT_STATUS}/${FULFILLED}`:
+            return DefaultAuthState
         default:
             return { ...authState }
     }

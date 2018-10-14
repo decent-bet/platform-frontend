@@ -2,11 +2,13 @@ import { BigNumber } from 'bignumber.js'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import * as thunks from '../state/thunks'
+import { Grid } from '@material-ui/core'
 import SlotsList from './SlotsList'
 import StateChannelBuilder from './StateChannelBuilder'
 import StateChannelTable from './StateChannelTable'
 import StateChannelToolbar from './StateChannelToolbar'
 import StateChannelWaiter from './StateChannelWaiter'
+import TransparentPaper from '../../common/components/TransparentPaper'
 
 import './slots.css'
 
@@ -21,7 +23,9 @@ class Slots extends Component {
 
     isChannelClaimed(channel) {
         if (!channel.info) return false
-        return channel.info.finalized && channel.deposited.isLessThanOrEqualTo(0)
+        return (
+            channel.info.finalized && channel.deposited.isLessThanOrEqualTo(0)
+        )
     }
 
     componentDidMount = () => {
@@ -57,8 +61,7 @@ class Slots extends Component {
                         channel.info.ready &&
                         channel.info.activated &&
                         !channel.info.finalized
-                    if (isUsable)
-                        activeChannels.push(channelId)
+                    if (isUsable) activeChannels.push(channelId)
 
                     // Channel has not been deposited into yet, continue building channel
                     const isNotReady =
@@ -67,17 +70,19 @@ class Slots extends Component {
                         !channel.info.activated &&
                         !channel.info.finalized
 
-                    if(isNotReady)
-                        nonDepositedChannels.push(channelId)
+                    if (isNotReady) nonDepositedChannels.push(channelId)
 
-                    if (channel.info.finalized && !this.isChannelClaimed(channel))
+                    if (
+                        channel.info.finalized &&
+                        !this.isChannelClaimed(channel)
+                    )
                         claimableChannels.push(channelId)
                 }
             }
         }
 
         this.setState({ activeChannels, claimableChannels })
-        console.log({activeChannels, claimableChannels, nonDepositedChannels})
+        console.log({ activeChannels, claimableChannels, nonDepositedChannels })
 
         // If there is exactly one usable channel active, switch to it.
         if (activeChannels.length === 1) {
@@ -85,7 +90,7 @@ class Slots extends Component {
                 stateMachine: 'select_game',
                 currentChannel: activeChannels[0]
             })
-        } else if(nonDepositedChannels.length >= 1) {
+        } else if (nonDepositedChannels.length >= 1) {
             // Continue building channel
             const channel = nonDepositedChannels[0]
             console.log('Continue building channel', channel)
@@ -118,7 +123,12 @@ class Slots extends Component {
         this.setState({ stateMachine: 'building_game' })
 
         // Create the channel
-        const thunk = thunks.buildChannel(parsedAmount, allowance, balance, this.onUpdateBuildStatusListener)
+        const thunk = thunks.buildChannel(
+            parsedAmount,
+            allowance,
+            balance,
+            this.onUpdateBuildStatusListener
+        )
         const currentChannel = await this.props.dispatch(thunk)
 
         // Update UI
@@ -127,7 +137,7 @@ class Slots extends Component {
 
     onUpdateBuildStatusListener = buildStatus => {
         console.log('onUpdateBuildStatusListener', buildStatus)
-        this.setState({buildStatus})
+        this.setState({ buildStatus })
     }
 
     // Claims the tokens from a Channel
@@ -153,7 +163,11 @@ class Slots extends Component {
         />
     )
 
-    renderLoadingState = message => <StateChannelWaiter message={message ? message : this.state.buildStatus}/>
+    renderLoadingState = message => (
+        <StateChannelWaiter
+            message={message ? message : this.state.buildStatus}
+        />
+    )
 
     renderSelectChannelsState = () => (
         <Fragment>
@@ -163,9 +177,12 @@ class Slots extends Component {
             />
         </Fragment>
     )
-    
+
     channelBalanceParser(channel) {
-        let initialDeposit = (channel && channel.info) ? new BigNumber(channel.info.initialDeposit) : 0
+        let initialDeposit =
+            channel && channel.info
+                ? new BigNumber(channel.info.initialDeposit)
+                : 0
         let totalTokens = new BigNumber(initialDeposit)
         if (channel && channel.houseSpins && channel.houseSpins.length > 0) {
             const lastIdx = channel.houseSpins.length - 1
@@ -175,9 +192,9 @@ class Slots extends Component {
         return totalTokens.dividedBy(units.ether).toFixed(0)
     }
 
-    renderSelectGameState = (allowSelect) => {
+    renderSelectGameState = allowSelect => {
         let balance
-        if(allowSelect) {
+        if (allowSelect) {
             const channel = this.props.channels[this.state.currentChannel]
             const balance = this.channelBalanceParser(channel)
         } else {
@@ -205,7 +222,7 @@ class Slots extends Component {
             channelProp={this.renderStateChannelToolbar}
         />
     )
-    
+
     renderStateMachine = () => {
         switch (this.state.stateMachine) {
             case 'loading':
@@ -214,7 +231,7 @@ class Slots extends Component {
                 return this.renderSelectChannelsState()
             case 'building_game':
                 return this.renderLoadingState()
-            case 'list_games': 
+            case 'list_games':
                 return this.renderSelectGameState(false)
             case 'select_game':
                 return this.renderSelectGameState(true)
@@ -224,10 +241,22 @@ class Slots extends Component {
                 return this.renderLoadingState()
         }
     }
-    
+
     render() {
         return (
-            <main className="slots container">{this.renderStateMachine()}</main>
+            <Grid
+                container={true}
+                direction="column"
+                spacing={24}
+                justify="center"
+                alignItems="center"
+            >
+                <Grid item={true} xs={12} style={{ maxWidth: 1250 }}>
+                    <TransparentPaper>
+                        {this.renderStateMachine()}
+                    </TransparentPaper>
+                </Grid>
+            </Grid>
         )
     }
 }

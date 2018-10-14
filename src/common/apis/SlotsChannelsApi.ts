@@ -1,17 +1,15 @@
 import { getStageConfig } from '../../config'
-const cryptoJs = require("crypto-js")
+const cryptoJs = require('crypto-js')
 const request = require('request')
 
 export default class SlotsChannelsApi {
-
-    constructor(private keyHandler, private utils) { }
+    constructor(private keyHandler, private utils) {}
 
     get baseUrl() {
-        let stage = this.keyHandler.getStage()
-        let config = getStageConfig(stage)
+        let config = getStageConfig()
         return config.channelsApiUrl
     }
-    
+
     /** Off-chain finally verifiable slot spins */
     public spin = async (address, spin, aesKey, callback) => {
         /**
@@ -33,7 +31,10 @@ export default class SlotsChannelsApi {
          * aesKey - send encrypted spin to server to save state
          */
         console.log('Spin', address, spin, aesKey)
-        let encryptedSpin = cryptoJs.AES.encrypt(JSON.stringify(spin), aesKey).toString()
+        let encryptedSpin = cryptoJs.AES.encrypt(
+            JSON.stringify(spin),
+            aesKey
+        ).toString()
         let url = '/casino/channels/slots/' + address + '/spin'
 
         let timestamp = this.utils.getTimestampInMillis()
@@ -75,7 +76,7 @@ export default class SlotsChannelsApi {
             headers: {
                 Authorization: JSON.stringify({
                     sign,
-                    timestamp,
+                    timestamp
                 })
             }
         }
@@ -90,7 +91,10 @@ export default class SlotsChannelsApi {
      * close channel transaction is being sent to the network
      *  */
     public finalizeChannel = async (id, spin, aesKey, callback) => {
-        let encryptedSpin = cryptoJs.AES.encrypt(JSON.stringify(spin), aesKey).toString()
+        let encryptedSpin = cryptoJs.AES.encrypt(
+            JSON.stringify(spin),
+            aesKey
+        ).toString()
         let url = '/casino/channels/slots/' + id + '/finalize'
 
         let timestamp = this.utils.getTimestampInMillis()
@@ -124,5 +128,4 @@ export default class SlotsChannelsApi {
 
         return sign.sig
     }
-
 }

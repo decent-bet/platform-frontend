@@ -1,15 +1,10 @@
-
 import axios from 'axios'
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from './actionTypes'
-import IKeyHandler from '../../common/helpers/IKeyHandler';
+import IKeyHandler from '../../common/helpers/IKeyHandler'
 
 async function setRecaptchaKey(key: string) {
     return key
-}
-
-async function closeAlert() {
-    return true
 }
 
 async function setSuccessMessage(message) {
@@ -32,13 +27,15 @@ async function activateAccount(id: string, key: string) {
     })
 }
 
-
 async function forgotPassword(email: string, captchaKey: string) {
     const data = { email, captchaKey }
     return new Promise(async (resolve, reject) => {
         try {
             const response = await axios.post('/password/reset', data)
-            resolve(response.data.message || 'Password recovery successfully requested.')
+            resolve(
+                response.data.message ||
+                    'Password recovery successfully requested.'
+            )
         } catch (error) {
             let errorMessage =
                 error.response && error.response.data
@@ -48,7 +45,6 @@ async function forgotPassword(email: string, captchaKey: string) {
         }
     })
 }
-
 
 async function login(
     email: string,
@@ -61,14 +57,16 @@ async function login(
         try {
             const response = await axios.post('/login', data)
             await keyHandler.setAuthToken(response.data.accessToken)
-            resolve({activated: response.data.activated, message: response.data.message || 'Successfully logged in'})
-
+            resolve({
+                activated: response.data.activated,
+                message: response.data.message || 'Successfully logged in'
+            })
         } catch (error) {
-            let errorMessage = 
+            let errorMessage =
                 error.response && error.response.data
                     ? error.response.data.message
                     : 'Error trying to login, please check later.'
-            reject({activated: false, message: errorMessage})
+            reject({ activated: false, message: errorMessage })
         }
     })
 }
@@ -78,7 +76,10 @@ async function resetPassword(email: string, captchaKey: string, key: string) {
     return new Promise(async (resolve, reject) => {
         try {
             const response = await axios.post('/password/reset/verify', data)
-            resolve(response.data.message || 'Password reset success, please go to the login.')
+            resolve(
+                response.data.message ||
+                    'Password reset success, please go to the login.'
+            )
         } catch (error) {
             let errorMessage =
                 error.response && error.response.data
@@ -88,7 +89,6 @@ async function resetPassword(email: string, captchaKey: string, key: string) {
         }
     })
 }
-
 
 async function signUp(
     email: string,
@@ -101,7 +101,9 @@ async function signUp(
     return new Promise(async (resolve, reject) => {
         try {
             const response = await axios.post('/register', data)
-            resolve(response.data.message || 'A new account created successfully')
+            resolve(
+                response.data.message || 'A new account created successfully'
+            )
         } catch (error) {
             let errorMessage =
                 error.response && error.response.data
@@ -112,7 +114,7 @@ async function signUp(
     })
 }
 
-function setRecaptchaInstance (recaptcha: React.RefObject<any>) {
+function setRecaptchaInstance(recaptcha: React.RefObject<any>) {
     return Promise.resolve(recaptcha)
 }
 
@@ -124,7 +126,6 @@ export default createActions({
     [PREFIX]: {
         [Actions.SET_RECAPTCHA_KEY]: setRecaptchaKey,
         [Actions.SET_RECAPTCHA_INSTANCE]: setRecaptchaInstance,
-        [Actions.CLOSE_ALERT]: closeAlert,
         [Actions.SET_SUCCESS_MESSAGE]: setSuccessMessage,
         [Actions.ACTIVATE_ACCOUNT]: activateAccount,
         [Actions.FORGOT_PASSWORD]: forgotPassword,

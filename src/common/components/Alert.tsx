@@ -16,13 +16,13 @@ import CloseIcon from '@material-ui/icons/Close'
 const getIconVariant = (variant, varianClassName) => {
     switch (variant) {
         case 'success':
-            return <CheckCircleIcon className={varianClassName}/>
+            return <CheckCircleIcon className={varianClassName} />
         case 'warning':
-            return <WarningIcon className={varianClassName}/>
+            return <WarningIcon className={varianClassName} />
         case 'error':
-            return <ErrorIcon className={varianClassName}/>
+            return <ErrorIcon className={varianClassName} />
         default:
-            return <InfoIcon className={varianClassName}/>
+            return <InfoIcon className={varianClassName} />
     }
 }
 
@@ -77,12 +77,9 @@ export interface IAlertProps extends SnackbarProps {
 
 function AlertContent(props: IAlertContentProps) {
     const { classes, className, message, onClose, variant } = props
-    const varianClassName = classNames(
-        classes.icon,
-        classes.iconVariant
-    )
+    const varianClassName = classNames(classes.icon, classes.iconVariant)
     const iconVariant = getIconVariant(variant, varianClassName)
-    
+
     const handleClick = event => {
         if (onClose) {
             onClose(event, 'IconButton')
@@ -96,7 +93,6 @@ function AlertContent(props: IAlertContentProps) {
             message={
                 <span id="client-snackbar" className={classes.message}>
                     {iconVariant}
-                    />
                     {message}
                 </span>
             }
@@ -119,7 +115,7 @@ const AlertContentWrapper = withStyles(contentStyles)(AlertContent)
 
 export default function Alert(props: IAlertProps) {
     const transition = props => (
-        <Slide {...props} direction={props.transition || 'down'} />
+        <Slide {...props} direction={props.transition || 'up'} />
     )
     let { autoHideDuration } = props
     if (!autoHideDuration) {

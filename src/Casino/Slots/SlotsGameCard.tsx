@@ -1,13 +1,16 @@
 import * as React from 'react'
-import { Paper, Card, CardMedia } from '@material-ui/core'
-import { WithStyles, withStyles, createStyles } from '@material-ui/core'
+import { Paper, WithStyles, withStyles, createStyles } from '@material-ui/core'
 
 const styles = () =>
     createStyles({
-        card: { transition: 'transform 0.5s' },
-        media: {
-            height: 192,
-            cursor: 'pointer'
+        root: {
+            transition: 'transform 0.4s',
+            cursor: 'pointer',
+            backgroundPosition: 'center center',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: '100% 100%',
+            minWidth: 350,
+            minHeight: 192
         }
     })
 
@@ -54,24 +57,21 @@ class SlotsGameCard extends React.Component<
     }
 
     public render() {
-        const { imageUrl } = this.props
-        const imageSrc = `${process.env.PUBLIC_URL}/assets/img/${imageUrl}`
+        const imageSrc = `${process.env.PUBLIC_URL}/assets/img/${
+            this.props.imageUrl
+        }`
         return (
-            <Card
-                className={this.props.classes.card}
+            <Paper
+                className={this.props.classes.root}
                 onClick={this.onClickListener}
                 onMouseOver={this.onMouseOver}
                 onMouseOut={this.onMouseOut}
-                style={{ transform: `translateY(${this.state.translateY})` }}
-            >
-                <Paper elevation={this.state.paperElevation}>
-                    <CardMedia
-                        image={imageSrc}
-                        title={imageUrl}
-                        className={this.props.classes.media}
-                    />
-                </Paper>
-            </Card>
+                title={this.props.gameName}
+                style={{
+                    transform: `translateY(${this.state.translateY})`,
+                    backgroundImage: `url(${imageSrc})`
+                }}
+            />
         )
     }
 }

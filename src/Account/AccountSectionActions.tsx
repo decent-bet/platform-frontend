@@ -7,7 +7,7 @@ export interface IAccountSectionActionsProps {
     isSaving: boolean
 }
 
-export default class AccountSectionActions extends React.PureComponent<
+export default class AccountSectionActions extends React.Component<
     IAccountSectionActionsProps
 > {
     constructor(props: IAccountSectionActionsProps) {
@@ -15,21 +15,21 @@ export default class AccountSectionActions extends React.PureComponent<
     }
 
     public render() {
-        return (
-            this.props.isEditing ?
-                <CardActions>
-                    <Button
-                            type="submit"
-                            style={{ margin: '1em' }}
-                            variant="contained"
-                            disabled={this.props.isSaving}
-                            color="primary"
-                        >
-                            Save
-                            <SaveIcon style={{ marginLeft: '1em' }} />
-                        </Button>
-                </CardActions>
-                : <span />
+        return this.props.isEditing ? (
+            <CardActions>
+                <Button
+                    type="submit"
+                    style={{ margin: '1em' }}
+                    variant="contained"
+                    disabled={this.props.isSaving}
+                    color="primary"
+                >
+                    Save
+                    <SaveIcon style={{ marginLeft: '1em' }} />
+                </Button>
+            </CardActions>
+        ) : (
+            <span />
         )
     }
 }

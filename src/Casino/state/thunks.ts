@@ -1,54 +1,74 @@
+import IKeyHandler from 'src/common/helpers/IKeyHandler'
 import actions from './actions'
 import { units } from 'ethereum-units'
+let subscriptions: any[] = []
 
-export function getCurrentStage() {
-    return async (dispatch, _getState, { keyHandler }) => {
-         return dispatch(actions.getCurrentStage(keyHandler))
+interface IDependencies {
+    keyHandler: IKeyHandler
+}
+
+export function getCasinoLoginStatus() {
+    return async (dispatch, _getState, { keyHandler }: IDependencies) => {
+        return await dispatch(actions.getCasinoLoginStatus(keyHandler))
     }
 }
 
-export function setCurrentStage(stage) {
-    return async (dispatch, __getState, { keyHandler } ) => {
-        await dispatch(actions.setCurrentStage(keyHandler, stage))
-    }
-}
-
-export function authWallet(data) {
-    return async (dispatch, __getState, { keyHandler } ) => {
+export function authWallet(data: string) {
+    return async (dispatch, __getState, { keyHandler }: IDependencies) => {
         await dispatch(actions.authWallet(data, keyHandler))
     }
 }
 
 export function setupChainProvider() {
-    return async(dispatch, _getState, { chainProvider }) => {
+    return async (dispatch, _getState, { chainProvider }) => {
         await chainProvider.setupThorify()
     }
 }
 
 export function initializeSlots() {
-    return async (dispatch, _getState, {chainProvider, helper}) => {
+    return async (dispatch, _getState, { chainProvider, helper }) => {
         await dispatch(actions.getBalance(chainProvider, helper))
         await dispatch(actions.getAllowance(chainProvider, helper))
     }
 }
 
 export function spin(totalBetSize, props, listener) {
-    return async (dispatch, _getState, {slotsChannelHandler}) => {
+    return async (_dispatch, _getState, { slotsChannelHandler }) => {
         await slotsChannelHandler.spin(totalBetSize, props, listener)
     }
 }
 
 export function fetchChannels() {
-    return async (dispatch, _getState, {chainProvider, httpApi, helper, utils}) => {
-        return await dispatch(actions.getChannels(chainProvider, httpApi, helper, utils))
+    return async (
+        dispatch,
+        _getState,
+        { chainProvider, httpApi, helper, utils }
+    ) => {
+        return await dispatch(
+            actions.getChannels(chainProvider, httpApi, helper, utils)
+        )
     }
 }
 
 export function fetchChannel(channelId) {
-    return async (dispatch, _getState, {chainProvider, httpApi, helper, utils}) => {
-        let {contractFactory} = chainProvider
-        await dispatch(actions.getChannelDetails(channelId, contractFactory, helper))
-        await dispatch(actions.getLastSpin(channelId, chainProvider, httpApi, helper, utils))
+    return async (
+        dispatch,
+        _getState,
+        { chainProvider, httpApi, helper, utils }
+    ) => {
+        let { contractFactory } = chainProvider
+        await dispatch(
+            actions.getChannelDetails(channelId, contractFactory, helper)
+        )
+        await dispatch(
+            actions.getLastSpin(
+                channelId,
+                chainProvider,
+                httpApi,
+                helper,
+                utils
+            )
+        )
     }
 }
 
@@ -58,7 +78,11 @@ export function fetchChannel(channelId) {
  * @returns {Promise}
  */
 export function claimAndWithdrawFromChannel(channelId) {
-    return async (dispatch, _getState, { chainProvider, helper, keyHandler }) => {
+    return async (
+        dispatch,
+        _getState,
+        { chainProvider, helper, keyHandler }
+    ) => {
         let { contractFactory } = chainProvider
         let contract = await contractFactory.slotsChannelManagerContract()
         // Claim the channel, check token total in the contract, and withdraw tokens
@@ -67,10 +91,12 @@ export function claimAndWithdrawFromChannel(channelId) {
         const tokensInContract = await dispatch(
             actions.getBalance(chainProvider, channelId)
         )
-        console.log('claimAndWithdrawFromChannel', {tokensInContract})
+        console.log('claimAndWithdrawFromChannel', { tokensInContract })
 
         if (tokensInContract)
-            await dispatch(actions.withdrawChips(tokensInContract.value, contract, helper ))
+            await dispatch(
+                actions.withdrawChips(tokensInContract.value, contract, helper)
+            )
     }
 }
 
@@ -88,57 +114,80 @@ export function buildChannel(amount, allowance, balance, statusUpdateListener) {
         let { contractFactory } = chainProvider
 
         if (balance.isLessThan(amount)) {
-            let depositAmount = (balance.isGreaterThan(0)) ?
-                amount.minus(balance) :
-                amount
+            let depositAmount = balance.isGreaterThan(0)
+                ? amount.minus(balance)
+                : amount
 
-            let formattedDepositAmount =
-                depositAmount.dividedBy(units.ether).toFixed()
+            let formattedDepositAmount = depositAmount
+                .dividedBy(units.ether)
+                .toFixed()
 
             if (allowance.isLessThan(depositAmount)) {
-                statusUpdateListener(`Approving ${formattedDepositAmount} DBETs for token deposit`)
-                await dispatch(actions.approve(depositAmount, chainProvider, helper))
+                statusUpdateListener(
+                    `Approving ${formattedDepositAmount} DBETs for token deposit`
+                )
+                await dispatch(
+                    actions.approve(depositAmount, chainProvider, helper)
+                )
             }
 
-            statusUpdateListener(`Depositing ${formattedDepositAmount} DBETs into slots contract`)
-            await dispatch(actions.depositChips(depositAmount, chainProvider, helper ))
+            statusUpdateListener(
+                `Depositing ${formattedDepositAmount} DBETs into slots contract`
+            )
+            await dispatch(
+                actions.depositChips(depositAmount, chainProvider, helper)
+            )
         }
 
         // Create Channel
         statusUpdateListener(`Sending create channel transaction`)
         const channelTransaction = await dispatch(
-            actions.createChannel(amount, contractFactory, helper )
+            actions.createChannel(amount, contractFactory, helper)
         )
         if (channelTransaction && channelTransaction.value) {
             const channelId = channelTransaction.value
-            
-            await dispatch(depositIntoCreatedChannel(channelId, statusUpdateListener))
+
+            await dispatch(
+                depositIntoCreatedChannel(channelId, statusUpdateListener)
+            )
             return channelId
-        } else
-            return 0
+        } else return 0
     }
 }
 
 export function depositIntoCreatedChannel(id, statusUpdateListener) {
-    return async (dispatch, _getState, {chainProvider, httpApi, helper, utils, keyHandler}) => {
-        
-        const {contractFactory} = chainProvider
+    return async (
+        dispatch,
+        _getState,
+        { chainProvider, httpApi, helper, utils, keyHandler }
+    ) => {
+        const { contractFactory } = chainProvider
         // Deposit Tokens to channel
         statusUpdateListener(`Depositing DBETs into created channel`)
-        const channelDepositTransaction = await dispatch(actions.depositToChannel(id, contractFactory, helper, utils ))
+        const channelDepositTransaction = await dispatch(
+            actions.depositToChannel(id, contractFactory, helper, utils)
+        )
 
         statusUpdateListener(`Waiting for house to activate channel`)
-        await dispatch(actions.waitForChannelActivation(id, channelDepositTransaction.value, contractFactory, helper ))
+        await dispatch(
+            actions.waitForChannelActivation(
+                id,
+                channelDepositTransaction.value,
+                contractFactory,
+                helper
+            )
+        )
 
         // Query the channel's data and add it to the redux state
-        await dispatch(actions.getChannel(id, chainProvider, httpApi, helper, utils ))
+        await dispatch(
+            actions.getChannel(id, chainProvider, httpApi, helper, utils)
+        )
 
         // Update the ether balance
         // await dispatch(dashboardactions.getEtherBalance(chainProvider, helper, keyHandler))
         return id
     }
 }
-
 
 /**
  * Spin the slots, wait for the action to complete, AND THEN increase the nonce.
@@ -153,12 +202,26 @@ export function spinAndIncreaseNonce(channelId, msg) {
 }
 
 export function initializeGame(channelId) {
-    return async (dispatch, _getState, { chainProvider, httpApi, helper, utils }) => {
+    return async (
+        dispatch,
+        _getState,
+        { chainProvider, httpApi, helper, utils }
+    ) => {
         let { contractFactory } = chainProvider
 
         await dispatch(actions.getAesKey(channelId, utils))
-        await dispatch(actions.getChannelDetails(channelId, contractFactory, helper))
-        await dispatch(actions.getLastSpin(channelId, chainProvider, httpApi, helper, utils))
+        await dispatch(
+            actions.getChannelDetails(channelId, contractFactory, helper)
+        )
+        await dispatch(
+            actions.getLastSpin(
+                channelId,
+                chainProvider,
+                httpApi,
+                helper,
+                utils
+            )
+        )
         await dispatch(watcherChannelFinalized(channelId))
         await dispatch(watcherChannelClaimed(channelId))
     }
@@ -166,29 +229,32 @@ export function initializeGame(channelId) {
 
 export function finalizeChannel(channelId, state) {
     return async (dispatch, _getState, injectedDependencies) => {
-        await dispatch(actions.finalizeChannel(channelId, state, injectedDependencies))
+        await dispatch(
+            actions.finalizeChannel(channelId, state, injectedDependencies)
+        )
     }
 }
 
 // Watcher that monitors channel finalization
 export function watcherChannelFinalized(channelId) {
-    return async (dispatch, _getState, {chainProvider}) => {
-
+    return async (dispatch, _getState, { chainProvider }) => {
         try {
-            let {contractFactory} = chainProvider
+            let { contractFactory } = chainProvider
             const contract = await contractFactory.slotsChannelManagerContract()
-            const finalizedChannelEventSubscription =
-                await contract.getEventSubscription(contract.logChannelFinalized(channelId))
+            const finalizedChannelEventSubscription = await contract.getEventSubscription(
+                contract.logChannelFinalized(channelId)
+            )
 
-            const finalizedChannelSubscription =
-                finalizedChannelEventSubscription.subscribe(async (events) => {
+            const finalizedChannelSubscription = finalizedChannelEventSubscription.subscribe(
+                async events => {
                     if (events && events.length) {
                         let [event] = events
                         let id = event.returnValues.id.toString()
                         await dispatch(actions.setChannelFinalized(id))
                         finalizedChannelSubscription.unsubscribe()
                     }
-                })
+                }
+            )
             return
         } catch (error) {
             console.error('Finalized channel event', error)
@@ -197,34 +263,101 @@ export function watcherChannelFinalized(channelId) {
     }
 }
 
-// Watcher that monitors the claiming of a channel's Chips
-export function watcherChannelClaimed(channelId) {
-    return async (dispatch, _getState, {chainProvider}) => {
-        try {
-            const {contractFactory} = chainProvider
-            const contract = await contractFactory.slotsChannelManagerContract()
-            const subscription = contract.logClaimChannelTokens(channelId)
-            const claimChannelEventSubscription = contract.getEventSubscription(subscription)
+export function initializeCasino() {
+    return async (dispatch, _getState, { contractFactory, keyHandler }) => {
+        await dispatch(actions.getTokens(contractFactory, keyHandler))
+        await dispatch(actions.getEtherBalance(contractFactory, keyHandler))
+    }
+}
 
-            const claimChannelSubscription =
-                claimChannelEventSubscription.subscribe(async (events) => {
-                    if (events && events.length >= 1) {
-                        let [event] = events
-                        let id = event.returnValues.id.toString()
-                        await
-                            dispatch(
-                                actions.setChannelClaimed(
-                                    id,
-                                    event.returnValues.isHouse
-                                )
-                            )
-                        claimChannelSubscription.unsubscribe()
-                    }
-                })
-            return
-        } catch (error) {
-            console.error('Claim channel tokens event error', error)
-            return
-        }
+export function watcherChannelClaimed(channelId) {
+    return async (dispatch, _getState, { contractFactory }) => {
+        const contract = await contractFactory.slotsChannelManagerContract()
+        const subscription = contract.logClaimChannelTokens(channelId)
+        const claimChannelEventSubscription = contract.getEventSubscription(
+            subscription
+        )
+
+        const claimChannelSubscription = claimChannelEventSubscription.subscribe(
+            async events => {
+                if (events && events.length >= 1) {
+                    let [event] = events
+                    let id = event.returnValues.id.toString()
+                    await dispatch(
+                        actions.setChannelClaimed(
+                            id,
+                            event.returnValues.isHouse
+                        )
+                    )
+                    claimChannelSubscription.unsubscribe()
+                }
+            }
+        )
+        return
+    }
+}
+
+export function listenForTransfers() {
+    return async (dispatch, _getState, { contractFactory, keyHandler }) => {
+        // clear any previous transfer subscriptions
+        listenForTransfers_unsubscribe()
+
+        let tokenContract = await contractFactory.decentBetTokenContract()
+        const defaultAccount = keyHandler.getPublicAddress()
+        const transferFromEventsSubscription = tokenContract.getEventSubscription(
+            tokenContract.logTransfer(defaultAccount, true),
+            5000
+        )
+        const transferToEventsSubscription = tokenContract.getEventSubscription(
+            tokenContract.logTransfer(defaultAccount, false),
+            5000
+        )
+
+        const fromSubscription = transferFromEventsSubscription.subscribe(
+            async events => {
+                if (events.length >= 1) {
+                    await dispatch(
+                        actions.getTokens(contractFactory, keyHandler)
+                    )
+                    await dispatch(
+                        actions.getEtherBalance(contractFactory, keyHandler)
+                    )
+                }
+            }
+        )
+        subscriptions.push(fromSubscription)
+
+        const toSubscription = transferToEventsSubscription.subscribe(
+            async events => {
+                if (events.length >= 1) {
+                    await dispatch(
+                        actions.getTokens(contractFactory, keyHandler)
+                    )
+                    await dispatch(
+                        actions.getEtherBalance(contractFactory, keyHandler)
+                    )
+                }
+            }
+        )
+
+        subscriptions.push(toSubscription)
+
+        return subscriptions
+    }
+}
+
+export function listenForTransfers_unsubscribe() {
+    subscriptions.forEach(sub => {
+        sub.unsubscribe()
+    })
+
+    subscriptions = []
+}
+
+export function faucet() {
+    return async (dispatch, _getState, { contractFactory, keyHandler }) => {
+        await dispatch(actions.faucet(contractFactory))
+        await dispatch(actions.getTokens(contractFactory, keyHandler))
+        await dispatch(actions.getEtherBalance(contractFactory, keyHandler))
     }
 }

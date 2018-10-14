@@ -2,16 +2,13 @@ import * as React from 'react'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router-dom'
 import { bindActionCreators } from 'redux'
-import DateFnsUtils from 'material-ui-pickers/utils/date-fns-utils'
-import MuiPickersUtilsProvider from 'material-ui-pickers/utils/MuiPickersUtilsProvider'
 import MainAppBar from './MainAppBar'
 import AppBarToolbar from './AppBarToolbar'
 import MainRouter from './MainRouter'
 import AppDrawer from './AppDrawer'
-import ProviderSelector from './ProviderSelector'
 import * as thunks from './state/thunks'
 import './main.css'
-import { Grid, Fade, Paper } from '@material-ui/core'
+import { Grid, Fade } from '@material-ui/core'
 import AppLoading from '../common/components/AppLoading'
 import { VIEW_ACCOUNT, VIEW_ACCOUNT_NOTACTIVATED } from '../routes'
 
@@ -36,12 +33,6 @@ class Main extends React.Component<any> {
     // private onDrawerButtonPressedListener = open => this.setState({ drawerOpen: open })
     private onDrawerCloseListener = () => this.setState({ drawerOpen: false })
 
-    private onStageChangeListener = value => {
-        if (value !== this.state.currentStage) {
-            this.props.history.push('/logout')
-        }
-    }
-
     private onToggleDrawerListener = () =>
         this.setState({ drawerOpen: !this.state.drawerOpen })
 
@@ -52,8 +43,7 @@ class Main extends React.Component<any> {
     }
 
     public render() {
-
-        if (!this.state.loaded) { 
+        if (!this.state.loaded) {
             return <AppLoading />
         }
 
@@ -64,65 +54,47 @@ class Main extends React.Component<any> {
         } = this.props
 
         if (!accountIsActivated) {
-            if(this.props.location.pathname !== VIEW_ACCOUNT_NOTACTIVATED) {
+            if (this.props.location.pathname !== VIEW_ACCOUNT_NOTACTIVATED) {
                 return <Redirect to={VIEW_ACCOUNT_NOTACTIVATED} />
             }
         } else if (!accountIsVerified || !accountHasAddress) {
-            if(this.props.location.pathname !== VIEW_ACCOUNT) {
+            if (this.props.location.pathname !== VIEW_ACCOUNT) {
                 return <Redirect to={VIEW_ACCOUNT} />
             }
-        } 
+        }
 
         return (
-                <Fade in={this.state.loaded} timeout={500}>
-                    <Paper
-                        square={false}
-                        style={{
-                            backgroundColor: 'transparent',
-                            padding: 0,
-                            boxShadow: 'none'
-                        }}
+            <Fade in={this.state.loaded} timeout={500}>
+                <React.Fragment>
+                    <MainAppBar
+                        onToggleDrawerListener={this.onToggleDrawerListener}
                     >
-                        <MainAppBar
-                            onToggleDrawerListener={this.onToggleDrawerListener}
-                        >
-                            <AppBarToolbar
-                                address={this.props.address}
-                                tokenBalance={this.props.balance}
-                                etherBalance={this.props.etherBalance}
-                            />
-                        </MainAppBar>
-                        <Grid
-                            style={{ marginTop: '80px' }}
-                            container={true}
-                            direction="row"
-                            alignItems="center"
-                            justify="center"
-                        >
-                            <Grid item={true} xs={12}>
-                                <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                    <MainRouter />
-                                </MuiPickersUtilsProvider>
-                            </Grid>
+                        <AppBarToolbar
+                            address={this.props.address}
+                            tokenBalance={this.props.balance}
+                            etherBalance={this.props.etherBalance}
+                        />
+                    </MainAppBar>
+                    <Grid
+                        style={{ marginTop: '80px' }}
+                        container={true}
+                        direction="row"
+                        alignItems="center"
+                        justify="center"
+                    >
+                        <Grid item={true} xs={12}>
+                            <MainRouter />
                         </Grid>
-                        <AppDrawer
-                            isDrawerOpen={this.state.drawerOpen}
-                            onDrawerCloseListener={this.onDrawerCloseListener}
-                            onViewChangeListener={this.onViewChangeListener}
-                            selectedView={this.props.location.pathname}
-                            onFaucetClickedListener={
-                                this.onFaucetClickedListener
-                            }
-                        >
-                            <ProviderSelector
-                                onStageChangeListener={
-                                    this.onStageChangeListener
-                                }
-                                currentStage={this.state.currentStage}
-                            />
-                        </AppDrawer>
-                    </Paper>
-                </Fade>
+                    </Grid>
+                    <AppDrawer
+                        isDrawerOpen={this.state.drawerOpen}
+                        onDrawerCloseListener={this.onDrawerCloseListener}
+                        onViewChangeListener={this.onViewChangeListener}
+                        selectedView={this.props.location.pathname}
+                        onFaucetClickedListener={this.onFaucetClickedListener}
+                    />
+                </React.Fragment>
+            </Fade>
         )
     }
 }

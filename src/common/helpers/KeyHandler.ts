@@ -1,11 +1,8 @@
-
-import { DEFAULT_STAGE, StageType } from '../../config'
 import IKeyStore from './IKeyStore'
 import IKeyHandler from './IKeyHandler'
-import { AUTH_TOKEN_NAME, ACCOUTN_ACTIVATED_NAME } from '../../config'
+import { AUTH_TOKEN_NAME, ACCOUNT_ACTIVATED_NAME } from '../../constants'
 
 class KeyHandler implements IKeyHandler {
-
     /**
      * @param {IKeyStore} keyStore
      */
@@ -13,14 +10,18 @@ class KeyHandler implements IKeyHandler {
     /**
      * Caches a wallet's private key
      */
-    public async setupWallet(privateKey: string, address: string, mnemonic?: string): Promise<void> {
+    public async setupWallet(
+        privateKey: string,
+        address: string,
+        mnemonic?: string
+    ): Promise<void> {
         const cryptoKey = await this.keyStore.getCryptoKey()
-       
+
         await this.keyStore.addVariable(
             'key',
             await this.keyStore.encrypt(privateKey, cryptoKey)
         )
-        localStorage.setItem('address', address)
+        await this.keyStore.addVariable('address', btoa(address))
 
         if (mnemonic) {
             await this.keyStore.addVariable(
@@ -33,21 +34,25 @@ class KeyHandler implements IKeyHandler {
     /**
      * Returns private key and mnemonic of the logged in user
      */
-    public async getWalletValues(): Promise<{ mnemonic: string, privateKey: string, address: string }> {
+    public async getWalletValues(): Promise<{
+        mnemonic: string
+        privateKey: string
+        address: string
+    }> {
         let privateKey
         let mnemonic
         let address
-        
+
         const cryptoKey = await this.keyStore.getCryptoKey()
         address = this.getPublicAddress()
 
         const keyBlob = await this.keyStore.getVariable('key')
-        if(keyBlob){
+        if (keyBlob) {
             privateKey = await this.keyStore.decrypt(keyBlob, cryptoKey)
         }
 
         const mnemonicBlob = await this.keyStore.getVariable('mnemonic')
-        if(mnemonicBlob) {
+        if (mnemonicBlob) {
             mnemonic = await this.keyStore.decrypt(mnemonicBlob, cryptoKey)
         }
 
@@ -57,36 +62,21 @@ class KeyHandler implements IKeyHandler {
     /**
      * Returns public address of the logged in user
      */
-    public getPublicAddress(): string | null {
-        let address = localStorage.getItem('address')
-
-        if(!address || address ==='undefined') {
-            return null
+    public async getPublicAddress(): Promise<string | null> {
+        let address = await this.keyStore.getVariable('address')
+        if (address) {
+            return atob(address)
         }
 
-        return address
+        return null
     }
 
     public async setAccountActivated(activated: boolean): Promise<void> {
-        await this.keyStore.addVariable(ACCOUTN_ACTIVATED_NAME, activated)
+        await this.keyStore.addVariable(ACCOUNT_ACTIVATED_NAME, activated)
     }
 
     public async getAccountActivationStatus(): Promise<boolean> {
-        return await this.keyStore.getVariable(ACCOUTN_ACTIVATED_NAME)
-    }
-
-    public getStage(): StageType {
-        let stage = localStorage.getItem('stage')
-        
-        if(!stage || stage ==='undefined') {
-            stage = DEFAULT_STAGE
-        }
-
-        return stage as StageType
-    }
-
-    public setStage(stage): void {
-        localStorage.setItem('stage', stage)
+        return await this.keyStore.getVariable(ACCOUNT_ACTIVATED_NAME)
     }
 
     /**
@@ -107,7 +97,6 @@ class KeyHandler implements IKeyHandler {
     }
 
     public async clearStorage(): Promise<void> {
-        localStorage.clear()
         await this.keyStore.clear()
     }
 }

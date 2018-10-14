@@ -1,23 +1,16 @@
-const STAGE_LOCAL = 'local'
-const STAGE_TESTNET = 'testnet'
-const STAGE_MAIN = 'main'
+import {
+    CURRENT_ENV,
+    ENV_DEVELOPMENT,
+    ENV_STAGING,
+    ENV_PRODUCTION,
+    STAGE_LOCAL,
+    STAGE_TESTNET,
+    STAGE_MAIN,
+    CURRENT_STAGE,
+    IStageConfig
+} from './constants'
 
-interface IStageItem {key: string, name: string}
-
-const STAGES: IStageItem[] = [
-    { key: STAGE_MAIN, name: 'DBET Node' },
-    { key: STAGE_TESTNET, name: 'Infura' },
-    { key: STAGE_LOCAL, name: 'Local Node' }
-]
-
-interface IStageConfig {channelsApiUrl: string, thorNode: string}
-
-type StageType = 'main' | 'testnet' | 'local'
-
-
-const DEFAULT_STAGE: string = process.env.REACT_APP_STAGE || STAGE_LOCAL
-
-const STAGE_CONFIGS = {
+export const STAGE_CONFIGS = {
     local: {
         channelsApiUrl: 'http://localhost:3010/api',
         thorNode: 'http://localhost:8669'
@@ -32,8 +25,8 @@ const STAGE_CONFIGS = {
     }
 }
 
-function getStageConfig(stage: StageType): IStageConfig {
-    switch (stage) {
+export function getStageConfig(): IStageConfig {
+    switch (CURRENT_STAGE) {
         case STAGE_LOCAL:
             return STAGE_CONFIGS.local
         case STAGE_TESTNET:
@@ -45,13 +38,7 @@ function getStageConfig(stage: StageType): IStageConfig {
     }
 }
 
-const ENV_DEVELOPMENT: string = 'development'
-const ENV_STAGING: string = 'staging'
-const ENV_PRODUCTION: string = 'production'
-const AUTH_TOKEN_NAME: string = 'token'
-const ACCOUTN_ACTIVATED_NAME: string = 'account_activated'
-
-function getAuthApiUrl(env): string {
+export function getAuthApiUrl(env): string {
     switch (env) {
         case ENV_DEVELOPMENT:
             return 'http://localhost:3200/api'
@@ -64,24 +51,4 @@ function getAuthApiUrl(env): string {
     }
 }
 
-const CURRENT_ENV: string = process.env.REACT_APP_ENV || ENV_DEVELOPMENT
-const AUTH_API_URL: string = getAuthApiUrl(CURRENT_ENV)
-
-export {
-    IStageConfig,
-    StageType,
-    IStageItem,
-    AUTH_API_URL,
-    CURRENT_ENV,
-    ENV_DEVELOPMENT,
-    ENV_STAGING,
-    ENV_PRODUCTION,
-    STAGES,
-    getStageConfig,
-    DEFAULT_STAGE,
-    STAGE_LOCAL,
-    STAGE_TESTNET,
-    STAGE_MAIN,
-    AUTH_TOKEN_NAME,
-    ACCOUTN_ACTIVATED_NAME
-}
+export const AUTH_API_URL: string = getAuthApiUrl(CURRENT_ENV)
