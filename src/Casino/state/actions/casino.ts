@@ -15,20 +15,34 @@ async function getCasinoLoginStatus(keyHandler: IKeyHandler): Promise<boolean> {
     return false
 }
 
-async function comparePublicAddress(address: string, keyHandler: IKeyHandler) {
-    let userAddress = await keyHandler.getPublicAddress()
-    if (userAddress !== address) {
-        throw new Error('Public address is not valid for the user account')
+function comparePublicAddress(walletAddress: string, vetAddress: string) {
+    if (walletAddress !== vetAddress) {
+        throw new Error(
+            'Public address derived from the private key, is not valid for the user account'
+        )
     }
 }
 
-function authWallet(data, keyHandler: IKeyHandler) {
+function authWallet(data: string, account: any, keyHandler: IKeyHandler) {
     return new Promise(async (resolve, reject) => {
         try {
+            if (
+                !account ||
+                !account.verification ||
+                !account.verification.addressRegistration ||
+                !account.verification.addressRegistration.vetAddress
+            ) {
+                throw new Error(
+                    `You don't have a VET address registered, please go to the account section.`
+                )
+            }
+
+            let acccountVetAddress =
+                account.verification.addressRegistration.vetAddress
             if (data.includes(' ')) {
                 // Passphrase Mnemonic mode
                 const wallet = Wallet.fromMnemonic(data, MNEMONIC_DPATH)
-                await comparePublicAddress(wallet.address, keyHandler)
+                comparePublicAddress(wallet.address, acccountVetAddress)
                 await keyHandler.setupWallet(
                     wallet.privateKey,
                     wallet.address,
@@ -41,13 +55,15 @@ function authWallet(data, keyHandler: IKeyHandler) {
                     data = '0x' + data
                 }
                 const wallet = new Wallet(data)
-                await comparePublicAddress(wallet.address, keyHandler)
+                comparePublicAddress(wallet.address, acccountVetAddress)
                 await keyHandler.setupWallet(wallet.privateKey, wallet.address)
             }
 
             resolve(true)
         } catch (error) {
-            reject({ message: 'Invalid Passphrase or Private key.' })
+            reject({
+                message: error.message
+            })
         }
     })
 }

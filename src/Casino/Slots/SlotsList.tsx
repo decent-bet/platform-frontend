@@ -1,6 +1,6 @@
 import * as React from 'react'
 import SlotsGameCard from './SlotsGameCard'
-import { Grid, Card, CardContent } from '@material-ui/core'
+import { Grid, Card, Slide, CardContent } from '@material-ui/core'
 import TransparentPaper from '../../common/components/TransparentPaper'
 
 interface ISlotsListProps {
@@ -37,41 +37,42 @@ export default function SlotsList({
     allowSelect
 }: ISlotsListProps) {
     return (
-        <React.Fragment>
-            {allowSelect ? (
+        <Slide in={true} timeout={1000} direction="up">
+            <TransparentPaper>
+                {allowSelect ? (
+                    <Grid item={true} xs={12}>
+                        <Card className="channel-description card">
+                            <CardContent component="header">
+                                {balance} DBETs
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                ) : null}
                 <Grid item={true} xs={12}>
-                    <Card className="channel-description card">
-                        <CardContent component="header">
-                            {balance} DBETs
-                        </CardContent>
-                    </Card>
+                    <Grid
+                        container={true}
+                        direction="row"
+                        justify="flex-start"
+                        wrap="wrap"
+                        spacing={24}
+                    >
+                        {gameList.map((game: IGameItem, index: number) => (
+                            <Grid item={true} xs={12} sm={6} md={4} key={index}>
+                                <TransparentPaper>
+                                    <SlotsGameCard
+                                        allowSelect={allowSelect}
+                                        onGameSelectedListener={
+                                            onGameSelectedListener
+                                        }
+                                        gameName={game.name}
+                                        imageUrl={game.imageUrl}
+                                    />
+                                </TransparentPaper>
+                            </Grid>
+                        ))}
+                    </Grid>
                 </Grid>
-            ) : null}
-
-            <Grid item={true} xs={12}>
-                <Grid
-                    container={true}
-                    direction="row"
-                    justify="flex-start"
-                    wrap="wrap"
-                    spacing={24}
-                >
-                    {gameList.map((game: IGameItem, index: number) => (
-                        <Grid item={true} xs={12} sm={6} md={4} key={index}>
-                            <TransparentPaper>
-                                <SlotsGameCard
-                                    allowSelect={allowSelect}
-                                    onGameSelectedListener={
-                                        onGameSelectedListener
-                                    }
-                                    gameName={game.name}
-                                    imageUrl={game.imageUrl}
-                                />
-                            </TransparentPaper>
-                        </Grid>
-                    ))}
-                </Grid>
-            </Grid>
-        </React.Fragment>
+            </TransparentPaper>
+        </Slide>
     )
 }

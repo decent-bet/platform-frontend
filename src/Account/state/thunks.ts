@@ -1,5 +1,6 @@
 import Actions from './actions'
 import { openAlert } from '../../common/state/thunks'
+import { authWallet } from '../../Casino/state/thunks'
 import {
     setAccountIsVerified,
     setAccountHasAddress
@@ -13,7 +14,7 @@ export function saveAccountInfo(formData: any) {
             actions.saveAccountInfo(keyHandler, formData)
         )
         dispatch(openAlert(result.value.message, 'success'))
-        await dispatch(setAccountHasAddress())
+        await dispatch(setAccountIsVerified())
     }
 }
 
@@ -38,6 +39,7 @@ export function saveAccountAddress(
             )
         )
         dispatch(openAlert(result.value.message, 'success'))
-        await dispatch(setAccountIsVerified())
+        const accountResult = await dispatch(setAccountHasAddress())
+        await dispatch(authWallet(privateKey, accountResult.value)) // authenticate the user the first time
     }
 }

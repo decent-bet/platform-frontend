@@ -82,7 +82,7 @@ class Main extends React.Component<any, any> {
                             address={
                                 this.props.accountHasAddress
                                     ? this.props.account.verification
-                                          .addressReistration.vetAddress
+                                          .addressRegistration.vetAddress
                                     : ''
                             }
                             tokenBalance={this.props.balance}

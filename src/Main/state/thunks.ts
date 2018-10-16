@@ -18,6 +18,7 @@ export function setAccountIsVerified() {
         const actionResult = await dispatch(actions.getUserAccount())
         const account = actionResult.value
         await dispatch(actions.setAccountIsVerified(account))
+        return account
     }
 }
 
@@ -26,5 +27,6 @@ export function setAccountHasAddress() {
         const actionResult = await dispatch(actions.getUserAccount())
         const account = actionResult.value
         await dispatch(actions.setAccountHasAddress(account))
+        return account
     }
 }

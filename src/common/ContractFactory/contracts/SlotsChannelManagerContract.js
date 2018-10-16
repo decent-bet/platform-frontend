@@ -13,7 +13,9 @@ export default class SlotsChannelManagerContract extends BaseContract {
     }
 
     async checkSig(id, msgHash, sign, turn) {
-        return await this.instance.methods.checkSig(id, msgHash, sign, turn).call()
+        return await this.instance.methods
+            .checkSig(id, msgHash, sign, turn)
+            .call()
     }
 
     async balanceOf(address) {
@@ -52,7 +54,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
                 user: this._keyHandler.getAddress()
             },
             toBlock: 'latest',
-            order:'DESC'
+            order: 'DESC'
         }
 
         return await this.instance.getPastEvents('LogNewChannel', config)
@@ -62,7 +64,9 @@ export default class SlotsChannelManagerContract extends BaseContract {
      * Setters
      */
     async createChannel(deposit) {
-        const encodedFunctionCall = this.instance.methods.createChannel(deposit).encodeABI()
+        const encodedFunctionCall = this.instance.methods
+            .createChannel(deposit)
+            .encodeABI()
         return await this.signAndSendRawTransaction(
             this.instance.options.address,
             null,
@@ -72,7 +76,9 @@ export default class SlotsChannelManagerContract extends BaseContract {
     }
 
     async deposit(amount) {
-        const encodedFunctionCall = this.instance.methods.deposit(amount).encodeABI()
+        const encodedFunctionCall = this.instance.methods
+            .deposit(amount)
+            .encodeABI()
 
         return await this.signAndSendRawTransaction(
             this.instance.options.address,
@@ -83,7 +89,9 @@ export default class SlotsChannelManagerContract extends BaseContract {
     }
 
     async withdraw(amount) {
-        const encodedFunctionCall = this.instance.methods.withdraw(amount).encodeABI()
+        const encodedFunctionCall = this.instance.methods
+            .withdraw(amount)
+            .encodeABI()
 
         return await this.signAndSendRawTransaction(
             this.instance.options.address,
@@ -94,7 +102,9 @@ export default class SlotsChannelManagerContract extends BaseContract {
     }
 
     async depositToChannel(id, initialUserNumber, finalUserHash) {
-        const encodedFunctionCall = this.instance.methods.depositChannel(id, initialUserNumber, finalUserHash).encodeABI()
+        const encodedFunctionCall = this.instance.methods
+            .depositChannel(id, initialUserNumber, finalUserHash)
+            .encodeABI()
 
         return await this.signAndSendRawTransaction(
             this.instance.options.address,
@@ -118,193 +128,130 @@ export default class SlotsChannelManagerContract extends BaseContract {
      * Events
      */
     async logNewChannel(transaction) {
-
-    let listenerSettings = {
-        config: { filter: { user: this._keyHandler.getAddress() 
-                          }, 
-                            fromBlock: transaction.blockNumber, 
-                            toBlock: transaction.blockNumber, 
-                            order: 'DESC', 
-                            options: { offset: 0, limit: 1 } },
-        interval: 5000,
-        top: 30
-    }
-
-    let events = await this.listenForEvent('LogNewChannel', 
-                                                    listenerSettings, 
-                                                    (events) => events && events.length > 0)
-    let [event] = events
-    if (!event || !event.returnValues || !event.returnValues.id) {
-        throw new Error('Create channel confirmation error related to the event received.')
-    }
-    
-    //return the channel id
-    return event.returnValues.id
-    }
-
-    async logChannelDeposit(channelId, transaction) {
-        
         let listenerSettings = {
-            config: { filter: { id: channelId, user: this._keyHandler.getAddress() 
-                              }, 
-                                fromBlock: transaction.blockNumber, 
-                                toBlock: transaction.blockNumber, 
-                                order: 'DESC', 
-                                options: { offset: 0, limit: 1 } },
+            config: {
+                filter: {
+                    user: this._keyHandler.getAddress()
+                },
+                fromBlock: transaction.blockNumber,
+                toBlock: transaction.blockNumber,
+                order: 'DESC',
+                options: { offset: 0, limit: 1 }
+            },
             interval: 5000,
             top: 30
         }
-    
-        let events = await this.listenForEvent('LogChannelDeposit', 
-                                                        listenerSettings, 
-                                                        (events) => events && events.length > 0)
-        let [event] = events
-        if (!event || !event.returnValues || !event.returnValues.id) {
-            throw new Error('Channel deposit confirmation error related to the event received.')
-        }
-        
-        //return true if the returned value id is equals to the channelId 
-        return event.returnValues.id 
-    }
 
-    async logChannelActivate(channelId) {
-        
-        const channelIdParam = this._web3.eth.abi.encodeParameter('bytes32', channelId)
-        let listenerSettings = {
-            config: { filter: { 
-                                id: channelIdParam,
-                                user: this._keyHandler.getAddress() 
-                              },
-                                order: 'DESC', 
-                                options: { offset: 0, limit: 1 } },
-            interval: 5000,
-            top: 30
-        }
-    
-        let events = await this.listenForEvent('LogChannelActivate', 
-                                               listenerSettings, 
-                                               (events) => events && events.length > 0)
-    
+        let events = await this.listenForEvent(
+            'LogNewChannel',
+            listenerSettings,
+            events => events && events.length > 0
+        )
         let [event] = events
         if (!event || !event.returnValues || !event.returnValues.id) {
-            throw new Error('Activate channel confirmation error related to the event received.')
+            throw new Error(
+                'Create channel confirmation error related to the event received.'
+            )
         }
-        //return the activated id
+
+        //return the channel id
         return event.returnValues.id
     }
 
-    async logChannelFinalized(id, fromBlock, toBlock) {
-        let filter = {
-            user: this._keyHandler.getAddress(),
-            id: id
-        }
+    async logChannelActivate(channelId) {
+        return new Promise((resolve, reject) => {
+            this.instance.events
+                .LogChannelActivate({
+                    filter: {
+                        id: channelId
+                    }
+                })
+                .on('data', data => {
+                    resolve(data.returnValues.id)
+                })
+                .on('error', err => {
+                    reject(err)
+                })
+        })
+    }
 
-        return await this.getPastEvents('LogChannelFinalized', filter,( fromBlock ? fromBlock : 0), (toBlock ? toBlock : 'latest'))
+    async logChannelFinalized(id, fromBlock, toBlock) {
+        return new Promise((resolve, reject) => {
+            this.instance.events
+                .LogChannelFinalized({
+                    filter: {
+                        user: this._keyHandler.getAddress(),
+                        id
+                    },
+                    fromBlock: fromBlock ? fromBlock : 0,
+                    toBlock: toBlock ? toBlock : 'latest'
+                })
+                .on('data', data => {
+                    resolve(data.returnValues.id)
+                })
+                .on('error', err => {
+                    reject(err)
+                })
+        })
     }
 
     async logClaimChannelTokens(id, fromBlock, toBlock) {
-
-        let _options = {
-            fromBlock: (fromBlock ? fromBlock : 0),
-            toBlock: (toBlock ? toBlock : 'latest')
-        }
-
-        if(id) {
-            _options.filter = { id: id }
-        }
-
-        return await this.instance.getPastEvents('LogClaimChannelTokens', _options)
+        return new Promise((resolve, reject) => {
+            this.instance.events
+                .LogClaimChannelTokens({
+                    filter: {
+                        id
+                    },
+                    fromBlock: fromBlock ? fromBlock : 0,
+                    toBlock: toBlock ? toBlock : 'latest'
+                })
+                .on('data', data => {
+                    resolve({
+                        id: data.returnValues.id,
+                        isHouse: data.returnValues.isHouse
+                    })
+                })
+                .on('error', err => {
+                    reject(err)
+                })
+        })
     }
 
     async logDeposit(fromBlock, toBlock) {
-        let filter = {
-            _address: this._keyHandler.getAddress()
-        }
-
-        return this.getPastEvents('LogDeposit', filter,( fromBlock ? fromBlock : 0), (toBlock ? toBlock : 'latest'))
+        return new Promise((resolve, reject) => {
+            this.instance.events
+                .LogDeposit({
+                    filter: {
+                        _address: this._keyHandler.getAddress()
+                    },
+                    fromBlock: fromBlock ? fromBlock : 0,
+                    toBlock: toBlock ? toBlock : 'latest'
+                })
+                .on('data', data => {
+                    resolve(data)
+                })
+                .on('error', err => {
+                    reject(err)
+                })
+        })
     }
 
     async logWithdraw(fromBlock, toBlock) {
-        let filter = {
-            _address: this._keyHandler.getAddress()
-        }
-        return await this.getPastEvents('LogWithdraw', filter,( fromBlock ? fromBlock : 0), (toBlock ? toBlock : 'latest'))
+        return new Promise((resolve, reject) => {
+            this.instance.events
+                .LogWithdraw({
+                    filter: {
+                        _address: this._keyHandler.getAddress()
+                    },
+                    fromBlock: fromBlock ? fromBlock : 0,
+                    toBlock: toBlock ? toBlock : 'latest'
+                })
+                .on('data', data => {
+                    resolve(data)
+                })
+                .on('error', err => {
+                    reject(err)
+                })
+        })
     }
-
-    /**
-     * Event Decoders
-     */
-    logNewChannelDecode(log, topics) {
-        const params = [
-            {
-                indexed: false,
-                name: 'id',
-                type: 'bytes32'
-            },
-            {
-                indexed: true,
-                name: 'user',
-                type: 'address'
-            },
-            {
-                indexed: false,
-                name: 'initialDeposit',
-                type: 'uint256'
-            },
-            {
-                indexed: false,
-                name: 'timestamp',
-                type: 'uint256'
-            }
-        ]
-        return this._web3.eth.abi.decodeLog(params, log, topics)
-    }
-
-    logChannelDepositDecode(log, topics) {
-        const params = [
-            {
-                indexed: true,
-                name: 'id',
-                type: 'bytes32'
-            },
-            {
-                indexed: false,
-                name: 'user',
-                type: 'address'
-            },
-            {
-                indexed: false,
-                name: 'finalUserHash',
-                type: 'string'
-            }
-        ]
-        return this._web3.eth.abi.decodeLog(params, log, topics)
-    }
-
-    logChannelActivateDecode(log, topics) {
-        const params = [
-            {
-                indexed: true,
-                name: 'id',
-                type: 'bytes32'
-            },
-            {
-                indexed: false,
-                name: 'user',
-                type: 'address'
-            },
-            {
-                indexed: false,
-                name: 'finalSeedHash',
-                type: 'string'
-            },
-            {
-                indexed: false,
-                name: 'finalReelHash',
-                type: 'string'
-            }
-        ]
-        return this._web3.eth.abi.decodeLog(params, log, topics)
-    }
-
 }

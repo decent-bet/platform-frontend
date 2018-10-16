@@ -7,61 +7,121 @@ import {
 } from '@material-ui/core'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
-import * as thunks from '../state/thunks'
+import * as Thunks from '../state/thunks'
 import { CHANNEL_STATUS_FINALIZED } from '../../constants'
-import Utils from '../../common/helpers/Utils'
 import ChannelDetail from './ChannelDetail'
 import Iframe from './Iframe'
+import BigNumber from 'bignumber.js'
+
 import './game.css'
 
 class Game extends Component {
     state = {
-        isFinalizing: false
+        isFinalizing: false,
+        spinCallback: null
     }
 
     componentDidMount = () => {
         const { dispatch, channelId } = this.props
-        dispatch(thunks.initializeGame(channelId))
+        dispatch(Thunks.initializeGame(channelId))
+        this.initSubscriptions()
 
         // TODO: Make this less ugly
         // Maybe we should use websockets to communicate instead?
-        window.slotsController = () => ({
+        window.slotsController = {
             spin: this.spin,
             balances: this.getBalance
-        })
+        }
+    }
+
+    formatEther(ether): string {
+        return new BigNumber(ether).dividedBy(this.getEtherInWei()).toFixed(2)
+    }
+
+    initSubscriptions = () => {
+        this.subscribeToSpinResponses()
+        this.subscribeToFinalizeResponses()
+    }
+
+    subscribeToSpinResponses = () => {
+        const { dispatch, channelId } = this.props
+
+        const onSpinResponseListener = (
+            err,
+            msg,
+            houseSpin,
+            userSpin,
+            lines
+        ) => {
+            if (!err) {
+                let isValidHouseSpin = dispatch(
+                    Thunks.verifyHouseSpin(
+                        this.props,
+                        houseSpin,
+                        userSpin,
+                        lines
+                    )
+                )
+                if (isValidHouseSpin) listener(err, msg, lines)
+            }
+        }
+
+        const listener = (err, msg, lines) => {
+            if (!err) {
+                let originalBalances = this.getBalance()
+                dispatch(Thunks.spinAndIncreaseNonce(channelId, msg))
+                let updatedBalances = this.getBalance()
+                if (window.slotsController.onSpinEvent)
+                    window.slotsController.onSpinEvent(
+                        lines,
+                        originalBalances,
+                        updatedBalances
+                    )
+                if (this.state.spinCallback) {
+                    this.state.spinCallback(err, msg, lines, updatedBalances)
+                    this.setState({ spinCallback: null })
+                }
+            }
+        }
+
+        dispatch(Thunks.subscribeToSpinResponses(onSpinResponseListener))
     }
 
     spin = (lines, betSize, callback) => {
-        const { dispatch, channelId } = this.props
+        const { dispatch } = this.props
         const totalBetSize = lines * betSize
-        
-        const listener = (err, msg, lines) => {
-            if (!err) {
-                dispatch(thunks.spinAndIncreaseNonce(channelId, msg))
-            }
-            //dispatch(thunks.fetchChannel(channelId))
-            let updatedBalances = this.getBalance()
-            callback(err, msg, lines, updatedBalances)
-        }
 
-        dispatch(thunks.spin(totalBetSize, this.props, listener))
-
+        dispatch(Thunks.spin(totalBetSize, this.props))
+        this.setState({ spinCallback: callback })
     }
 
     getBalance = () => {
-        let balance = {
-            user: Utils.formatEther(this.props.userBalance),
-            house: Utils.formatEther(this.props.houseBalance)
+        return {
+            user: this.formatEther(this.props.userBalance),
+            house: this.formatEther(this.props.houseBalance)
         }
-        return balance
     }
 
     onFinalizeListener = async () => {
         this.setState({ isFinalizing: true })
-        const thunk = thunks.finalizeChannel(this.props.channelId, this.props)
-        await this.props.dispatch(thunk)
-        this.setState({ isFinalizing: false })
-        this.back()
+        await this.props.dispatch(
+            Thunks.finalizeChannel(this.props.channelId, this.props)
+        )
+    }
+
+    subscribeToFinalizeResponses = () => {
+        const { dispatch } = this.props
+
+        const onFinalizeResponseListener = (err, msg) => {
+            if (!err) {
+                this.setState({ isFinalizing: false })
+                this.back()
+            }
+        }
+
+        dispatch(
+            Thunks.subscribeToFinalizeResponses(onFinalizeResponseListener)
+        )
     }
 
     /**
@@ -80,7 +140,7 @@ class Game extends Component {
                         </Typography>
                         <Typography>
                             Final Balance:{' '}
-                            {Utils.formatEther(this.props.userBalance)}
+                            {this.formatEther(this.props.userBalance)}
                         </Typography>
                     </CardContent>
                 </Card>

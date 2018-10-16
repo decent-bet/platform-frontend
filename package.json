@@ -60,6 +60,7 @@
         "rxjs": "^6.2.2",
         "rxjs-compat": "^6.2.2",
         "sketch": "^0.2.0",
+        "socket.io-client": "^2.1.1",
         "solidity-sha3": "^0.4.1",
         "swarm-js": "^0.1.37",
         "thor-devkit": "0.2.4",

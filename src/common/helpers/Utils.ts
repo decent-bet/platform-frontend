@@ -1,8 +1,10 @@
-import { IKeyHandler, IUtils } from '../types'
+import { ethUnits } from 'ethereum-units'
+import { IKeyHandler, IUtils, IThorifyFactory } from '../types'
 import ethUtil from 'ethereumjs-util'
-import { SHA256 } from 'crypto-js'
-import ethUnits from 'ethereum-units'
+import { SHA256, AES } from 'crypto-js'
 import BigNumber from 'bignumber.js'
+
+const { cry, Transaction } = require('thor-devkit')
 
 const initialChannelHouseBalance = new BigNumber(10).pow(18).times(10000)
 /**
@@ -10,24 +12,35 @@ const initialChannelHouseBalance = new BigNumber(10).pow(18).times(10000)
  */
 
 export default class Utils implements IUtils {
-    constructor() {}
+    private _thorify = null
+    constructor(
+        private keyHandler: IKeyHandler,
+        private thorifyFactory: IThorifyFactory
+    ) {}
 
+    private get thorify(): any {
+        if (!this._thorify) {
+            this._thorify = this.thorifyFactory.make()
+        }
+
+        return this._thorify
+    }
     /** Solidity ecsign implementation */
-    public async signString(text, keyHandler: IKeyHandler): Promise<any> {
+    public async signString(text): Promise<any> {
         /*
          * Sign a string and return (hash, v, r, s) used by ecrecover to regenerate the user's address;
          */
         return new Promise(async (resolve, reject) => {
             let msgHash = ethUtil.sha3(text)
-            let { privateKey } = await keyHandler.getWalletValues()
+            let { privateKey } = await this.keyHandler.getWalletValues()
             privateKey = ethUtil.toBuffer(privateKey)
-            let defaultAccount = keyHandler.getPublicAddress()
+            let publicAddress = await this.keyHandler.getPublicAddress()
             console.log(
                 'Signing',
                 text,
                 ethUtil.bufferToHex(msgHash),
                 'as',
-                defaultAccount,
+                publicAddress,
                 ethUtil.isValidPrivate(privateKey)
             )
 
@@ -47,15 +60,38 @@ export default class Utils implements IUtils {
             let pub = ethUtil.ecrecover(m, v, r, s)
             let adr = '0x' + ethUtil.pubToAddress(pub).toString('hex')
 
-            console.log('Generated sign address', adr, defaultAccount)
+            console.log('Generated sign address', adr, publicAddress)
 
             console.log('Generated msgHash', msgHash, 'Sign', sgn)
-            let address = await keyHandler.getPublicAddress()
-            if (address && adr !== address.toLowerCase())
+            if (publicAddress && adr !== publicAddress.toLowerCase())
                 reject(new Error('Invalid address for signed message'))
 
             resolve({ msgHash, sig: sgn })
         })
+    }
+
+    public async getAesKey(channelNonce) {
+        const channelNonceHash = this.thorify.utils.soliditySha3(channelNonce)
+        let { privateKey } = await this.keyHandler.getWalletValues()
+        let sign = this.thorify.eth.accounts.sign(channelNonceHash, privateKey)
+        return sign.signature
+    }
+
+    public async getChannelDepositParams(channelNonce) {
+        let randomNumber = this.random(18)
+
+        const key = await this.getAesKey(channelNonce)
+        let initialUserNumber = AES.encrypt(
+            randomNumber.toString(),
+            key
+        ).toString()
+        let userHashes = this.getUserHashes(randomNumber)
+        let finalUserHash = userHashes[userHashes.length - 1]
+
+        return {
+            initialUserNumber,
+            finalUserHash
+        }
     }
 
     public getUserHashes(randomNumber: number): string[] {
@@ -115,8 +151,7 @@ export default class Utils implements IUtils {
     public async getSpin(
         betSize: BigNumber,
         state: any,
-        finalize: boolean,
-        keyHandler: any
+        finalize: boolean
     ): Promise<any> {
         const lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]
         const spinNonce = finalize
@@ -162,7 +197,7 @@ export default class Utils implements IUtils {
         }
 
         let packedString = this.getTightlyPackedSpin(spin)
-        let sign: any = await this.signString(packedString, keyHandler)
+        let sign: any = await this.signString(packedString)
         spin.sign = sign.sig
 
         return spin
@@ -228,5 +263,38 @@ export default class Utils implements IUtils {
 
     public commafy(num): any {
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    }
+
+    public async getTx(clauses, blockRef) {
+        const chainTag = await this.thorify.eth.getChainTag()
+        const expiration = 32
+        const gasPriceCoef = 0
+        const gas = 1000000
+        const nonce = 11111111
+        let tx = new Transaction({
+            chainTag,
+            blockRef,
+            expiration,
+            clauses,
+            gasPriceCoef,
+            gas,
+            nonce
+        })
+        let txHash = cry.blake2b256(tx.encode())
+        let { privateKey } = await this.keyHandler.getWalletValues()
+        let privateKeyBuffer = Buffer.from(privateKey.replace('0x', ''), 'hex')
+        tx.signature = cry.secp256k1.sign(txHash, privateKeyBuffer)
+
+        txHash = txHash.toString('hex')
+        let raw = tx.encode().toString('hex')
+        let sign = tx.signature.toString('hex')
+        let id = tx.id
+
+        return {
+            txHash,
+            raw,
+            sign,
+            id
+        }
     }
 }
