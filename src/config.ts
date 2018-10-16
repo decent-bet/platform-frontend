@@ -14,7 +14,7 @@ export const STAGE_CONFIGS = {
     },
     testnet: {
         channelsApiUrl: 'https://channels-api-alpha.decent.bet/api',
-        wsApiUrl: '',
+        wsApiUrl: 'ws://localhost:3010',
         thorNode: 'https://thor-staging.decent.bet'
     },
     main: {
