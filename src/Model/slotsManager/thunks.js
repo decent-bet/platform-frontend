@@ -41,14 +41,6 @@ export function fetchChannels() {
     }
 }
 
-export function fetchChannel(channelId) {
-    return async (dispatch, getState, {chainProvider, wsApi, helper, utils}) => {
-        let {contractFactory} = chainProvider
-        await dispatch(Actions.getChannelDetails(channelId, contractFactory, helper))
-        await dispatch(Actions.getLastSpin(channelId, chainProvider, wsApi, helper, utils))
-    }
-}
-
 /**
  * Claims all the tokens in a channel and withdraws all tokens from the wallet
  * @param {string} channelId
@@ -75,48 +67,22 @@ export function claimAndWithdrawFromChannel(channelId) {
     }
 }
 
-/**
- * Builds a State Channel in a single step
- * @param {BigNumber} amount
- * @param {BigNumber} allowance
- * @param balance
- * @param statusUpdateListener
- * @returns {Promise<string>}
- */
-export function buildChannel(amount, allowance, balance, statusUpdateListener) {
-    return async (dispatch, getState, { chainProvider, helper }) => {
-        // Approve Tokens if it needs more allowance
+export function initChannel(amount, statusUpdateListener) {
+    return async (dispatch, getState, {chainProvider, wsApi, helper, utils, keyHandler}) => {
         let { contractFactory } = chainProvider
+        const initChannelRes = await dispatch(Actions.initChannel(amount.toFixed(), chainProvider, utils, wsApi))
+        const id = initChannelRes.value
 
-        if (balance.isLessThan(amount)) {
-            let depositAmount = (balance.isGreaterThan(0)) ?
-                amount.minus(balance) :
-                amount
+        const channelNonceRes = await dispatch(Actions.getChannelNonce(id, contractFactory, helper))
+        const channelNonce = channelNonceRes.value
 
-            let formattedDepositAmount =
-                depositAmount.dividedBy(units.ether).toFixed()
+        // Query the channel's data and add it to the redux state
+        await dispatch(Actions.getChannel(id, channelNonce, chainProvider, wsApi, helper, utils ))
 
-            if (allowance.isLessThan(depositAmount)) {
-                statusUpdateListener(`Approving ${formattedDepositAmount} DBETs for token deposit`)
-                await dispatch(Actions.approve(depositAmount, chainProvider, helper))
-            }
+        // Update the ether balance
+        await dispatch(BalanceActions.getEtherBalance(chainProvider, helper, keyHandler))
 
-            statusUpdateListener(`Depositing ${formattedDepositAmount} DBETs into slots contract`)
-            await dispatch(Actions.depositChips(depositAmount, chainProvider, helper ))
-        }
-
-        // Create Channel
-        statusUpdateListener(`Sending create channel transaction`)
-        const channelTransaction = await dispatch(
-            Actions.createChannel(amount, contractFactory, helper )
-        )
-        if (channelTransaction && channelTransaction.value) {
-            const channelId = channelTransaction.value
-
-            await dispatch(Thunks.depositIntoCreatedChannel(channelId, statusUpdateListener))
-            return channelId
-        } else
-            return 0
+        return id
     }
 }
 
@@ -156,10 +122,11 @@ export function spinAndIncreaseNonce(channelId, msg) {
 export function initializeGame(channelId) {
     return async (dispatch, getState, { chainProvider, wsApi, helper, utils }) => {
         let { contractFactory } = chainProvider
-
-        await dispatch(Actions.getAesKey(channelId, utils))
+        const result = await dispatch(Actions.getChannelNonce(channelId, contractFactory, helper))
+        const channelNonce = result.value
+        await dispatch(Actions.getAesKey(channelId, channelNonce, utils))
         await dispatch(Actions.getChannelDetails(channelId, contractFactory, helper))
-        await dispatch(Actions.getLastSpin(channelId, chainProvider, wsApi, helper, utils))
+        await dispatch(Actions.getLastSpin(channelId, channelNonce, chainProvider, wsApi, helper, utils))
         await dispatch(watcherChannelFinalized(channelId))
         await dispatch(watcherChannelClaimed(channelId))
     }

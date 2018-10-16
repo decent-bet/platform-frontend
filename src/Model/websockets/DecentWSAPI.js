@@ -4,6 +4,7 @@ import {getStageConfig} from '../../config'
 const cryptoJs = require("crypto-js")
 const ethUtil = require('ethereumjs-util')
 const {
+    PATH_POST_INIT_CHANNEL,
     PATH_GET_LAST_SPIN,
     PATH_POST_FINALIZE_CHANNEL,
     PATH_GET_FINALIZED_CHANNEL_INFO,
@@ -46,6 +47,7 @@ class DecentWSAPI {
     _initSocketListeners() {
         this.socket.on('connect', () => {
             console.log(`Connected to Websocket server @ ${this.config.wsApiUrl}`)
+            this._initSocketEmitListener(PATH_POST_INIT_CHANNEL)
             this._initSocketEmitListener(PATH_GET_LAST_SPIN)
             this._initSocketEmitListener(PATH_GET_FINALIZED_CHANNEL_INFO)
             this._initSocketEmitListener(PATH_POST_PROCESS_SPIN)
@@ -73,6 +75,7 @@ class DecentWSAPI {
 
     _getResponseSubscription(path, _req, cb, keepAlive) {
         const callback = ({req, res}) => {
+            console.log('_getResponseSubscription', path, _req, req, JSON.stringify(req) === JSON.stringify(_req), res)
             if(_req) {
                 if(JSON.stringify(req) === JSON.stringify(_req)) {
                     cb({req, res})
@@ -88,6 +91,10 @@ class DecentWSAPI {
         return this._subscribe(path, callback)
     }
 
+    getInitChannelResponseSubscription(req, cb, keepAlive) {
+        return this._getResponseSubscription(PATH_POST_INIT_CHANNEL, req, cb, keepAlive)
+    }
+
     getProcessSpinResponseSubscription(req, cb, keepAlive) {
         return this._getResponseSubscription(PATH_POST_PROCESS_SPIN, req, cb, keepAlive)
     }
@@ -98,6 +105,49 @@ class DecentWSAPI {
 
     getFinalizeChannelResponseSubscription(req, cb, keepAlive) {
         return this._getResponseSubscription(PATH_POST_FINALIZE_CHANNEL, req, cb, keepAlive)
+    }
+
+    initChannel = (
+        initialDeposit,
+        channelNonce,
+        initialUserNumber,
+        finalUserHash,
+        userTxs,
+        blockRef
+    ) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                let path = PATH_POST_INIT_CHANNEL
+
+                let address = this.keyHandler.getAddress()
+                let timestamp = this.helper.getTimestampInMillis()
+                let sign = await this._getSign(path, timestamp)
+                let req = {
+                    headers: {
+                        authorization: {
+                            address,
+                            sign,
+                            timestamp
+                        }
+                    },
+                    initialDeposit,
+                    channelNonce,
+                    initialUserNumber,
+                    finalUserHash,
+                    userTxs,
+                    blockRef
+                }
+                console.log('initChannel', req)
+                this.socket.emit(path, req)
+                this.getInitChannelResponseSubscription(req, ({req, res}) => resolve({
+                    req,
+                    res,
+                    channelNonce
+                }))
+            } catch (e) {
+                reject(e)
+            }
+        })
     }
 
     /** Off-chain finally verifiable slot spins */
@@ -125,13 +175,14 @@ class DecentWSAPI {
                 console.log('Spin', id, spin, aesKey)
                 let encryptedSpin = cryptoJs.AES.encrypt(JSON.stringify(spin), aesKey).toString()
 
+                let address = this.keyHandler.getAddress()
                 let path = PATH_POST_PROCESS_SPIN
                 let timestamp = this.helper.getTimestampInMillis()
                 let sign = await this._getSign(path, timestamp)
                 let req = {
                     headers: {
                         authorization: {
-                            id,
+                            address,
                             sign,
                             timestamp
                         }
@@ -161,12 +212,13 @@ class DecentWSAPI {
             try {
                 let path = PATH_GET_LAST_SPIN
 
+                let address = this.keyHandler.getAddress()
                 let timestamp = this.helper.getTimestampInMillis()
                 let sign = await this._getSign(path, timestamp)
                 let req = {
                     headers: {
                         authorization: {
-                            id,
+                            address,
                             sign,
                             timestamp
                         }
@@ -193,13 +245,14 @@ class DecentWSAPI {
             try {
                 let encryptedSpin = cryptoJs.AES.encrypt(JSON.stringify(spin), aesKey).toString()
 
+                let address = this.keyHandler.getAddress()
                 let path = PATH_POST_FINALIZE_CHANNEL
                 let timestamp = this.helper.getTimestampInMillis()
                 let sign = await this._getSign(path, timestamp)
                 let req = {
                     headers: {
                         authorization: {
-                            id,
+                            address,
                             sign,
                             timestamp
                         }

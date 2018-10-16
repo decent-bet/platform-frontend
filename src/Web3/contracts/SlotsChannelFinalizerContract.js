@@ -18,7 +18,7 @@ export default class SlotsChannelFinalizerContract extends BaseContract {
         return await this.signAndSendRawTransaction(
             this.instance.options.address,
             null,
-            null,
+            1000000,
             data
         )
     }

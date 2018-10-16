@@ -5,9 +5,20 @@ import BigNumber from 'bignumber.js'
 import moment from 'moment'
 import { tap, map } from 'rxjs/operators'
 
-async function fetchAesKey(channelId, utils) {
-    let key = await utils.getAesKey(channelId)
-    return { channelId, key }
+async function fetchAesKey(channelId, channelNonce, utils) {
+    let key = await utils.getAesKey(channelNonce)
+    return { channelId, channelNonce, key }
+}
+
+async function getChannelNonce(channelId, contractFactory, helper) {
+    try {
+        let slotsContract = await contractFactory.slotsChannelManagerContract()
+        let channelNonce = await slotsContract.getChannelNonce(channelId)
+        return channelNonce
+    } catch (e) {
+        helper.toggleSnackbar('Error retrieving channel nonce')
+        console.log('Error retrieving channel nonce', e.message)
+    }
 }
 
 /**
@@ -147,14 +158,14 @@ async function getChannelDetails(id, contractFactory, helper) {
 /**
  * Loads the last spin for an active channel
  * @param id
+ * @param channelNonce
  * @param hashes
  * @param aesKey
  * @param wsApi
  * @param utils
  */
-async function loadLastSpin(id, hashes, aesKey, wsApi, utils) {
+async function loadLastSpin(id, channelNonce, hashes, aesKey, wsApi, utils) {
     let result
-
     try {
         result = await wsApi.getLastSpin(id)
         result = result.res
@@ -218,12 +229,12 @@ async function loadLastSpin(id, hashes, aesKey, wsApi, utils) {
     }
 }
 
-async function getLastSpin(channelId, chainProvider, wsApi, helper, utils ) {
+async function getLastSpin(channelId, channelNonce, chainProvider, wsApi, helper, utils ) {
     let { contractFactory } = chainProvider
     let contract = await contractFactory.slotsChannelManagerContract()
-    let aesKey = await utils.getAesKey(channelId)
+    let aesKey = await utils.getAesKey(channelNonce)
     let hashes = await getChannelHashes(channelId, contract, helper)
-    let data = await loadLastSpin(channelId, hashes, aesKey, wsApi, utils)
+    let data = await loadLastSpin(channelId, channelNonce, hashes, aesKey, wsApi, utils)
     console.log('getLastSpin', {aesKey, hashes, data})
 
     return {
@@ -238,14 +249,15 @@ async function getLastSpin(channelId, chainProvider, wsApi, helper, utils ) {
 /**
  * Gets a single channel's data
  * @param {string} channelId
+ * @param channelNonce
  * @param chainProvider
  * @param wsApi
  * @param helper
  * @param utils
  */
-async function getChannel(channelId, chainProvider, wsApi, helper, utils) {
+async function getChannel(channelId, channelNonce, chainProvider, wsApi, helper, utils) {
     // Execute both actions in parallel
-    console.log('getChannel', channelId)
+    console.log('getChannel', channelId, channelNonce)
     let { contractFactory } = chainProvider
     let channelDetails = await getChannelDetails(channelId, contractFactory, helper)
     console.log('getChannel', channelDetails)
@@ -253,7 +265,7 @@ async function getChannel(channelId, chainProvider, wsApi, helper, utils) {
     if (channelDetails &&
         channelDetails.info &&
         channelDetails.info.activated)
-        lastSpin = await getLastSpin(channelId, chainProvider, wsApi, helper, utils)
+        lastSpin = await getLastSpin(channelId, channelNonce, chainProvider, wsApi, helper, utils)
 
     return {
         ...channelDetails,
@@ -273,7 +285,7 @@ function logChannels(title) {
 function getChannels(chainProvider, wsApi, helper, utils) {
     return new Promise(async (resolve, reject) => {
         try {
-            const topRequests = 3
+            const topRequests = 1
             let totalRequests = 0
             const { contractFactory } = chainProvider
             const contract = await contractFactory.slotsChannelManagerContract()
@@ -291,7 +303,7 @@ function getChannels(chainProvider, wsApi, helper, utils) {
                 map(i => {
                     console.log('ON MERGE MAP', i)
                     return i.map(event =>
-                        getChannel(event.returnValues.id, chainProvider, wsApi, helper, utils)
+                        getChannel(event.returnValues.id, event.returnValues.channelNonce, chainProvider, wsApi, helper, utils)
                     )
                 })
             )
@@ -368,6 +380,7 @@ export default createActions({
         [Actions.GET_AES_KEY]: fetchAesKey,
         [Actions.GET_CHANNEL]: getChannel,
         [Actions.GET_CHANNELS]: getChannels,
+        [Actions.GET_CHANNEL_NONCE]: getChannelNonce,
         [Actions.GET_CHANNEL_DETAILS]: getChannelDetails,
         [Actions.GET_LAST_SPIN]: getLastSpin,
         [Actions.SUBSCRIBE_TO_SPIN_RESPONSES]: subscribeToSpinResponses,

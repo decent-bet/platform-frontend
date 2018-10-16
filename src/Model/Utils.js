@@ -1,4 +1,8 @@
-import ethUtil from "ethereumjs-util";
+const {
+    cry,
+    Transaction
+} = require('thor-devkit')
+import ethUtil from "ethereumjs-util"
 import { SHA256, AES } from 'crypto-js'
 const BigNumber = require('bignumber.js')
 
@@ -15,10 +19,10 @@ export class Utils {
         this.wsApi = wsApi
     }
 
-    async getAesKey(id) {
-        const idHash = this.chainProvider.web3.utils.soliditySha3(id)
+    async getAesKey(channelNonce) {
+        const channelNonceHash = this.chainProvider.web3.utils.soliditySha3(channelNonce)
         let { privateKey } = await this.keyHandler.get()
-        let sign = this.chainProvider.web3.eth.accounts.sign(idHash, privateKey)
+        let sign = this.chainProvider.web3.eth.accounts.sign(channelNonceHash, privateKey)
         return sign.signature
     }
 
@@ -40,13 +44,12 @@ export class Utils {
      * a SHA3 of the channel id signed with the user's account
      *
      *
-     * @param id
-     * @param chainProvider
+     * @param channelNonce
      */
-    async getChannelDepositParams(id) {
+    async getChannelDepositParams(channelNonce) {
         let randomNumber = this.random(18).toString()
 
-        const key = await this.getAesKey(id)
+        const key = await this.getAesKey(channelNonce)
         let initialUserNumber = AES.encrypt(randomNumber, key).toString()
         let userHashes = this.getUserHashes(randomNumber)
         let finalUserHash = userHashes[userHashes.length - 1]
@@ -165,5 +168,39 @@ export class Utils {
             spin.houseBalance +
             spin.betSize
         )
+    }
+
+    async getTx(clauses, blockRef) {
+        const {contractFactory} = this.chainProvider
+        const chainTag = await contractFactory._web3.eth.getChainTag()
+        const expiration = 32
+        const gasPriceCoef = 0
+        const gas = 1000000
+        const nonce = 11111111
+        let tx = new Transaction({
+            chainTag,
+            blockRef,
+            expiration,
+            clauses,
+            gasPriceCoef,
+            gas,
+            nonce
+        })
+        let txHash = cry.blake2b256(tx.encode())
+        let { privateKey } = await this.keyHandler.get()
+        let privateKeyBuffer = Buffer.from(privateKey.replace('0x', ''), 'hex')
+        tx.signature = cry.secp256k1.sign(txHash, privateKeyBuffer)
+
+        txHash = txHash.toString('hex')
+        let raw = tx.encode().toString('hex')
+        let sign = tx.signature.toString('hex')
+        let id = tx.id
+
+        return {
+            txHash,
+            raw,
+            sign,
+            id
+        }
     }
 }

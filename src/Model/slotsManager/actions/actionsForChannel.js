@@ -39,7 +39,8 @@ async function fetchBalance(chainProvider, helper) {
  *
  * @param channelId
  * @param {Object} transaction
- * @param {ChainProvider} chainProvider
+ * @param contractFactory
+ * @param helper
  */
 async function waitForChannelActivation(channelId, transaction, contractFactory, helper) {
     let slotsContract = await contractFactory.slotsChannelManagerContract()
@@ -48,6 +49,93 @@ async function waitForChannelActivation(channelId, transaction, contractFactory,
     //return await slotsContract.logChannelActivate(channelId)
 }
 
+/**
+ * Initializes a new channel
+ * @param initialDeposit
+ * @param chainProvider
+ * @param utils
+ * @param wsApi
+ * @returns {Promise<void>}
+ */
+async function initChannel(initialDeposit, chainProvider, utils, wsApi) {
+    let {contractFactory} = chainProvider
+    let slotsContract = await contractFactory.slotsChannelManagerContract()
+    let tokenContract = await contractFactory.decentBetTokenContract()
+    let slotsInstance = slotsContract.instance
+    let tokenInstance = tokenContract.instance
+    let slotsAddress = slotsInstance.options.address
+    let tokenAddress = tokenInstance.options.address
+    let channelNonce = chainProvider.web3.utils.asciiToHex(utils.random(32))
+    const params = await utils.getChannelDepositParams(channelNonce)
+    const {
+        initialUserNumber,
+        finalUserHash
+    } = params
+
+    let data = {
+        approve:
+            tokenInstance.methods.approve(
+                slotsAddress,
+                initialDeposit
+            ).encodeABI(),
+        deposit:
+            slotsInstance.methods.deposit(initialDeposit).encodeABI(),
+        createChannel:
+            slotsInstance.methods.createChannel(
+                initialDeposit,
+                channelNonce
+            ).encodeABI(),
+        depositChannel:
+            slotsInstance.methods.depositChannel(
+                channelNonce,
+                initialUserNumber,
+                finalUserHash
+            ).encodeABI()
+    }
+
+    let clauses =
+        [
+            {
+                to: tokenAddress,
+                value: 0,
+                data: data.approve
+            },
+            {
+                to: slotsAddress,
+                value: 0,
+                data: data.deposit
+            },
+            {
+                to: slotsAddress,
+                value: 0,
+                data: data.createChannel
+            },
+            {
+                to: slotsAddress,
+                value: 0,
+                data: data.depositChannel
+            }
+        ]
+
+    const blockRef = await contractFactory._web3.eth.getBlockRef()
+    const userTxs = await utils.getTx(clauses, blockRef)
+
+    const result = await wsApi.initChannel(
+        initialDeposit,
+        channelNonce,
+        initialUserNumber,
+        finalUserHash,
+        userTxs,
+        blockRef
+    )
+    if (result.res.error)
+        throw new Error(`Error initializing channel: ${result.res.message}`)
+
+    const {
+        id
+    } = result.res
+    return id
+}
 
 
 // Create a state channel
@@ -121,33 +209,33 @@ function approve(amount, chainProvider, helper) {
 // Deposit new Chips, sourced from wallet's tokens
 async function depositChips(amount, chainProvider, helper) {
     return new Promise(async (resolve, reject) => {
-    try {
-        let {contractFactory} = chainProvider
-        console.warn('depositChips', new Date())
-        let slotsContract = await contractFactory.slotsChannelManagerContract()
-        const tx = await slotsContract.deposit(amount.toFixed())
+        try {
+            let {contractFactory} = chainProvider
+            console.warn('depositChips', new Date())
+            let slotsContract = await contractFactory.slotsChannelManagerContract()
+            const tx = await slotsContract.deposit(amount.toFixed())
 
-        const depositEventSubscription = slotsContract
-        .getEventSubscription(slotsContract.getPastEvents('LogDeposit', {
-            _address: chainProvider.defaultAccount,
-            amount: amount.toFixed()
-        }))
+            const depositEventSubscription = slotsContract
+                .getEventSubscription(slotsContract.getPastEvents('LogDeposit', {
+                    _address: chainProvider.defaultAccount,
+                    amount: amount.toFixed()
+                }))
 
-        const depositSubscription =
-            depositEventSubscription.subscribe( async (events) => {
-            console.log('Deposit subscription - Events:', events)
+            const depositSubscription =
+                depositEventSubscription.subscribe(async (events) => {
+                    console.log('Deposit subscription - Events:', events)
 
-            if (events.length >= 1) {
-                helper.toggleSnackbar('Successfully sent deposit transaction')
-                depositSubscription.unsubscribe()
-                resolve(tx)
-            }
-        })
+                    if (events.length >= 1) {
+                        helper.toggleSnackbar('Successfully sent deposit transaction')
+                        depositSubscription.unsubscribe()
+                        resolve(tx)
+                    }
+                })
 
-    } catch (err) {
-        reject(err)
-    }
-})
+        } catch (err) {
+            reject(err)
+        }
+    })
 }
 
 // Withdraw Chips and return them as Tokens to the Wallet
@@ -210,6 +298,7 @@ async function claimChannel(channelId, contract, helper) {
 export default createActions({
     [PREFIX]: {
         [Actions.APPROVE]: approve,
+        [Actions.INIT_CHANNEL]: initChannel,
         [Actions.CREATE_CHANNEL]: createChannel,
         [Actions.DEPOSIT_TO_CHANNEL]: depositToChannel,
         [Actions.DEPOSIT_CHIPS]: depositChips,
