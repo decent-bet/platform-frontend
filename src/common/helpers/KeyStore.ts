@@ -1,10 +1,8 @@
-
-import IKeyStore from './IKeyStore'
+import { IKeyStore } from '../types'
 import Dexie from 'dexie'
 // Based partially from https://gist.github.com/saulshanabrook/b74984677bccd08b028b30d9968623f5
 
 export default class KeyStore implements IKeyStore {
-
     private db: Dexie
 
     constructor() {
@@ -17,7 +15,7 @@ export default class KeyStore implements IKeyStore {
     /**
      * Creates non exportable crypto key
      */
-    public async createCryptoKey(): Promise<CryptoKeyPair>{
+    public async createCryptoKey(): Promise<CryptoKeyPair> {
         return window.crypto.subtle.generateKey(
             {
                 name: 'RSA-OAEP',
@@ -35,14 +33,13 @@ export default class KeyStore implements IKeyStore {
 
         if (keys) {
             return keys.value
-
         } else {
             keys = await this.createCryptoKey()
             await this.db.table('keys').put({
                 id: 'keystoreKey',
                 value: keys
             })
-            return keys 
+            return keys
         }
     }
 

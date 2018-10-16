@@ -1,7 +1,7 @@
 import { AlertVariant } from './../components/Alert'
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from './actionTypes'
-import IKeyHandler from '../helpers/IKeyHandler'
+import { IKeyHandler } from '../types'
 import axios from 'axios'
 import { AUTH_API_URL } from '../../config'
 

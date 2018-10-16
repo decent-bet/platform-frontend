@@ -41,15 +41,12 @@ export default function authReducer(
         case `${PREFIX}/${Actions.FORGOT_PASSWORD}/${FULFILLED}`:
         case `${PREFIX}/${Actions.ACTIVATE_ACCOUNT}/${FULFILLED}`:
         case `${PREFIX}/${Actions.RESET_PASSWORD}/${FULFILLED}`:
-        case `${PREFIX}/${Actions.RESET_PASSWORD}/${REJECTED}`:
-        case `${PREFIX}/${Actions.ACTIVATE_ACCOUNT}/${REJECTED}`:
             return {
                 ...authState,
                 loading: false,
                 processed: true,
                 recaptchaKey: '',
-                recaptcha: null,
-                resultMessage: action.payload
+                recaptcha: null
             }
         case `${PREFIX}/${Actions.SIGN_UP}/${REJECTED}`:
             return {

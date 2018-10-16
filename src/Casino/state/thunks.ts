@@ -1,4 +1,4 @@
-import IKeyHandler from 'src/common/helpers/IKeyHandler'
+import { IKeyHandler } from '../../common/types'
 import actions from './actions'
 import { units } from 'ethereum-units'
 let subscriptions: any[] = []

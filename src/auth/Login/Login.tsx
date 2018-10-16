@@ -8,13 +8,13 @@ import {
     CardActions,
     CardContent,
     Typography,
-    TextField,
-    CircularProgress
+    TextField
 } from '@material-ui/core'
 import ReCaptcha from '../../common/components/ReCaptcha'
 import * as thunks from '../state/thunks'
 import actions from '../state/actions'
 import { VIEW_FORGOT_PASSWORD, VIEW_SIGNUP, VIEW_MAIN } from '../../routes'
+import LoadingButton from '../../common/components/LoadingButton'
 
 class Login extends React.Component<any> {
     constructor(props) {
@@ -71,11 +71,12 @@ class Login extends React.Component<any> {
         event.preventDefault()
 
         let { email, password } = this.state.formData
-        await this.props.makeLogin(email, password, this.props.recaptchaKey)
+        let { recaptchaKey } = this.props
 
-        if(this.props.recapcha && this.props.recapcha.current) {
-            this.props.recapcha.current.reset()
+        if (this.props.recaptcha && this.props.recaptcha.current) {
+            this.props.recaptcha.current.reset()
         }
+        await this.props.makeLogin(email, password, recaptchaKey)
 
         this.props.history.push(VIEW_MAIN)
     }
@@ -145,25 +146,19 @@ class Login extends React.Component<any> {
                         />
 
                         <p>
-                            <Button
+                            <LoadingButton
+                                isLoading={this.props.loading}
                                 color="primary"
                                 variant="contained"
+                                type="submit"
                                 fullWidth={true}
                                 disabled={
                                     !this.isValidCredentials ||
                                     this.props.loading
                                 }
-                                type="submit"
                             >
-                                {this.props.loading === true ? (
-                                    <CircularProgress
-                                        size={24}
-                                        color="secondary"
-                                    />
-                                ) : (
-                                    'Login'
-                                )}
-                            </Button>
+                                Login
+                            </LoadingButton>
                         </p>
                     </form>
                 </CardContent>

@@ -1,6 +1,6 @@
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from './actionTypes'
-import IKeyHandler from '../../common/helpers/IKeyHandler'
+import { IKeyHandler } from '../../common/types'
 
 async function logout(keyHandler: IKeyHandler) {
     localStorage.clear()

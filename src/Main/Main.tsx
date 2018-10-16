@@ -14,7 +14,6 @@ import { VIEW_ACCOUNT, VIEW_ACCOUNT_NOTACTIVATED } from '../routes'
 
 class Main extends React.Component<any> {
     public state = {
-        currentStage: '',
         drawerOpen: false,
         loaded: false
     }
@@ -30,7 +29,6 @@ class Main extends React.Component<any> {
         await this.props.faucet()
     }
 
-    // private onDrawerButtonPressedListener = open => this.setState({ drawerOpen: open })
     private onDrawerCloseListener = () => this.setState({ drawerOpen: false })
 
     private onToggleDrawerListener = () =>
@@ -76,7 +74,7 @@ class Main extends React.Component<any> {
                         />
                     </MainAppBar>
                     <Grid
-                        style={{ marginTop: '80px' }}
+                        style={{ marginTop: '80px', marginBottom: '80px' }}
                         container={true}
                         direction="row"
                         alignItems="center"

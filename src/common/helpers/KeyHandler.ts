@@ -1,5 +1,4 @@
-import IKeyStore from './IKeyStore'
-import IKeyHandler from './IKeyHandler'
+import { IKeyStore, IKeyHandler } from '../types'
 import { AUTH_TOKEN_NAME, ACCOUNT_ACTIVATED_NAME } from '../../constants'
 
 class KeyHandler implements IKeyHandler {

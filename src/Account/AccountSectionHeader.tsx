@@ -1,7 +1,5 @@
 import * as React from 'react'
-import { CardHeader, IconButton, Tooltip } from '@material-ui/core'
-import EditIcon from '@material-ui/icons/Edit'
-import CancelIcon from '@material-ui/icons/Cancel'
+import { CardHeader } from '@material-ui/core'
 
 export interface IAccountSectionHeaderProps {
     title: string
@@ -9,38 +7,39 @@ export interface IAccountSectionHeaderProps {
     didClickOnCancel: (event: React.MouseEvent) => void
     isEditing: boolean
     isSaving: boolean
+    enableEdit: boolean
 }
 
-export default class AccountSectionHeader extends React.PureComponent<
+export default class AccountSectionHeader extends React.Component<
     IAccountSectionHeaderProps
 > {
     constructor(props: IAccountSectionHeaderProps) {
         super(props)
+        // this.renderActions = this.renderActions.bind(this)
     }
 
-    public render() {
-        return (
-            <CardHeader
-                title={this.props.title}
-                action={
-                    this.props.isEditing ? (
-                        <Tooltip title="Cancel">
-                            <IconButton
-                                disabled={this.props.isSaving}
-                                onClick={this.props.didClickOnCancel}
-                            >
-                                <CancelIcon />
-                            </IconButton>
-                        </Tooltip>
-                    ) : (
-                        <Tooltip title="Edit">
-                            <IconButton onClick={this.props.didClickOnEdit}>
-                                <EditIcon />
-                            </IconButton>
-                        </Tooltip>
-                    )
-                }
-            />
+    /* private renderActions() {
+        return this.props.isEditing ? (
+            <Tooltip title="Cancel">
+                <IconButton
+                    disabled={this.props.isSaving}
+                    onClick={this.props.didClickOnCancel}
+                >
+                    <CancelIcon />
+                </IconButton>
+            </Tooltip>
+        ) : (
+            <Tooltip title="Edit">
+                <IconButton onClick={this.props.didClickOnEdit}>
+                    <EditIcon />
+                </IconButton>
+            </Tooltip>
         )
+    } */
+
+    public render() {
+        return <CardHeader title={this.props.title} />
+
+        // return <CardHeader title={this.props.title} />
     }
 }

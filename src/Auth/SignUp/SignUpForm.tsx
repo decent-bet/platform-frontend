@@ -72,13 +72,16 @@ class SignUpForm extends React.Component<any> {
         event.preventDefault()
 
         let { email, password, passwordConfirmation } = this.state.formData
-        const { signUp } = this.props as any
-        await signUp(email, password, passwordConfirmation, this.props.recaptchaKey)
-        
-        if(this.props.recapcha && this.props.recapcha.current) {
+        const { signUp, recaptchaKey } = this.props as any
+        if (this.props.recaptcha && this.props.recaptcha.current) {
+            this.props.recaptcha.current.reset()
+        }
+        await signUp(email, password, passwordConfirmation, recaptchaKey)
+
+        if (this.props.recapcha && this.props.recapcha.current) {
             this.props.recapcha.current.reset()
         }
-        
+
         this.setState({
             formData: {
                 email: '',
@@ -142,7 +145,7 @@ class SignUpForm extends React.Component<any> {
                         type="submit"
                     >
                         {loading ? (
-                             <CircularProgress color="secondary" size={24}/>
+                            <CircularProgress color="secondary" size={24} />
                         ) : (
                             'Create New Account'
                         )}

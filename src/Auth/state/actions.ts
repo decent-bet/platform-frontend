@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from './actionTypes'
-import IKeyHandler from '../../common/helpers/IKeyHandler'
+import { IKeyHandler } from '../../common/types'
 
 async function setRecaptchaKey(key: string) {
     return key

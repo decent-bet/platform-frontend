@@ -1,10 +1,10 @@
-import IKeyHandler from 'src/common/helpers/IKeyHandler'
 import { Contracts } from './contracts'
 import {
     TestDecentBetToken,
     SlotsChannelManager,
     SlotsChannelFinalizer
 } from '@decent-bet/contract-slots'
+import { IThorifyFactory, IKeyHandler } from '../types'
 
 export default class ContractFactory {
     private _jsonContracts = {
@@ -19,7 +19,7 @@ export default class ContractFactory {
      * @param {ThorifyFactory} thorifyFactory
      */
     constructor(
-        private _thorifyFactory: any,
+        private _thorifyFactory: IThorifyFactory,
         private _keyHandler: IKeyHandler
     ) {
         this._contracts = new Map()
@@ -36,11 +36,12 @@ export default class ContractFactory {
             )
         }
 
+        if (!this._thorify) {
+            this._thorify = await this._thorifyFactory.configured()
+        }
+
         // get the contract if exists in the map
         let contractItem = this._contracts.get(contractName)
-        if (!this._thorify) {
-            this._thorify = this._thorifyFactory.make()
-        }
 
         if (typeof contractItem === 'undefined') {
             const contract = this._jsonContracts[contractName]

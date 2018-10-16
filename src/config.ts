@@ -3,10 +3,6 @@ import {
     ENV_DEVELOPMENT,
     ENV_STAGING,
     ENV_PRODUCTION,
-    STAGE_LOCAL,
-    STAGE_TESTNET,
-    STAGE_MAIN,
-    CURRENT_STAGE,
     IStageConfig
 } from './constants'
 
@@ -26,20 +22,20 @@ export const STAGE_CONFIGS = {
 }
 
 export function getStageConfig(): IStageConfig {
-    switch (CURRENT_STAGE) {
-        case STAGE_LOCAL:
+    switch (CURRENT_ENV) {
+        case ENV_DEVELOPMENT:
             return STAGE_CONFIGS.local
-        case STAGE_TESTNET:
+        case ENV_STAGING:
             return STAGE_CONFIGS.testnet
-        case STAGE_MAIN:
+        case ENV_PRODUCTION:
             return STAGE_CONFIGS.main
         default:
             return STAGE_CONFIGS.local
     }
 }
 
-export function getAuthApiUrl(env): string {
-    switch (env) {
+export function getAuthApiUrl(): string {
+    switch (CURRENT_ENV) {
         case ENV_DEVELOPMENT:
             return 'http://localhost:3200/api'
         case ENV_STAGING:
@@ -51,4 +47,4 @@ export function getAuthApiUrl(env): string {
     }
 }
 
-export const AUTH_API_URL: string = getAuthApiUrl(CURRENT_ENV)
+export const AUTH_API_URL: string = getAuthApiUrl()

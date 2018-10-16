@@ -24,19 +24,25 @@ class ForgotPasswordForm extends React.Component<any> {
         const value = event.target.value
 
         if (!event.target.validity.valid || !value || value.length < 4) {
-            this.setState({errorMessage: event.target.validationMessage, error: true, email: value})
+            this.setState({
+                errorMessage: event.target.validationMessage,
+                error: true,
+                email: value
+            })
         } else {
-            this.setState({errorMessage: '', error: false, email: value})
+            this.setState({ errorMessage: '', error: false, email: value })
         }
     }
 
     private handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()
-        await this.props.forgotPassword(this.state.email, this.props.recapchaKey)
-        if(this.props.recapcha && this.props.recapcha.current) {
-            this.props.recapcha.current.reset()
+        let { recaptchaKey } = this.props
+
+        if (this.props.recaptcha && this.props.recaptcha.current) {
+            this.props.recaptcha.current.reset()
         }
-        this.setState({email: ''})
+        await this.props.forgotPassword(this.state.email, recaptchaKey)
+        this.setState({ email: '' })
     }
 
     public render() {
@@ -67,7 +73,7 @@ class ForgotPasswordForm extends React.Component<any> {
                         type="submit"
                     >
                         {loading ? (
-                            <CircularProgress color="secondary" size={24}/>
+                            <CircularProgress color="secondary" size={24} />
                         ) : (
                             'Reset Password'
                         )}
@@ -78,13 +84,12 @@ class ForgotPasswordForm extends React.Component<any> {
     }
 }
 
-
 const mapStateToProps = state => Object.assign({}, state.auth)
-const mapDispatchToProps = dispatch => bindActionCreators(Object.assign(
-        {},
-        actions.auth
-    ), dispatch)
+const mapDispatchToProps = dispatch =>
+    bindActionCreators(Object.assign({}, actions.auth), dispatch)
 
-const ForgotPasswordFormContainer = connect(mapStateToProps, mapDispatchToProps)(ForgotPasswordForm)
+const ForgotPasswordFormContainer = connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(ForgotPasswordForm)
 export default ForgotPasswordFormContainer
-

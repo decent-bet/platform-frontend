@@ -1,7 +1,7 @@
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from '../actionTypes'
 import { Wallet } from 'ethers'
-import IKeyHandler from 'src/common/helpers/IKeyHandler'
+import { IKeyHandler } from '../../../common/types'
 import { MNEMONIC_DPATH } from '../../../constants'
 import BigNumber from 'bignumber.js'
 import { units } from 'ethereum-units'

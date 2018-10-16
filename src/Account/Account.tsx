@@ -8,25 +8,79 @@ import { Grid, Paper, Stepper, StepButton, Step } from '@material-ui/core'
 import AccountAddress from './AccountAddress'
 import AccountInfo from './AccountInfo'
 import TransparentPaper from '../common/components/TransparentPaper'
+import { VIEW_CASINO } from '../routes'
 
 export interface IAccountState {
     activeStep: number
+    isSaving: boolean
 }
 
 class Account extends React.Component<any, IAccountState> {
     constructor(props) {
         super(props)
         this.state = {
-            activeStep: 0
+            isSaving: false,
+            activeStep: this.props.accountHasAddress ? 1 : 0
         }
 
         this.handleStep = this.handleStep.bind(this)
+        this.saveAccountAddress = this.saveAccountAddress.bind(this)
+        this.saveAccountInfo = this.saveAccountInfo.bind(this)
+        this.onSuccess = this.onSuccess.bind(this)
     }
 
-    private handleStep(step) {
+    private onSuccess(step: number): void {
+        if (step === 0) {
+            this.setState({
+                activeStep: 1
+            })
+        } else if (step === 1) {
+            this.props.history.push(VIEW_CASINO)
+        }
+    }
+
+    private handleStep(stepstep: number) {
         return () => {
             this.setState({
-                activeStep: step
+                activeStep: stepstep
+            })
+        }
+    }
+
+    private async saveAccountAddress(
+        publicAddress: string,
+        privateKey: string
+    ): Promise<void> {
+        try {
+            this.setState({
+                isSaving: true
+            })
+            await this.props.saveAccountAddress(
+                this.props.account,
+                publicAddress,
+                privateKey
+            )
+            this.setState({
+                isSaving: false
+            })
+            this.onSuccess(0)
+        } catch {
+            this.setState({
+                isSaving: false
+            })
+        }
+    }
+
+    private async saveAccountInfo(data: any): Promise<void> {
+        try {
+            await this.props.saveAccountInfo(data)
+            this.setState({
+                isSaving: false
+            })
+            this.onSuccess(1)
+        } catch {
+            this.setState({
+                isSaving: false
             })
         }
     }
@@ -40,22 +94,22 @@ class Account extends React.Component<any, IAccountState> {
                     justify="center"
                     alignItems="center"
                 >
-                    <Grid item={true} xs={12}>
+                    <Grid item={true} xs={10}>
                         <TransparentPaper>
                             <Stepper
+                                nonLinear={this.props.accountHasAddress}
                                 alternativeLabel={true}
-                                nonLinear={true}
                                 style={{ backgroundColor: 'transparent' }}
                                 activeStep={this.state.activeStep}
                             >
-                                <Step completed={this.props.accountIsVerified}>
+                                <Step completed={this.props.accountHasAddress}>
                                     <StepButton onClick={this.handleStep(0)}>
-                                        Account info
+                                        VET address
                                     </StepButton>
                                 </Step>
-                                <Step completed={this.props.accountHasAddress}>
+                                <Step completed={this.props.accountIsVerified}>
                                     <StepButton onClick={this.handleStep(1)}>
-                                        Public address
+                                        Account info
                                     </StepButton>
                                 </Step>
                             </Stepper>
@@ -64,9 +118,23 @@ class Account extends React.Component<any, IAccountState> {
                     <Grid item={true} xs={12} md={9}>
                         <Paper>
                             {this.state.activeStep === 0 ? (
-                                <AccountInfo />
+                                <AccountAddress
+                                    isSaving={this.state.isSaving}
+                                    account={this.props.account}
+                                    accountHasAddress={
+                                        this.props.accountHasAddress
+                                    }
+                                    saveAccountAddress={this.saveAccountAddress}
+                                />
                             ) : (
-                                <AccountAddress />
+                                <AccountInfo
+                                    isSaving={this.state.isSaving}
+                                    account={this.props.account}
+                                    accountIsVerified={
+                                        this.props.accountIsVerified
+                                    }
+                                    saveAccountInfo={this.saveAccountInfo}
+                                />
                             )}
                         </Paper>
                     </Grid>

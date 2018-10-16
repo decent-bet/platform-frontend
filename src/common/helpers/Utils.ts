@@ -1,6 +1,6 @@
-import ethUtil from "ethereumjs-util"
+import { IKeyHandler, IUtils } from '../types'
+import ethUtil from 'ethereumjs-util'
 import { SHA256 } from 'crypto-js'
-import EventBus from 'eventing-bus'
 import ethUnits from 'ethereum-units'
 import BigNumber from 'bignumber.js'
 
@@ -9,28 +9,39 @@ const initialChannelHouseBalance = new BigNumber(10).pow(18).times(10000)
  * Utils class for common use
  */
 
-export default class Utils {
-
-
+export default class Utils implements IUtils {
     constructor() {}
 
     /** Solidity ecsign implementation */
-    public static signString = async (text, keyHandler) => {
+    public async signString(text, keyHandler: IKeyHandler): Promise<any> {
         /*
          * Sign a string and return (hash, v, r, s) used by ecrecover to regenerate the user's address;
          */
         return new Promise(async (resolve, reject) => {
             let msgHash = ethUtil.sha3(text)
-            let { privateKey } = await keyHandler.get()
+            let { privateKey } = await keyHandler.getWalletValues()
             privateKey = ethUtil.toBuffer(privateKey)
-            let defaultAccount = keyHandler.getAddress()
-            console.log('Signing', text, ethUtil.bufferToHex(msgHash), 'as', defaultAccount,
-                ethUtil.isValidPrivate(privateKey))
+            let defaultAccount = keyHandler.getPublicAddress()
+            console.log(
+                'Signing',
+                text,
+                ethUtil.bufferToHex(msgHash),
+                'as',
+                defaultAccount,
+                ethUtil.isValidPrivate(privateKey)
+            )
 
-            const {v, r, s} = ethUtil.ecsign(msgHash, privateKey)
+            const { v, r, s } = ethUtil.ecsign(msgHash, privateKey)
             const sgn = ethUtil.toRpcSig(v, r, s)
 
-            console.log('v: ' + v + ', r: ' + sgn.slice(0, 66) + ', s: 0x' + sgn.slice(66, 130))
+            console.log(
+                'v: ' +
+                    v +
+                    ', r: ' +
+                    sgn.slice(0, 66) +
+                    ', s: 0x' +
+                    sgn.slice(66, 130)
+            )
 
             let m = ethUtil.toBuffer(msgHash)
             let pub = ethUtil.ecrecover(m, v, r, s)
@@ -39,15 +50,15 @@ export default class Utils {
             console.log('Generated sign address', adr, defaultAccount)
 
             console.log('Generated msgHash', msgHash, 'Sign', sgn)
-            let address = keyHandler.getAddress()
+            let address = await keyHandler.getPublicAddress()
             if (address && adr !== address.toLowerCase())
-                reject(new Error("Invalid address for signed message"))
+                reject(new Error('Invalid address for signed message'))
 
-            resolve({msgHash, sig: sgn})
+            resolve({ msgHash, sig: sgn })
         })
     }
 
-    public static getUserHashes(randomNumber) {
+    public getUserHashes(randomNumber: number): string[] {
         let lastHash
         let hashes: string[] = []
         for (let i = 0; i < 1000; i++) {
@@ -58,17 +69,17 @@ export default class Utils {
         return hashes
     }
 
-    public static random(length) {
+    public random(length): number {
         let randomValuesArray = new Uint32Array(length)
         window.crypto.getRandomValues(randomValuesArray)
-    
-        let outputString = ""
+
+        let outputString = ''
         // tslint:disable-next-line:prefer-for-of
         for (let i = 0; i < randomValuesArray.length; i++) {
             outputString += randomValuesArray[i]
         }
-    
-        return outputString.slice(0, length)
+
+        return Number(outputString.slice(0, length))
     }
 
     /**
@@ -78,7 +89,7 @@ export default class Utils {
      * @param {string} sign
      * @param {string} address
      */
-    public static verifySign(msg: string, sign: string, address: string) {
+    public verifySign(msg: string, sign: string, address: string): boolean {
         let sigParams = ethUtil.fromRpcSig(sign)
         let msgHash = ethUtil.sha3(msg)
 
@@ -90,11 +101,7 @@ export default class Utils {
         let publicKey = ethUtil.bufferToHex(publicKeyBuffer)
         publicKey = ethUtil.bufferToHex(ethUtil.pubToAddress(publicKey))
 
-        console.log(
-            'Verify sign - Public key',
-            publicKey,
-            address
-        )
+        console.log('Verify sign - Public key', publicKey, address)
 
         return publicKey === address.toLowerCase()
     }
@@ -103,11 +110,20 @@ export default class Utils {
      * Executes a spin for the Slots
      * @param {BigNumber} betSize
      * @param {any} state
-     * @param {Boolean} finalize
+     * @param {boolean} finalize
      */
-    public static async getSpin(betSize: BigNumber, state: any, finalize: boolean, keyHandler: any) {
+    public async getSpin(
+        betSize: BigNumber,
+        state: any,
+        finalize: boolean,
+        keyHandler: any
+    ): Promise<any> {
         const lastHouseSpin = state.houseSpins[state.houseSpins.length - 1]
-        const spinNonce = finalize ? (state.nonce === 1 ? 0 : state.nonce) : state.nonce
+        const spinNonce = finalize
+            ? state.nonce === 1
+                ? 0
+                : state.nonce
+            : state.nonce
         const nonce = state.nonce
         console.log('getSpin', betSize, lastHouseSpin, spinNonce, nonce)
 
@@ -115,7 +131,9 @@ export default class Utils {
             nonce === 1 ? state.hashes.finalReelHash : lastHouseSpin.reelHash
         let reel = ''
         let reelSeedHash =
-            nonce === 1 ? state.hashes.finalSeedHash : lastHouseSpin.reelSeedHash
+            nonce === 1
+                ? state.hashes.finalSeedHash
+                : lastHouseSpin.reelSeedHash
         let prevReelSeedHash = nonce === 1 ? '' : lastHouseSpin.prevReelSeedHash
         let userHash = state.userHashes[state.userHashes.length - nonce]
         let prevUserHash = state.userHashes[state.userHashes.length - nonce - 1]
@@ -123,7 +141,9 @@ export default class Utils {
             nonce === 1 ? state.info.initialDeposit : lastHouseSpin.userBalance
         userBalance = new BigNumber(userBalance).toFixed()
         let houseBalance =
-            nonce === 1 ? initialChannelHouseBalance : lastHouseSpin.houseBalance
+            nonce === 1
+                ? initialChannelHouseBalance
+                : lastHouseSpin.houseBalance
         houseBalance = new BigNumber(houseBalance).toFixed()
 
         let spin = {
@@ -140,10 +160,9 @@ export default class Utils {
             betSize,
             sign: null
         }
-        console.log('getSpin', spin)
 
-        let packedString = Utils.getTightlyPackedSpin(spin)
-        let sign: any = await Utils.signString(packedString, keyHandler)
+        let packedString = this.getTightlyPackedSpin(spin)
+        let sign: any = await this.signString(packedString, keyHandler)
         spin.sign = sign.sig
 
         return spin
@@ -153,7 +172,7 @@ export default class Utils {
      * Returns a tightly packed spin string
      * @param spin
      */
-    public static getTightlyPackedSpin(spin) {
+    public getTightlyPackedSpin(spin): any {
         return (
             spin.reelHash +
             (spin.reel !== '' ? spin.reel.toString() : '') +
@@ -168,53 +187,46 @@ export default class Utils {
             spin.betSize
         )
     }
-    
-    public static getTimestamp() {
-        return Utils.getTimestampInMillis() / 1000
+
+    public getTimestamp(): number {
+        return this.getTimestampInMillis() / 1000
     }
 
-    public static getTimestampInMillis = () => {
+    public getTimestampInMillis(): number {
         return Math.round(new Date().getTime())
     }
 
-    public static getEtherInWei = () => {
+    public getEtherInWei(): any {
         return ethUnits.units.ether
     }
 
-    public static convertToEther = number => {
-        return new BigNumber(number).times(Utils.getEtherInWei()).toFixed(0)
+    public convertToEther(num): string {
+        return new BigNumber(num).times(this.getEtherInWei()).toFixed(0)
     }
 
-    public static formatEther = ether => {
-        return new BigNumber(ether).dividedBy(Utils.getEtherInWei()).toFixed(2)
+    public formatEther(ether): string {
+        return new BigNumber(ether).dividedBy(this.getEtherInWei()).toFixed(2)
     }
 
-    public static roundDecimals = (number, decimals) => {
+    public roundDecimals(number, decimals): number {
         // tslint:disable-next-line:no-bitwise
         let multiplier = 10 ^ decimals
         return Math.round(number * multiplier) / multiplier
     }
 
-    public static capitalize = string => {
-        return (
-            string.substr(0, 1).toUpperCase() +
-            string.substring(1, string.length + 1)
-        )
+    public capitalize(str): string {
+        return str.substr(0, 1).toUpperCase() + str.substring(1, str.length + 1)
     }
 
-    public static isUndefined = object => {
+    public isUndefined(object): boolean {
         return typeof object === 'undefined'
     }
 
-    public static duplicate = obj => {
+    public duplicate(obj): any {
         return JSON.parse(JSON.stringify(obj))
     }
 
-    public static commafy = number => {
-        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-    }
-
-    public static toggleSnackbar = message => {
-        EventBus.publish('showSnackbar', message)
+    public commafy(num): any {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
     }
 }

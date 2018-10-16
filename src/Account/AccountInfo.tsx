@@ -1,49 +1,96 @@
 import * as React from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import * as thunks from './state/thunks'
 import {
     Grid,
     Card,
     CardContent,
     Input,
-    Select,
+    Select as MuiSelect,
     InputLabel,
     MenuItem,
     FormControl,
     FormHelperText
 } from '@material-ui/core'
+import Select from 'react-select'
 import { DatePicker } from 'material-ui-pickers'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import CalendarTodayIcon from '@material-ui/icons/CalendarToday'
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
-import { subYears, format } from 'date-fns'
-// import validator from 'validator'
+import { subYears, format, parse } from 'date-fns'
+import * as validator from 'validator'
 import countries from 'iso-3166-1/src/iso-3166'
-import { WithStyles, withStyles, createStyles } from '@material-ui/core'
+import { WithStyles, withStyles, createStyles, Theme } from '@material-ui/core'
 import AccountSectionHeader from './AccountSectionHeader'
 import AccountSectionActions from './AccountSectionActions'
+import CountryComponents from './CountryComponents'
 
-const styles = () =>
+const FORMAT_DOB = `YYYY-MM-dd'T'X`
+const COUNTRY_LIST: [{ label: string; value: string }] = countries.map(
+    (item, index) => {
+        return { label: item.country, value: item.alpha3 }
+    }
+)
+
+const SEXLIST = ['Male', 'Female']
+const styles = (theme: Theme) =>
     createStyles({
         datePickerDisabled: {
             '& > div:before': {
                 borderBottom: 'none !important',
                 content: ''
             }
+        },
+        disableInputUnderline: {
+            '& div div:before': {
+                borderBottom: 'none !important',
+                content: ''
+            }
+        },
+        root: {
+            flexGrow: 1,
+            height: 250
+        },
+        input: {
+            display: 'flex'
+        },
+        valueContainer: {
+            display: 'flex',
+            flexWrap: 'wrap',
+            flex: 1,
+            alignItems: 'center'
+        },
+        noOptionsMessage: {
+            padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`
+        },
+        singleValue: {
+            fontSize: 16
+        },
+        placeholder: {
+            position: 'absolute',
+            left: 2,
+            fontSize: 16
+        },
+        paper: {
+            position: 'absolute',
+            zIndex: 1,
+            marginTop: theme.spacing.unit,
+            left: 0,
+            right: 0
+        },
+        divider: {
+            height: theme.spacing.unit * 2
         }
     })
 
 interface IAccountInfoState {
     isEditing: boolean
-    isSaving: boolean
+    selectedDob: Date
+    selectedCountry: any
     formData: {
         firstName: string
         middleName: string
         lastName: string
         sex: string
-        selectedDob: Date
         dob: string
         country: string
         state: string
@@ -80,27 +127,31 @@ interface IAccountInfoState {
     }
 }
 
-export interface IAccountInfoProps extends WithStyles<typeof styles>{
+export interface IAccountInfoProps extends WithStyles<typeof styles, true> {
     accountIsVerified: boolean
     account: any
+    isSaving: boolean
+    saveAccountInfo(data: any): void
 }
 
-
-class AccountInfo extends React.Component<IAccountInfoProps, IAccountInfoState> {
+class AccountInfo extends React.Component<
+    IAccountInfoProps,
+    IAccountInfoState
+> {
     private maxDateOfBirth = subYears(new Date(), 18)
 
-    constructor(props: any) {
+    constructor(props: IAccountInfoProps) {
         super(props)
 
         this.state = {
             isEditing: false,
-            isSaving: false,
+            selectedDob: this.maxDateOfBirth,
+            selectedCountry: null,
             formData: {
                 firstName: '',
                 middleName: '',
                 lastName: '',
                 sex: '',
-                selectedDob: this.maxDateOfBirth,
                 dob: '',
                 country: '',
                 state: '',
@@ -136,15 +187,42 @@ class AccountInfo extends React.Component<IAccountInfoProps, IAccountInfoState> 
                 town: false
             }
         }
+
+        this.onFormValueChange = this.onFormValueChange.bind(this)
+        this.isValidDataInput = this.isValidDataInput.bind(this)
     }
 
-    private _countryList = countries.map((item, index) => (
-        <MenuItem value={item.alpha3} key={index}>
-            {item.country}
-        </MenuItem>
-    ))
+    private get formHasError(): boolean {
+        const {
+            firstName,
+            middleName,
+            lastName,
+            sex,
+            dob,
+            country,
+            state,
+            streetAddress,
+            phoneNumber,
+            postCode,
+            town
+        } = this.state.errors
 
-    private _sexList = ['Male', 'Female'].map((sex, index) => (
+        return (
+            firstName ||
+            middleName ||
+            lastName ||
+            sex ||
+            dob ||
+            country ||
+            state ||
+            streetAddress ||
+            phoneNumber ||
+            postCode ||
+            town
+        )
+    }
+
+    private _sexItems = SEXLIST.map((sex, index) => (
         <MenuItem value={sex} key={index}>
             {sex}
         </MenuItem>
@@ -156,27 +234,113 @@ class AccountInfo extends React.Component<IAccountInfoProps, IAccountInfoState> 
     }
 
     private handleDateOfBirthChange = date => {
-        let { formData } = this.state
-        ;(formData.selectedDob = date),
-            (formData.dob = format(date, 'MM-dd-YYYY'))
-        this.setState({ formData })
+        let { formData, errors, errorMessages } = this.state
+
+        if (!date) {
+            errors.dob = true
+            errorMessages.dob = ''
+            this.setState({
+                selectedDob: date,
+                formData,
+                errors,
+                errorMessages
+            })
+            return
+        }
+
+        formData.dob = format(date, FORMAT_DOB)
+        if (!validator.isISO8601(formData.dob)) {
+            errors.dob = true
+            errorMessages.dob = 'Invalid date'
+        } else {
+            errors.dob = false
+            errorMessages.dob = ''
+        }
+
+        this.setState({
+            selectedDob: date,
+            formData,
+            errors,
+            errorMessages
+        })
     }
 
-    private onFormValueChange = (
+    private onCountryValueChange = (item: { value: string; label: string }) => {
+        let { selectedCountry, formData, errorMessages, errors } = this.state
+        if (formData.country === item.value) {
+            return
+        }
+
+        formData.country = item.value || ''
+        selectedCountry = item
+
+        if (formData.country.length <= 0) {
+            errors.country = true
+            errorMessages.country = 'The country is required'
+        } else if (!(validator as any).isISO31661Alpha3(item.value)) {
+            errors.country = true
+            errorMessages.country = 'Invalid country'
+        } else {
+            errors.country = false
+            errorMessages.country = ''
+        }
+
+        this.setState({ selectedCountry, formData, errorMessages, errors })
+    }
+
+    private isValidDataInput(inputName: string, value: any): boolean {
+        switch (inputName) {
+            case 'firstName':
+                return (
+                    validator.isAlpha(value) &&
+                    validator.isLength(value, { min: 2, max: 100 })
+                )
+            case 'lastName':
+                return (
+                    validator.isAlpha(value) &&
+                    validator.isLength(value, { min: 2, max: 100 })
+                )
+            case 'sex':
+                return validator.isIn(value, SEXLIST)
+            case 'middleName':
+                return (
+                    validator.isAlpha(value) &&
+                    validator.isLength(value, { min: 2, max: 100 })
+                )
+            case 'state':
+                return validator.isLength(value, { min: 5, max: 500 })
+            case 'county':
+                return validator.isLength(value, { min: 5, max: 500 })
+            case 'streetAddress':
+                return validator.isLength(value, { min: 5, max: 500 })
+
+            case 'phoneNumber':
+                return validator.isMobilePhone(value, 'any')
+            case 'postCode':
+                return validator.isPostalCode(value, 'any')
+            case 'town':
+                return validator.isLength(value, { min: 2, max: 100 })
+            default:
+                return false
+        }
+    }
+
+    private onFormValueChange(
         event: React.ChangeEvent<
             HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
         >
-    ) => {
+    ) {
         let { formData, errorMessages, errors } = this.state
         const value = event.target.value
         const name = event.target.name
 
         formData[name] = value
-        if (
-            event.target.validity &&
-            (!event.target.validity.valid || !value || value.length < 4)
-        ) {
+
+        if (event.target.validity && !event.target.validity.valid) {
             errorMessages[name] = event.target.validationMessage
+            errors[name] = true
+        } else if (this.isValidDataInput(name, value) !== true) {
+            errorMessages[name] = 'Invalid value provided.'
             errors[name] = true
         } else {
             errorMessages[name] = ''
@@ -189,26 +353,70 @@ class AccountInfo extends React.Component<IAccountInfoProps, IAccountInfoState> 
     public componentDidMount() {
         if (!this.props.accountIsVerified) {
             this.setState({ isEditing: true })
+            this.handleDateOfBirthChange(this.state.selectedCountry)
+        } else {
+
+            const { basicVerification } = this.props.account.verification
+
+            this.setState({
+                selectedDob: parse(
+                    basicVerification.dob,
+                    'YYYY-MM-dd',
+                    new Date()
+                ),
+                selectedCountry: COUNTRY_LIST.find(
+                    item =>
+                        item.value ===
+                        basicVerification.country
+                ),
+                formData: {
+                    firstName: basicVerification.firstName,
+                    middleName: basicVerification.middleName,
+                    lastName: basicVerification.lastName,
+                    sex: basicVerification.sex,
+                    dob: basicVerification.dob,
+                    country: basicVerification.country,
+                    state: basicVerification.state,
+                    streetAddress: basicVerification
+                        .streetAddress,
+                    phoneNumber: basicVerification
+                        .phoneNumber,
+                    postCode: basicVerification.postCode,
+                    town: basicVerification.town
+                }
+            })
         }
     }
 
     private handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()
-        return
+        await this.props.saveAccountInfo(this.state.formData)
     }
 
     public render() {
+        const { classes, theme } = this.props
+
+        const selectStyles = {
+            input: base => ({
+                ...base,
+                color: theme.palette.text.primary,
+                '& input': {
+                    font: 'inherit'
+                }
+            })
+        }
         return (
             <Card>
-                <AccountSectionHeader
-                    title="Account Info"
-                    isEditing={this.state.isEditing}
-                    isSaving={this.state.isSaving}
-                    didClickOnCancel={this.didToogleEdit}
-                    didClickOnEdit={this.didToogleEdit}
-                />
-                <CardContent>
-                    <form onSubmit={this.handleSubmit}>
+                <form onSubmit={this.handleSubmit}>
+                    <AccountSectionHeader
+                        enableEdit={!this.props.accountIsVerified}
+                        title="Account Info"
+                        isEditing={this.state.isEditing}
+                        isSaving={this.props.isSaving}
+                        didClickOnCancel={this.didToogleEdit}
+                        didClickOnEdit={this.didToogleEdit}
+                    />
+                    <CardContent>
                         <Grid container={true} spacing={32}>
                             <Grid item={true} xs={12} sm={6}>
                                 <FormControl
@@ -235,8 +443,8 @@ class AccountInfo extends React.Component<IAccountInfoProps, IAccountInfoState> 
                             </Grid>
                             <Grid item={true} xs={12} sm={6}>
                                 <FormControl
-                                    error={false}
-                                    required={false}
+                                    error={this.state.errors.middleName}
+                                    required={true}
                                     fullWidth={true}
                                 >
                                     <InputLabel htmlFor="middleName">
@@ -260,7 +468,7 @@ class AccountInfo extends React.Component<IAccountInfoProps, IAccountInfoState> 
                         <Grid container={true} spacing={32}>
                             <Grid item={true} xs={12} sm={6}>
                                 <FormControl
-                                    error={false}
+                                    error={this.state.errors.lastName}
                                     required={false}
                                     fullWidth={true}
                                 >
@@ -282,9 +490,13 @@ class AccountInfo extends React.Component<IAccountInfoProps, IAccountInfoState> 
                                 </FormControl>
                             </Grid>
                             <Grid item={true} xs={12} sm={6}>
-                                <FormControl required={true} fullWidth={true}>
+                                <FormControl
+                                    required={true}
+                                    error={this.state.errors.sex}
+                                    fullWidth={true}
+                                >
                                     <InputLabel htmlFor="sex">Sex</InputLabel>
-                                    <Select
+                                    <MuiSelect
                                         disableUnderline={!this.state.isEditing}
                                         disabled={!this.state.isEditing}
                                         fullWidth={true}
@@ -302,8 +514,8 @@ class AccountInfo extends React.Component<IAccountInfoProps, IAccountInfoState> 
                                         <MenuItem value="">
                                             <em>Sex</em>
                                         </MenuItem>
-                                        {this._sexList}
-                                    </Select>
+                                        {this._sexItems}
+                                    </MuiSelect>
                                     <FormHelperText>
                                         {this.state.errorMessages.sex}
                                     </FormHelperText>
@@ -320,8 +532,7 @@ class AccountInfo extends React.Component<IAccountInfoProps, IAccountInfoState> 
                                     <DatePicker
                                         className={
                                             !this.state.isEditing
-                                                ? this.props.classes
-                                                      .datePickerDisabled
+                                                ? classes.datePickerDisabled
                                                 : ''
                                         }
                                         name="selectedDob"
@@ -335,50 +546,48 @@ class AccountInfo extends React.Component<IAccountInfoProps, IAccountInfoState> 
                                         required={true}
                                         format="MMM dd, YYYY"
                                         autoOk={true}
-                                        value={this.state.formData.selectedDob}
+                                        value={this.state.selectedDob}
                                         onChange={this.handleDateOfBirthChange}
                                     />
+                                    <FormHelperText>
+                                        {this.state.errorMessages.dob}
+                                    </FormHelperText>
                                 </FormControl>
                             </Grid>
                             <Grid item={true} xs={12} sm={6}>
-                                <FormControl
-                                    required={true}
-                                    fullWidth={true}
-                                    error={this.state.errors.country}
-                                >
-                                    <InputLabel htmlFor="country">
-                                        Country
-                                    </InputLabel>
-                                    <Select
-                                        error={this.state.errors.country}
-                                        disableUnderline={!this.state.isEditing}
-                                        disabled={!this.state.isEditing}
-                                        IconComponent={
-                                            !this.state.isEditing
-                                                ? 'span'
-                                                : ArrowDropDownIcon
-                                        }
-                                        fullWidth={true}
-                                        value={this.state.formData.country}
-                                        onChange={this.onFormValueChange}
-                                        name="country"
-                                    >
-                                        <MenuItem value="">
-                                            <em>Country</em>
-                                        </MenuItem>
-                                        {this._countryList}
-                                    </Select>
-                                    <FormHelperText>
-                                        {this.state.errorMessages.country}
-                                    </FormHelperText>
-                                </FormControl>
+                                <Select
+                                    name="country"
+                                    styles={selectStyles}
+                                    isDisabled={!this.state.isEditing}
+                                    className={
+                                        !this.state.isEditing
+                                            ? classes.disableInputUnderline
+                                            : ''
+                                    }
+                                    textFieldProps={{
+                                        required: true,
+                                        fullWidth: true,
+                                        helperText: this.state.errorMessages
+                                            .country,
+                                        label: 'Country',
+                                        placeholder: 'Country',
+                                        error: this.state.errors.country
+                                    }}
+                                    defaultOptions={true}
+                                    classes={classes}
+                                    options={COUNTRY_LIST}
+                                    components={CountryComponents}
+                                    value={this.state.selectedCountry}
+                                    onChange={this.onCountryValueChange}
+                                    cacheOptions={true}
+                                />
                             </Grid>
                         </Grid>
                         <Grid container={true} spacing={32}>
                             <Grid item={true} xs={12} sm={6}>
                                 <FormControl
                                     error={this.state.errors.state}
-                                    required={false}
+                                    required={true}
                                     fullWidth={true}
                                 >
                                     <InputLabel htmlFor="lastName">
@@ -486,7 +695,8 @@ class AccountInfo extends React.Component<IAccountInfoProps, IAccountInfoState> 
                                     <Input
                                         disableUnderline={!this.state.isEditing}
                                         disabled={!this.state.isEditing}
-                                        type="text"
+                                        type="phone"
+                                        required={true}
                                         placeholder="Phone Number"
                                         name="phoneNumber"
                                         value={this.state.formData.phoneNumber}
@@ -498,21 +708,17 @@ class AccountInfo extends React.Component<IAccountInfoProps, IAccountInfoState> 
                                 </FormControl>
                             </Grid>
                         </Grid>
-                    </form>
-                </CardContent>
-                <AccountSectionActions isEditing={this.state.isEditing} isSaving={this.state.isSaving}/>
+                    </CardContent>
+                    <AccountSectionActions
+                        enableEdit={!this.props.accountIsVerified}
+                        isEditing={this.state.isEditing}
+                        hasError={this.formHasError}
+                        isSaving={this.props.isSaving}
+                    />
+                </form>
             </Card>
         )
     }
 }
 
-const styledAccountInfo = withStyles(styles)(AccountInfo)
-const mapStateToProps = state => Object.assign({}, state.account, state.main)
-const mapDispatchToProps = dispatch =>
-    bindActionCreators(Object.assign({}, thunks), dispatch)
-
-const AccountInfoContainer = connect<IAccountInfoProps>(
-    mapStateToProps,
-    mapDispatchToProps
-)(styledAccountInfo)
-export default AccountInfoContainer
+export default withStyles(styles, { withTheme: true })(AccountInfo)

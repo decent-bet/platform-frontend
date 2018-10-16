@@ -17,7 +17,7 @@ export default function reducer(
             return {
                 ...mainState,
                 alertIsOpen: true,
-                alertType: action.payload.type || 'error',
+                alertType: action.payload.variant || 'error',
                 alertMessage: action.payload.message
             }
         case `${PREFIX}/${Actions.CLOSE_ALERT}/${FULFILLED}`:

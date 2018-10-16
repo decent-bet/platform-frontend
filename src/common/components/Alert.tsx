@@ -77,8 +77,9 @@ export interface IAlertProps extends SnackbarProps {
 
 function AlertContent(props: IAlertContentProps) {
     const { classes, className, message, onClose, variant } = props
-    const varianClassName = classNames(classes.icon, classes.iconVariant)
-    const iconVariant = getIconVariant(variant, varianClassName)
+    const variantClassName = classNames(classes.icon, classes.iconVariant)
+    const iconVariant = getIconVariant(variant, variantClassName)
+    const contentClassName = classNames(classes[variant], className)
 
     const handleClick = event => {
         if (onClose) {
@@ -88,7 +89,7 @@ function AlertContent(props: IAlertContentProps) {
 
     return (
         <SnackbarContent
-            className={classNames(classes[variant], className)}
+            className={contentClassName}
             aria-describedby="client-snackbar"
             message={
                 <span id="client-snackbar" className={classes.message}>

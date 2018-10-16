@@ -1,17 +1,8 @@
-import {
-    createStore,
-    applyMiddleware,
-    combineReducers,
-    Middleware,
-    MiddlewareAPI,
-    Dispatch,
-    Action
-} from 'redux'
+import { createStore, applyMiddleware, combineReducers } from 'redux'
 import promiseMiddleware from 'redux-promise-middleware'
 import ReduxThunk from 'redux-thunk'
 import logger from 'redux-logger'
 import appReducer from './common/state'
-import mainActions from './common/state/actions'
 import mainReducer from './Main/state'
 import authReducer from './Auth/state'
 import accountReducer from './Account/state'
@@ -20,6 +11,7 @@ import ContractFactory from './common/ContractFactory'
 import ThorifyFactory from './common/helpers/ThorifyFactory'
 import KeyStore from './common/helpers/KeyStore'
 import KeyHandler from './common/helpers/KeyHandler'
+import { RejectionCatcherMiddleware } from './common/helpers/RejectionCatcherMiddleware'
 import { CURRENT_ENV, ENV_DEVELOPMENT } from './constants'
 import Utils from './common/helpers/Utils'
 
@@ -32,30 +24,20 @@ const CombinedReducers = combineReducers({
     casino: casinoReducer
 })
 
-const actions: any = mainActions.app
-export const RejectionCatcher: Middleware = (api: MiddlewareAPI) => (
-    next: Dispatch
-) => (action: Action<any>) => {
-    const actionType: string = action.type
-    if (actionType.endsWith('/REJECTED')) {
-        const { payload } = action as any
-        if (payload) {
-            api.dispatch(actions.openAlert(payload.message, payload.variant))
-        }
-    }
-
-    return next(action)
-}
-
 const keyHandler = new KeyHandler(new KeyStore())
 const thorifyFactory = new ThorifyFactory(keyHandler)
 const contractFactory = new ContractFactory(thorifyFactory, keyHandler)
 const utils = new Utils()
 // Setup middlewares
 const middlewares = [
-    ReduxThunk.withExtraArgument({ contractFactory, keyHandler, utils }), // inject dependencies
+    ReduxThunk.withExtraArgument({
+        contractFactory,
+        keyHandler,
+        thorifyFactory,
+        utils
+    }), // inject dependencies
     promiseMiddleware({ promiseTypeDelimiter: '/' }),
-    RejectionCatcher
+    RejectionCatcherMiddleware
 ]
 
 // Only log redux on development
