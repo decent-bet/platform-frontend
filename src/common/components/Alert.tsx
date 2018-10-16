@@ -37,7 +37,7 @@ const contentStyles = (theme: Theme) =>
             opacity: 0.8
         },
         info: {
-            backgroundColor: theme.palette.primary.dark,
+            backgroundColor: theme.palette.secondary.dark,
             opacity: 0.8
         },
         warning: {

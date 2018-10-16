@@ -7,15 +7,21 @@ import AppBarToolbar from './AppBarToolbar'
 import MainRouter from './MainRouter'
 import AppDrawer from './AppDrawer'
 import * as thunks from './state/thunks'
+import { openAlert } from '../common/state/thunks'
 import './main.css'
 import { Grid, Fade } from '@material-ui/core'
 import AppLoading from '../common/components/AppLoading'
 import { VIEW_ACCOUNT, VIEW_ACCOUNT_NOTACTIVATED } from '../routes'
 
-class Main extends React.Component<any> {
-    public state = {
-        drawerOpen: false,
-        loaded: false
+class Main extends React.Component<any, any> {
+    constructor(props: any) {
+        super(props)
+        this.state = {
+            drawerOpen: false,
+            loaded: false
+        }
+
+        this.onCopyAddress = this.onCopyAddress.bind(this)
     }
 
     public async componentDidMount() {
@@ -38,6 +44,10 @@ class Main extends React.Component<any> {
         if (this.props.location.pathname === newView) return
         this.setState({ drawerOpen: false })
         this.props.history.push(newView)
+    }
+
+    private onCopyAddress() {
+        this.props.openAlert('Copied address to clipboard', 'info')
     }
 
     public render() {
@@ -68,7 +78,13 @@ class Main extends React.Component<any> {
                         onToggleDrawerListener={this.onToggleDrawerListener}
                     >
                         <AppBarToolbar
-                            address={this.props.address}
+                            onCopyAddress={this.onCopyAddress}
+                            address={
+                                this.props.accountHasAddress
+                                    ? this.props.account.verification
+                                          .addressReistration.vetAddress
+                                    : ''
+                            }
                             tokenBalance={this.props.balance}
                             etherBalance={this.props.etherBalance}
                         />
@@ -99,7 +115,7 @@ class Main extends React.Component<any> {
 
 const mapStateToProps = state => Object.assign({}, state.main)
 const mapDispatchToProps = dispatch =>
-    bindActionCreators(Object.assign({}, thunks), dispatch)
+    bindActionCreators(Object.assign({}, thunks, { openAlert }), dispatch)
 
 const MainContainer = connect(
     mapStateToProps,

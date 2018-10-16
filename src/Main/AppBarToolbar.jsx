@@ -1,16 +1,12 @@
 import React, { Fragment } from 'react'
 import { Button, ButtonBase, Typography } from '@material-ui/core'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import Utils from '../common/helpers/Utils'
-
-function copyConfirmation() {
-    Utils.toggleSnackbar('Copied address to clipboard')
-}
 
 export default function AppBarToolbar({
     address,
     tokenBalance,
-    etherBalance
+    etherBalance,
+    onCopyAddress
 }) {
     // Null protection
     if (!etherBalance) {
@@ -22,16 +18,18 @@ export default function AppBarToolbar({
     let addressText = `Public Address: ${address}`
     let tokenText = `Tokens: ${tokenBalance.toFixed(2)} DBETs`
     let etherText = `Balance: ${etherBalance.toFixed(5)} VTHO`
-    
+
     return (
         <Fragment>
             <CopyToClipboard
                 className="toolbar-button hidden-md-down"
                 text={address}
-                onCopy={copyConfirmation}
+                onCopy={onCopyAddress}
             >
-                <ButtonBase component='button'>
-                    <Typography stlyle={{textTransform: 'none'}}>{addressText}</Typography>
+                <ButtonBase component="button">
+                    <Typography stlyle={{ textTransform: 'none' }}>
+                        {addressText}
+                    </Typography>
                 </ButtonBase>
             </CopyToClipboard>
             <Button variant="flat" className="toolbar-button">

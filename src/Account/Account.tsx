@@ -20,13 +20,26 @@ class Account extends React.Component<any, IAccountState> {
         super(props)
         this.state = {
             isSaving: false,
-            activeStep: this.props.accountHasAddress ? 1 : 0
+            activeStep: this.defaultStep
         }
 
         this.handleStep = this.handleStep.bind(this)
         this.saveAccountAddress = this.saveAccountAddress.bind(this)
         this.saveAccountInfo = this.saveAccountInfo.bind(this)
         this.onSuccess = this.onSuccess.bind(this)
+    }
+
+    private get defaultStep(): number {
+        if (this.props.accountHasAddress && !this.props.accountIsVerified) {
+            return 1
+        } else if (
+            this.props.accountHasAddress &&
+            this.props.accountIsVerified
+        ) {
+            return 0
+        } else {
+            return 0
+        }
     }
 
     private onSuccess(step: number): void {

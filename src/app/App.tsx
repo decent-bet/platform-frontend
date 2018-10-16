@@ -20,6 +20,7 @@ import * as thunks from '../common/state/thunks'
 import AppLoading from '../common/components/AppLoading'
 import TransparentPaper from '../common/components/TransparentPaper'
 import Alert from '../common/components/Alert'
+import ErrorBoundary from './ErrorBoundary'
 
 export interface IAppState {
     snackbarMessage?: string
@@ -129,13 +130,15 @@ class App extends React.Component<any, IAppState> {
         return (
             <React.Fragment>
                 <CssBaseline />
-                <MuiThemeProvider theme={DarkTheme}>
-                    {this.state.appLoaded === true ? (
-                        this.renderRoutes()
-                    ) : (
-                        <AppLoading />
-                    )}
-                </MuiThemeProvider>
+                <ErrorBoundary>
+                    <MuiThemeProvider theme={DarkTheme}>
+                        {this.state.appLoaded === true ? (
+                            this.renderRoutes()
+                        ) : (
+                            <AppLoading />
+                        )}
+                    </MuiThemeProvider>
+                </ErrorBoundary>
             </React.Fragment>
         )
     }
