@@ -124,6 +124,7 @@ export default class BaseContract {
      */
     async signAndSendRawTransaction(to, gasPriceCoef, gas, data) {
         if (!gasPriceCoef) gasPriceCoef = 0
+        if (!gas) gas = 1000000
 
         let txBody = {
             from: this._keyHandler.getAddress(),

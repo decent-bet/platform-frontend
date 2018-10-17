@@ -109,7 +109,7 @@ class Slots extends Component {
         this.setState({ stateMachine: 'building_game' })
 
         // Create the channel
-        const thunk = Thunks.initChannel(parsedAmount)
+        const thunk = Thunks.initChannel(parsedAmount, this.onUpdateBuildStatusListener)
         const currentChannel = await this.props.dispatch(thunk)
 
         // Update UI
