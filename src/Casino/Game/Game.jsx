@@ -46,23 +46,12 @@ class Game extends Component {
     subscribeToSpinResponses = () => {
         const { dispatch, channelId } = this.props
 
-        const onSpinResponseListener = (
-            err,
-            msg,
-            houseSpin,
-            userSpin,
-            lines
-        ) => {
-            if (!err) {
-                let isValidHouseSpin = dispatch(
-                    Thunks.verifyHouseSpin(
-                        this.props,
-                        houseSpin,
-                        userSpin,
-                        lines
-                    )
-                )
-                if (isValidHouseSpin) listener(err, msg, lines)
+        const onSpinResponseListener = (err, msg, houseSpin, userSpin, lines) => {
+            if(!err) {
+                let isValidHouseSpin =
+                    dispatch(Thunks.verifyHouseSpin(this.props, houseSpin, userSpin, lines))
+                if(isValidHouseSpin)
+                    listener(err, msg, lines)
             }
         }
 
@@ -71,13 +60,9 @@ class Game extends Component {
                 let originalBalances = this.getBalance()
                 dispatch(Thunks.spinAndIncreaseNonce(channelId, msg))
                 let updatedBalances = this.getBalance()
-                if (window.slotsController.onSpinEvent)
-                    window.slotsController.onSpinEvent(
-                        lines,
-                        originalBalances,
-                        updatedBalances
-                    )
-                if (this.state.spinCallback) {
+                if(window.slotsController.onSpinEvent)
+                    window.slotsController.onSpinEvent(lines, originalBalances, updatedBalances)
+                if(this.state.spinCallback) {
                     this.state.spinCallback(err, msg, lines, updatedBalances)
                     this.setState({ spinCallback: null })
                 }
@@ -97,31 +82,27 @@ class Game extends Component {
 
     getBalance = () => {
         return {
-            user: this.formatEther(this.props.userBalance),
-            house: this.formatEther(this.props.houseBalance)
+            user: helper.formatEther(this.props.userBalance),
+            house: helper.formatEther(this.props.houseBalance)
         }
     }
 
     onFinalizeListener = async () => {
         this.setState({ isFinalizing: true })
-        await this.props.dispatch(
-            Thunks.finalizeChannel(this.props.channelId, this.props)
-        )
+        await this.props.dispatch(Thunks.finalizeChannel(this.props.channelId, this.props))
     }
 
     subscribeToFinalizeResponses = () => {
         const { dispatch } = this.props
 
         const onFinalizeResponseListener = (err, msg) => {
-            if (!err) {
+            if(!err) {
                 this.setState({ isFinalizing: false })
                 this.back()
             }
         }
 
-        dispatch(
-            Thunks.subscribeToFinalizeResponses(onFinalizeResponseListener)
-        )
+        dispatch(Thunks.subscribeToFinalizeResponses(onFinalizeResponseListener))
     }
 
     /**

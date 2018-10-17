@@ -72,14 +72,14 @@ class Slots extends React.Component<any, any> {
         this.setState({ stateMachine: 'loading' })
 
         // Get channels and wait
-        const result = await this.props.dispatch(Thunks.fetchChannels())
+        const result = await this.props.fetchChannels()
         console.log('fetchChannels', result)
-        const channels = result.value
+        const channels: any[] = result.value
 
         // Make a list of all usable channels for the user and publish it
-        const activeChannels = []
-        const nonDepositedChannels = []
-        const claimableChannels = []
+        const activeChannels: any[] = []
+        const nonDepositedChannels: any[] = []
+        const claimableChannels: any[] = []
 
         if (channels) {
             for (const channelId in channels) {
@@ -103,7 +103,7 @@ class Slots extends React.Component<any, any> {
 
                     if (isNotReady) nonDepositedChannels.push(channelId)
 
-                    if (channel.info.finalized && !isChannelClaimed(channel))
+                    if (channel.info.finalized && !this.isChannelClaimed(channel))
                         claimableChannels.push(channelId)
                 }
             }

@@ -7,6 +7,7 @@
 [submodule "public/slots-monster-mayhem"]
 	path = public/slots-monster-mayhem
 	url = git@github.com:decent-bet/slots-games-monster-mayhem.git
+	branch = feature-dbet_758-support_ws
 [submodule "public/slots-shiprekt"]
 	path = public/slots-shiprekt
 	url = git@github.com:decent-bet/slots-games-shiprekt.git

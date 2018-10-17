@@ -285,10 +285,9 @@ async function withdrawChips(amount, slotsContract) {
 /**
  * Allows users to claim DBETs from a closed channel
  * @param {number} channelId
- * @param slotsContract
- * @param helper
+ * @param {any} slotsContract\
  */
-async function claimChannel(channelId, slotsContract, helper) {
+async function claimChannel(channelId: number, slotsContract: any) {
     return new Promise(async (resolve, reject) => {
         try {
             slotsContract

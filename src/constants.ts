@@ -14,7 +14,6 @@ export const RECAPTCHA_SITE_KEY = '6LelAVoUAAAAAO-9CWfkBOG6pHuwX-J3fERUwfaw',
 export const CURRENT_ENV: string = process.env.REACT_APP_ENV || ENV_DEVELOPMENT
 
 export interface IStageConfig {
-    channelsApiUrl: string
     wsApiUrl: string
     thorNode: string
 }
