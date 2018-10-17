@@ -51,14 +51,12 @@ export function claimAndWithdrawFromChannel(channelId) {
         let { contractFactory } = chainProvider
         let contract = await contractFactory.slotsChannelManagerContract()
         // Claim the channel, check token total in the contract, and withdraw tokens
-        console.log('claimAndWithdrawFromChannel', channelId)
         await dispatch(Actions.claimChannel(channelId, contract, helper))
         const tokensInContract = await dispatch(
             Actions.getBalance(chainProvider, channelId)
         )
-        console.log('claimAndWithdrawFromChannel', {tokensInContract})
 
-        if (tokensInContract)
+        if (tokensInContract && tokensInContract.value)
             await dispatch(Actions.withdrawChips(tokensInContract.value, contract, helper ))
 
         // Update the balance
@@ -70,8 +68,10 @@ export function claimAndWithdrawFromChannel(channelId) {
 export function initChannel(amount, statusUpdateListener) {
     return async (dispatch, getState, {chainProvider, wsApi, helper, utils, keyHandler}) => {
         let { contractFactory } = chainProvider
+        statusUpdateListener(`Initializing channel with ${helper.formatEther(amount.toFixed())} DBETs`)
         const initChannelRes = await dispatch(Actions.initChannel(amount.toFixed(), chainProvider, utils, wsApi))
         const id = initChannelRes.value
+        statusUpdateListener(`Successfully initialized channel`)
 
         const channelNonceRes = await dispatch(Actions.getChannelNonce(id, contractFactory, helper))
         const channelNonce = channelNonceRes.value
