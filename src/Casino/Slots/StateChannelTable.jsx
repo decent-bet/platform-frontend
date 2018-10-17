@@ -13,7 +13,9 @@ export default function StateChannelTable({
         const channel = channelMap[channelId]
 
         // Parse the balance from the state
-        const totalTokens = channel.finalBalances.dividedBy(units.ether).toFixed()
+        const totalTokens = channel.finalBalances
+            .dividedBy(units.ether)
+            .toFixed()
         return (
             <CardContent key={channelId}>
                 <Typography>You have {totalTokens} chips</Typography>

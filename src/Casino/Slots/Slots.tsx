@@ -69,17 +69,17 @@ class Slots extends React.Component<any, any> {
     }
 
     private async refreshChannels(): Promise<void> {
-        // UI Update
         this.setState({ stateMachine: 'loading' })
 
         // Get channels and wait
-        const result = await this.props.fetchChannels()
-        const channels: any[] = result.value
+        const result = await this.props.dispatch(Thunks.fetchChannels())
+        console.log('fetchChannels', result)
+        const channels = result.value
 
         // Make a list of all usable channels for the user and publish it
-        const activeChannels: any[] = []
-        const nonDepositedChannels: any[] = []
-        const claimableChannels: any[] = []
+        const activeChannels = []
+        const nonDepositedChannels = []
+        const claimableChannels = []
 
         if (channels) {
             for (const channelId in channels) {
@@ -103,16 +103,14 @@ class Slots extends React.Component<any, any> {
 
                     if (isNotReady) nonDepositedChannels.push(channelId)
 
-                    if (
-                        channel.info.finalized &&
-                        !this.isChannelClaimed(channel)
-                    )
+                    if (channel.info.finalized && !isChannelClaimed(channel))
                         claimableChannels.push(channelId)
                 }
             }
         }
 
         this.setState({ activeChannels, claimableChannels })
+        console.log({ activeChannels, claimableChannels, nonDepositedChannels })
 
         // If there is exactly one usable channel active, switch to it.
         if (activeChannels.length === 1) {
@@ -123,12 +121,13 @@ class Slots extends React.Component<any, any> {
         } else if (nonDepositedChannels.length >= 1) {
             // Continue building channel
             const channel = nonDepositedChannels[0]
+            console.log('Continue building channel', channel)
 
             // Update UI. Tell the user we are building the channel
             this.setState({ stateMachine: 'building_game' })
 
             // Create the channel
-            const currentChannel = await this.props.depositIntoCreatedChannel(
+            const currentChannel = this.props.depositIntoCreatedChannel(
                 channel,
                 this.onUpdateBuildStatusListener
             )
@@ -149,7 +148,10 @@ class Slots extends React.Component<any, any> {
         this.setState({ stateMachine: 'building_game' })
 
         // Create the channel
-        const currentChannel = await this.props.buildChannel(parsedAmount)
+        const currentChannel = await this.props.initChannel(
+            parsedAmount,
+            this.onUpdateBuildStatusListener
+        )
 
         // Update UI
         this.setState({ stateMachine: 'select_game', currentChannel })

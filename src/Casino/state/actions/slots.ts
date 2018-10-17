@@ -265,29 +265,19 @@ function depositChips(amount, contractFactory, defaultAccount) {
 }
 
 // Withdraw Chips and return them as Tokens to the Wallet
-function withdrawChips(amount, contract, helper) {
+async function withdrawChips(amount, slotsContract) {
     return new Promise(async (resolve, reject) => {
         try {
-            const tx = await contract.withdraw(amount)
-
-            const withdrawEventSubscription = contract.getEventSubscription(
-                contract.logWithdraw(tx.blockNumber)
-            )
-
-            const withdrawSubscription = withdrawEventSubscription.subscribe(
-                async events => {
-                    console.log('Withdraw subscription - Events:', events)
-                    if (events.length >= 1) {
-                        withdrawSubscription.unsubscribe()
-                        resolve(tx)
-                    }
-                }
-            )
-            helper.toggleSnackbar('Successfully sent withdraw transaction')
-            return tx
+            slotsContract
+                .logWithdraw()
+                .then(data => {
+                    resolve(data)
+                })
+                .catch(e => reject({ message: e.message }))
+            await slotsContract.withdraw(amount)
+            // helper.toggleSnackbar('Successfully sent withdraw transaction')
         } catch (err) {
-            console.log('Error sending withdraw tx', err.message)
-            reject(err)
+            reject({ message: 'Error sending withdraw tx' })
         }
     })
 }
@@ -295,29 +285,19 @@ function withdrawChips(amount, contract, helper) {
 /**
  * Allows users to claim DBETs from a closed channel
  * @param {number} channelId
- * @param state
+ * @param slotsContract
+ * @param helper
  */
-function claimChannel(channelId, contract, helper) {
+async function claimChannel(channelId, slotsContract, helper) {
     return new Promise(async (resolve, reject) => {
         try {
-            const txHash = await contract.claim(channelId)
-
-            const claimChannelEventSubscription = contract.getEventSubscription(
-                contract.logClaimChannelTokens(channelId, txHash.blockNumber)
-            )
-
-            const claimChannelSubscription = claimChannelEventSubscription.subscribe(
-                async events => {
-                    console.log('Claim channel subscription - Events:', events)
-                    if (events.length >= 1) {
-                        helper.toggleSnackbar(
-                            'Successfully sent claim DBETs transaction'
-                        )
-                        claimChannelSubscription.unsubscribe()
-                        resolve(txHash)
-                    }
-                }
-            )
+            slotsContract
+                .logClaimChannelTokens(channelId)
+                .then(({ id, isHouse }) => {
+                    resolve({ id, isHouse })
+                })
+                .catch(e => reject(e))
+            const tx = await slotsContract.claim(channelId)
         } catch (e) {
             reject({ message: e.message })
         }
