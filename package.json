@@ -70,7 +70,7 @@
     "web3": "1.0.0-beta.35"
   },
   "scripts": {
-    "start": "export BROWSER=none && export PORT=3007 && react-scripts-ts start",
+    "start": "export BROWSER=none && export PORT=3000 && react-scripts-ts start",
     "build": "export NODE_ENV=production && REACT_APP_STAGE=main react-scripts-ts build",
     "build:staging": "export NODE_ENV=staging && REACT_APP_STAGE=testnet react-scripts-ts build",
     "build:development": "REACT_APP_STAGE=local react-scripts-ts build",

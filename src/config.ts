@@ -11,15 +11,14 @@ const STAGES: IStage[] = [
 ]
 
 interface IStageConfig {channelsApiUrl: string, thorNode: string}
-const OVERRIDE = false
 
-const DEFAULT_STAGE: string = OVERRIDE ? STAGE_MAIN : process.env.REACT_APP_STAGE || STAGE_LOCAL
+const DEFAULT_STAGE: string =  process.env.REACT_APP_STAGE || STAGE_LOCAL
 
 const STAGE_CONFIGS = {
     local: {
-        channelsApiUrl: 'http://localhost:3010/api',
+        channelsApiUrl: 'https://channels-api-alpha.decent.bet/api',
         wsApiUrl: 'ws://localhost:3010',
-        thorNode: 'http://localhost:8669'
+        thorNode: 'https://thor-staging.decent.bet'
     },
     testnet: {
         channelsApiUrl: 'https://channels-api-alpha.decent.bet/api',
@@ -28,7 +27,7 @@ const STAGE_CONFIGS = {
     },
     main: {
         channelsApiUrl: 'https://channels-api-alpha.decent.bet/api',
-        wsApiUrl: '',
+        wsApiUrl: 'ws://localhost:3010',
         thorNode: 'https://thor-staging.decent.bet'
     }
 }
@@ -49,7 +48,7 @@ function getStageConfig(stage: string): IStageConfig {
 const ENV_DEVELOPMENT = 'development'
 const ENV_STAGING = 'staging'
 const ENV_PRODUCTION = 'production'
-const CURRENT_ENV = OVERRIDE ? ENV_PRODUCTION : process.env.NODE_ENV || ENV_DEVELOPMENT
+const CURRENT_ENV = process.env.NODE_ENV || ENV_DEVELOPMENT
 console.log('Current env', CURRENT_ENV)
 
 function getAuthUrl(): string {

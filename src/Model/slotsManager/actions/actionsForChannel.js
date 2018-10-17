@@ -128,8 +128,10 @@ async function initChannel(initialDeposit, chainProvider, utils, wsApi) {
         userTxs,
         blockRef
     )
-    if (result.res.error)
+    if (result.res.error) {
         throw new Error(`Error initializing channel: ${result.res.message}`)
+    }
+       
 
     const {
         id
