@@ -155,13 +155,12 @@ export default class BaseContract {
     async getSignedRawTx(to, value, data, gas, dependsOn) {
         let blockRef = await this._web3.eth.getBlockRef()
         let { privateKey } = await this._keyHandler.get()
-<<<<<<< HEAD:src/common/ContractFactory/contracts/BaseContract.js
         let signedTx = await this._web3.eth.accounts.signTransaction(
             {
                 to,
                 value,
                 data,
-                chainTag: '0x27',
+                chainTag: await this._web3.eth.getChainTag(),
                 blockRef,
                 expiration: 32,
                 gasPriceCoef: 0,
@@ -171,20 +170,6 @@ export default class BaseContract {
             },
             privateKey
         )
-=======
-        let signedTx = await this._web3.eth.accounts.signTransaction({
-            to,
-            value,
-            data,
-            chainTag: '0x27',
-            blockRef,
-            expiration: 32,
-            gasPriceCoef: 0,
-            gas,
-            dependsOn,
-            nonce: 12345678
-        }, privateKey)
->>>>>>> feature-dbet_775-init_channel:src/Web3/contracts/BaseContract.js
 
         signedTx.id =
             '0x' +
@@ -207,7 +192,7 @@ export default class BaseContract {
         console.log('signAndSendRawTransactionWithClauses', gas, blockRef)
 
         const body = {
-            chainTag: '0xc7',
+            chainTag: await this._web3.eth.getChainTag(),
             blockRef,
             expiration: 32,
             clauses: clauses,

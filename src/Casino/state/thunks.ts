@@ -121,7 +121,7 @@ export function initChannel(amount, statusUpdateListener) {
         { contractFactory, wsApi, utils, keyHandler }
     ) => {
         statusUpdateListener(
-            `Initializing channel with ${helper.formatEther(
+            `Initializing channel with ${utils.formatEther(
                 amount.toFixed()
             )} DBETs`
         )

@@ -295,8 +295,8 @@ async function claimChannel(channelId: number, slotsContract: any) {
                 .then(({ id, isHouse }) => {
                     resolve({ id, isHouse })
                 })
-                .catch(e => reject(e))
-            const tx = await slotsContract.claim(channelId)
+                .catch(e => reject({ message: e.message }))
+            await slotsContract.claim(channelId)
         } catch (e) {
             reject({ message: e.message })
         }
