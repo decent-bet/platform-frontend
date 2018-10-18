@@ -6,7 +6,7 @@ export default interface IUtils {
 
     getUserHashes(randomNumber: number): string[]
 
-    random(length): number
+    random(length): string
 
     /**
      * Verify a sign for the message sign and given address
@@ -35,6 +35,8 @@ export default interface IUtils {
      */
     getTightlyPackedSpin(spin): any
 
+    getChannelDepositParams(channelNonce): Promise<any>
+
     getTimestamp(): number
 
     getTimestampInMillis(): number
@@ -54,4 +56,6 @@ export default interface IUtils {
     duplicate(obj): any
 
     commafy(num): any
+
+    getTx(clauses, blockRef): Promise<any>
 }

@@ -28,8 +28,6 @@ export default class SlotsChannelFinalizerContract extends BaseContract {
     async finalizeZeroNonce(id, userSpin) {
         userSpin = await this.getSpinParts(userSpin)
 
-        console.log('Finalize', id, typeof id, this._keyHandler.getAddress())
-
         let logKeys = spin => {
             Object.keys(spin).forEach(key => {
                 console.log('Finalize', key, spin[key], typeof spin[key])
@@ -37,18 +35,6 @@ export default class SlotsChannelFinalizerContract extends BaseContract {
         }
 
         logKeys(userSpin)
-
-        console.log(
-            'Finalize string: "' +
-                id +
-                '", "' +
-                userSpin.parts +
-                '", "' +
-                '", "' +
-                userSpin.r +
-                '", "' +
-                userSpin.s
-        )
 
         const emptyBytes32 =
             '0x0000000000000000000000000000000000000000000000000000000000000000'

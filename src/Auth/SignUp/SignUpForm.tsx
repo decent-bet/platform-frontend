@@ -89,7 +89,6 @@ class SignUpForm extends React.Component<any> {
                 passwordConfirmation: ''
             }
         })
-        this.props.onSubmitForm()
     }
 
     public render() {

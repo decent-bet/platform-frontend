@@ -4,14 +4,12 @@ import ForgotPassword from './ForgotPassword'
 import SignUp from './SignUp'
 import Login from './Login'
 import ResetPassword from './ResetPassword'
-import ActivateAccount from './ActivateAccount'
 import {
     VIEW_AUTH,
     VIEW_LOGIN,
     VIEW_FORGOT_PASSWORD,
     VIEW_SIGNUP,
-    VIEW_RESET_PASSWROD,
-    VIEW_ACTIVATE_ACCOUNT
+    VIEW_RESET_PASSWROD
 } from '../routes'
 
 const AuthRouter = () => {
@@ -20,7 +18,6 @@ const AuthRouter = () => {
             <Redirect exact={true} from={VIEW_AUTH} to={VIEW_LOGIN} />
             <Route path={VIEW_LOGIN} component={Login} />
             <Route path={VIEW_SIGNUP} component={SignUp} />
-            <Route path={VIEW_ACTIVATE_ACCOUNT} component={ActivateAccount} />
             <Route path={VIEW_RESET_PASSWROD} component={ResetPassword} />
             <Route path={VIEW_FORGOT_PASSWORD} component={ForgotPassword} />
         </Switch>

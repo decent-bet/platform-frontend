@@ -78,6 +78,8 @@ class Main extends React.Component<any, any> {
                         onToggleDrawerListener={this.onToggleDrawerListener}
                     >
                         <AppBarToolbar
+                            accountHasAddress={accountHasAddress}
+                            isCasinoLogedIn={this.props.isCasinoLogedIn}
                             onCopyAddress={this.onCopyAddress}
                             address={
                                 this.props.accountHasAddress
@@ -85,8 +87,8 @@ class Main extends React.Component<any, any> {
                                           .addressRegistration.vetAddress
                                     : ''
                             }
-                            tokenBalance={this.props.balance}
-                            etherBalance={this.props.etherBalance}
+                            tokenBalance={this.props.tokenBalance}
+                            vthoBalance={this.props.vthoBalance}
                         />
                     </MainAppBar>
                     <Grid
@@ -113,7 +115,7 @@ class Main extends React.Component<any, any> {
     }
 }
 
-const mapStateToProps = state => Object.assign({}, state.main)
+const mapStateToProps = state => Object.assign({}, state.main, state.casino)
 const mapDispatchToProps = dispatch =>
     bindActionCreators(Object.assign({}, thunks, { openAlert }), dispatch)
 

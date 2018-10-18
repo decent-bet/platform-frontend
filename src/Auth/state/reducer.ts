@@ -35,7 +35,12 @@ export default function authReducer(
                 ...authState,
                 loading: true
             }
-
+        case `${PREFIX}/${Actions.ACTIVATE_ACCOUNT}/${REJECTED}`:
+            return {
+                ...authState,
+                processed: true,
+                resultMessage: action.payload
+            }
         case `${PREFIX}/${Actions.LOGIN}/${FULFILLED}`:
         case `${PREFIX}/${Actions.SIGN_UP}/${FULFILLED}`:
         case `${PREFIX}/${Actions.FORGOT_PASSWORD}/${FULFILLED}`:

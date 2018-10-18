@@ -4,8 +4,10 @@ import IThorifyFactory from './IThorifyFactory'
 import IUtils from './IUtils'
 
 export default interface IThunkDependencies {
-    contractFactory: IContractFactory
     keyHandler: IKeyHandler
+    contractFactory: IContractFactory
     thorifyFactory: IThorifyFactory
     utils: IUtils
+    wsApi: any
+    slotsChannelHandler: any
 }

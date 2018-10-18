@@ -41,10 +41,10 @@ export default class StateChannelBuilder extends Component {
         const isValid = this.isValueValid() || currentValue === ''
         const errorText = isValid ? null : 'Between [100 and 1000]'
         return (
-            <Card className="card">
+            <Card>
                 <CardHeader
                     title="Let's play Slots"
-                    subtitle="How many DBETs would you like?"
+                    subheader="How many DBETs would you like?"
                 />
                 <CardContent>
                     <TextField

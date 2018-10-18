@@ -8,8 +8,8 @@ const CasinoRouter = () => {
     return (
         <Switch>
             <Redirect exact={true} from={VIEW_CASINO} to={VIEW_SLOTS} />
-            <Route path={VIEW_SLOTS} component={Slots} />
             <Route path={VIEW_SLOTS_GAME} component={Game} />
+            <Route path={VIEW_SLOTS} component={Slots} />
         </Switch>
     )
 }

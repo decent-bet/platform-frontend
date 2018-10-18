@@ -21,24 +21,23 @@ export default class ThorifyFactory implements IThorifyFactory {
     public async configured(
         publicAddress?: string,
         privateKey?: string
-    ): Promise<ThorifyFactory> {
-        let thorify = this.make()
+    ): Promise<any> {
+        this.make()
 
         if (!publicAddress) {
-            let address = await this._keyHandler.getPublicAddress()
+            const address = await this._keyHandler.getPublicAddress()
             if (address) {
                 publicAddress = address as string
             }
         }
 
-        if (!publicAddress) {
-            let wallet = await this._keyHandler.getWalletValues()
+        if (!privateKey) {
+            const wallet = await this._keyHandler.getWalletValues()
             privateKey = wallet.privateKey
         }
 
-        thorify.eth.accounts.wallet.add(privateKey)
-        thorify.eth.defaultAccount = await this._keyHandler.getPublicAddress()
-        this._thorify = thorify
-        return thorify
+        this._thorify.eth.accounts.wallet.add(privateKey)
+        this._thorify.eth.defaultAccount = publicAddress
+        return this._thorify
     }
 }

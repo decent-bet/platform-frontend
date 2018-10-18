@@ -1,4 +1,4 @@
-import { ethUnits } from 'ethereum-units'
+import * as ethUnits from 'ethereum-units'
 import { IKeyHandler, IUtils, IThorifyFactory } from '../types'
 import ethUtil from 'ethereumjs-util'
 import { SHA256, AES } from 'crypto-js'
@@ -77,7 +77,7 @@ export default class Utils implements IUtils {
         return sign.signature
     }
 
-    public async getChannelDepositParams(channelNonce) {
+    public async getChannelDepositParams(channelNonce): Promise<any> {
         let randomNumber = this.random(18)
 
         const key = await this.getAesKey(channelNonce)
@@ -94,7 +94,7 @@ export default class Utils implements IUtils {
         }
     }
 
-    public getUserHashes(randomNumber: number): string[] {
+    public getUserHashes(randomNumber: any): string[] {
         let lastHash
         let hashes: string[] = []
         for (let i = 0; i < 1000; i++) {
@@ -105,7 +105,7 @@ export default class Utils implements IUtils {
         return hashes
     }
 
-    public random(length): number {
+    public random(length): string {
         let randomValuesArray = new Uint32Array(length)
         window.crypto.getRandomValues(randomValuesArray)
 
@@ -115,7 +115,7 @@ export default class Utils implements IUtils {
             outputString += randomValuesArray[i]
         }
 
-        return Number(outputString.slice(0, length))
+        return outputString.slice(0, length)
     }
 
     /**
@@ -265,7 +265,7 @@ export default class Utils implements IUtils {
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
     }
 
-    public async getTx(clauses, blockRef) {
+    public async getTx(clauses, blockRef): Promise<any> {
         const chainTag = await this.thorify.eth.getChainTag()
         const expiration = 32
         const gasPriceCoef = 0

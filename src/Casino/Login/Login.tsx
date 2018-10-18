@@ -75,7 +75,6 @@ class Login extends React.Component<ILoginProps, any> {
             await dispatch(
                 authWallet(this.state.loginValue, this.props.account)
             )
-            this.setState({ processing: false })
             this.props.onLoginSuccess()
         } catch (error) {
             this.setState({ processing: false })
@@ -99,6 +98,8 @@ class Login extends React.Component<ILoginProps, any> {
             <Dialog
                 className={this.props.classes.root}
                 open={this.state.open}
+                disableBackdropClick={true}
+                disableEscapeKeyDown={true}
                 onClose={this.handleClose}
                 TransitionComponent={Transition}
             >

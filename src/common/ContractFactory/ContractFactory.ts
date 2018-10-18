@@ -8,7 +8,7 @@ import { IThorifyFactory, IKeyHandler } from '../types'
 
 export default class ContractFactory {
     private _jsonContracts = {
-        TestDecentBetToken,
+        DecentBetToken: TestDecentBetToken,
         SlotsChannelManager,
         SlotsChannelFinalizer
     }
@@ -30,7 +30,7 @@ export default class ContractFactory {
      * @returns {Promise<any>}
      */
     public async makeContract(contractName: string): Promise<any> {
-        if (!Contracts.hasOwnProperty(contractName)) {
+        if (!Contracts.hasOwnProperty(`${contractName}Contract`)) {
             throw new Error(
                 `Contract class doesn't exists for the name given: ${contractName}`
             )
@@ -49,7 +49,7 @@ export default class ContractFactory {
             const chainTag = await this._thorify.eth.getChainTag()
             const contractAddress = contract.address[chainTag]
             instance.options.address = contractAddress
-            contractItem = new Contracts[contractName](
+            contractItem = new Contracts[`${contractName}Contract`](
                 this._thorify,
                 instance,
                 this._keyHandler
@@ -78,6 +78,6 @@ export default class ContractFactory {
      * @returns {DecentBetTokenContract}
      */
     public async decentBetTokenContract(): Promise<any> {
-        return await this.makeContract('DecentBetTokenContract')
+        return await this.makeContract('DecentBetToken')
     }
 }

@@ -13,6 +13,7 @@ import StateChannelWaiter from './StateChannelWaiter'
 import TransparentPaper from '../../common/components/TransparentPaper'
 
 import './slots.css'
+import { VIEW_SLOTS } from 'src/routes'
 
 class Slots extends React.Component<any, any> {
     constructor(props: any) {
@@ -45,6 +46,7 @@ class Slots extends React.Component<any, any> {
         this.renderChannelTable = this.renderChannelTable.bind(this)
         this.renderStateMachine = this.renderStateMachine.bind(this)
         this.renderSelectGameState = this.renderSelectGameState.bind(this)
+        this.renderListGamesState = this.renderListGamesState.bind(this)
     }
 
     /**
@@ -59,19 +61,32 @@ class Slots extends React.Component<any, any> {
         )
     }
 
-    public componentDidMount() {
-        if (this.props.isCasinoLogedIn === true) {
-            this.props.initializeSlots()
-            this.refreshChannels()
+    public async componentDidMount() {
+        if (this.props.slotsInitialized) {
+            this.setState({ stateMachine: 'loading' })
+            await this.props.initializeSlots()
+            await this.refreshChannels()
         } else {
             this.setState({ stateMachine: 'list_games' })
         }
     }
 
-    private async refreshChannels(): Promise<void> {
-        this.setState({ stateMachine: 'loading' })
+    public async componentDidUpdate(prevProps, prevState) {
+        if (this.props.slotsInitialized !== prevProps.slotsInitialized) {
+            this.setState({ stateMachine: 'loading' })
+            await this.props.initializeSlots()
+            await this.refreshChannels()
+        }
+    }
 
+    private async refreshChannels(): Promise<void> {
         // Get channels and wait
+        setTimeout(() => {
+            this.setState({
+                stateMachine: 'loading',
+                buildStatus: 'Fetching channels...'
+            })
+        }, 1000)
         const result = await this.props.fetchChannels()
         console.log('fetchChannels', result)
         const channels: any[] = result.value
@@ -103,7 +118,10 @@ class Slots extends React.Component<any, any> {
 
                     if (isNotReady) nonDepositedChannels.push(channelId)
 
-                    if (channel.info.finalized && !this.isChannelClaimed(channel))
+                    if (
+                        channel.info.finalized &&
+                        !this.isChannelClaimed(channel)
+                    )
                         claimableChannels.push(channelId)
                 }
             }
@@ -124,9 +142,16 @@ class Slots extends React.Component<any, any> {
             console.log('Continue building channel', channel)
 
             // Update UI. Tell the user we are building the channel
-            this.setState({ stateMachine: 'building_game' })
+            this.setState({
+                stateMachine: 'building_game',
+                buildStatus: 'Building the game...'
+            })
 
             // Create the channel
+            this.setState({
+                stateMachine: 'loading',
+                buildStatus: 'Making deposit into created channel...'
+            })
             const currentChannel = this.props.depositIntoCreatedChannel(
                 channel,
                 this.onUpdateBuildStatusListener
@@ -170,7 +195,7 @@ class Slots extends React.Component<any, any> {
     }
 
     private onGoToGameroomListener(gameName): void {
-        const path = `/slots/${this.state.currentChannel}/${gameName}`
+        const path = `${VIEW_SLOTS}${this.state.currentChannel}/${gameName}`
         this.props.history.push(path)
     }
 
@@ -179,10 +204,14 @@ class Slots extends React.Component<any, any> {
      */
     private renderStateChannelToolbar(channel) {
         return (
-            <StateChannelToolbar
-                channel={channel}
-                onClaimChannelListener={this.onClaimChannelListener}
-            />
+            <Grid container={true} direction="row">
+                <Grid item={true}>
+                    <StateChannelToolbar
+                        channel={channel}
+                        onClaimChannelListener={this.onClaimChannelListener}
+                    />
+                </Grid>
+            </Grid>
         )
     }
 
@@ -196,12 +225,16 @@ class Slots extends React.Component<any, any> {
 
     private renderSelectChannelsState() {
         return (
-            <React.Fragment>
-                {this.renderChannelTable()}
-                <StateChannelBuilder
-                    onBuildChannelListener={this.onBuildChannelListener}
-                />
-            </React.Fragment>
+            <Grid container={true} direction="row" spacing={24}>
+                <Grid item={true} xs={12}>
+                    {this.renderChannelTable()}
+                </Grid>
+                <Grid item={true} xs={12}>
+                    <StateChannelBuilder
+                        onBuildChannelListener={this.onBuildChannelListener}
+                    />
+                </Grid>
+            </Grid>
         )
     }
 
@@ -224,21 +257,26 @@ class Slots extends React.Component<any, any> {
         return totalTokens.dividedBy(units.ether).toFixed(0)
     }
 
-    private renderSelectGameState(allowSelect) {
-        let balance
-        if (allowSelect) {
-            const channel = this.props.channels[this.state.currentChannel]
-            balance = this.channelBalanceParser(channel)
-        } else {
-            balance = 0
-        }
+    private renderListGamesState() {
+        return (
+            <SlotsList
+                balance={0}
+                allowSelect={false}
+                onGameSelectedListener={this.onGoToGameroomListener}
+            />
+        )
+    }
+
+    private renderSelectGameState() {
+        const channel = this.props.channels[this.state.currentChannel]
+        const balance: any = this.channelBalanceParser(channel) || 0
 
         return (
             <React.Fragment>
                 {this.renderChannelTable()}
                 <SlotsList
                     balance={balance}
-                    allowSelect={allowSelect}
+                    allowSelect={true}
                     onGameSelectedListener={this.onGoToGameroomListener}
                 />
             </React.Fragment>
@@ -247,29 +285,34 @@ class Slots extends React.Component<any, any> {
 
     private renderChannelTable() {
         return (
-            <StateChannelTable
-                channelMap={this.props.channels}
-                claimableChannels={this.state.claimableChannels}
-                /* Function as a child. Receives `channel` */
-                channelProp={this.renderStateChannelToolbar}
-            />
+            <Grid container={true} direction="row" spacing={40}>
+                <Grid item={true} xs={12}>
+                    <StateChannelTable
+                        channelMap={this.props.channels}
+                        claimableChannels={this.state.claimableChannels}
+                        /* Function as a child. Receives `channel` */
+                        channelProp={this.renderStateChannelToolbar}
+                    />
+                </Grid>
+            </Grid>
         )
     }
 
     private renderStateMachine() {
         switch (this.state.stateMachine) {
             case 'loading':
-                return this.renderLoadingState()
+                return this.renderLoadingState('Loading slots...')
             case 'select_channels':
                 return this.renderSelectChannelsState()
             case 'building_game':
                 return this.renderLoadingState()
             case 'list_games':
-                return this.renderSelectGameState(false)
+                return this.renderListGamesState()
             case 'select_game':
-                return this.renderSelectGameState(true)
+                return this.renderSelectGameState()
+
             case 'claiming':
-                return this.renderLoadingState('Claiming DBETs..')
+                return this.renderLoadingState('Claiming DBETs...')
             default:
                 return this.renderLoadingState()
         }
@@ -279,7 +322,7 @@ class Slots extends React.Component<any, any> {
         return (
             <Grid
                 container={true}
-                direction="column"
+                direction="row"
                 spacing={24}
                 justify="center"
                 alignItems="center"

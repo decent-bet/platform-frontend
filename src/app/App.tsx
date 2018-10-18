@@ -10,12 +10,18 @@ import {
 } from '@material-ui/core'
 import Main from '../Main'
 import Auth from '../Auth'
+import ActivateAccount from '../Auth/ActivateAccount'
 import Logout from '../Logout'
 import PrivateRoute from './PrivateRoute'
 import PublicRoute from './PublicRoute'
 import EventBus from 'eventing-bus'
 import DarkTheme from '../common/themes/dark'
-import { VIEW_LOGOUT, VIEW_MAIN, VIEW_AUTH } from '../routes'
+import {
+    VIEW_LOGOUT,
+    VIEW_MAIN,
+    VIEW_AUTH,
+    VIEW_ACTIVATE_ACCOUNT
+} from '../routes'
 import * as thunks from '../common/state/thunks'
 import AppLoading from '../common/components/AppLoading'
 import TransparentPaper from '../common/components/TransparentPaper'
@@ -86,6 +92,11 @@ class App extends React.Component<any, IAppState> {
                                     exact={true}
                                     path={VIEW_LOGOUT}
                                     component={Logout}
+                                />
+
+                                <Route
+                                    path={VIEW_ACTIVATE_ACCOUNT}
+                                    component={ActivateAccount}
                                 />
                                 <PublicRoute
                                     path={VIEW_AUTH}

@@ -2,21 +2,19 @@ import * as React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as thunks from './state/thunks'
-import { Grid } from '@material-ui/core'
+import { Grid, Typography } from '@material-ui/core'
 
 class AccountNotActivated extends React.Component<any> {
     constructor(props) {
         super(props)
-        this.state = {
-            
-        }
+        this.state = {}
     }
 
     public render() {
         return (
             <Grid container={true} direction="column" spacing={40}>
                 <Grid item={true} xs={12}>
-                    Account not activated
+                    <Typography>Account not activated</Typography>
                 </Grid>
             </Grid>
         )

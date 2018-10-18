@@ -43,7 +43,7 @@ class KeyHandler implements IKeyHandler {
         let address
 
         const cryptoKey = await this.keyStore.getCryptoKey()
-        address = this.getPublicAddress()
+        address = await this.getPublicAddress()
 
         const keyBlob = await this.keyStore.getVariable('key')
         if (keyBlob) {

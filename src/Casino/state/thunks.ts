@@ -1,5 +1,4 @@
 import actions from './actions'
-let subscriptions: any[] = []
 import { IThunkDependencies } from '../../common/types'
 import { openAlert } from '../../common/state/thunks'
 
@@ -18,15 +17,56 @@ export function authWallet(data: string, account: any) {
     }
 }
 
+export function initializeCasino() {
+    return async (dispatch, _getState, { contractFactory, keyHandler }) => {
+        const vetAddress = (await keyHandler.getPublicAddress()) || ''
+
+        await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
+        await dispatch(actions.getTokens(contractFactory, vetAddress))
+
+        setTimeout(async () => {
+            await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
+            await dispatch(actions.getTokens(contractFactory, vetAddress))
+        }, 4000)
+    }
+}
+
+export function setSlotsInitialized() {
+    return async dispatch => {
+        await dispatch(actions.setSlotsInitialized())
+    }
+}
+
+export function faucet() {
+    return async (dispatch, _getState, { contractFactory }) => {
+        await dispatch(actions.faucet(contractFactory))
+        await getTokens()
+    }
+}
+
+export function getTokens(vetAddress?: string) {
+    return async (
+        dispatch,
+        _getState,
+        { contractFactory, keyHandler }: IThunkDependencies
+    ) => {
+        if (!vetAddress) {
+            vetAddress = (await keyHandler.getPublicAddress()) || ''
+        }
+        await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
+        await dispatch(actions.getTokens(contractFactory, vetAddress))
+    }
+}
+
 export function initializeSlots() {
     return async (
         dispatch,
         _getState,
         { contractFactory, keyHandler }: IThunkDependencies
     ) => {
-        const publicAddress = await keyHandler.getPublicAddress()
-        await dispatch(actions.getBalance(contractFactory, publicAddress))
-        await dispatch(actions.getAllowance(contractFactory, publicAddress))
+        const vetAddress = await keyHandler.getPublicAddress()
+        await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
+        await dispatch(actions.getAllowance(contractFactory, vetAddress))
     }
 }
 
@@ -35,7 +75,9 @@ export function spin(totalBetSize, props, listener) {
         return new Promise(async (resolve, reject) => {
             try {
                 await slotsChannelHandler.spin(totalBetSize, props, listener)
-            } catch {
+                resolve()
+            } catch (error) {
+                console.log(error)
                 reject('Error on SPIN')
             }
         })
@@ -76,10 +118,10 @@ export function fetchChannels() {
     return async (
         dispatch,
         _getState,
-        { chainProvider, httpApi, helper, utils }
+        { contractFactory, wsApi, utils }: IThunkDependencies
     ) => {
         return await dispatch(
-            actions.getChannels(chainProvider, httpApi, helper, utils)
+            actions.getChannels(contractFactory, wsApi, utils)
         )
     }
 }
@@ -98,9 +140,10 @@ export function claimAndWithdrawFromChannel(channelId: string) {
         let contract = await contractFactory.slotsChannelManagerContract()
         // Claim the channel, check token total in the contract, and withdraw tokens
 
+        const vetAddress = await keyHandler.getPublicAddress()
         await dispatch(actions.claimChannel(channelId, contract))
         const tokensInContract = await dispatch(
-            actions.getBalance(contractFactory, channelId)
+            actions.getBalance(contractFactory, vetAddress)
         )
 
         if (tokensInContract && tokensInContract.value)
@@ -109,8 +152,8 @@ export function claimAndWithdrawFromChannel(channelId: string) {
             )
 
         // Update the balance
-        await dispatch(actions.getTokens(contractFactory, keyHandler))
-        await dispatch(actions.getEtherBalance(contractFactory, keyHandler))
+        await dispatch(actions.getTokens(contractFactory, vetAddress))
+        await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
     }
 }
 
@@ -118,15 +161,29 @@ export function initChannel(amount, statusUpdateListener) {
     return async (
         dispatch,
         _getState,
-        { contractFactory, wsApi, utils, keyHandler }
+        {
+            contractFactory,
+            thorifyFactory,
+            wsApi,
+            utils,
+            keyHandler
+        }: IThunkDependencies
     ) => {
         statusUpdateListener(
             `Initializing channel with ${utils.formatEther(
                 amount.toFixed()
             )} DBETs`
         )
+
+        const thorify = thorifyFactory.make()
         const initChannelRes = await dispatch(
-            actions.initChannel(amount.toFixed(), contractFactory, utils, wsApi)
+            actions.initChannel(
+                amount.toFixed(),
+                contractFactory,
+                thorify,
+                utils,
+                wsApi
+            )
         )
         const id = initChannelRes.value
         statusUpdateListener(`Successfully initialized channel`)
@@ -139,9 +196,11 @@ export function initChannel(amount, statusUpdateListener) {
         await dispatch(
             actions.getChannel(id, channelNonce, contractFactory, wsApi, utils)
         )
+        statusUpdateListener(`Getting the channel`)
 
         // Update the ether balance
-        await dispatch(actions.getEtherBalance(contractFactory, keyHandler))
+        const vetAddress = await keyHandler.getPublicAddress()
+        await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
 
         return id
     }
@@ -151,13 +210,12 @@ export function depositIntoCreatedChannel(id, statusUpdateListener) {
     return async (
         dispatch,
         getState,
-        { chainProvider, wsApi, helper, utils, keyHandler }
+        { contractFactory, wsApi, utils, keyHandler }: IThunkDependencies
     ) => {
-        const { contractFactory } = chainProvider
         // Deposit Tokens to channel
         statusUpdateListener(`Depositing DBETs into created channel`)
         const channelDepositTransaction = await dispatch(
-            actions.depositToChannel(id, contractFactory, helper, utils)
+            actions.depositToChannel(id, contractFactory, utils)
         )
 
         statusUpdateListener(`Waiting for house to activate channel`)
@@ -165,20 +223,16 @@ export function depositIntoCreatedChannel(id, statusUpdateListener) {
             actions.waitForChannelActivation(
                 id,
                 channelDepositTransaction.value,
-                contractFactory,
-                helper
+                contractFactory
             )
         )
 
         // Query the channel's data and add it to the redux state
-        await dispatch(
-            actions.getChannel(id, chainProvider, wsApi, helper, utils)
-        )
+        await dispatch(actions.getChannel(id, contractFactory, wsApi, utils))
 
+        const vetAddress = await keyHandler.getPublicAddress()
         // Update the ether balance
-        await dispatch(
-            actions.getEtherBalance(chainProvider, helper, keyHandler)
-        )
+        await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
         return id
     }
 }
@@ -196,7 +250,11 @@ export function spinAndIncreaseNonce(channelId, msg) {
 }
 
 export function initializeGame(channelId) {
-    return async (dispatch, getState, { contractFactory, wsApi, utils }) => {
+    return async (
+        dispatch,
+        _getState,
+        { contractFactory, wsApi, utils }: IThunkDependencies
+    ) => {
         const result = await dispatch(
             actions.getChannelNonce(channelId, contractFactory)
         )
@@ -218,18 +276,31 @@ export function initializeGame(channelId) {
 }
 
 export function finalizeChannel(channelId, state) {
-    return async (dispatch, getState, injectedDependencies) => {
+    return async (
+        dispatch,
+        _getState,
+        { contractFactory, wsApi, utils }: IThunkDependencies
+    ) => {
         await dispatch(
-            actions.finalizeChannel(channelId, state, injectedDependencies)
+            actions.finalizeChannel(
+                channelId,
+                state,
+                contractFactory,
+                wsApi,
+                utils
+            )
         )
     }
 }
 
 // Watcher that monitors channel finalization
 export function watcherChannelFinalized(channelId) {
-    return async (dispatch, getState, { chainProvider }) => {
+    return async (
+        dispatch,
+        getState,
+        { contractFactory }: IThunkDependencies
+    ) => {
         try {
-            let { contractFactory } = chainProvider
             const contract = await contractFactory.slotsChannelManagerContract()
             const id = await contract.logChannelFinalized(channelId)
             return await dispatch(actions.setChannelFinalized(id))
@@ -242,7 +313,11 @@ export function watcherChannelFinalized(channelId) {
 
 // Watcher that monitors the claiming of a channel's Chips
 export function watcherChannelClaimed(channelId) {
-    return async (dispatch, getState, { contractFactory }) => {
+    return async (
+        dispatch,
+        _getState,
+        { contractFactory }: IThunkDependencies
+    ) => {
         try {
             const contract = await contractFactory.slotsChannelManagerContract()
             const { id, isHouse } = await contract.logClaimChannelTokens(
@@ -253,77 +328,5 @@ export function watcherChannelClaimed(channelId) {
             console.error('Claim channel tokens event error', error)
             return
         }
-    }
-}
-
-export function initializeCasino() {
-    return async (dispatch, _getState, { contractFactory, keyHandler }) => {
-        await dispatch(actions.getTokens(contractFactory, keyHandler))
-        await dispatch(actions.getEtherBalance(contractFactory, keyHandler))
-    }
-}
-
-export function listenForTransfers() {
-    return async (dispatch, _getState, { contractFactory, keyHandler }) => {
-        // clear any previous transfer subscriptions
-        listenForTransfers_unsubscribe()
-
-        let tokenContract = await contractFactory.decentBetTokenContract()
-        const defaultAccount = keyHandler.getPublicAddress()
-        const transferFromEventsSubscription = tokenContract.getEventSubscription(
-            tokenContract.logTransfer(defaultAccount, true),
-            5000
-        )
-        const transferToEventsSubscription = tokenContract.getEventSubscription(
-            tokenContract.logTransfer(defaultAccount, false),
-            5000
-        )
-
-        const fromSubscription = transferFromEventsSubscription.subscribe(
-            async events => {
-                if (events.length >= 1) {
-                    await dispatch(
-                        actions.getTokens(contractFactory, keyHandler)
-                    )
-                    await dispatch(
-                        actions.getEtherBalance(contractFactory, keyHandler)
-                    )
-                }
-            }
-        )
-        subscriptions.push(fromSubscription)
-
-        const toSubscription = transferToEventsSubscription.subscribe(
-            async events => {
-                if (events.length >= 1) {
-                    await dispatch(
-                        actions.getTokens(contractFactory, keyHandler)
-                    )
-                    await dispatch(
-                        actions.getEtherBalance(contractFactory, keyHandler)
-                    )
-                }
-            }
-        )
-
-        subscriptions.push(toSubscription)
-
-        return subscriptions
-    }
-}
-
-export function listenForTransfers_unsubscribe() {
-    subscriptions.forEach(sub => {
-        sub.unsubscribe()
-    })
-
-    subscriptions = []
-}
-
-export function faucet() {
-    return async (dispatch, _getState, { contractFactory, keyHandler }) => {
-        await dispatch(actions.faucet(contractFactory))
-        await dispatch(actions.getTokens(contractFactory, keyHandler))
-        await dispatch(actions.getEtherBalance(contractFactory, keyHandler))
     }
 }

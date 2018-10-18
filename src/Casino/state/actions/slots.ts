@@ -4,6 +4,7 @@ import Actions, { PREFIX } from '../actionTypes'
 import BigNumber from 'bignumber.js'
 import { toDate } from 'date-fns'
 import { tap, map } from 'rxjs/operators'
+import { IContractFactory, IUtils } from 'src/common/types'
 
 // Get the allowance
 function fetchAllowance(contractFactory, defaultAccount): Promise<any> {
@@ -22,20 +23,6 @@ function fetchAllowance(contractFactory, defaultAccount): Promise<any> {
             reject({
                 message: 'Error retrieving slots channel manager allowance'
             })
-        }
-    })
-}
-
-// Get the current session balance
-function fetchBalance(contractFactory, defaultAccount): Promise<any> {
-    return new Promise(async (resolve, reject) => {
-        try {
-            let slotsContract = await contractFactory.slotsChannelManagerContract()
-            let balance = await slotsContract.balanceOf(defaultAccount)
-            balance = balance || 0
-            resolve(parseFloat(balance).toFixed())
-        } catch (err) {
-            reject({ message: 'Error retrieving the balance' })
         }
     })
 }
@@ -68,17 +55,16 @@ function waitForChannelActivation(
 /**
  * Initializes a new channel
  * @param initialDeposit
- * @param chainProvider
  * @param utils
  * @param wsApi
  * @returns {Promise<void>}
  */
 function initChannel(
-    initialDeposit,
-    contractFactory,
-    thorify,
-    utils,
-    wsApi
+    initialDeposit: number,
+    contractFactory: IContractFactory,
+    thorify: any,
+    utils: IUtils,
+    wsApi: any
 ): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
@@ -285,7 +271,7 @@ async function withdrawChips(amount, slotsContract) {
 /**
  * Allows users to claim DBETs from a closed channel
  * @param {number} channelId
- * @param {any} slotsContract\
+ * @param {any} slotsContract
  */
 async function claimChannel(channelId: number, slotsContract: any) {
     return new Promise(async (resolve, reject) => {
@@ -321,6 +307,7 @@ function getChannelNonce(channelId, contractFactory) {
             let channelNonce = await slotsContract.getChannelNonce(channelId)
             resolve(channelNonce)
         } catch (e) {
+            console.error('Error channel ', e)
             reject({ message: 'Error retrieving channel nonce' })
         }
     })
@@ -329,7 +316,7 @@ function getChannelNonce(channelId, contractFactory) {
 /**
  * The Basic information of a State Channel
  * @param channelId
- * @param contractFactory
+ * @param contract
  */
 function getChannelInfo(channelId, contract) {
     return new Promise(async (resolve, reject) => {
@@ -580,7 +567,6 @@ function getLastSpin(channelId, channelNonce, contractFactory, wsApi, utils) {
  * Gets a single channel's data
  * @param {string} channelId
  * @param channelNonce
- * @param chainProvider
  * @param wsApi
  * @param helper
  * @param utils
@@ -625,12 +611,11 @@ function getChannel(
 /**
  * Get all channels for a user
  */
-function getChannels(chainProvider, wsApi, helper, utils) {
+function getChannels(contractFactory, wsApi, utils) {
     return new Promise(async (resolve, reject) => {
         try {
             const topRequests = 1
             let totalRequests = 0
-            const { contractFactory } = chainProvider
             const contract = await contractFactory.slotsChannelManagerContract()
 
             // get the subscription
@@ -785,7 +770,6 @@ export default createActions({
         [Actions.WAIT_FOR_CHANNEL_ACTIVATION]: waitForChannelActivation,
         [Actions.SUBSCRIBE_TO_SPIN_RESPONSES]: subscribeToSpinResponses,
         [Actions.SUBSCRIBE_TO_FINALIZE_RESPONSES]: subscribeToFinalizeResponses,
-        [Actions.GET_BALANCE]: fetchBalance,
         [Actions.SET_CHANNEL]: channel => channel,
         [Actions.SET_CHANNEL_DEPOSITED]: channelId => ({ channelId }),
         [Actions.SET_CHANNEL_ACTIVATED]: channelId => ({ channelId }),

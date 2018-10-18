@@ -31,7 +31,7 @@ export default function StateChannelTable({
         <Card className="card">
             <CardHeader
                 title="Finished Slot Games"
-                subtitle="You must wait 1 minute after exiting to claim these games"
+                subheader="You must wait 1 minute after exiting to claim these games"
             />
             {claimableChannelsArray}
         </Card>

@@ -135,7 +135,7 @@ export default class BaseContract {
         if (!gas) gas = 1000000
 
         let txBody = {
-            from: this._keyHandler.getAddress(),
+            from: await this._keyHandler.getPublicAddress(),
             to,
             gas,
             data,
@@ -144,7 +144,7 @@ export default class BaseContract {
 
         console.log('signAndSendRawTransaction - txBody:', txBody)
 
-        let { privateKey } = await this._keyHandler.get()
+        let { privateKey } = await this._keyHandler.getWalletValues()
         let signed = await this._web3.eth.accounts.signTransaction(
             txBody,
             privateKey
@@ -154,7 +154,7 @@ export default class BaseContract {
 
     async getSignedRawTx(to, value, data, gas, dependsOn) {
         let blockRef = await this._web3.eth.getBlockRef()
-        let { privateKey } = await this._keyHandler.get()
+        let { privateKey } = await this._keyHandler.getWalletValues()
         let signedTx = await this._web3.eth.accounts.signTransaction(
             {
                 to,
@@ -174,7 +174,10 @@ export default class BaseContract {
         signedTx.id =
             '0x' +
             cry
-                .blake2b256(signedTx.messageHash, this._keyHandler.getAddress())
+                .blake2b256(
+                    signedTx.messageHash,
+                    await this._keyHandler.getPublicAddress()
+                )
                 .toString('hex')
 
         return signedTx
@@ -204,7 +207,7 @@ export default class BaseContract {
 
         try {
             const tx = new Transaction(body)
-            let { privateKey } = await this._keyHandler.get()
+            let { privateKey } = await this._keyHandler.getWalletValues()
             privateKey = privateKey.substring(2)
 
             const privateKeyBuffer = Buffer.from(privateKey, 'hex')

@@ -3,8 +3,10 @@ import {
     CardHeader,
     CardContent,
     Button,
-    Typography
+    Typography,
+    Grid
 } from '@material-ui/core'
+import ethUnits from 'ethereum-units'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import * as Thunks from '../state/thunks'
@@ -12,10 +14,16 @@ import { CHANNEL_STATUS_FINALIZED } from '../../constants'
 import ChannelDetail from './ChannelDetail'
 import Iframe from './Iframe'
 import BigNumber from 'bignumber.js'
-
+import AppLoading from '../../common/components/AppLoading'
 import './game.css'
+import { VIEW_SLOTS } from 'src/routes'
 
 class Game extends Component {
+    constructor(props) {
+        super(props)
+        this.formatEther = this.formatEther.bind(this)
+        this.renderGame = this.renderGame.bind(this)
+    }
     state = {
         isFinalizing: false,
         spinCallback: null
@@ -35,7 +43,9 @@ class Game extends Component {
     }
 
     formatEther(ether): string {
-        return new BigNumber(ether).dividedBy(this.getEtherInWei()).toFixed(2)
+        const units = ethUnits.units.ether
+
+        return new BigNumber(ether).dividedBy(units).toFixed(2)
     }
 
     initSubscriptions = () => {
@@ -46,12 +56,23 @@ class Game extends Component {
     subscribeToSpinResponses = () => {
         const { dispatch, channelId } = this.props
 
-        const onSpinResponseListener = (err, msg, houseSpin, userSpin, lines) => {
-            if(!err) {
-                let isValidHouseSpin =
-                    dispatch(Thunks.verifyHouseSpin(this.props, houseSpin, userSpin, lines))
-                if(isValidHouseSpin)
-                    listener(err, msg, lines)
+        const onSpinResponseListener = (
+            err,
+            msg,
+            houseSpin,
+            userSpin,
+            lines
+        ) => {
+            if (!err) {
+                let isValidHouseSpin = dispatch(
+                    Thunks.verifyHouseSpin(
+                        this.props,
+                        houseSpin,
+                        userSpin,
+                        lines
+                    )
+                )
+                if (isValidHouseSpin) listener(err, msg, lines)
             }
         }
 
@@ -60,9 +81,13 @@ class Game extends Component {
                 let originalBalances = this.getBalance()
                 dispatch(Thunks.spinAndIncreaseNonce(channelId, msg))
                 let updatedBalances = this.getBalance()
-                if(window.slotsController.onSpinEvent)
-                    window.slotsController.onSpinEvent(lines, originalBalances, updatedBalances)
-                if(this.state.spinCallback) {
+                if (window.slotsController.onSpinEvent)
+                    window.slotsController.onSpinEvent(
+                        lines,
+                        originalBalances,
+                        updatedBalances
+                    )
+                if (this.state.spinCallback) {
                     this.state.spinCallback(err, msg, lines, updatedBalances)
                     this.setState({ spinCallback: null })
                 }
@@ -82,35 +107,38 @@ class Game extends Component {
 
     getBalance = () => {
         return {
-            user: helper.formatEther(this.props.userBalance),
-            house: helper.formatEther(this.props.houseBalance)
+            user: this.formatEther(this.props.userBalance),
+            house: this.formatEther(this.props.houseBalance)
         }
     }
 
     onFinalizeListener = async () => {
         this.setState({ isFinalizing: true })
-        await this.props.dispatch(Thunks.finalizeChannel(this.props.channelId, this.props))
+        await this.props.dispatch(
+            Thunks.finalizeChannel(this.props.channelId, this.props)
+        )
     }
 
     subscribeToFinalizeResponses = () => {
         const { dispatch } = this.props
 
         const onFinalizeResponseListener = (err, msg) => {
-            if(!err) {
-                this.setState({ isFinalizing: false })
+            if (!err) {
                 this.back()
             }
         }
 
-        dispatch(Thunks.subscribeToFinalizeResponses(onFinalizeResponseListener))
+        dispatch(
+            Thunks.subscribeToFinalizeResponses(onFinalizeResponseListener)
+        )
     }
 
     /**
      * Go to the previous page
      */
-    back = () => this.props.history.push(`/slots/`)
+    back = () => this.props.history.push(VIEW_SLOTS)
 
-    renderGame = () => {
+    renderGame() {
         if (this.props.status === CHANNEL_STATUS_FINALIZED) {
             return (
                 <Card className="card full-size">
@@ -135,18 +163,13 @@ class Game extends Component {
                     id="slots-iframe"
                     url={path}
                     width="100%"
-                    height="600px"
-                    display="initial"
+                    height="100%"
                     position="relative"
-                    allowFullScreen
+                    allowFullScreen={true}
                 />
             )
         } else {
-            return (
-                <div className="full-size">
-                    <h1>Loading</h1>
-                </div>
-            )
+            return <AppLoading message="Loading the game..." />
         }
     }
 
@@ -164,44 +187,62 @@ class Game extends Component {
     }
 
     renderHeader = () => (
-        <section className="controls">
-            <Button variant="raised" color="primary" onClick={this.back}>
-                Lobby
-            </Button>
-            <Button
-                variant="raised"
-                color="primary"
-                onClick={this.onFinalizeListener}
-            >
-                Exit Slots
-            </Button>
-        </section>
+        <Grid
+            container={true}
+            direction="row"
+            justify="space-between"
+            spacing={40}
+        >
+            <Grid item={true}>
+                <Button variant="raised" color="primary" onClick={this.back}>
+                    Lobby
+                </Button>
+            </Grid>
+            <Grid item={true}>
+                <Button
+                    variant="raised"
+                    color="primary"
+                    onClick={this.onFinalizeListener}
+                >
+                    Exit Slots
+                </Button>
+            </Grid>
+        </Grid>
     )
 
     renderInner = () => {
         if (this.state.isFinalizing) {
             // If finalizing, print simple placeholder
-            return (
-                <Card className="card">
-                    <CardHeader title="Exiting" />
-                </Card>
-            )
+            return <AppLoading message="Exiting..." />
         } else {
             // Show normal page
             return (
                 <Fragment>
                     {this.renderHeader()}
-                    {this.renderGame()}
-                    {this.renderChannelDetail()}
+                    <Grid
+                        container={true}
+                        direction="column"
+                        justify="center"
+                        spacing={40}
+                    >
+                        <Grid
+                            item={true}
+                            xs={12}
+                            style={{ height: 600, maxWidth: 1300 }}
+                        >
+                            {this.renderGame()}
+                        </Grid>
+                        <Grid item={true} xs={12}>
+                            {this.renderChannelDetail()}
+                        </Grid>
+                    </Grid>
                 </Fragment>
             )
         }
     }
 
     render() {
-        return (
-            <main className="slots-game container">{this.renderInner()}</main>
-        )
+        return this.renderInner()
     }
 }
 
@@ -209,7 +250,7 @@ export default connect((state, props) => {
     // This component's props is the data of a single State Channel,
     // whose ID is defined in `props.match.params.id`
     let channelId = props.match.params.id
-    let channelData = state.slotsManager.channels[channelId]
+    let channelData = state.casino.channels[channelId]
     if (!channelData) {
         channelData = {}
     }

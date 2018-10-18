@@ -9,6 +9,7 @@ import {
     VIEW_LOGOUT,
     VIEW_ACCOUNT
 } from '../routes'
+import { CURRENT_ENV, ENV_PRODUCTION } from '../constants'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
 import VideogameAssetIcon from '@material-ui/icons/VideogameAsset'
@@ -32,11 +33,7 @@ export default function AppDrawer({
                 <List component="nav">
                     <AppDrawerItem
                         viewToSelect={VIEW_CASINO}
-                        isSelected={
-                            selectedView === VIEW_CASINO ||
-                            selectedView === VIEW_SLOTS ||
-                            selectedView === VIEW_SLOTS_GAME
-                        }
+                        isSelected={selectedView.startsWith(VIEW_CASINO)}
                         onViewChangeListener={onViewChangeListener}
                         title="Casino"
                         icon={<VideogameAssetIcon />}
@@ -49,10 +46,11 @@ export default function AppDrawer({
                         title="Account"
                         icon={<AccountCircleIcon />}
                     />
-
-                    <FaucetMenuItem
-                        onFaucetClickedListener={onFaucetClickedListener}
-                    />
+                    {CURRENT_ENV !== ENV_PRODUCTION ? (
+                        <FaucetMenuItem
+                            onFaucetClickedListener={onFaucetClickedListener}
+                        />
+                    ) : null}
 
                     <AppDrawerItem
                         viewToSelect={VIEW_LOGOUT}

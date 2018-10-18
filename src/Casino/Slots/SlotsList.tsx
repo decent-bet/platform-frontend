@@ -1,7 +1,8 @@
 import * as React from 'react'
 import SlotsGameCard from './SlotsGameCard'
-import { Grid, Card, Slide, CardContent } from '@material-ui/core'
+import { Grid, Card, Slide, CardContent, Typography } from '@material-ui/core'
 import TransparentPaper from '../../common/components/TransparentPaper'
+import { COLOR_PRIMARY, DARK_TEXT_COLOR } from 'src/common/themes/dark'
 
 interface ISlotsListProps {
     onGameSelectedListener: (name: string) => void
@@ -39,37 +40,51 @@ export default function SlotsList({
     return (
         <Slide in={true} timeout={1000} direction="up">
             <TransparentPaper>
-                {allowSelect ? (
+                <Grid container={true} spacing={40}>
+                    {allowSelect ? (
+                        <Grid item={true} xs={12}>
+                            <Card style={{ backgroundColor: COLOR_PRIMARY }}>
+                                <CardContent>
+                                    <Typography
+                                        style={{ color: DARK_TEXT_COLOR }}
+                                        align="center"
+                                        variant="title"
+                                    >
+                                        {balance} DBETs
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    ) : null}
                     <Grid item={true} xs={12}>
-                        <Card className="channel-description card">
-                            <CardContent component="header">
-                                {balance} DBETs
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                ) : null}
-                <Grid item={true} xs={12}>
-                    <Grid
-                        container={true}
-                        direction="row"
-                        justify="flex-start"
-                        wrap="wrap"
-                        spacing={24}
-                    >
-                        {gameList.map((game: IGameItem, index: number) => (
-                            <Grid item={true} xs={12} sm={6} md={4} key={index}>
-                                <TransparentPaper>
-                                    <SlotsGameCard
-                                        allowSelect={allowSelect}
-                                        onGameSelectedListener={
-                                            onGameSelectedListener
-                                        }
-                                        gameName={game.name}
-                                        imageUrl={game.imageUrl}
-                                    />
-                                </TransparentPaper>
-                            </Grid>
-                        ))}
+                        <Grid
+                            container={true}
+                            direction="row"
+                            justify="flex-start"
+                            wrap="wrap"
+                            spacing={24}
+                        >
+                            {gameList.map((game: IGameItem, index: number) => (
+                                <Grid
+                                    item={true}
+                                    xs={12}
+                                    sm={6}
+                                    md={4}
+                                    key={index}
+                                >
+                                    <TransparentPaper>
+                                        <SlotsGameCard
+                                            allowSelect={allowSelect}
+                                            onGameSelectedListener={
+                                                onGameSelectedListener
+                                            }
+                                            gameName={game.name}
+                                            imageUrl={game.imageUrl}
+                                        />
+                                    </TransparentPaper>
+                                </Grid>
+                            ))}
+                        </Grid>
                     </Grid>
                 </Grid>
             </TransparentPaper>

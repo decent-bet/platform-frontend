@@ -1,7 +1,5 @@
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from './actionTypes'
-import BigNumber from 'bignumber.js'
-import { units } from 'ethereum-units'
 import { IKeyHandler } from '../../common/types'
 import axios from 'axios'
 
@@ -19,18 +17,6 @@ function setHttpAuthHeader(keyHandler: IKeyHandler): Promise<any> {
 
 async function fetchPublicAddress(keyHandler: IKeyHandler): Promise<any> {
     return keyHandler.getPublicAddress()
-}
-
-// Get Total Ether.
-export async function fetchEtherBalance(
-    contractFactory,
-    keyHandler: IKeyHandler
-): Promise<any> {
-    let address = keyHandler.getPublicAddress()
-    let contract = await contractFactory.decentBetTokenContract()
-    let rawAmount = await contract.getBalance(address)
-    let balance = new BigNumber(rawAmount).dividedBy(units.ether)
-    return balance
 }
 
 function getUserAccount(): Promise<any> {

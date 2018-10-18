@@ -19,7 +19,6 @@ export default function reducer(
                 ...mainState,
                 address: action.payload
             }
-
         case `${PREFIX}/${Actions.GET_ACCOUNT_ACTIVATION_STATUS}/${FULFILLED}`:
             return {
                 ...mainState,

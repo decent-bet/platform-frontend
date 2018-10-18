@@ -39,7 +39,12 @@ export function saveAccountAddress(
             )
         )
         dispatch(openAlert(result.value.message, 'success'))
-        const accountResult = await dispatch(setAccountHasAddress())
-        await dispatch(authWallet(privateKey, accountResult.value)) // authenticate the user the first time
+        await dispatch(setAccountHasAddress())
+    }
+}
+
+export function authenticate(privateKey: string, account: any) {
+    return async dispatch => {
+        await dispatch(authWallet(privateKey, account)) // authenticate the user the first time
     }
 }

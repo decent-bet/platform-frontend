@@ -1,9 +1,10 @@
 import createMuiTheme from '@material-ui/core/styles/createMuiTheme'
 
-const COLOR_PRIMARY = '#ffcb79',
-      COLOR_SECONDARY = '#abc0f5',
-      COLOR_BACKGROUND = '#475480',
-      COLOR_BLUE_DRAWER = '#3b466c'
+export const COLOR_PRIMARY = '#ffcb79',
+    COLOR_SECONDARY = '#abc0f5',
+    COLOR_BACKGROUND = '#475480',
+    COLOR_BLUE_DRAWER = '#3b466c',
+    DARK_TEXT_COLOR = '#29344f'
 
 // Main Theme for all the Application
 let theme = createMuiTheme({
@@ -47,9 +48,9 @@ let theme = createMuiTheme({
             root: {
                 display: 'flex',
                 alignItems: 'center'
-            },
+            }
         },
-        
+
         MuiButton: {
             root: {
                 borderRadius: '2px'
@@ -60,14 +61,17 @@ let theme = createMuiTheme({
                 textTransform: 'capitalize',
                 '&:focus': { boxShadow: 'none', outline: 'none' },
                 containedPrimary: {
-                    color: '#29344f'
+                    color: DARK_TEXT_COLOR
                 },
                 borderRadius: '2px'
             }
         },
         MuiCard: {
             root: {
-                borderRadius: '2px'
+                borderRadius: '2px',
+                primary: {
+                    color: COLOR_PRIMARY
+                }
             }
         }
     }
@@ -76,8 +80,8 @@ let theme = createMuiTheme({
 let darkTheme: any = theme
 darkTheme.overrides.MuiPickersToolbar = {
     toolbar: {
-      backgroundColor: COLOR_BLUE_DRAWER,
-    },
+        backgroundColor: COLOR_BLUE_DRAWER
+    }
 }
 
 export default darkTheme

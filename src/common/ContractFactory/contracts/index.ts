@@ -5,5 +5,5 @@ import SlotsChannelManagerContract from './SlotsChannelManagerContract'
 export const Contracts = {
     DecentBetTokenContract,
     SlotsChannelFinalizerContract,
-    SlotsChannelManagerContract,
+    SlotsChannelManagerContract
 }

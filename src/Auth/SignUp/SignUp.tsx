@@ -72,7 +72,6 @@ class SignUp extends React.Component<any> {
     }
 }
 
-
 const mapStateToProps = state => Object.assign({}, state.auth)
 const mapDispatchToProps = dispatch =>
     bindActionCreators(Object.assign({}, actions.auth), dispatch)

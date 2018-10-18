@@ -147,7 +147,7 @@ class DecentWSAPI {
             try {
                 let path = PATH_POST_INIT_CHANNEL
 
-                let address = this.keyHandler.getAddress()
+                let address = await this.keyHandler.getPublicAddress()
                 let timestamp = this.utils.getTimestampInMillis()
                 let sign = await this._getSign(path, timestamp)
                 let req = {
@@ -208,7 +208,7 @@ class DecentWSAPI {
                     aesKey
                 ).toString()
 
-                let address = this.keyHandler.getAddress()
+                let address = await this.keyHandler.getPublicAddress()
                 let path = PATH_POST_PROCESS_SPIN
                 let timestamp = this.utils.getTimestampInMillis()
                 let sign = await this._getSign(path, timestamp)
@@ -247,7 +247,7 @@ class DecentWSAPI {
             try {
                 let path = PATH_GET_LAST_SPIN
 
-                let address = this.keyHandler.getAddress()
+                let address = await this.keyHandler.getPublicAddress()
                 let timestamp = this.utils.getTimestampInMillis()
                 let sign = await this._getSign(path, timestamp)
                 let req = {
@@ -285,7 +285,7 @@ class DecentWSAPI {
                     aesKey
                 ).toString()
 
-                let address = this.keyHandler.getAddress()
+                let address = await this.keyHandler.getPublicAddress()
                 let path = PATH_POST_FINALIZE_CHANNEL
                 let timestamp = this.utils.getTimestampInMillis()
                 let sign = await this._getSign(path, timestamp)
@@ -324,9 +324,9 @@ class DecentWSAPI {
          */
         return new Promise(async (resolve, reject) => {
             let msgHash: any = ethUtil.sha3(text)
-            let { privateKey } = await this.keyHandler.get()
+            let { privateKey } = await this.keyHandler.getWalletValues()
             privateKey = ethUtil.toBuffer(privateKey)
-            let defaultAccount = this.keyHandler.getAddress()
+            let defaultAccount = await this.keyHandler.getPublicAddress()
             console.log(
                 'Signing',
                 text,
@@ -355,7 +355,7 @@ class DecentWSAPI {
             console.log('Generated sign address', adr, defaultAccount)
 
             console.log('Generated msgHash', msgHash, 'Sign', sgn)
-            let address = this.keyHandler.getAddress()
+            let address = await this.keyHandler.getPublicAddress()
             if (address && adr !== address.toLowerCase())
                 reject(new Error('Invalid address for signed message'))
 

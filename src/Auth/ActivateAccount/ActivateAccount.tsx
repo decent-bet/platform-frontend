@@ -3,15 +3,10 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import actions from '../state/actions'
 import { Link } from 'react-router-dom'
-import {
-    Button,
-    Grid,
-    CardActions,
-    CardContent,
-    CircularProgress
-} from '@material-ui/core'
+import { Button, Grid, CardActions, CardContent } from '@material-ui/core'
 import { VIEW_LOGIN } from '../../routes'
 import AuthResult from '../AuthResult'
+import AppLoading from 'src/common/components/AppLoading'
 
 class ActivateAccount extends React.Component<any> {
     constructor(props) {
@@ -22,24 +17,6 @@ class ActivateAccount extends React.Component<any> {
         this.props.setDefaultStatus()
         let { id, key } = this.props.match.params
         await this.props.activateAccount(id, key)
-    }
-
-    private renderLoading = () => {
-        return (
-            <Grid
-                container={true}
-                direction="column"
-                alignItems="center"
-                justify="center"
-                style={{ height: '100vh' }}
-            >
-                <Grid container={true} direction="column" alignItems="center">
-                    <Grid item={true} xs={12}>
-                        <CircularProgress />
-                    </Grid>
-                </Grid>
-            </Grid>
-        )
     }
 
     private renderResult = () => {
@@ -83,7 +60,11 @@ class ActivateAccount extends React.Component<any> {
     }
 
     public render() {
-        return this.props.processed ? this.renderResult() : this.renderLoading()
+        return this.props.processed ? (
+            this.renderResult()
+        ) : (
+            <AppLoading message="Processing the account activation..." />
+        )
     }
 }
 

@@ -8,10 +8,12 @@ import {
 
 const casinoDefaultState = {
     isCasinoLogedIn: false,
+    slotsInitialized: false,
     channels: {},
     allowance: 0,
-    balance: 0,
-    etherBalance: 0
+    balance: 0, // channel balance
+    tokenBalance: 0,
+    vthoBalance: 0
 }
 
 const ChannelDefaultState = {
@@ -134,20 +136,25 @@ export default function slotsManagerReducer(
                 ...casinoState,
                 isCasinoLogedIn: action.payload
             }
+        case `${PREFIX}/${Actions.SET_SLOTS_INITIALIZED}/${FULFILLED}`:
+            return {
+                ...casinoState,
+                slotsInitialized: action.payload
+            }
         case `${PREFIX}/${Actions.GET_CASINO_LOGIN_STATUS}/${FULFILLED}`:
             return {
                 ...casinoState,
                 isCasinoLogedIn: action.payload
             }
+        case `${PREFIX}/${Actions.GET_VTHO_BALANCE}/${FULFILLED}`:
+            return {
+                ...casinoState,
+                vthoBalance: action.payload
+            }
         case `${PREFIX}/${Actions.GET_TOKENS}/${FULFILLED}`:
             return {
                 ...casinoState,
-                balance: action.payload
-            }
-        case `${PREFIX}/${Actions.GET_ETHER_BALANCE}/${FULFILLED}`:
-            return {
-                ...casinoState,
-                etherBalance: action.payload
+                tokenBalance: action.payload
             }
 
         default:

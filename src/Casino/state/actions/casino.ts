@@ -15,6 +15,10 @@ async function getCasinoLoginStatus(keyHandler: IKeyHandler): Promise<boolean> {
     return false
 }
 
+async function setSlotsInitialized(): Promise<boolean> {
+    return true
+}
+
 function comparePublicAddress(walletAddress: string, vetAddress: string) {
     if (walletAddress !== vetAddress) {
         throw new Error(
@@ -68,25 +72,60 @@ function authWallet(data: string, account: any, keyHandler: IKeyHandler) {
     })
 }
 
-async function faucet(contractFactory): Promise<any> {
-    let contract = await contractFactory.decentBetTokenContract()
-    let tx = await contract.faucet()
-    return tx
+// Get the current session balance
+function fetchBalance(contractFactory, vetAddress): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let slotsContract = await contractFactory.slotsChannelManagerContract()
+            let balance = await slotsContract.balanceOf(vetAddress)
+            balance = balance || 0
+            resolve(parseFloat(balance).toFixed())
+        } catch (err) {
+            console.log(err)
+            reject({ message: 'Error retrieving the balance' })
+        }
+    })
 }
 
-export async function fetchTokens(contractFactory, helper, keyHandler) {
-    try {
-        let address = keyHandler.getAddress()
-        let contract = await contractFactory.decentBetTokenContract()
+// Get Total Ether.
+export function fetchVTHOBalance(contractFactory, vetAddress): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const contract = await contractFactory.decentBetTokenContract()
+            const rawAmount = await contract.getBalance(vetAddress)
+            const balance = new BigNumber(rawAmount).dividedBy(units.ether)
+            resolve(balance)
+        } catch (error) {
+            reject({ message: error.message })
+        }
+    })
+}
 
-        let rawResult = await contract.balanceOf(address)
-        let tokens = new BigNumber(rawResult).dividedBy(units.ether).toNumber()
-        return tokens
-    } catch (err) {
-        return 0
-        // helper.toggleSnackbar('Error retrieving token balance')
-        console.log('Error retrieving token balance', err)
-    }
+export function fetchTokens(contractFactory, vetAddress) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let contract = await contractFactory.decentBetTokenContract()
+            let rawResult = await contract.balanceOf(vetAddress)
+            let tokens = new BigNumber(rawResult)
+                .dividedBy(units.ether)
+                .toNumber()
+            resolve(tokens)
+        } catch (err) {
+            reject({ message: 'Error retrieving token balance' })
+        }
+    })
+}
+
+function faucet(contractFactory, accountAddress): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let contract = await contractFactory.decentBetTokenContract()
+            const tx = await contract.faucet(accountAddress)
+            resolve(tx)
+        } catch {
+            reject({ message: 'Error processing the Faucet' })
+        }
+    })
 }
 
 export async function executeDepositTokens(amount, contractFactory) {
@@ -144,27 +183,15 @@ export async function executeApproveAndDepositTokens(
     }
 }
 
-export async function fetchEtherBalance(contractFactory, keyHandler) {
-    try {
-        let address = keyHandler.getAddress()
-        let contract = await contractFactory.decentBetTokenContract()
-        let rawAmount = await contract.getBalance(address)
-        let balance = new BigNumber(rawAmount).dividedBy(units.ether)
-        return balance
-    } catch (error) {
-        return 0
-        // helper.toggleSnackbar('Error retrieving ether balance')
-        console.log('error retrieving ether balance', error)
-    }
-}
-
 export default createActions({
     [PREFIX]: {
         [Actions.AUTH_WALLET]: authWallet,
         [Actions.GET_CASINO_LOGIN_STATUS]: getCasinoLoginStatus,
-        [Actions.GET_TOKENS]: fetchTokens,
         [Actions.FAUCET]: faucet,
-        [Actions.GET_ETHER_BALANCE]: fetchEtherBalance,
+        [Actions.SET_SLOTS_INITIALIZED]: setSlotsInitialized,
+        [Actions.GET_TOKENS]: fetchTokens,
+        [Actions.GET_VTHO_BALANCE]: fetchVTHOBalance,
+        [Actions.GET_BALANCE]: fetchBalance,
         [Actions.WITHDRAW_TOKENS]: executeWithdrawTokens,
         [Actions.DEPOSIT_TOKENS]: executeDepositTokens,
         [Actions.APPROVE_AND_DEPOSIT_TOKENS]: executeApproveAndDepositTokens
