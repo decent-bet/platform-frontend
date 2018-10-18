@@ -247,6 +247,7 @@ class Slots extends React.Component<any, any> {
             channel && channel.info
                 ? new BigNumber(channel.info.initialDeposit)
                 : 0
+
         let totalTokens = new BigNumber(initialDeposit)
         if (channel && channel.houseSpins && channel.houseSpins.length > 0) {
             const lastIdx = channel.houseSpins.length - 1
@@ -254,7 +255,9 @@ class Slots extends React.Component<any, any> {
             totalTokens = new BigNumber(rawBalance)
         }
 
-        return totalTokens.dividedBy(units.ether).toFixed(0)
+        const balance = totalTokens.dividedBy(units.ether).toString()
+        const result = parseFloat(balance).toFixed(0)
+        return result
     }
 
     private renderListGamesState() {
