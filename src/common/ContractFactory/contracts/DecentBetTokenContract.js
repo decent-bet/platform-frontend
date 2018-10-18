@@ -30,16 +30,14 @@ export default class DecentBetTokenContract extends BaseContract {
                 .faucet()
                 .encodeABI()
 
-            return new Promise(resolve => {
-                setTimeout(async () => {
-                    let tx = await this.signAndSendRawTransaction(
-                        this.instance.options.address,
-                        null,
-                        null,
-                        encodedFunctionCall
-                    )
-                    resolve(tx)
-                }, 10000)
+            return new Promise(async resolve => {
+                let tx = await this.signAndSendRawTransaction(
+                    this.instance.options.address,
+                    null,
+                    null,
+                    encodedFunctionCall
+                )
+                resolve(tx)
             })
         } catch (error) {
             console.log('Request failed', error)

@@ -642,13 +642,13 @@ class AccountInfo extends React.Component<
                                     fullWidth={true}
                                 >
                                     <InputLabel htmlFor="town">
-                                        Towm/City
+                                        Town/City
                                     </InputLabel>
                                     <Input
                                         type="text"
                                         disableUnderline={!this.state.isEditing}
                                         disabled={!this.state.isEditing}
-                                        placeholder="Towm/City"
+                                        placeholder="Town/City"
                                         name="town"
                                         value={this.state.formData.town}
                                         onChange={this.onFormValueChange}

@@ -35,29 +35,21 @@ function getUserAccount(): Promise<any> {
 }
 
 async function setAccountHasAddress(account: any): Promise<boolean> {
-    if (
+    return (
         account &&
         account.verification &&
         account.verification.addressRegistration &&
         account.verification.addressRegistration.vetAddress !== null
-    ) {
-        return true
-    }
-
-    return false
+    )
 }
 
 async function setAccountIsVerified(account: any): Promise<boolean> {
-    if (
+    return (
         account &&
         account.verification &&
         account.verification.basicVerification &&
         account.verification.basicVerification.verified === true
-    ) {
-        return true
-    }
-
-    return false
+    )
 }
 
 async function getAccountActivationStatus(

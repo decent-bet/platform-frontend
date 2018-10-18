@@ -11,10 +11,13 @@ import {
     Typography,
     Button
 } from '@material-ui/core'
+import Accounts from 'web3-eth-accounts'
 import * as validator from 'validator'
 import { WALLET_WEBSITE_URL } from '../constants'
 import AccountSectionHeader from './AccountSectionHeader'
 import AccountSectionActions from './AccountSectionActions'
+
+const accounts = new Accounts()
 
 interface IAccountAddressState {
     isEditing: boolean
@@ -95,10 +98,13 @@ class AccountAddress extends React.Component<
             errors[name] = false
         }
 
-        if (name === 'address') {
-            this.setState({ address: value, errorMessages, errors })
-        } else if (name === 'privateKey') {
-            this.setState({ privateKey: value, errorMessages, errors })
+        if (name === 'privateKey') {
+            try {
+                const account = accounts.privateKeyToAccount(value)
+                this.setState({ privateKey: value, address: account.address, errorMessages, errors })
+            } catch (e) {
+                this.setState({ privateKey: value, errorMessages, errors })
+            }
         }
     }
 
@@ -155,8 +161,7 @@ class AccountAddress extends React.Component<
                                     </InputLabel>
                                     <Input
                                         type="text"
-                                        disableUnderline={!this.state.isEditing}
-                                        disabled={!this.state.isEditing}
+                                        disabled={true}
                                         placeholder="Public Address"
                                         name="address"
                                         value={this.state.address}

@@ -38,21 +38,11 @@ export function setSlotsInitialized() {
 }
 
 export function faucet() {
-    return async (dispatch, _getState, { contractFactory }) => {
+    return async (dispatch, _getState, { contractFactory, keyHandler }) => {
         await dispatch(actions.faucet(contractFactory))
-        await getTokens()
-    }
-}
 
-export function getTokens(vetAddress?: string) {
-    return async (
-        dispatch,
-        _getState,
-        { contractFactory, keyHandler }: IThunkDependencies
-    ) => {
-        if (!vetAddress) {
-            vetAddress = (await keyHandler.getPublicAddress()) || ''
-        }
+        const vetAddress = (await keyHandler.getPublicAddress()) || ''
+
         await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
         await dispatch(actions.getTokens(contractFactory, vetAddress))
     }

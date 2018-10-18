@@ -7,6 +7,7 @@ import AppBarToolbar from './AppBarToolbar'
 import MainRouter from './MainRouter'
 import AppDrawer from './AppDrawer'
 import * as thunks from './state/thunks'
+import { faucet } from '../Casino/state/thunks'
 import { openAlert } from '../common/state/thunks'
 import './main.css'
 import { Grid, Fade } from '@material-ui/core'
@@ -31,8 +32,8 @@ class Main extends React.Component<any, any> {
 
     // Faucet Button Clicked. Execute Faucet
     private onFaucetClickedListener = async () => {
+        this.props.faucet()
         this.onToggleDrawerListener()
-        await this.props.faucet()
     }
 
     private onDrawerCloseListener = () => this.setState({ drawerOpen: false })
@@ -117,7 +118,7 @@ class Main extends React.Component<any, any> {
 
 const mapStateToProps = state => Object.assign({}, state.main, state.casino)
 const mapDispatchToProps = dispatch =>
-    bindActionCreators(Object.assign({}, thunks, { openAlert }), dispatch)
+    bindActionCreators(Object.assign({}, thunks, { openAlert, faucet }), dispatch)
 
 const MainContainer = connect(
     mapStateToProps,
