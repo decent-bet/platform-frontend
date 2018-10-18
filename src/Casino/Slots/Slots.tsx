@@ -255,9 +255,8 @@ class Slots extends React.Component<any, any> {
             totalTokens = new BigNumber(rawBalance)
         }
 
-        const balance = totalTokens.dividedBy(units.ether).toString()
-        const result = parseFloat(balance).toFixed(0)
-        return result
+        const balance = totalTokens.dividedBy(units.ether).toFixed(2)
+        return balance
     }
 
     private renderListGamesState() {
