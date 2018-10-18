@@ -42,6 +42,10 @@ class Game extends Component {
         }
     }
 
+    componentWillUnmount = () => {
+        this.unsubscribeFromActiveSubscriptions()
+    }
+
     formatEther(ether): string {
         const units = ethUnits.units.ether
 
@@ -51,6 +55,11 @@ class Game extends Component {
     initSubscriptions = () => {
         this.subscribeToSpinResponses()
         this.subscribeToFinalizeResponses()
+    }
+
+    unsubscribeFromActiveSubscriptions = () => {
+        const { dispatch } = this.props
+        dispatch(Thunks.unsubscribeFromActiveSubscriptions())
     }
 
     subscribeToSpinResponses = () => {
@@ -64,6 +73,7 @@ class Game extends Component {
             lines
         ) => {
             if (!err) {
+                console.log('onSpinResponseListener', this.props.houseSpins)
                 let isValidHouseSpin = dispatch(
                     Thunks.verifyHouseSpin(
                         this.props,

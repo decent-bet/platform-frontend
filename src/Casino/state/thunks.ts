@@ -92,6 +92,14 @@ export function subscribeToSpinResponses(listener) {
     }
 }
 
+export function unsubscribeFromActiveSubscriptions() {
+    return async (dispatch, getState, {wsApi}) => {
+        await dispatch(
+            actions.unsubscribeFromActiveSubscriptions(wsApi)
+        )
+    }
+}
+
 export function subscribeToFinalizeResponses(listener) {
     return async (dispatch, getState, { wsApi, slotsChannelHandler }) => {
         await dispatch(

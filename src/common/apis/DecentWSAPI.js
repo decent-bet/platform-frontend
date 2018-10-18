@@ -8,7 +8,8 @@ const {
     PATH_GET_LAST_SPIN,
     PATH_POST_FINALIZE_CHANNEL,
     PATH_GET_FINALIZED_CHANNEL_INFO,
-    PATH_POST_PROCESS_SPIN
+    PATH_POST_PROCESS_SPIN,
+    paths
 } = require('./wspaths')
 
 class DecentWSAPI {
@@ -97,6 +98,14 @@ class DecentWSAPI {
             }
         }
         return this._subscribe(path, callback)
+    }
+
+    clearSubscriptions() {
+        paths.map(path => {
+            if(this.subscriptions[path])
+                for(let i = 0; i < this.subscriptions[path].length; i++)
+                    this._unsubscribe(path, i)
+        })
     }
 
     getInitChannelResponseSubscription(req, cb, keepAlive) {

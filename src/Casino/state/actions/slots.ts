@@ -693,6 +693,13 @@ async function subscribeToSpinResponses(listener, wsApi, slotsChannelHandler) {
 }
 
 /**
+ * Unsubscribe from active subscriptions
+ */
+function unsubscribeFromActiveSubscriptions(wsApi) {
+    wsApi.clearSubscriptions()
+}
+
+/**
  * Subscribe to finalize responses from websockets API
  * @param listener
  * @param wsApi
@@ -770,6 +777,7 @@ export default createActions({
         [Actions.WAIT_FOR_CHANNEL_ACTIVATION]: waitForChannelActivation,
         [Actions.SUBSCRIBE_TO_SPIN_RESPONSES]: subscribeToSpinResponses,
         [Actions.SUBSCRIBE_TO_FINALIZE_RESPONSES]: subscribeToFinalizeResponses,
+        [Actions.UNSUBSCRIBE_FROM_ACTIVE_SUBSCRIPTIONS]: unsubscribeFromActiveSubscriptions,
         [Actions.SET_CHANNEL]: channel => channel,
         [Actions.SET_CHANNEL_DEPOSITED]: channelId => ({ channelId }),
         [Actions.SET_CHANNEL_ACTIVATED]: channelId => ({ channelId }),
