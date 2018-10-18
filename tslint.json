@@ -51,7 +51,6 @@
         "expect": true,
         "it": true,
         "beforeEach": true,
-        "process": true,
         "describe": true,
         "console": true,
         "location": true

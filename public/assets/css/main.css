@@ -1,56 +1,27 @@
 html,
 body {
     overflow-x: hidden;
-    font-family: 'Roboto';
+    height: 100%;
+    font-family: 'Roboto', sans-serif;
 }
 
 body {
-    background-repeat: repeat-y;
+    background-repeat: repeat;
     background-position: top center;
-    background-image: url('../img/backgrounds/bg_patterns.png');
-    background-size: cover;
+    background-image: url('../img/app-bg.png');
+    background-size: contain;
     background-color: #2a324e !important;
 }
 
-.logo-text {
-    font-weight: bold;
-    color: #e8b863;
+::scrollbar {
+    width: 8px; 
+    height: 8px;
 }
 
-.clickable {
-    cursor: pointer;
-}
-
-.hvr-underline-from-left::before {
-    background-color: #a40c1a;
-}
-
-.btn {
-    cursor: pointer;
-    font-family: 'Roboto';
-}
-
-/* Scrollbars */
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-    /* display: none; <- Crashes Chrome on hover */
-    -webkit-appearance: none;
-    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
-}
-
-::-webkit-scrollbar {
-    width: 8px; /* for vertical scrollbars */
-    height: 8px; /* for horizontal scrollbars */
-}
-
-::-webkit-scrollbar-track {
+::scrollbar-track {
     background: rgb(47, 49, 62);
 }
 
-::-webkit-scrollbar-thumb {
+::scrollbar-thumb {
     background: #f2b45c;
-}
-
-.color-gold {
-    color: #f2b45c !important;
 }
