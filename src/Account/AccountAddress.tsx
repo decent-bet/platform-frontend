@@ -16,29 +16,13 @@ import * as validator from 'validator'
 import { WALLET_WEBSITE_URL } from '../constants'
 import AccountSectionHeader from './AccountSectionHeader'
 import AccountSectionActions from './AccountSectionActions'
+import {
+    IAccountAddressState,
+    AccountAddressState
+} from './AccountAddressState'
+import IAccountAddressProps from './IAccountAddressProps'
 
 const accounts = new Accounts()
-
-interface IAccountAddressState {
-    isEditing: boolean
-    address: string
-    privateKey: string
-    errors: {
-        address: boolean
-        privateKey: boolean
-    }
-    errorMessages: {
-        address: string
-        privateKey: string
-    }
-}
-
-export interface IAccountAddressProps {
-    accountHasAddress: boolean
-    account: any
-    isSaving: boolean
-    saveAccountAddress(publicAddress: string, privateKey: string): Promise<void>
-}
 
 class AccountAddress extends React.Component<
     IAccountAddressProps,
@@ -46,21 +30,7 @@ class AccountAddress extends React.Component<
 > {
     constructor(props) {
         super(props)
-
-        this.state = {
-            isEditing: false,
-            address: '',
-            privateKey: '',
-            errors: {
-                address: false,
-                privateKey: false
-            },
-            errorMessages: {
-                address: '',
-                privateKey: ''
-            }
-        }
-
+        this.state = new AccountAddressState()
         this.renderForm = this.renderForm.bind(this)
         this.renderInfo = this.renderInfo.bind(this)
     }
@@ -76,7 +46,7 @@ class AccountAddress extends React.Component<
         return true
     }
 
-    private didToogleEdit = (event: React.MouseEvent) => {
+    private didToogleEdit = (_event: React.MouseEvent) => {
         let { isEditing } = this.state
         this.setState({ isEditing: !isEditing })
     }
@@ -101,7 +71,12 @@ class AccountAddress extends React.Component<
         if (name === 'privateKey') {
             try {
                 const account = accounts.privateKeyToAccount(value)
-                this.setState({ privateKey: value, address: account.address, errorMessages, errors })
+                this.setState({
+                    privateKey: value,
+                    address: account.address,
+                    errorMessages,
+                    errors
+                })
             } catch (e) {
                 this.setState({ privateKey: value, errorMessages, errors })
             }

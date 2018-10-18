@@ -11,20 +11,14 @@ import StateChannelTable from './StateChannelTable'
 import StateChannelToolbar from './StateChannelToolbar'
 import StateChannelWaiter from './StateChannelWaiter'
 import TransparentPaper from '../../common/components/TransparentPaper'
-
 import './slots.css'
 import { VIEW_SLOTS } from 'src/routes'
+import { ISlotsState, SlotsState } from './SlotsState'
 
-class Slots extends React.Component<any, any> {
+class Slots extends React.Component<any, ISlotsState> {
     constructor(props: any) {
         super(props)
-        this.state = {
-            stateMachine: 'loading',
-            buildStatus: null,
-            claimableChannels: [],
-            activeChannels: [],
-            currentChannel: '0x'
-        }
+        this.state = new SlotsState()
 
         this.isChannelClaimed = this.isChannelClaimed.bind(this)
         this.refreshChannels = this.refreshChannels.bind(this)
