@@ -221,7 +221,7 @@ class Game extends Component {
                     {this.renderHeader()}
                     <Grid
                         container={true}
-                        direction="column"
+                        direction="row"
                         justify="center"
                         spacing={40}
                     >
