@@ -2,8 +2,8 @@ import * as React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { Button, TextField, CircularProgress } from '@material-ui/core'
-import ReCaptcha from '../../common/components/ReCaptcha'
-import actions from '../state/actions'
+
+import actions from './state/actions'
 
 class ForgotPasswordForm extends React.Component<any> {
     constructor(props: any) {
@@ -60,10 +60,7 @@ class ForgotPasswordForm extends React.Component<any> {
                     onChange={this.onEmailChange}
                     helperText={this.state.errorsMessage}
                 />
-                <ReCaptcha
-                    onChange={this.props.setRecaptchaKey}
-                    onReceiveRecaptchaInstance={this.props.setRecaptchaInstance}
-                />
+
                 <p>
                     <Button
                         color="primary"

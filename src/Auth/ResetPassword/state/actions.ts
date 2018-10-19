@@ -2,10 +2,6 @@ import axios from 'axios'
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from './actionTypes'
 
-async function setRecaptchaKey(key: string) {
-    return key
-}
-
 async function resetPasswordVerify(id: string, key: string) {
     const data = { id, key }
     return new Promise(async (resolve, reject) => {
@@ -54,14 +50,8 @@ async function resetPassword(
     })
 }
 
-function setRecaptchaInstance(recaptcha: React.RefObject<any>) {
-    return Promise.resolve(recaptcha)
-}
-
 export default createActions({
     [PREFIX]: {
-        [Actions.SET_RECAPTCHA_KEY]: setRecaptchaKey,
-        [Actions.SET_RECAPTCHA_INSTANCE]: setRecaptchaInstance,
         [Actions.RESET_PASSWORD_VERIFY]: resetPasswordVerify,
         [Actions.RESET_PASSWORD]: resetPassword
     }

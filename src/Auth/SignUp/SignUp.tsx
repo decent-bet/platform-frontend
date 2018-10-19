@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import {
     Button,
@@ -12,7 +11,6 @@ import { VIEW_LOGIN } from '../../routes'
 import { Link } from 'react-router-dom'
 import SignUpForm from './SignUpForm'
 import AuthResult from '../AuthResult'
-import actions from '../state/actions'
 
 class SignUp extends React.Component<any> {
     constructor(props) {
@@ -39,7 +37,7 @@ class SignUp extends React.Component<any> {
                     {this.props.processed ? (
                         <AuthResult message={this.props.resultMessage} />
                     ) : (
-                        <SignUpForm renderCaptcha={this.props.renderCaptcha} />
+                        <SignUpForm />
                     )}
                 </CardContent>
                 <CardActions>
@@ -73,11 +71,6 @@ class SignUp extends React.Component<any> {
 }
 
 const mapStateToProps = state => Object.assign({}, state.auth)
-const mapDispatchToProps = dispatch =>
-    bindActionCreators(Object.assign({}, actions.auth), dispatch)
 
-const SignUpContainer = connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(SignUp)
+const SignUpContainer = connect(mapStateToProps)(SignUp)
 export default SignUpContainer

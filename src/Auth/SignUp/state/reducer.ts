@@ -7,22 +7,22 @@ const DefaultState = {
     loading: false
 }
 
-export default function reducer(state = DefaultState, action: any = {}) {
+export default function reducer(
+    state = DefaultState,
+    action: any = { type: null }
+) {
     switch (action.type) {
-        case `${PREFIX}/${Actions.RESET_PASSWORD}/${PENDING}`:
-        case `${PREFIX}/${Actions.RESET_PASSWORD_VERIFY}/${PENDING}`:
+        case `${PREFIX}/${Actions.SIGN_UP}/${PENDING}`:
             return {
                 ...state,
                 loading: true
             }
-        case `${PREFIX}/${Actions.RESET_PASSWORD_VERIFY}/${REJECTED}`:
-        case `${PREFIX}/${Actions.RESET_PASSWORD}/${REJECTED}`:
-        case `${PREFIX}/${Actions.RESET_PASSWORD_VERIFY}/${FULFILLED}`:
-        case `${PREFIX}/${Actions.RESET_PASSWORD}/${FULFILLED}`:
+        case `${PREFIX}/${Actions.SIGN_UP}/${REJECTED}`:
+        case `${PREFIX}/${Actions.SIGN_UP}/${FULFILLED}`:
             return {
                 ...state,
-                processed: true,
                 loading: false,
+                processed: true,
                 resultMessage: action.payload.message
             }
         default:

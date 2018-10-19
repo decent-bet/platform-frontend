@@ -9,19 +9,15 @@ const DefaultState = {
 
 export default function reducer(state = DefaultState, action: any = {}) {
     switch (action.type) {
-        case `${PREFIX}/${Actions.RESET_PASSWORD}/${PENDING}`:
-        case `${PREFIX}/${Actions.RESET_PASSWORD_VERIFY}/${PENDING}`:
+        case `${PREFIX}/${Actions.FORGOT_PASSWORD}/${PENDING}`:
             return {
                 ...state,
                 loading: true
             }
-        case `${PREFIX}/${Actions.RESET_PASSWORD_VERIFY}/${REJECTED}`:
-        case `${PREFIX}/${Actions.RESET_PASSWORD}/${REJECTED}`:
-        case `${PREFIX}/${Actions.RESET_PASSWORD_VERIFY}/${FULFILLED}`:
-        case `${PREFIX}/${Actions.RESET_PASSWORD}/${FULFILLED}`:
+        case `${PREFIX}/${Actions.FORGOT_PASSWORD}/${REJECTED}`:
+        case `${PREFIX}/${Actions.FORGOT_PASSWORD}/${FULFILLED}`:
             return {
                 ...state,
-                processed: true,
                 loading: false,
                 resultMessage: action.payload.message
             }

@@ -2,7 +2,7 @@ import * as React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { Button, TextField, CircularProgress } from '@material-ui/core'
-import actions from '../state/actions'
+import actions from './state/actions'
 
 class SignUpForm extends React.Component<any> {
     constructor(props: any) {
@@ -151,9 +151,9 @@ class SignUpForm extends React.Component<any> {
     }
 }
 
-const mapStateToProps = state => Object.assign({}, state.auth)
+const mapStateToProps = state => Object.assign({}, state.auth.signUp)
 const mapDispatchToProps = dispatch =>
-    bindActionCreators(Object.assign({}, actions.auth), dispatch)
+    bindActionCreators(Object.assign({}, actions.signUp), dispatch)
 
 const SignUpFormContainer = connect(
     mapStateToProps,

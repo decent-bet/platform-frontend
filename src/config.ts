@@ -8,11 +8,11 @@ import {
 
 export const STAGE_CONFIGS = {
     local: {
-        wsApiUrl: 'ws://localhost:3010',
+        wsApiUrl: 'ws://localhost:3200',
         thorNode: 'https://thor-staging.decent.bet'
     },
     testnet: {
-        wsApiUrl: 'ws://localhost:3010',
+        wsApiUrl: 'ws://localhost:3200',
         thorNode: 'https://thor-staging.decent.bet'
     },
     main: {

@@ -9,7 +9,8 @@ export const RECAPTCHA_SITE_KEY = '6LelAVoUAAAAAO-9CWfkBOG6pHuwX-J3fERUwfaw',
     ENV_PRODUCTION: string = 'production',
     AUTH_TOKEN_NAME: string = 'token',
     ACCOUNT_ACTIVATED_NAME: string = 'account_activated',
-    WALLET_WEBSITE_URL: string = 'http://decent.bet/wallet.php'
+    WALLET_WEBSITE_URL: string = 'http://decent.bet/wallet.php',
+    RECAPTCHA_URL: string = 'https://www.google.com/recaptcha/api.js'
 
 export const CURRENT_ENV: string = process.env.REACT_APP_ENV || ENV_DEVELOPMENT
 

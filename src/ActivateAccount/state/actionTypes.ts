@@ -1,0 +1,4 @@
+export const PREFIX = 'ACTIVATE_ACCOUNT'
+export default {
+    ACTIVATE_ACCOUNT: 'ACTIVATE_ACCOUNT'
+}

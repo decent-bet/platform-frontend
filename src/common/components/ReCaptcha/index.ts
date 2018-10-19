@@ -1,2 +1,2 @@
-import ReCaptcha from './ReCaptcha'
-export default ReCaptcha
+import RecaptchaContainer from './RecaptchaContainer'
+export default RecaptchaContainer

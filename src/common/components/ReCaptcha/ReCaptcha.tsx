@@ -1,85 +1,97 @@
-import { RECAPTCHA_SITE_KEY } from '../../../constants'
 import * as React from 'react'
-import ReCAPTCHA from 'react-google-recaptcha'
-import { Grow, CircularProgress, Grid } from '@material-ui/core'
+import { IRecaptchaProps, DefaultRecaptchaProps } from './RecaptchaProps'
+import { IRecaptchaState, RecaptchaState } from './RecaptchaState'
+import { RECAPTCHA_URL } from '../../../constants'
 
-interface IRecaptchaProps {
-    onChange: (key: string) => void
-    onReceiveRecaptchaInstance: (instance: React.RefObject<ReCAPTCHA>) => void
+const injectScript = (): void => {
+    const filtered = Array.from(document.scripts).filter(
+        script => script.src.indexOf(RECAPTCHA_URL) > -1
+    )
+    if (filtered.length > 0) {
+        const script = document.createElement('script')
+
+        script.async = true
+        script.defer = true
+        script.src = RECAPTCHA_URL
+
+        if (document.head) {
+            document.head.appendChild(script)
+        }
+    }
 }
 
-export default class ReCaptcha extends React.Component<IRecaptchaProps> {
-    private _reCaptchaRef: React.RefObject<ReCAPTCHA>
-    private _interval: NodeJS.Timer
-    public state = {
-        loaded: false
-    }
+const waitForRecaptcha = new Promise(resolve => {
+    let interval = setInterval(() => {
+        if (
+            typeof window !== 'undefined' &&
+            typeof (window as any).grecaptcha !== 'undefined'
+        ) {
+            clearInterval(interval)
+            resolve((window as any).grecaptcha)
+        }
+    }, 1000)
+})
+
+export default class Recaptcha extends React.Component<
+    IRecaptchaProps,
+    IRecaptchaState
+> {
+    public static defaultProps = new DefaultRecaptchaProps()
+    private _containerRef: any
 
     constructor(props: IRecaptchaProps) {
         super(props)
-        this._reCaptchaRef = React.createRef<ReCAPTCHA>()
+        this.state = new RecaptchaState()
+        this._containerRef = null
     }
 
     public componentDidMount() {
-        this._interval = setInterval(() => {
-            const { grecaptcha } = window as any
-            if (grecaptcha) {
-                clearInterval(this._interval)
-                this.setState({ loaded: true })
-                this.props.onReceiveRecaptchaInstance(this._reCaptchaRef)
-            }
-        }, 500)
+        injectScript()
+        this._renderGrecaptcha()
     }
 
-    public componentWillUnmount = () => {
-        if (this._reCaptchaRef && this._reCaptchaRef.current) {
-            this._reCaptchaRef.current.reset()
+    private _renderGrecaptcha() {
+        const {
+            sitekey,
+            theme,
+            type,
+            size,
+            tabindex,
+            hl,
+            badge,
+            verifyCallback,
+            expiredCallback,
+            onloadCallback
+        } = this.props
+
+        waitForRecaptcha.then((grecaptcha: any) => {
+            const widget = grecaptcha.render(this._containerRef, {
+                sitekey,
+                theme,
+                type,
+                size,
+                tabindex,
+                hl,
+                badge,
+                callback: verifyCallback,
+                'expired-callback': expiredCallback
+            })
+            this.setState({ grecaptcha, widget })
+        })
+
+        if (onloadCallback) {
+            onloadCallback()
         }
     }
 
-    private onChange = recaptchaToken => {
-        this.props.onChange(recaptchaToken || '')
+    public reset() {
+        const { grecaptcha, widget } = this.state
+        if (widget !== null) {
+            grecaptcha.reset(widget)
+        }
     }
 
     public render() {
-        return (
-            <Grid
-                container={true}
-                direction="column"
-                alignItems="center"
-                justify="center"
-            >
-                <Grid
-                    item={true}
-                    xs={12}
-                    style={{
-                        paddingTop: '2em',
-                        paddingBottom: '1em'
-                    }}
-                >
-                    <div
-                        style={{ maxWidth: '260px !important', height: '78px' }}
-                    >
-                        <div
-                            style={{
-                                display: this.state.loaded ? 'none' : 'block',
-                                textAlign: 'center'
-                            }}
-                        >
-                            <CircularProgress size={24} color="secondary" />
-                        </div>
-                        <Grow in={this.state.loaded} timeout={1000}>
-                            <ReCAPTCHA
-                                ref={this._reCaptchaRef}
-                                sitekey={RECAPTCHA_SITE_KEY}
-                                onChange={this.onChange}
-                                theme="light"
-                            />
-                            {this.props.children}
-                        </Grow>
-                    </div>
-                </Grid>
-            </Grid>
-        )
+        return <div ref={el => (this._containerRef = el)} />
     }
 }
