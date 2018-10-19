@@ -3,7 +3,6 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { Button, TextField, CircularProgress } from '@material-ui/core'
 import actions from '../state/actions'
-import ReCaptcha from '../../common/components/ReCaptcha'
 
 class SignUpForm extends React.Component<any> {
     constructor(props: any) {
@@ -131,10 +130,7 @@ class SignUpForm extends React.Component<any> {
                     fullWidth={true}
                     helperText={this.state.errorMessages.passwordConfirmation}
                 />
-                <ReCaptcha
-                    onChange={this.props.setRecaptchaKey}
-                    onReceiveRecaptchaInstance={this.props.setRecaptchaInstance}
-                />
+                {this.props.renderCaptcha()}
                 <p>
                     <Button
                         color="primary"

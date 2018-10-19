@@ -10,7 +10,6 @@ import {
     Typography,
     TextField
 } from '@material-ui/core'
-import ReCaptcha from '../../common/components/ReCaptcha'
 import * as thunks from '../state/thunks'
 import actions from '../state/actions'
 import { VIEW_FORGOT_PASSWORD, VIEW_SIGNUP, VIEW_MAIN } from '../../routes'
@@ -138,12 +137,7 @@ class Login extends React.Component<any> {
                             </Button>
                         </Typography>
 
-                        <ReCaptcha
-                            onChange={this.props.setRecaptchaKey}
-                            onReceiveRecaptchaInstance={
-                                this.props.setRecaptchaInstance
-                            }
-                        />
+                        {this.props.renderCaptcha()}
 
                         <p>
                             <LoadingButton

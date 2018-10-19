@@ -75,6 +75,7 @@ export default class ReCaptcha extends React.Component<IRecaptchaProps> {
                                 onChange={this.onChange}
                                 theme="light"
                             />
+                            {this.props.children}
                         </Grow>
                     </div>
                 </Grid>

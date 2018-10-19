@@ -39,7 +39,7 @@ class SignUp extends React.Component<any> {
                     {this.props.processed ? (
                         <AuthResult message={this.props.resultMessage} />
                     ) : (
-                        <SignUpForm />
+                        <SignUpForm renderCaptcha={this.props.renderCaptcha} />
                     )}
                 </CardContent>
                 <CardActions>

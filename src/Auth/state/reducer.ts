@@ -36,34 +36,20 @@ export default function authReducer(
                 loading: true
             }
         case `${PREFIX}/${Actions.ACTIVATE_ACCOUNT}/${REJECTED}`:
-            return {
-                ...authState,
-                processed: true,
-                resultMessage: action.payload
-            }
-        case `${PREFIX}/${Actions.LOGIN}/${FULFILLED}`:
-        case `${PREFIX}/${Actions.SIGN_UP}/${FULFILLED}`:
-        case `${PREFIX}/${Actions.FORGOT_PASSWORD}/${FULFILLED}`:
-        case `${PREFIX}/${Actions.ACTIVATE_ACCOUNT}/${FULFILLED}`:
-        case `${PREFIX}/${Actions.RESET_PASSWORD}/${FULFILLED}`:
+        case `${PREFIX}/${Actions.FORGOT_PASSWORD}/${REJECTED}`:
+        case `${PREFIX}/${Actions.LOGIN}/${REJECTED}`:
+        case `${PREFIX}/${Actions.SIGN_UP}/${REJECTED}`:
             return {
                 ...authState,
                 loading: false,
                 processed: true,
-                recaptchaKey: '',
-                recaptcha: null
+                resultMessage: action.payload.message
             }
         case `${PREFIX}/${Actions.SIGN_UP}/${REJECTED}`:
             return {
                 ...authState,
                 loading: false,
                 processed: false
-            }
-        case `${PREFIX}/${Actions.FORGOT_PASSWORD}/${REJECTED}`:
-        case `${PREFIX}/${Actions.LOGIN}/${REJECTED}`:
-            return {
-                ...authState,
-                loading: false
             }
         case `${PREFIX}/${Actions.SET_DEFAULT_STATUS}/${FULFILLED}`:
             return DefaultAuthState
