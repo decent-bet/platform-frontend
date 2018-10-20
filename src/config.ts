@@ -1,11 +1,17 @@
-import {
+import * as CONSTANTS from './constants'
+
+const {
     CURRENT_ENV,
     ENV_LOCAL,
     ENV_DEVELOPMENT,
     ENV_STAGING,
-    ENV_PRODUCTION,
-    IStageConfig
-} from './constants'
+    ENV_PRODUCTION
+} = CONSTANTS
+
+export interface IStageConfig {
+    wsApiUrl: string
+    thorNode: string
+}
 
 export const STAGE_CONFIGS = {
     local: {
