@@ -49,49 +49,62 @@ class Login extends React.Component<any, ILoginState> {
         inputName: string,
         value: string
     ): { error: boolean; message: string } {
-        let error: boolean
+        let isVAlid: boolean
         let message: string
 
         switch (inputName) {
             case 'email':
-                error =
-                    validator.isEmail(value, {}) &&
+                isVAlid =
+                    validator.isEmail(value) &&
                     validator.isLength(value, { min: 3, max: 100 })
                 message = 'The email is not valid'
                 break
             case 'password':
-                error =
-                    validator.isAlpha(value) &&
-                    validator.isLength(value, { min: 6, max: 100 })
+                isVAlid = validator.isLength(value, { min: 6, max: 100 })
                 message = 'Invalid password'
                 break
             case 'recaptchaKey':
-                error = validator.isLength(value, { min: 10 })
+                isVAlid = validator.isLength(value, { min: 10 })
                 message = 'Invalid recaptcha Key'
                 break
             default:
-                error = false
+                isVAlid = false
                 message = ''
                 break
         }
 
-        return { error, message }
+        return { error: !isVAlid, message: !isVAlid ? message : '' }
     }
 
     private get formHasError() {
-        let { email, password, recaptchaKey } = this.state.errors
-        return email || password || recaptchaKey
+        const isValidEmail = this.isValidDataInput(
+            'email',
+            this.state.formData.email
+        )
+        const isValidPassword = this.isValidDataInput(
+            'password',
+            this.state.formData.password
+        )
+        const isValidRecaptcha = this.isValidDataInput(
+            'recaptchaKey',
+            this.state.formData.recaptchaKey
+        )
+        return (
+            isValidEmail.error ||
+            isValidPassword.error ||
+            isValidRecaptcha.error
+        )
     }
 
     private async handleSubmit(event: React.FormEvent) {
         event.preventDefault()
         let { email, password, recaptchaKey } = this.state.formData
-        await this.props.makeLogin(email, password, recaptchaKey)
-
-        this.props.history.push(VIEW_MAIN)
+        const result = await this.props.makeLogin(email, password, recaptchaKey)
+        if (result && result.value && result.value.error === true) {
+            this.props.history.push(VIEW_MAIN)
+        }
     }
 
-    private onReset = () => {}
     private onCaptchaKeyChange(key: string) {
         let { formData, errors, errorsMessages } = this.state
         formData.recaptchaKey = key
@@ -159,10 +172,7 @@ class Login extends React.Component<any, ILoginState> {
                                 Click here
                             </Button>
                         </Typography>
-                        <Recaptcha
-                            onKeyChange={this.onCaptchaKeyChange}
-                            reset={this.onReset}
-                        />
+                        <Recaptcha onKeyChange={this.onCaptchaKeyChange} />
                         <p>
                             <LoadingButton
                                 isLoading={this.state.loading}
@@ -171,7 +181,7 @@ class Login extends React.Component<any, ILoginState> {
                                 type="submit"
                                 fullWidth={true}
                                 disabled={
-                                    !this.formHasError || this.state.loading
+                                    this.formHasError || this.state.loading
                                 }
                             >
                                 Login

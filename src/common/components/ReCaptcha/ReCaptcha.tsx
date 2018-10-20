@@ -7,7 +7,7 @@ const injectScript = (): void => {
     const filtered = Array.from(document.scripts).filter(
         script => script.src.indexOf(RECAPTCHA_URL) > -1
     )
-    if (filtered.length > 0) {
+    if (filtered.length <= 0) {
         const script = document.createElement('script')
 
         script.async = true
@@ -65,18 +65,20 @@ export default class Recaptcha extends React.Component<
         } = this.props
 
         waitForRecaptcha.then((grecaptcha: any) => {
-            const widget = grecaptcha.render(this._containerRef, {
-                sitekey,
-                theme,
-                type,
-                size,
-                tabindex,
-                hl,
-                badge,
-                callback: verifyCallback,
-                'expired-callback': expiredCallback
-            })
-            this.setState({ grecaptcha, widget })
+            setTimeout(() => {
+                const widget = grecaptcha.render(this._containerRef, {
+                    sitekey,
+                    theme,
+                    type,
+                    size,
+                    tabindex,
+                    hl,
+                    badge,
+                    callback: verifyCallback,
+                    'expired-callback': expiredCallback
+                })
+                this.setState({ grecaptcha, widget })
+            }, 1000)
         })
 
         if (onloadCallback) {

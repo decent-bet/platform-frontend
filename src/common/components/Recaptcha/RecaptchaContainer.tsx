@@ -27,7 +27,6 @@ export default class RecaptchaContainer extends React.Component<
 
     private setRecapchaInstance(instance) {
         this.recaptchaInstance = instance
-        this.recaptchaInstance.render()
     }
 
     private onLoad() {

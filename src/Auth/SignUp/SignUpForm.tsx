@@ -1,18 +1,22 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { Button, TextField, CircularProgress } from '@material-ui/core'
+import { TextField } from '@material-ui/core'
 import actions from './state/actions'
+import Recaptcha from '../../common/components/Recaptcha'
+import LoadingButton from '../../common/components/LoadingButton'
 
 class SignUpForm extends React.Component<any> {
     constructor(props: any) {
         super(props)
+        this.onCaptchaKeyChange = this.onCaptchaKeyChange.bind(this)
     }
 
     public state = {
         formData: {
             email: '',
             password: '',
+            recaptchaKey: '',
             passwordConfirmation: ''
         },
         errors: {
@@ -27,9 +31,17 @@ class SignUpForm extends React.Component<any> {
         }
     }
 
+    private onCaptchaKeyChange(key: string) {
+        this.setState({ recaptchaKey: key })
+    }
+
     private get isValidCredentials() {
-        let { email, password, passwordConfirmation } = this.state.formData
-        let { recaptchaKey } = this.props
+        let {
+            email,
+            password,
+            passwordConfirmation,
+            recaptchaKey
+        } = this.state.formData
 
         return (
             email.length > 3 &&
@@ -70,22 +82,21 @@ class SignUpForm extends React.Component<any> {
     private handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()
 
-        let { email, password, passwordConfirmation } = this.state.formData
-        const { signUp, recaptchaKey } = this.props as any
-        if (this.props.recaptcha && this.props.recaptcha.current) {
-            this.props.recaptcha.current.reset()
-        }
+        let {
+            email,
+            password,
+            passwordConfirmation,
+            recaptchaKey
+        } = this.state.formData
+        const { signUp } = this.props as any
         await signUp(email, password, passwordConfirmation, recaptchaKey)
-
-        if (this.props.recapcha && this.props.recapcha.current) {
-            this.props.recapcha.current.reset()
-        }
 
         this.setState({
             formData: {
                 email: '',
                 password: '',
-                passwordConfirmation: ''
+                passwordConfirmation: '',
+                recaptchaKey: ''
             }
         })
     }
@@ -130,21 +141,18 @@ class SignUpForm extends React.Component<any> {
                     fullWidth={true}
                     helperText={this.state.errorMessages.passwordConfirmation}
                 />
-                {this.props.renderCaptcha()}
+                <Recaptcha onKeyChange={this.onCaptchaKeyChange} />
                 <p>
-                    <Button
+                    <LoadingButton
+                        isLoading={loading}
                         color="primary"
                         variant="contained"
                         fullWidth={true}
                         disabled={!this.isValidCredentials || loading}
                         type="submit"
                     >
-                        {loading ? (
-                            <CircularProgress color="secondary" size={24} />
-                        ) : (
-                            'Create New Account'
-                        )}
-                    </Button>
+                        'Create New Account
+                    </LoadingButton>
                 </p>
             </form>
         )

@@ -17,10 +17,6 @@ class SignUp extends React.Component<any> {
         super(props)
     }
 
-    public componentDidMount() {
-        this.props.setDefaultStatus()
-    }
-
     public render() {
         const loginLink = props => <Link to={VIEW_LOGIN} {...props} />
 

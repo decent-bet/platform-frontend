@@ -1,5 +1,6 @@
 export interface ILoginState {
     loading: boolean
+
     formData: {
         email: string
         password: string

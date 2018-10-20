@@ -14,6 +14,7 @@ async function login(
             const response = await axios.post('/login', data)
             await keyHandler.setAuthToken(response.data.accessToken)
             resolve({
+                error: false,
                 activated: response.data.activated,
                 message: response.data.message || 'Successfully logged in'
             })
@@ -22,7 +23,7 @@ async function login(
                 error.response && error.response.data
                     ? error.response.data.message
                     : 'Error trying to login, please check later.'
-            reject({ activated: false, message: errorMessage })
+            reject({ error: true, activated: false, message: errorMessage })
         }
     })
 }

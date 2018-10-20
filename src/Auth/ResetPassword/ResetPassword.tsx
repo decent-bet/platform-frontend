@@ -20,7 +20,6 @@ class ResetPassword extends React.Component<any> {
     }
 
     public componentDidMount = async () => {
-        this.props.setDefaultStatus()
         let { id, key } = this.props.match.params
         await this.props.activateAccount(id, key)
     }

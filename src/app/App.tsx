@@ -18,7 +18,8 @@ import {
 } from '../routes'
 import {
     setHttpAuthBaseUrl,
-    setUserAuthenticationStatus
+    setUserAuthenticationStatus,
+    closeAlert
 } from '../common/state/thunks'
 import AppLoading from '../common/components/AppLoading'
 import TransparentPaper from '../common/components/TransparentPaper'
@@ -126,7 +127,10 @@ class App extends React.Component<IAppProps, IAppState> {
 const mapStateToProps = state => Object.assign({}, state.app)
 const mapDispatchToProps = dispatch =>
     bindActionCreators(
-        Object.assign({}, { setHttpAuthBaseUrl, setUserAuthenticationStatus }),
+        Object.assign(
+            {},
+            { setHttpAuthBaseUrl, setUserAuthenticationStatus, closeAlert }
+        ),
         dispatch
     )
 
