@@ -85,7 +85,7 @@ async function resetPassword(email: string, captchaKey: string, key: string) {
                 error.response && error.response.data
                     ? error.response.data.message
                     : 'Error on reset password request, please check later.'
-            reject(errorMessage)
+            reject({ message: errorMessage })
         }
     })
 }
@@ -109,7 +109,7 @@ async function signUp(
                 error.response && error.response.data
                     ? error.response.data.message
                     : 'Error trying to create a newe account, please check later.'
-            reject(errorMessage)
+            reject({ message: errorMessage })
         }
     })
 }

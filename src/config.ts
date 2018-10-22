@@ -1,34 +1,47 @@
-import {
+import * as CONSTANTS from './constants'
+
+const {
     CURRENT_ENV,
+    ENV_LOCAL,
     ENV_DEVELOPMENT,
     ENV_STAGING,
-    ENV_PRODUCTION,
-    IStageConfig
-} from './constants'
+    ENV_PRODUCTION
+} = CONSTANTS
+
+export interface IStageConfig {
+    wsApiUrl: string
+    thorNode: string
+}
 
 export const STAGE_CONFIGS = {
     local: {
-        wsApiUrl: 'ws://localhost:3010',
+        wsApiUrl: 'ws://localhost:3200',
         thorNode: 'https://thor-staging.decent.bet'
     },
-    testnet: {
-        wsApiUrl: 'ws://localhost:3010',
+    development: {
+        wsApiUrl: 'wss://channels-api-development.decent.bet',
         thorNode: 'https://thor-staging.decent.bet'
     },
-    main: {
-        wsApiUrl: '',
+    staging: {
+        wsApiUrl: 'wss://channels-api-staging.decent.bet',
+        thorNode: 'https://thor-staging.decent.bet'
+    },
+    production: {
+        wsApiUrl: 'wss://channels-api-staging.decent.bet',
         thorNode: 'https://thor-staging.decent.bet'
     }
 }
 
 export function getStageConfig(): IStageConfig {
     switch (CURRENT_ENV) {
-        case ENV_DEVELOPMENT:
+        case ENV_LOCAL:
             return STAGE_CONFIGS.local
+        case ENV_DEVELOPMENT:
+            return STAGE_CONFIGS.development
         case ENV_STAGING:
-            return STAGE_CONFIGS.testnet
+            return STAGE_CONFIGS.staging
         case ENV_PRODUCTION:
-            return STAGE_CONFIGS.main
+            return STAGE_CONFIGS.production
         default:
             return STAGE_CONFIGS.local
     }
@@ -36,8 +49,10 @@ export function getStageConfig(): IStageConfig {
 
 export function getAuthApiUrl(): string {
     switch (CURRENT_ENV) {
-        case ENV_DEVELOPMENT:
+        case ENV_LOCAL:
             return 'http://localhost:3200/api'
+        case ENV_DEVELOPMENT:
+            return 'https://kyc-api-development.decent.bet/api'
         case ENV_STAGING:
             return 'https://kyc-staging.decent.bet/api'
         case ENV_PRODUCTION:
