@@ -1,9 +1,9 @@
 export interface IRecaptchaContainerState {
     loaded: boolean
-    grecaptcha: any
+    recatpchaRef: any
 }
 
 export class RecaptchaContainerState implements IRecaptchaContainerState {
     public loaded = false
-    public grecaptcha = null
+    public recatpchaRef = null
 }

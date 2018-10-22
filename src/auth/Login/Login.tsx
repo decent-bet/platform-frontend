@@ -27,7 +27,6 @@ class Login extends React.Component<any, ILoginState> {
         this.isValidDataInput = this.isValidDataInput.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.onCaptchaKeyChange = this.onCaptchaKeyChange.bind(this)
-        this.onSetRecaptchaRef = this.onSetRecaptchaRef.bind(this)
     }
 
     private onValueChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -122,10 +121,6 @@ class Login extends React.Component<any, ILoginState> {
         this.setState({ formData, errorsMessages, errors })
     }
 
-    private onSetRecaptchaRef(recaptcha: any) {
-        this.recaptcha = recaptcha
-    }
-
     public render() {
         const signUpLink = props => <Link to={VIEW_SIGNUP} {...props} />
         const forgotPasswordLink = props => (
@@ -182,10 +177,7 @@ class Login extends React.Component<any, ILoginState> {
                                 Click here
                             </Button>
                         </Typography>
-                        <Recaptcha
-                            onSetRef={this.onSetRecaptchaRef}
-                            onKeyChange={this.onCaptchaKeyChange}
-                        />
+                        <Recaptcha onKeyChange={this.onCaptchaKeyChange} />
                         <p>
                             <LoadingButton
                                 isLoading={this.state.loading}

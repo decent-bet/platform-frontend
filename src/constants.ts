@@ -14,11 +14,6 @@ export const RECAPTCHA_URL: string = 'https://www.google.com/recaptcha/api.js'
 
 export const CURRENT_ENV: string = process.env.REACT_APP_ENV || ENV_LOCAL
 
-export interface IStageConfig {
-    wsApiUrl: string
-    thorNode: string
-}
-
 export const symbolA = 1
 export const symbolB = 2
 export const symbolC = 3

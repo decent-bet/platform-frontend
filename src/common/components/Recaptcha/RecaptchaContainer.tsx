@@ -15,30 +15,23 @@ export default class RecaptchaContainer extends React.Component<
 > {
     constructor(props: IRecaptchaContainerProps) {
         super(props)
-        this.setGrecapchaInstance = this.setGrecapchaInstance.bind(this)
+        this.setRecaptchaRef = this.setRecaptchaRef.bind(this)
         this.onLoad = this.onLoad.bind(this)
         this.state = new RecaptchaContainerState()
     }
 
     public componentWillUnmount() {
-        const { grecatpcha } = this.state.grecaptcha.state
-        if (grecatpcha) {
-            grecatpcha.reset()
+        if (this.state.recatpchaRef) {
+            this.state.recatpchaRef.reset()
         }
     }
 
-    public componentDidUpdate(prevProps, prevState) {
-        if (prevState.grecaptcha.state !== this.state.grecaptcha.state) {
-            this.setState({ loaded: true })
-        }
-    }
-
-    private setGrecapchaInstance(grecaptcha) {
-        this.setState({ grecaptcha })
+    private setRecaptchaRef(recatpchaRef) {
+        this.setState({ recatpchaRef })
     }
 
     private onLoad() {
-        // this.setState({ loaded: true })
+        this.setState({ loaded: true })
     }
 
     public render() {
@@ -71,7 +64,7 @@ export default class RecaptchaContainer extends React.Component<
                         <Grow in={this.state.loaded} timeout={1000}>
                             <TransparentPaper>
                                 <Recaptcha
-                                    ref={this.setGrecapchaInstance}
+                                    ref={this.setRecaptchaRef}
                                     sitekey={RECAPTCHA_SITE_KEY}
                                     theme="light"
                                     render="explicit"

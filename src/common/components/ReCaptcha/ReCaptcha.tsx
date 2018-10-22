@@ -1,18 +1,18 @@
 import * as React from 'react'
 import { IRecaptchaProps, DefaultRecaptchaProps } from './RecaptchaProps'
 import { IRecaptchaState, RecaptchaState } from './RecaptchaState'
-import { RECAPTCHA_URL } from '../../../constants'
+import { RECAPTCHA_SITE_KEY } from '../../../config'
 
 const injectScript = (): void => {
     const filtered = Array.from(document.scripts).filter(
-        script => script.src.indexOf(RECAPTCHA_URL) > -1
+        script => script.src.indexOf(RECAPTCHA_SITE_KEY) > -1
     )
     if (filtered.length <= 0) {
         const script = document.createElement('script')
 
         script.async = true
         script.defer = true
-        script.src = RECAPTCHA_URL
+        script.src = RECAPTCHA_SITE_KEY
 
         if (document.head) {
             document.head.appendChild(script)
@@ -66,26 +66,23 @@ export default class Recaptcha extends React.Component<
         } = this.props
 
         waitForRecaptcha.then((grecaptcha: any) => {
-            setTimeout(() => {
-                const widget = grecaptcha.render(this._containerRef, {
-                    sitekey,
-                    theme,
-                    type,
-                    size,
-                    tabindex,
-                    hl,
-                    badge,
-                    onloadCallback,
-                    callback: verifyCallback,
-                    'expired-callback': expiredCallback
-                })
-                this.setState({ grecaptcha, widget })
-            }, 1000)
+            const widget = grecaptcha.render(this._containerRef, {
+                sitekey,
+                theme,
+                type,
+                size,
+                tabindex,
+                hl,
+                badge,
+                onloadCallback,
+                callback: verifyCallback,
+                'expired-callback': expiredCallback
+            })
+            this.setState({ grecaptcha, widget })
+            if (onloadCallback) {
+                onloadCallback()
+            }
         })
-
-        if (onloadCallback) {
-            onloadCallback()
-        }
     }
 
     public reset() {

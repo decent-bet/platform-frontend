@@ -1,5 +1,5 @@
 import io from 'socket.io-client'
-import { getStageConfig } from '../../config'
+import { WS_API_URL } from '../../config'
 
 const cryptoJs = require('crypto-js')
 const ethUtil = require('ethereumjs-util')
@@ -20,12 +20,8 @@ class DecentWSAPI {
         this._initSocket()
     }
 
-    get config() {
-        return getStageConfig()
-    }
-
     _initSocket() {
-        this.socket = io(this.config.wsApiUrl)
+        this.socket = io(WS_API_URL)
         this._initSocketListeners()
     }
 
@@ -48,9 +44,7 @@ class DecentWSAPI {
 
     _initSocketListeners() {
         this.socket.on('connect', () => {
-            console.log(
-                `Connected to Websocket server @ ${this.config.wsApiUrl}`
-            )
+            console.log(`Connected to Websocket server @ ${WS_API_URL}`)
             this._initSocketEmitListener(PATH_POST_INIT_CHANNEL)
             this._initSocketEmitListener(PATH_GET_LAST_SPIN)
             this._initSocketEmitListener(PATH_GET_FINALIZED_CHANNEL_INFO)
@@ -59,9 +53,7 @@ class DecentWSAPI {
         })
 
         this.socket.on('disconnect', () => {
-            console.log(
-                `Disconnected from Websocket server @ ${this.config.wsApiUrl}`
-            )
+            console.log(`Disconnected from Websocket server @ ${WS_API_URL}`)
         })
     }
 
@@ -102,8 +94,8 @@ class DecentWSAPI {
 
     clearSubscriptions() {
         paths.map(path => {
-            if(this.subscriptions[path])
-                for(let i = 0; i < this.subscriptions[path].length; i++)
+            if (this.subscriptions[path])
+                for (let i = 0; i < this.subscriptions[path].length; i++)
                     this._unsubscribe(path, i)
         })
     }

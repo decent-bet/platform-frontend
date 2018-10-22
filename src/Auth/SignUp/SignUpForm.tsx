@@ -11,7 +11,6 @@ class SignUpForm extends React.Component<any> {
     constructor(props: any) {
         super(props)
         this.onCaptchaKeyChange = this.onCaptchaKeyChange.bind(this)
-        this.onSetRecaptchaRef = this.onSetRecaptchaRef.bind(this)
     }
 
     public state = {
@@ -51,10 +50,6 @@ class SignUpForm extends React.Component<any> {
             recaptchaKey.length > 0 &&
             passwordConfirmation === password
         )
-    }
-
-    private onSetRecaptchaRef(recaptcha: any) {
-        this.recaptcha = recaptcha
     }
 
     private onValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -150,10 +145,7 @@ class SignUpForm extends React.Component<any> {
                     fullWidth={true}
                     helperText={this.state.errorMessages.passwordConfirmation}
                 />
-                <Recaptcha
-                    onSetRef={this.onSetRecaptchaRef}
-                    onKeyChange={this.onCaptchaKeyChange}
-                />
+                <Recaptcha onKeyChange={this.onCaptchaKeyChange} />
                 <p>
                     <LoadingButton
                         isLoading={loading}
