@@ -34,11 +34,11 @@ export default class RecaptchaContainer extends React.Component<
     }
 
     private setGrecapchaInstance(grecaptcha) {
-        this.setState({ grecaptcha: grecaptcha })
+        this.setState({ grecaptcha })
     }
 
     private onLoad() {
-        this.setState({ loaded: true })
+        // this.setState({ loaded: true })
     }
 
     public render() {
@@ -62,10 +62,7 @@ export default class RecaptchaContainer extends React.Component<
                     >
                         <div
                             style={{
-                                display: this.grecatpchaInstance.state
-                                    .grecatpcha
-                                    ? 'none'
-                                    : 'block',
+                                display: this.state.loaded ? 'none' : 'block',
                                 textAlign: 'center'
                             }}
                         >

@@ -123,8 +123,13 @@ async function login(
             let errorMessage =
                 error.response && error.response.data
                     ? error.response.data.message
+<<<<<<< HEAD
                     : 'Error trying to login, please check later.'
             reject({ error: true, activated: false, message: errorMessage })
+=======
+                    : 'Error trying to create a newe account, please check later.'
+            reject({ message: errorMessage })
+>>>>>>> develop
         }
     })
 }

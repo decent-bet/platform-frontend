@@ -3,9 +3,13 @@ import {
     ENV_LOCAL,
     ENV_DEVELOPMENT,
     ENV_STAGING,
-    ENV_PRODUCTION,
-    IStageConfig
+    ENV_PRODUCTION
 } from './constants'
+
+export interface IStageConfig {
+    wsApiUrl: string
+    thorNode: string
+}
 
 export const STAGE_CONFIGS = {
     local: {

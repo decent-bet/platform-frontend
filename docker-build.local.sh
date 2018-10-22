@@ -5,7 +5,7 @@ echo "Updating submodules..."
 git submodule foreach git pull origin master
 
 echo "Install dependencies and build..."
-yarn install --silent --production=false && yarn build
+npm i --silent && npm build
 
 echo "Building version $VERSION"
 docker build -t dbet-platform/platform-frontend:latest .

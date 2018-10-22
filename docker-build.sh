@@ -5,7 +5,7 @@ echo "Updating submodules..."
 git submodule foreach git pull origin develop
 
 echo "Install dependencies and build..."
-npm install --silent && npm run build
+npm i --silent && npm build
 
 echo "Building version $VERSION"
 docker build -t us.gcr.io/dbet-platform/platform-frontend:$VERSION .
