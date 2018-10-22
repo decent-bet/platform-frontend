@@ -4,19 +4,20 @@ import { Grow, CircularProgress, Grid } from '@material-ui/core'
 import TransparentPaper from '../TransparentPaper'
 import Recaptcha from './Recaptcha'
 import IRecaptchaContainerProps from './IRecaptchaContainerProps'
+import {
+    IRecaptchaContainerState,
+    RecaptchaContainerState
+} from './RecaptchaContainerState'
 
 export default class RecaptchaContainer extends React.Component<
-    IRecaptchaContainerProps
+    IRecaptchaContainerProps,
+    IRecaptchaContainerState
 > {
-    public state = {
-        loaded: false,
-        grecaptcha: null
-    }
-
     constructor(props: IRecaptchaContainerProps) {
         super(props)
         this.setGrecapchaInstance = this.setGrecapchaInstance.bind(this)
         this.onLoad = this.onLoad.bind(this)
+        this.state = new RecaptchaContainerState()
     }
 
     public componentWillUnmount() {
@@ -27,11 +28,13 @@ export default class RecaptchaContainer extends React.Component<
     }
 
     public componentDidUpdate(prevProps, prevState) {
-        if(prevState.grecaptcha.state !== this.state.grecaptcha.state)
+        if (prevState.grecaptcha.state !== this.state.grecaptcha.state) {
+            this.setState({ loaded: true })
+        }
     }
 
     private setGrecapchaInstance(grecaptcha) {
-       this.setState({grecaptcha: grecaptcha})
+        this.setState({ grecaptcha: grecaptcha })
     }
 
     private onLoad() {
