@@ -2,8 +2,8 @@ import actions from './actions'
 import {
     setUserAuthenticationStatus,
     setAccountIsActivated
-} from '../../../common/state/thunks'
-const _actions: any = actions.login
+} from '../../common/state/thunks'
+const _actions: any = actions.auth
 
 export function makeLogin(
     email: string,

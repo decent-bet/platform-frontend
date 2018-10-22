@@ -4,13 +4,15 @@ import { connect } from 'react-redux'
 import { TextField } from '@material-ui/core'
 import Recaptcha from '../../common/components/Recaptcha'
 import LoadingButton from '../../common/components/LoadingButton'
-
-import actions from './state/actions'
+import actions from '../state/actions'
 
 class ForgotPasswordForm extends React.Component<any> {
+    private recaptcha: any
+
     constructor(props: any) {
         super(props)
         this.onCaptchaKeyChange = this.onCaptchaKeyChange.bind(this)
+        this.onSetRecaptchaRef = this.onSetRecaptchaRef.bind(this)
     }
 
     public state = {
@@ -42,9 +44,15 @@ class ForgotPasswordForm extends React.Component<any> {
         this.setState({ recaptchaKey: key })
     }
 
+    private onSetRecaptchaRef(recaptcha: any) {
+        this.recaptcha = recaptcha
+    }
+
     private handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()
-
+        if (this.recaptcha) {
+            this.recaptcha.reset()
+        }
         await this.props.forgotPassword(
             this.state.email,
             this.state.recaptchaKey
@@ -67,7 +75,10 @@ class ForgotPasswordForm extends React.Component<any> {
                     onChange={this.onEmailChange}
                     helperText={this.state.errorsMessage}
                 />
-                <Recaptcha onKeyChange={this.onCaptchaKeyChange} />
+                <Recaptcha
+                    onSetRef={this.onSetRecaptchaRef}
+                    onKeyChange={this.onCaptchaKeyChange}
+                />
                 <p>
                     <LoadingButton
                         isLoading={loading}

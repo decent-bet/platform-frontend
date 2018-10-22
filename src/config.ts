@@ -9,7 +9,7 @@ import {
 
 export const STAGE_CONFIGS = {
     local: {
-        wsApiUrl: 'wss://channels-api-development.decent.bet',
+        wsApiUrl: 'ws://localhost:3010/api',
         thorNode: 'https://thor-staging.decent.bet'
     },
     development: {
@@ -44,7 +44,7 @@ export function getStageConfig(): IStageConfig {
 export function getAuthApiUrl(): string {
     switch (CURRENT_ENV) {
         case ENV_LOCAL:
-            return 'https://kyc-api-development.decent.bet/api'
+            return 'http://localhost:3200/api'
         case ENV_DEVELOPMENT:
             return 'https://kyc-api-development.decent.bet/api'
         case ENV_STAGING:

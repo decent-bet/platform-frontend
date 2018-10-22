@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import actions from './state/actions'
+import actions from '../state/actions'
 import {
     Button,
     Grid,

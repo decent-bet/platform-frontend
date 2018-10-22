@@ -1,17 +1,16 @@
-export const RECAPTCHA_SITE_KEY = '6LelAVoUAAAAAO-9CWfkBOG6pHuwX-J3fERUwfaw',
-    MNEMONIC_DPATH = "m/44'/818'/0'/0/0",
-    CHANNEL_STATUS_WAITING = 'Waiting',
-    CHANNEL_STATUS_DEPOSITED = 'Deposited',
-    CHANNEL_STATUS_ACTIVATED = 'Activated',
-    CHANNEL_STATUS_FINALIZED = 'Finalized',
-    ENV_LOCAL: string = 'local',
-    ENV_DEVELOPMENT: string = 'development',
-    ENV_STAGING: string = 'staging',
-    ENV_PRODUCTION: string = 'production',
-    AUTH_TOKEN_NAME: string = 'token',
-    ACCOUNT_ACTIVATED_NAME: string = 'account_activated',
-    WALLET_WEBSITE_URL: string = 'http://decent.bet/wallet.php',
-    RECAPTCHA_URL: string = 'https://www.google.com/recaptcha/api.js'
+export const RECAPTCHA_SITE_KEY = '6LelAVoUAAAAAO-9CWfkBOG6pHuwX-J3fERUwfaw'
+export const MNEMONIC_DPATH = "m/44'/818'/0'/0/0"
+export const CHANNEL_STATUS_DEPOSITED = 'Deposited'
+export const CHANNEL_STATUS_ACTIVATED = 'Activated'
+export const CHANNEL_STATUS_FINALIZED = 'Finalized'
+export const ENV_LOCAL: string = 'local'
+export const ENV_DEVELOPMENT: string = 'development'
+export const ENV_STAGING: string = 'staging'
+export const ENV_PRODUCTION: string = 'production'
+export const AUTH_TOKEN_NAME: string = 'token'
+export const ACCOUNT_ACTIVATED_NAME: string = 'account_activated'
+export const WALLET_WEBSITE_URL: string = 'http://decent.bet/wallet.php'
+export const RECAPTCHA_URL: string = 'https://www.google.com/recaptcha/api.js'
 
 export const CURRENT_ENV: string = process.env.REACT_APP_ENV || ENV_LOCAL
 
@@ -20,13 +19,13 @@ export interface IStageConfig {
     thorNode: string
 }
 
-export const symbolA = 1,
-    symbolB = 2,
-    symbolC = 3,
-    symbolD = 4,
-    symbolE = 5,
-    symbolF = 6,
-    symbolG = 7
+export const symbolA = 1
+export const symbolB = 2
+export const symbolC = 3
+export const symbolD = 4
+export const symbolE = 5
+export const symbolF = 6
+export const symbolG = 7
 
 export const NUMBER_OF_LINES = 5
 export const NUMBER_OF_REELS = 5

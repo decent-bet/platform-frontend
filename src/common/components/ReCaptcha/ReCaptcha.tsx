@@ -24,7 +24,8 @@ const waitForRecaptcha = new Promise(resolve => {
     let interval = setInterval(() => {
         if (
             typeof window !== 'undefined' &&
-            typeof (window as any).grecaptcha !== 'undefined'
+            typeof (window as any).grecaptcha !== 'undefined' &&
+            typeof (window as any).grecaptcha.render !== 'undefined'
         ) {
             clearInterval(interval)
             resolve((window as any).grecaptcha)
@@ -74,6 +75,7 @@ export default class Recaptcha extends React.Component<
                     tabindex,
                     hl,
                     badge,
+                    onloadCallback,
                     callback: verifyCallback,
                     'expired-callback': expiredCallback
                 })

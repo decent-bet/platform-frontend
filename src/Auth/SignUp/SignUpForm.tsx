@@ -2,14 +2,16 @@ import * as React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { TextField } from '@material-ui/core'
-import actions from './state/actions'
+import actions from '../state/actions'
 import Recaptcha from '../../common/components/Recaptcha'
 import LoadingButton from '../../common/components/LoadingButton'
 
 class SignUpForm extends React.Component<any> {
+    private recaptcha: any
     constructor(props: any) {
         super(props)
         this.onCaptchaKeyChange = this.onCaptchaKeyChange.bind(this)
+        this.onSetRecaptchaRef = this.onSetRecaptchaRef.bind(this)
     }
 
     public state = {
@@ -51,6 +53,10 @@ class SignUpForm extends React.Component<any> {
         )
     }
 
+    private onSetRecaptchaRef(recaptcha: any) {
+        this.recaptcha = recaptcha
+    }
+
     private onValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         let { formData, errorMessages, errors } = this.state
         const value = event.target.value
@@ -89,6 +95,9 @@ class SignUpForm extends React.Component<any> {
             recaptchaKey
         } = this.state.formData
         const { signUp } = this.props as any
+        if (this.recaptcha) {
+            this.recaptcha.reset()
+        }
         await signUp(email, password, passwordConfirmation, recaptchaKey)
 
         this.setState({
@@ -141,7 +150,10 @@ class SignUpForm extends React.Component<any> {
                     fullWidth={true}
                     helperText={this.state.errorMessages.passwordConfirmation}
                 />
-                <Recaptcha onKeyChange={this.onCaptchaKeyChange} />
+                <Recaptcha
+                    onSetRef={this.onSetRecaptchaRef}
+                    onKeyChange={this.onCaptchaKeyChange}
+                />
                 <p>
                     <LoadingButton
                         isLoading={loading}
@@ -161,7 +173,7 @@ class SignUpForm extends React.Component<any> {
 
 const mapStateToProps = state => Object.assign({}, state.auth.signUp)
 const mapDispatchToProps = dispatch =>
-    bindActionCreators(Object.assign({}, actions.signUp), dispatch)
+    bindActionCreators(Object.assign({}, actions), dispatch)
 
 const SignUpFormContainer = connect(
     mapStateToProps,

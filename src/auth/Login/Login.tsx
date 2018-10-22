@@ -10,7 +10,7 @@ import {
     Typography,
     TextField
 } from '@material-ui/core'
-import * as thunks from './state/thunks'
+import { makeLogin } from '../state/thunks'
 import * as validator from 'validator'
 import { VIEW_FORGOT_PASSWORD, VIEW_SIGNUP, VIEW_MAIN } from '../../routes'
 import LoadingButton from '../../common/components/LoadingButton'
@@ -18,6 +18,8 @@ import Recaptcha from '../../common/components/Recaptcha'
 import { ILoginState, LoginState } from './LoginState'
 
 class Login extends React.Component<any, ILoginState> {
+    private recaptcha: any
+
     constructor(props: any) {
         super(props)
         this.state = new LoginState()
@@ -25,6 +27,7 @@ class Login extends React.Component<any, ILoginState> {
         this.isValidDataInput = this.isValidDataInput.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.onCaptchaKeyChange = this.onCaptchaKeyChange.bind(this)
+        this.onSetRecaptchaRef = this.onSetRecaptchaRef.bind(this)
     }
 
     private onValueChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -99,6 +102,9 @@ class Login extends React.Component<any, ILoginState> {
     private async handleSubmit(event: React.FormEvent) {
         event.preventDefault()
         let { email, password, recaptchaKey } = this.state.formData
+        if (this.recaptcha) {
+            this.recaptcha.reset()
+        }
         const result = await this.props.makeLogin(email, password, recaptchaKey)
         if (result && result.value && result.value.error === true) {
             this.props.history.push(VIEW_MAIN)
@@ -114,6 +120,10 @@ class Login extends React.Component<any, ILoginState> {
         errorsMessages.recaptchaKey = validation.message
 
         this.setState({ formData, errorsMessages, errors })
+    }
+
+    private onSetRecaptchaRef(recaptcha: any) {
+        this.recaptcha = recaptcha
     }
 
     public render() {
@@ -172,7 +182,10 @@ class Login extends React.Component<any, ILoginState> {
                                 Click here
                             </Button>
                         </Typography>
-                        <Recaptcha onKeyChange={this.onCaptchaKeyChange} />
+                        <Recaptcha
+                            onSetRef={this.onSetRecaptchaRef}
+                            onKeyChange={this.onCaptchaKeyChange}
+                        />
                         <p>
                             <LoadingButton
                                 isLoading={this.state.loading}
@@ -219,7 +232,7 @@ class Login extends React.Component<any, ILoginState> {
 
 const mapStateToProps = state => Object.assign({}, state.auth.login)
 const mapDispatchToProps = dispatch =>
-    bindActionCreators(Object.assign({}, thunks), dispatch)
+    bindActionCreators(Object.assign({}, { makeLogin }), dispatch)
 
 const LoginContainer = connect(
     mapStateToProps,

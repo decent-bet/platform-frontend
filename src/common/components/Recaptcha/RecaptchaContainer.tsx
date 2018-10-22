@@ -8,25 +8,30 @@ import IRecaptchaContainerProps from './IRecaptchaContainerProps'
 export default class RecaptchaContainer extends React.Component<
     IRecaptchaContainerProps
 > {
-    private recaptchaInstance?: any = null
     public state = {
-        loaded: false
+        loaded: false,
+        grecaptcha: null
     }
 
     constructor(props: IRecaptchaContainerProps) {
         super(props)
-        this.setRecapchaInstance = this.setRecapchaInstance.bind(this)
+        this.setGrecapchaInstance = this.setGrecapchaInstance.bind(this)
         this.onLoad = this.onLoad.bind(this)
     }
 
     public componentWillUnmount() {
-        if (this.recaptchaInstance != null) {
-            this.recaptchaInstance.reset()
+        const { grecatpcha } = this.state.grecaptcha.state
+        if (grecatpcha) {
+            grecatpcha.reset()
         }
     }
 
-    private setRecapchaInstance(instance) {
-        this.recaptchaInstance = instance
+    public componentDidUpdate(prevProps, prevState) {
+        if(prevState.grecaptcha.state !== this.state.grecaptcha.state)
+    }
+
+    private setGrecapchaInstance(grecaptcha) {
+       this.setState({grecaptcha: grecaptcha})
     }
 
     private onLoad() {
@@ -54,7 +59,10 @@ export default class RecaptchaContainer extends React.Component<
                     >
                         <div
                             style={{
-                                display: this.state.loaded ? 'none' : 'block',
+                                display: this.grecatpchaInstance.state
+                                    .grecatpcha
+                                    ? 'none'
+                                    : 'block',
                                 textAlign: 'center'
                             }}
                         >
@@ -63,12 +71,12 @@ export default class RecaptchaContainer extends React.Component<
                         <Grow in={this.state.loaded} timeout={1000}>
                             <TransparentPaper>
                                 <Recaptcha
-                                    ref={this.setRecapchaInstance}
+                                    ref={this.setGrecapchaInstance}
                                     sitekey={RECAPTCHA_SITE_KEY}
                                     theme="light"
                                     render="explicit"
-                                    verifyCallback={this.props.onKeyChange}
                                     onloadCallback={this.onLoad}
+                                    verifyCallback={this.props.onKeyChange}
                                 />
                             </TransparentPaper>
                         </Grow>
