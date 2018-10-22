@@ -2,10 +2,10 @@
 VERSION=$(cat ./VERSION)
 
 echo "Updating submodules..."
-#git submodule foreach git pull origin master
+git submodule foreach git pull origin develop
 
 echo "Install dependencies and build..."
-#yarn install --silent --production=false && yarn build
+yarn install --silent --production=false && yarn build
 
 echo "Building version $VERSION"
 docker build -t us.gcr.io/dbet-platform/platform-frontend:$VERSION .

@@ -1,4 +1,4 @@
-export const RECAPTCHA_SITE_KEY = '6LelAVoUAAAAAO-9CWfkBOG6pHuwX-J3fERUwfaw',
+export const RECAPTCHA_SITE_KEY = '6LepTnYUAAAAAF4Jtoh2Hwk3f_AKijaT7owk6eTU',
     MNEMONIC_DPATH = "m/44'/818'/0'/0/0",
     CHANNEL_STATUS_WAITING = 'Waiting',
     CHANNEL_STATUS_DEPOSITED = 'Deposited',
