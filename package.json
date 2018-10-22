@@ -1,6 +1,6 @@
 {
     "name": "decent-bet-frontend",
-    "version": "2.0.0-alpha",
+    "version": "1.0.19-develop",
     "private": true,
     "devDependencies": {
         "@types/jest": "^23.3.2",
@@ -70,7 +70,7 @@
     },
     "scripts": {
         "start": "export BROWSER=none && react-scripts-ts start",
-        "start:development": "export BROWSER=none && REACT_APP_ENV=development react-scripts-ts start",
+        "start:development": "export BROWSER=none && REACT_APP_ENV=development && react-scripts-ts start",
         "start:staging": "export BROWSER=none && export REACT_APP_ENV=staging && react-scripts-ts start",
         "start:prod": "export BROWSER=none && export REACT_APP_ENV=production && react-scripts-ts start",
         "build": "export REACT_APP_ENV=production && react-scripts-ts build",
