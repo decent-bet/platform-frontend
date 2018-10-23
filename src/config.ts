@@ -56,13 +56,13 @@ function getRecaptchaKey() {
         case ENV_LOCAL:
             return '6LfAVnYUAAAAAO9j5Y5T_4qzRwx1R6DOLUXru0s4'
         case ENV_DEVELOPMENT:
-            return '6LeGhHIUAAAAAL3eLvnlnd6fljWZiQqoT8GeJHdC'
+            return '6LepTnYUAAAAAF4Jtoh2Hwk3f_AKijaT7owk6eTU'
         case ENV_STAGING:
-            return '6LeGhHIUAAAAAL3eLvnlnd6fljWZiQqoT8GeJHdC'
+            return '6LepTnYUAAAAAF4Jtoh2Hwk3f_AKijaT7owk6eTU'
         case ENV_PRODUCTION:
-            return '6LeGhHIUAAAAAL3eLvnlnd6fljWZiQqoT8GeJHdC'
+            return '6LepTnYUAAAAAF4Jtoh2Hwk3f_AKijaT7owk6eTU'
         default:
-            return '6LeGhHIUAAAAAL3eLvnlnd6fljWZiQqoT8GeJHdC'
+            return '6LepTnYUAAAAAF4Jtoh2Hwk3f_AKijaT7owk6eTU'
     }
 }
 
