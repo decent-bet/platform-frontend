@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import {
     Button,
@@ -12,15 +11,10 @@ import { VIEW_LOGIN } from '../../routes'
 import { Link } from 'react-router-dom'
 import SignUpForm from './SignUpForm'
 import AuthResult from '../AuthResult'
-import actions from '../state/actions'
 
 class SignUp extends React.Component<any> {
     constructor(props) {
         super(props)
-    }
-
-    public componentDidMount() {
-        this.props.setDefaultStatus()
     }
 
     public render() {
@@ -29,17 +23,19 @@ class SignUp extends React.Component<any> {
         return (
             <React.Fragment>
                 <CardContent>
-                    <Typography
-                        variant="headline"
-                        align="center"
-                        style={{ fontWeight: 'lighter' }}
-                    >
-                        Create New Account
-                    </Typography>
                     {this.props.processed ? (
                         <AuthResult message={this.props.resultMessage} />
                     ) : (
-                        <SignUpForm />
+                        <React.Fragment>
+                            <Typography
+                                variant="headline"
+                                align="center"
+                                style={{ fontWeight: 'lighter' }}
+                            >
+                                Create New Account
+                            </Typography>
+                            <SignUpForm />
+                        </React.Fragment>
                     )}
                 </CardContent>
                 <CardActions>
@@ -72,12 +68,7 @@ class SignUp extends React.Component<any> {
     }
 }
 
-const mapStateToProps = state => Object.assign({}, state.auth)
-const mapDispatchToProps = dispatch =>
-    bindActionCreators(Object.assign({}, actions.auth), dispatch)
+const mapStateToProps = state => Object.assign({}, state.auth.signUp)
 
-const SignUpContainer = connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(SignUp)
+const SignUpContainer = connect(mapStateToProps)(SignUp)
 export default SignUpContainer

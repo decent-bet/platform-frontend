@@ -10,39 +10,27 @@ import {
     Typography,
     TextField
 } from '@material-ui/core'
-import ReCaptcha from '../../common/components/ReCaptcha'
-import * as thunks from '../state/thunks'
-import actions from '../state/actions'
+import { makeLogin } from '../state/thunks'
+import * as validator from 'validator'
 import { VIEW_FORGOT_PASSWORD, VIEW_SIGNUP, VIEW_MAIN } from '../../routes'
 import LoadingButton from '../../common/components/LoadingButton'
+import Recaptcha from '../../common/components/Recaptcha'
+import { ILoginState, LoginState } from './LoginState'
 
-class Login extends React.Component<any> {
-    constructor(props) {
+class Login extends React.Component<any, ILoginState> {
+    private recaptchaRef: any
+
+    constructor(props: any) {
         super(props)
+        this.state = new LoginState()
+        this.onValueChange = this.onValueChange.bind(this)
+        this.isValidDataInput = this.isValidDataInput.bind(this)
+        this.handleSubmit = this.handleSubmit.bind(this)
+        this.onCaptchaKeyChange = this.onCaptchaKeyChange.bind(this)
+        this.onSetRecaptchaRef = this.onSetRecaptchaRef.bind(this)
     }
 
-    public componentDidMount() {
-        this.props.setDefaultStatus()
-    }
-
-    public state = {
-        formData: {
-            email: '',
-            password: ''
-        },
-        errors: {
-            email: false,
-            password: false,
-            recaptchaKey: false
-        },
-        errorsMessages: {
-            email: '',
-            password: '',
-            recaptchaKey: ''
-        }
-    }
-
-    private onValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    private onValueChange(event: React.ChangeEvent<HTMLInputElement>) {
         let { formData, errorsMessages, errors } = this.state
         const value = event.target.value
         const name = event.target.name
@@ -52,33 +40,93 @@ class Login extends React.Component<any> {
             errorsMessages[name] = event.target.validationMessage
             errors[name] = true
         } else {
-            errorsMessages[name] = ''
-            errors[name] = false
+            const validation = this.isValidDataInput(name, value)
+            errorsMessages[name] = validation.message
+            errors[name] = validation.error
         }
 
         this.setState({ formData, errorsMessages, errors })
     }
 
-    private get isValidCredentials() {
-        let { email, password } = this.state.formData
-        let { recaptchaKey } = this.props
+    private isValidDataInput(
+        inputName: string,
+        value: string
+    ): { error: boolean; message: string } {
+        let isVAlid: boolean
+        let message: string
+
+        switch (inputName) {
+            case 'email':
+                isVAlid =
+                    validator.isEmail(value) &&
+                    validator.isLength(value, { min: 3, max: 100 })
+                message = 'The email is not valid'
+                break
+            case 'password':
+                isVAlid = validator.isLength(value, { min: 6, max: 100 })
+                message = 'Invalid password'
+                break
+            case 'recaptchaKey':
+                isVAlid = validator.isLength(value, { min: 10 })
+                message = 'Invalid recaptcha Key'
+                break
+            default:
+                isVAlid = false
+                message = ''
+                break
+        }
+
+        return { error: !isVAlid, message: !isVAlid ? message : '' }
+    }
+
+    private get formHasError() {
+        const isValidEmail = this.isValidDataInput(
+            'email',
+            this.state.formData.email
+        )
+        const isValidPassword = this.isValidDataInput(
+            'password',
+            this.state.formData.password
+        )
+        const isValidRecaptcha = this.isValidDataInput(
+            'recaptchaKey',
+            this.state.formData.recaptchaKey
+        )
         return (
-            email.length > 3 && password.length > 4 && recaptchaKey.length > 0
+            isValidEmail.error ||
+            isValidPassword.error ||
+            isValidRecaptcha.error
         )
     }
 
-    private handleSubmit = async (event: React.FormEvent) => {
+    private onSetRecaptchaRef(recaptchaRef: any): void {
+        this.recaptchaRef = recaptchaRef
+    }
+
+    private async handleSubmit(event: React.FormEvent) {
         event.preventDefault()
-
-        let { email, password } = this.state.formData
-        let { recaptchaKey } = this.props
-
-        if (this.props.recaptcha && this.props.recaptcha.current) {
-            this.props.recaptcha.current.reset()
+        const { email, password, recaptchaKey } = this.state.formData
+        if (this.recaptchaRef) {
+            this.recaptchaRef.reset()
+            let { formData } = this.state
+            formData.recaptchaKey = ''
+            this.setState({ formData })
         }
-        await this.props.makeLogin(email, password, recaptchaKey)
+        const result = await this.props.makeLogin(email, password, recaptchaKey)
+        if (result && result.value && result.value.error === true) {
+            this.props.history.push(VIEW_MAIN)
+        }
+    }
 
-        this.props.history.push(VIEW_MAIN)
+    private onCaptchaKeyChange(key: string) {
+        let { formData, errors, errorsMessages } = this.state
+        formData.recaptchaKey = key
+
+        const validation = this.isValidDataInput('recaptchaKey', key)
+        errors.recaptchaKey = validation.error
+        errorsMessages.recaptchaKey = validation.message
+
+        this.setState({ formData, errorsMessages, errors })
     }
 
     public render() {
@@ -137,24 +185,19 @@ class Login extends React.Component<any> {
                                 Click here
                             </Button>
                         </Typography>
-
-                        <ReCaptcha
-                            onChange={this.props.setRecaptchaKey}
-                            onReceiveRecaptchaInstance={
-                                this.props.setRecaptchaInstance
-                            }
+                        <Recaptcha
+                            onSetRef={this.onSetRecaptchaRef}
+                            onKeyChange={this.onCaptchaKeyChange}
                         />
-
                         <p>
                             <LoadingButton
-                                isLoading={this.props.loading}
+                                isLoading={this.state.loading}
                                 color="primary"
                                 variant="contained"
                                 type="submit"
                                 fullWidth={true}
                                 disabled={
-                                    !this.isValidCredentials ||
-                                    this.props.loading
+                                    this.formHasError || this.state.loading
                                 }
                             >
                                 Login
@@ -190,9 +233,9 @@ class Login extends React.Component<any> {
     }
 }
 
-const mapStateToProps = state => Object.assign({}, state.auth)
+const mapStateToProps = state => Object.assign({}, state.auth.login)
 const mapDispatchToProps = dispatch =>
-    bindActionCreators(Object.assign({}, thunks, actions.auth), dispatch)
+    bindActionCreators(Object.assign({}, { makeLogin }), dispatch)
 
 const LoginContainer = connect(
     mapStateToProps,

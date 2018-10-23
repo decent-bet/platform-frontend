@@ -2,19 +2,13 @@ import * as React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
-import {
-    Grid,
-    CssBaseline,
-    MuiThemeProvider,
-    Snackbar
-} from '@material-ui/core'
+import { Grid, CssBaseline, MuiThemeProvider } from '@material-ui/core'
 import Main from '../Main'
 import Auth from '../Auth'
-import ActivateAccount from '../Auth/ActivateAccount'
+import ActivateAccount from '../ActivateAccount'
 import Logout from '../Logout'
 import PrivateRoute from './PrivateRoute'
 import PublicRoute from './PublicRoute'
-import EventBus from 'eventing-bus'
 import DarkTheme from '../common/themes/dark'
 import {
     VIEW_LOGOUT,
@@ -22,53 +16,31 @@ import {
     VIEW_AUTH,
     VIEW_ACTIVATE_ACCOUNT
 } from '../routes'
-import * as thunks from '../common/state/thunks'
+import {
+    setAppLoaded,
+    setUserAuthenticationStatus,
+    closeAlert
+} from '../common/state/thunks'
 import AppLoading from '../common/components/AppLoading'
 import TransparentPaper from '../common/components/TransparentPaper'
 import Alert from '../common/components/Alert'
 import ErrorBoundary from './ErrorBoundary'
+import IAppProps from './IAppProps'
 
-export interface IAppState {
-    snackbarMessage?: string
-    isSnackBarOpen: boolean
-    appLoaded: boolean
-}
-
-class App extends React.Component<any, IAppState> {
+class App extends React.Component<IAppProps> {
     constructor(props: any) {
         super(props)
-        this.state = {
-            snackbarMessage: '',
-            isSnackBarOpen: false,
-            appLoaded: false
-        }
-        this.onCloseSnackBar = this.onCloseSnackBar.bind(this)
         this.renderRoutes = this.renderRoutes.bind(this)
     }
 
     public async componentDidMount() {
-        await this.props.setHttpAuthBaseUrl()
         await this.props.setUserAuthenticationStatus()
-
-        EventBus.on('showSnackbar', message => {
-            this.setState({
-                isSnackBarOpen: true,
-                snackbarMessage: message
-            })
-        })
-        this.setState({ appLoaded: true })
+        await this.props.setAppLoaded()
     }
 
     private handleAlertClose = () => {
         const { closeAlert } = this.props as any
         closeAlert()
-    }
-
-    private onCloseSnackBar() {
-        this.setState({
-            isSnackBarOpen: false,
-            snackbarMessage: ''
-        })
     }
 
     private renderRoutes() {
@@ -95,6 +67,7 @@ class App extends React.Component<any, IAppState> {
                                 />
 
                                 <Route
+                                    exact={true}
                                     path={VIEW_ACTIVATE_ACCOUNT}
                                     component={ActivateAccount}
                                 />
@@ -114,12 +87,6 @@ class App extends React.Component<any, IAppState> {
                                 />
                             </Switch>
                         </BrowserRouter>
-                        <Snackbar
-                            onClose={this.onCloseSnackBar}
-                            message={this.state.snackbarMessage}
-                            open={this.state.isSnackBarOpen}
-                            autoHideDuration={6000}
-                        />
                         <Alert
                             onClose={this.handleAlertClose}
                             variant={this.props.alertType || 'error'}
@@ -143,7 +110,7 @@ class App extends React.Component<any, IAppState> {
                 <CssBaseline />
                 <ErrorBoundary>
                     <MuiThemeProvider theme={DarkTheme}>
-                        {this.state.appLoaded === true ? (
+                        {this.props.appLoaded ? (
                             this.renderRoutes()
                         ) : (
                             <AppLoading />
@@ -157,7 +124,17 @@ class App extends React.Component<any, IAppState> {
 
 const mapStateToProps = state => Object.assign({}, state.app)
 const mapDispatchToProps = dispatch =>
-    bindActionCreators(Object.assign({}, thunks), dispatch)
+    bindActionCreators(
+        Object.assign(
+            {},
+            {
+                setAppLoaded,
+                setUserAuthenticationStatus,
+                closeAlert
+            }
+        ),
+        dispatch
+    )
 
 const AppContainer = connect(
     mapStateToProps,

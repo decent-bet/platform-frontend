@@ -1,53 +1,12 @@
-import * as CONSTANTS from './constants'
-
-const {
+import {
     CURRENT_ENV,
     ENV_LOCAL,
     ENV_DEVELOPMENT,
     ENV_STAGING,
     ENV_PRODUCTION
-} = CONSTANTS
+} from './constants'
 
-export interface IStageConfig {
-    wsApiUrl: string
-    thorNode: string
-}
-
-export const STAGE_CONFIGS = {
-    local: {
-        wsApiUrl: 'ws://localhost:3200',
-        thorNode: 'https://thor-staging.decent.bet'
-    },
-    development: {
-        wsApiUrl: 'wss://channels-api-development.decent.bet',
-        thorNode: 'https://thor-staging.decent.bet'
-    },
-    staging: {
-        wsApiUrl: 'wss://channels-api-staging.decent.bet',
-        thorNode: 'https://thor-staging.decent.bet'
-    },
-    production: {
-        wsApiUrl: 'wss://channels-api-staging.decent.bet',
-        thorNode: 'https://thor-staging.decent.bet'
-    }
-}
-
-export function getStageConfig(): IStageConfig {
-    switch (CURRENT_ENV) {
-        case ENV_LOCAL:
-            return STAGE_CONFIGS.local
-        case ENV_DEVELOPMENT:
-            return STAGE_CONFIGS.development
-        case ENV_STAGING:
-            return STAGE_CONFIGS.staging
-        case ENV_PRODUCTION:
-            return STAGE_CONFIGS.production
-        default:
-            return STAGE_CONFIGS.local
-    }
-}
-
-export function getAuthApiUrl(): string {
+function getAuthApiUrl(): string {
     switch (CURRENT_ENV) {
         case ENV_LOCAL:
             return 'http://localhost:3200/api'
@@ -62,4 +21,52 @@ export function getAuthApiUrl(): string {
     }
 }
 
+function getWsApiUrl() {
+    switch (CURRENT_ENV) {
+        case ENV_LOCAL:
+            return 'ws://localhost:3010'
+        case ENV_DEVELOPMENT:
+            return 'wss://channels-api-development.decent.bet'
+        case ENV_STAGING:
+            return 'wss://channels-api-staging.decent.bet'
+        case ENV_PRODUCTION:
+            return 'wss://channels-api-staging.decent.bet'
+        default:
+            return 'ws://localhost:3010'
+    }
+}
+
+function getThorNodeUrl() {
+    switch (CURRENT_ENV) {
+        case ENV_LOCAL:
+            return 'https://thor-staging.decent.bet' // 'http://localhost:8669'
+        case ENV_DEVELOPMENT:
+            return 'https://thor-staging.decent.bet'
+        case ENV_STAGING:
+            return 'https://thor-staging.decent.bet'
+        case ENV_PRODUCTION:
+            return 'https://thor-staging.decent.bet'
+        default:
+            return 'https://thor-staging.decent.bet'
+    }
+}
+
+function getRecaptchaKey() {
+    switch (CURRENT_ENV) {
+        case ENV_LOCAL:
+            return '6LfAVnYUAAAAAO9j5Y5T_4qzRwx1R6DOLUXru0s4'
+        case ENV_DEVELOPMENT:
+            return '6LepTnYUAAAAAF4Jtoh2Hwk3f_AKijaT7owk6eTU'
+        case ENV_STAGING:
+            return '6LepTnYUAAAAAF4Jtoh2Hwk3f_AKijaT7owk6eTU'
+        case ENV_PRODUCTION:
+            return '6LepTnYUAAAAAF4Jtoh2Hwk3f_AKijaT7owk6eTU'
+        default:
+            return '6LepTnYUAAAAAF4Jtoh2Hwk3f_AKijaT7owk6eTU'
+    }
+}
+
 export const AUTH_API_URL: string = getAuthApiUrl()
+export const RECAPTCHA_SITE_KEY: string = getRecaptchaKey()
+export const THOR_NODE_URL: string = getThorNodeUrl()
+export const WS_API_URL: string = getWsApiUrl()

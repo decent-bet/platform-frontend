@@ -1,19 +1,16 @@
-import { getStageConfig } from '../../config'
+import { THOR_NODE_URL } from '../../config'
 import { thorify } from 'thorify'
 import Web3 from 'web3'
 import { IKeyHandler, IThorifyFactory } from '../types'
 
 export default class ThorifyFactory implements IThorifyFactory {
     private _thorify: any = null
-    private _config: any
 
-    constructor(private _keyHandler: IKeyHandler) {
-        this._config = getStageConfig()
-    }
+    constructor(private _keyHandler: IKeyHandler) {}
 
     public make(): any {
         if (!this._thorify) {
-            this._thorify = thorify(new Web3(), this._config.thorNode)
+            this._thorify = thorify(new Web3(), THOR_NODE_URL)
         }
         return this._thorify
     }

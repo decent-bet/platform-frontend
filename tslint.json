@@ -38,6 +38,7 @@
         "no-bitwise": false
     },
     "globals": {
+        "process": true,
         "setTimeout": true,
         "clearTimeout": true,
         "setInterval": true,

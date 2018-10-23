@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import {
     Button,
@@ -12,16 +11,10 @@ import { Link } from 'react-router-dom'
 import { VIEW_LOGIN } from '../../routes'
 import AuthResult from '../AuthResult'
 import ForgotPasswordForm from './ForgotPasswordForm'
-import actions from '../state/actions'
 
 class ForgotPassword extends React.Component<any> {
-    
     constructor(props) {
         super(props)
-    }
-
-    public componentDidMount() {
-        this.props.setDefaultStatus()
     }
 
     public render() {
@@ -38,7 +31,7 @@ class ForgotPassword extends React.Component<any> {
                         Forgot your password ?
                     </Typography>
                     {this.props.processed ? (
-                        <AuthResult message={this.props.successMessage} />
+                        <AuthResult message={this.props.resultMessage} />
                     ) : (
                         <ForgotPasswordForm />
                     )}
@@ -71,13 +64,7 @@ class ForgotPassword extends React.Component<any> {
     }
 }
 
-const mapStateToProps = state => Object.assign({}, state.auth)
-const mapDispatchToProps = dispatch => bindActionCreators(Object.assign(
-        {},
-        actions.auth
-    ), dispatch)
+const mapStateToProps = state => Object.assign({}, state.auth.forgotPassword)
 
-const ForgotPasswordContainer = connect(mapStateToProps, mapDispatchToProps)(ForgotPassword)
+const ForgotPasswordContainer = connect(mapStateToProps)(ForgotPassword)
 export default ForgotPasswordContainer
-
-

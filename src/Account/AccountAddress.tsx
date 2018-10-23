@@ -124,33 +124,6 @@ class AccountAddress extends React.Component<
                         <Grid container={true} spacing={32}>
                             <Grid item={true} xs={12} sm={12}>
                                 <FormControl
-                                    error={this.state.errors.address}
-                                    required={true}
-                                    fullWidth={true}
-                                >
-                                    <InputLabel htmlFor="address">
-                                        {!this.props.accountHasAddress &&
-                                        !this.state.isEditing
-                                            ? `You haven't registered an address yet`
-                                            : 'Public Address'}
-                                    </InputLabel>
-                                    <Input
-                                        type="text"
-                                        disabled={true}
-                                        placeholder="Public Address"
-                                        name="address"
-                                        value={this.state.address}
-                                        onChange={this.onFormValueChange}
-                                    />
-                                    <FormHelperText>
-                                        {this.state.errorMessages.address}
-                                    </FormHelperText>
-                                </FormControl>
-                            </Grid>
-                        </Grid>
-                        <Grid container={true} spacing={32}>
-                            <Grid item={true} xs={12} sm={12}>
-                                <FormControl
                                     error={this.state.errors.privateKey}
                                     required={true}
                                     fullWidth={true}
@@ -177,6 +150,33 @@ class AccountAddress extends React.Component<
                                             of the address you would like to
                                             register.
                                         </Typography>
+                                    </FormHelperText>
+                                </FormControl>
+                            </Grid>
+                        </Grid>
+
+                        <Grid container={true} spacing={32}>
+                            <Grid item={true} xs={12} sm={12}>
+                                <FormControl
+                                    error={this.state.errors.address}
+                                    fullWidth={true}
+                                >
+                                    <InputLabel htmlFor="address">
+                                        {!this.props.accountHasAddress &&
+                                        !this.state.isEditing
+                                            ? `You haven't registered an address yet`
+                                            : 'Public Address'}
+                                    </InputLabel>
+                                    <Input
+                                        type="text"
+                                        disabled={true}
+                                        placeholder="Public Address"
+                                        name="address"
+                                        value={this.state.address}
+                                        onChange={this.onFormValueChange}
+                                    />
+                                    <FormHelperText>
+                                        {this.state.errorMessages.address}
                                     </FormHelperText>
                                 </FormControl>
                             </Grid>

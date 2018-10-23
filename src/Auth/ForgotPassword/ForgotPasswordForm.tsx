@@ -1,23 +1,29 @@
 import * as React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { Button, TextField, CircularProgress } from '@material-ui/core'
-import ReCaptcha from '../../common/components/ReCaptcha'
+import { TextField } from '@material-ui/core'
+import Recaptcha from '../../common/components/Recaptcha'
+import LoadingButton from '../../common/components/LoadingButton'
 import actions from '../state/actions'
 
 class ForgotPasswordForm extends React.Component<any> {
+    private recaptchaRef: any
+
     constructor(props: any) {
         super(props)
+        this.onCaptchaKeyChange = this.onCaptchaKeyChange.bind(this)
+        this.onSetRecaptchaRef = this.onSetRecaptchaRef.bind(this)
     }
 
     public state = {
         email: '',
+        recaptchaKey: '',
         error: false,
         errorsMessage: ''
     }
 
-    private get formIsValid() {
-        return this.state.email.length > 4 && this.props.recaptchaKey.length > 0
+    private get formHasError() {
+        return this.state.email.length < 4 && this.state.recaptchaKey.length < 4
     }
 
     private onEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,14 +40,22 @@ class ForgotPasswordForm extends React.Component<any> {
         }
     }
 
+    private onCaptchaKeyChange(key: string) {
+        this.setState({ recaptchaKey: key })
+    }
+
+    private onSetRecaptchaRef(recaptchaRef: any): void {
+        this.recaptchaRef = recaptchaRef
+    }
+
     private handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()
-        let { recaptchaKey } = this.props
-
-        if (this.props.recaptcha && this.props.recaptcha.current) {
-            this.props.recaptcha.current.reset()
+        const { email, recaptchaKey } = this.state
+        if (this.recaptchaRef) {
+            this.recaptchaRef.reset()
+            this.setState({ recaptchaKey: '' })
         }
-        await this.props.forgotPassword(this.state.email, recaptchaKey)
+        await this.props.forgotPassword(email, recaptchaKey)
         this.setState({ email: '' })
     }
 
@@ -60,24 +74,21 @@ class ForgotPasswordForm extends React.Component<any> {
                     onChange={this.onEmailChange}
                     helperText={this.state.errorsMessage}
                 />
-                <ReCaptcha
-                    onChange={this.props.setRecaptchaKey}
-                    onReceiveRecaptchaInstance={this.props.setRecaptchaInstance}
+                <Recaptcha
+                    onSetRef={this.onSetRecaptchaRef}
+                    onKeyChange={this.onCaptchaKeyChange}
                 />
                 <p>
-                    <Button
+                    <LoadingButton
+                        isLoading={loading}
                         color="primary"
                         variant="contained"
                         fullWidth={true}
-                        disabled={!this.formIsValid || loading}
+                        disabled={this.formHasError || loading}
                         type="submit"
                     >
-                        {loading ? (
-                            <CircularProgress color="secondary" size={24} />
-                        ) : (
-                            'Reset Password'
-                        )}
-                    </Button>
+                        Reset Password
+                    </LoadingButton>
                 </p>
             </form>
         )

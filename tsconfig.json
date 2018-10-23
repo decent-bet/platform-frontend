@@ -1,15 +1,14 @@
 {
     "compilerOptions": {
         "baseUrl": ".",
-        "outDir": "build",
+        "outDir": "out",
         "module": "esnext",
         "target": "es5",
-        "lib": ["dom", "es2017"],
+        "lib": ["es2017", "dom"],
         "sourceMap": true,
         "allowJs": true,
         "jsx": "react",
         "moduleResolution": "node",
-        "rootDir": "src",
         "forceConsistentCasingInFileNames": true,
         "noImplicitReturns": true,
         "noImplicitThis": true,
@@ -17,10 +16,21 @@
         "strictNullChecks": true,
         "suppressImplicitAnyIndexErrors": true,
         "noUnusedLocals": true,
+        "skipLibCheck": true,
+        "allowSyntheticDefaultImports": true,
         "downlevelIteration": true
     },
+    "include": [
+        "node_modules/@types/*/*.d.ts",
+        "node_modules/electron/electron.d.ts",
+        "node_modules/electron-updater/out/*.d.ts",
+        "node_modules/electron-builder-http/out/*.d.ts",
+        "src/**/*.ts",
+        "src/**/*.js",
+        "typings/**/*.d.ts",
+        "images.d.ts"
+    ],
     "exclude": [
-        "public",
         "node_modules",
         "build",
         "scripts",
