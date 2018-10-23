@@ -59,6 +59,7 @@ class AccountAddress extends React.Component<
     ) => {
         let loginValue = event.target.value
         let address = ''
+        let privateKey = ''
         const fieldName = 'privateKeyOrMnemonic'
         let { errorMessages, errors } = this.state
 
@@ -80,15 +81,18 @@ class AccountAddress extends React.Component<
                     wallet = new Wallet(loginValue)
                 }
                 address = wallet.address
+                privateKey = wallet.privateKey
             } catch (e) {
                 errorMessages[fieldName] =
                     'Error trying to process your Passphrase or Private Key.'
                 errors[fieldName] = false
+                loginValue = event.target.value
             }
         }
 
         this.setState({
             privateKeyOrMnemonic: loginValue,
+            privateKey,
             address,
             errorMessages,
             errors
@@ -99,7 +103,7 @@ class AccountAddress extends React.Component<
         event.preventDefault()
         await this.props.saveAccountAddress(
             this.state.address,
-            this.state.privateKeyOrMnemonic
+            this.state.privateKey
         )
     }
 

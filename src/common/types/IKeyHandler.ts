@@ -20,9 +20,9 @@ export default interface IKeyHandler {
     setAccountActivated(activated: boolean): Promise<void>
     getAccountActivationStatus(): Promise<boolean>
 
-    storeTempPrivateKeyOrMnemonic(value: string): Promise<void>
-    getTempPrivateKeyOrMnemonic(): Promise<string | null>
-    removeTempPrivateKeyOrMnemonic(): Promise<void>
+    storeTempPrivateKey(value: string): Promise<void>
+    getTempPrivateKey(): Promise<string | null>
+    removeTempPrivateKey(): Promise<void>
     /**
      * Returns public address of the logged in user
      */

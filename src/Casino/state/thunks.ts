@@ -8,10 +8,10 @@ export function getCasinoLoginStatus(account: any) {
             actions.getCasinoLoginStatus(keyHandler)
         )
         if (statusResult.value === false) {
-            const tempSecret = await keyHandler.getTempPrivateKeyOrMnemonic()
+            const tempSecret = await keyHandler.getTempPrivateKey()
             if (tempSecret) {
                 await dispatch(authWallet(tempSecret, account))
-                await keyHandler.removeTempPrivateKeyOrMnemonic()
+                await keyHandler.removeTempPrivateKey()
                 return true
             }
         }

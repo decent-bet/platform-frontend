@@ -82,7 +82,7 @@ class KeyHandler implements IKeyHandler {
         return await this.keyStore.getVariable(ACCOUNT_ACTIVATED_NAME)
     }
 
-    public async storeTempPrivateKeyOrMnemonic(value: string): Promise<void> {
+    public async storeTempPrivateKey(value: string): Promise<void> {
         const cryptoKey = await this.keyStore.getCryptoKey()
 
         await this.keyStore.addVariable(
@@ -91,7 +91,7 @@ class KeyHandler implements IKeyHandler {
         )
     }
 
-    public async getTempPrivateKeyOrMnemonic(): Promise<string | null> {
+    public async getTempPrivateKey(): Promise<string | null> {
         const cryptoKey = await this.keyStore.getCryptoKey()
         const tempBlob = await this.keyStore.getVariable(
             ACCOUNT_TEMP_LOGIN_VALUE
@@ -103,7 +103,7 @@ class KeyHandler implements IKeyHandler {
         return null
     }
 
-    public async removeTempPrivateKeyOrMnemonic(): Promise<void> {
+    public async removeTempPrivateKey(): Promise<void> {
         await this.keyStore.clearVariable(ACCOUNT_TEMP_LOGIN_VALUE)
     }
 
