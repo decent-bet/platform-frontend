@@ -1,16 +1,17 @@
 # Decent.bet Platform Frontend
 
-Consists of the platform pages - Slots betting casino and more. 
+Consists of the platform pages - Slots betting casino and more.
 
 ## Getting Started
 
 ### Requirements
-1. [Node](https://nodejs.org) v9.11.2 
-2. [NVM](https://github.com/creationix/nvm) (Recomended) 
-3. [Yarn](https://yarnpkg.com): `npm i -g yarn`
-4. Thor:
-*To work with the platform frontend, you'll have to deploy the contracts to a locally running [Vechain Thor](https://github.com/vechain/thor) instance, follow the instructions in [https://github.com/vechain/thor](https://github.com/vechain/thor) for local install or use with docker. For now, You can find the contracts published as a npm package [@decent-bet/contract-slots](https://www.npmjs.com/package/@decent-bet/contract-slots)*.
 
+1. [Node](https://nodejs.org) v10.12.0 with npm
+2. [NVM](https://github.com/creationix/nvm)
+3. Thor:
+   _To work with the platform frontend, you'll have to deploy the contracts to a locally running [Vechain Thor](https://github.com/vechain/thor) instance, follow the instructions in [https://github.com/vechain/thor](https://github.com/vechain/thor) for local install or use with docker. For now, You can find the contracts published as a npm package [@decent-bet/contract-slots](https://www.npmjs.com/package/@decent-bet/contract-slots)_.
+4. KYC Backend running (with own dependencies)
+5. Slots Channels API running (with own dependencies)
 
 ### Development
 
@@ -21,36 +22,53 @@ Consists of the platform pages - Slots betting casino and more.
     ```bash
     cd platform-frontend
     ```
-    *If you use nvm run:*
+    _If you use nvm run:_
     ```bash
     nvm use
     ```
 2. Install dependencies:
 
     ```bash
-    yarn install
+    npm i
     ```
+
 3. Update git submodules for games:
     ```bash
     git submodule update --init
     ```
-4. Run the webpack server for frontend hot reloading:
+    > Or for specific branchd run
     ```bash
-    yarn start
+    git submodule foreach git checkout origin [YOUR_BRANCH] && git submodule foreach git pull origin [YOUR_BRANCH]
     ```
-    ---
-    You can open your browser and open [http://localhost:3007](http://localhost:3007).
-    
-
-### Deployment
-
--  To build the application for production, use the build command. A production build will be in the build_webpack folder.
+4. Run the dev server for frontend hot reloading:
 
     ```bash
-    yarn build
+    npm start
     ```
 
--  You can deploy the build files using a simple express server and [pm2](https://github.com/Unitech/pm2), [serve](https://github.com/zeit/serve) or [nginx](https://nginx.org/).
+    ***
 
-- If you want, you can deploy using docker, check or [Dockerfile](Dockerfile) and [docker-compose.yml](docker-compose.yml) files.
+    You can open your browser and open [http://localhost:3000](http://localhost:3000).
 
+### Build, Deployment and npm scripts
+
+-   To build the application for development, staging or production, use the corresponding npm script. A bundle will be in the **_build_** folder at the root of the application.
+
+    Just run `npm run [NPM_SCRIPT]`
+
+    -   `start`: Starts the dev server with `local` environtment,
+    -   `start:develop`: Starts the dev server with `development` environtment,
+    -   `start:staging`: Starts the dev server with `staging` environtment,
+    -   `start:prod`: Starts the dev server with `production` environtment,
+    -   `build:local`: Make a bundle build with `local` environtment
+    -   `build:develop`: Make a bundle build with `development` environtment
+    -   `build:staging`: Make a bundle build with `staging` environtment
+    -   `build:prod`: Make a bundle build with `production` environtment
+    -   `deploy`: Build and deploy a container image and Deploy to GCP.
+    -   `deploy:develop`: Runs `build:develop` and then `deploy`.
+    -   `deploy:staging`: Runs `build:staging` and then `deploy`.
+    -   `deploy:prod`: Runs `build:prod` and then `deploy`.
+
+-   You can deploy the build files using a simple express server and [pm2](https://github.com/Unitech/pm2), [serve](https://github.com/zeit/serve) or [nginx](https://nginx.org/).
+
+-   If you want, you can deploy using docker, check or [Dockerfile](Dockerfile) and [docker-compose.yml](docker-compose.yml) files.

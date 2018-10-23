@@ -13,9 +13,9 @@ import {
 } from '@material-ui/core'
 import Accounts from 'web3-eth-accounts'
 import * as validator from 'validator'
-import { WALLET_WEBSITE_URL } from '../constants'
-import AccountSectionHeader from './AccountSectionHeader'
-import AccountSectionActions from './AccountSectionActions'
+import { WALLET_WEBSITE_URL } from '../../constants'
+import AccountSectionHeader from '../AccountSectionHeader'
+import AccountSectionActions from '../AccountSectionActions'
 import {
     IAccountAddressState,
     AccountAddressState
@@ -38,7 +38,10 @@ class AccountAddress extends React.Component<
     private get formHasError() {
         if (
             validator.isLength(this.state.address, { min: 4, max: 300 }) &&
-            validator.isLength(this.state.privateKey, { min: 4, max: 300 })
+            validator.isLength(this.state.privateKeyOrMnemonic, {
+                min: 4,
+                max: 300
+            })
         ) {
             return false
         }
@@ -68,17 +71,21 @@ class AccountAddress extends React.Component<
             errors[name] = false
         }
 
-        if (name === 'privateKey') {
+        if (name === 'privateKeyOrMnemonic') {
             try {
                 const account = accounts.privateKeyToAccount(value)
                 this.setState({
-                    privateKey: value,
+                    privateKeyOrMnemonic: value,
                     address: account.address,
                     errorMessages,
                     errors
                 })
             } catch (e) {
-                this.setState({ privateKey: value, errorMessages, errors })
+                this.setState({
+                    privateKeyOrMnemonic: value,
+                    errorMessages,
+                    errors
+                })
             }
         }
     }
@@ -87,7 +94,7 @@ class AccountAddress extends React.Component<
         event.preventDefault()
         await this.props.saveAccountAddress(
             this.state.address,
-            this.state.privateKey
+            this.state.privateKeyOrMnemonic
         )
     }
 
@@ -136,8 +143,8 @@ class AccountAddress extends React.Component<
                                         disableUnderline={!this.state.isEditing}
                                         disabled={!this.state.isEditing}
                                         placeholder="Private key"
-                                        name="privateKey"
-                                        value={this.state.privateKey}
+                                        name="privateKeyOrMnemonic"
+                                        value={this.state.privateKeyOrMnemonic}
                                         onChange={this.onFormValueChange}
                                     />
                                     <FormHelperText>

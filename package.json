@@ -81,7 +81,6 @@
         "deploy:develop": "npm run build:develop && npm run deploy",
         "deploy:staging": "npm run build:staging && npm run deploy",
         "deploy:prod": "npm run build:prod && npm run deploy",
-        "deploy:local": "npm run build:local && npm run deploy",
         "test": "react-scripts-ts test --env=jsdom",
         "lint": "tslint src __tests__",
         "lint:fix": "tslint --fix src __tests__"

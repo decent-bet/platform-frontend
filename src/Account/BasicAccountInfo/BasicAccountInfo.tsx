@@ -20,13 +20,13 @@ import { subYears, format, parse } from 'date-fns'
 import * as validator from 'validator'
 import countries from 'iso-3166-1/src/iso-3166'
 import { WithStyles, withStyles, createStyles, Theme } from '@material-ui/core'
-import AccountSectionHeader from './AccountSectionHeader'
-import AccountSectionActions from './AccountSectionActions'
+import AccountSectionHeader from '../AccountSectionHeader'
+import AccountSectionActions from '../AccountSectionActions'
 import CountryComponents from './CountryComponents'
 
 const FORMAT_DOB = `YYYY-MM-dd'T'X`
 const COUNTRY_LIST: [{ label: string; value: string }] = countries.map(
-    (item, index) => {
+    (item, _index) => {
         return { label: item.country, value: item.alpha3 }
     }
 )
@@ -82,7 +82,7 @@ const styles = (theme: Theme) =>
         }
     })
 
-interface IAccountInfoState {
+interface IBasicAccountInfoState {
     isEditing: boolean
     selectedDob: Date
     selectedCountry: any
@@ -127,20 +127,21 @@ interface IAccountInfoState {
     }
 }
 
-export interface IAccountInfoProps extends WithStyles<typeof styles, true> {
+export interface IBasicAccountInfoProps
+    extends WithStyles<typeof styles, true> {
     accountIsVerified: boolean
     account: any
     isSaving: boolean
     saveAccountInfo(data: any): void
 }
 
-class AccountInfo extends React.Component<
-    IAccountInfoProps,
-    IAccountInfoState
+class BasicAccountInfo extends React.Component<
+    IBasicAccountInfoProps,
+    IBasicAccountInfoState
 > {
     private maxDateOfBirth = subYears(new Date(), 18)
 
-    constructor(props: IAccountInfoProps) {
+    constructor(props: IBasicAccountInfoProps) {
         super(props)
 
         this.state = {
@@ -355,7 +356,6 @@ class AccountInfo extends React.Component<
             this.setState({ isEditing: true })
             this.handleDateOfBirthChange(this.state.selectedCountry)
         } else {
-
             const { basicVerification } = this.props.account.verification
 
             this.setState({
@@ -365,9 +365,7 @@ class AccountInfo extends React.Component<
                     new Date()
                 ),
                 selectedCountry: COUNTRY_LIST.find(
-                    item =>
-                        item.value ===
-                        basicVerification.country
+                    item => item.value === basicVerification.country
                 ),
                 formData: {
                     firstName: basicVerification.firstName,
@@ -377,10 +375,8 @@ class AccountInfo extends React.Component<
                     dob: basicVerification.dob,
                     country: basicVerification.country,
                     state: basicVerification.state,
-                    streetAddress: basicVerification
-                        .streetAddress,
-                    phoneNumber: basicVerification
-                        .phoneNumber,
+                    streetAddress: basicVerification.streetAddress,
+                    phoneNumber: basicVerification.phoneNumber,
                     postCode: basicVerification.postCode,
                     town: basicVerification.town
                 }
@@ -721,4 +717,4 @@ class AccountInfo extends React.Component<
     }
 }
 
-export default withStyles(styles, { withTheme: true })(AccountInfo)
+export default withStyles(styles, { withTheme: true })(BasicAccountInfo)
