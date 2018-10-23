@@ -18,7 +18,7 @@ import Recaptcha from '../../common/components/Recaptcha'
 import { ILoginState, LoginState } from './LoginState'
 
 class Login extends React.Component<any, ILoginState> {
-    private recaptcha: any
+    private recaptchaRef: any
 
     constructor(props: any) {
         super(props)
@@ -27,6 +27,7 @@ class Login extends React.Component<any, ILoginState> {
         this.isValidDataInput = this.isValidDataInput.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.onCaptchaKeyChange = this.onCaptchaKeyChange.bind(this)
+        this.onSetRecaptchaRef = this.onSetRecaptchaRef.bind(this)
     }
 
     private onValueChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -98,11 +99,15 @@ class Login extends React.Component<any, ILoginState> {
         )
     }
 
+    private onSetRecaptchaRef(recaptchaRef: any): void {
+        this.recaptchaRef = recaptchaRef
+    }
+
     private async handleSubmit(event: React.FormEvent) {
         event.preventDefault()
         let { email, password, recaptchaKey } = this.state.formData
-        if (this.recaptcha) {
-            this.recaptcha.reset()
+        if (this.recaptchaRef) {
+            this.recaptchaRef.reset()
         }
         const result = await this.props.makeLogin(email, password, recaptchaKey)
         if (result && result.value && result.value.error === true) {
@@ -177,7 +182,10 @@ class Login extends React.Component<any, ILoginState> {
                                 Click here
                             </Button>
                         </Typography>
-                        <Recaptcha onKeyChange={this.onCaptchaKeyChange} />
+                        <Recaptcha
+                            onSetRef={this.onSetRecaptchaRef}
+                            onKeyChange={this.onCaptchaKeyChange}
+                        />
                         <p>
                             <LoadingButton
                                 isLoading={this.state.loading}

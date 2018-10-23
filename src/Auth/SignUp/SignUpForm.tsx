@@ -7,10 +7,11 @@ import Recaptcha from '../../common/components/Recaptcha'
 import LoadingButton from '../../common/components/LoadingButton'
 
 class SignUpForm extends React.Component<any> {
-    private recaptcha: any
+    private recaptchaRef: any
     constructor(props: any) {
         super(props)
         this.onCaptchaKeyChange = this.onCaptchaKeyChange.bind(this)
+        this.onSetRecaptchaRef = this.onSetRecaptchaRef.bind(this)
     }
 
     public state = {
@@ -30,6 +31,10 @@ class SignUpForm extends React.Component<any> {
             password: '',
             passwordConfirmation: ''
         }
+    }
+
+    private onSetRecaptchaRef(recaptchaRef: any): void {
+        this.recaptchaRef = recaptchaRef
     }
 
     private onCaptchaKeyChange(key: string) {
@@ -90,8 +95,8 @@ class SignUpForm extends React.Component<any> {
             recaptchaKey
         } = this.state.formData
         const { signUp } = this.props as any
-        if (this.recaptcha) {
-            this.recaptcha.reset()
+        if (this.recaptchaRef) {
+            this.recaptchaRef.reset()
         }
         await signUp(email, password, passwordConfirmation, recaptchaKey)
 
@@ -145,7 +150,10 @@ class SignUpForm extends React.Component<any> {
                     fullWidth={true}
                     helperText={this.state.errorMessages.passwordConfirmation}
                 />
-                <Recaptcha onKeyChange={this.onCaptchaKeyChange} />
+                <Recaptcha
+                    onSetRef={this.onSetRecaptchaRef}
+                    onKeyChange={this.onCaptchaKeyChange}
+                />
                 <p>
                     <LoadingButton
                         isLoading={loading}

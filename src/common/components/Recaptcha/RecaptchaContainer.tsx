@@ -1,6 +1,6 @@
-import { RECAPTCHA_SITE_KEY } from '../../../constants'
+import { RECAPTCHA_SITE_KEY } from '../../../config'
 import * as React from 'react'
-import { Grow, CircularProgress, Grid } from '@material-ui/core'
+import { Grid, CircularProgress, Fade } from '@material-ui/core'
 import TransparentPaper from '../TransparentPaper'
 import Recaptcha from './Recaptcha'
 import IRecaptchaContainerProps from './IRecaptchaContainerProps'
@@ -28,6 +28,7 @@ export default class RecaptchaContainer extends React.Component<
 
     private setRecaptchaRef(recatpchaRef) {
         this.setState({ recatpchaRef })
+        this.props.onSetRef(recatpchaRef)
     }
 
     private onLoad() {
@@ -41,39 +42,36 @@ export default class RecaptchaContainer extends React.Component<
                 direction="column"
                 alignItems="center"
                 justify="center"
+                style={{
+                    paddingTop: '2em',
+                    paddingBottom: '1em'
+                }}
             >
                 <Grid
                     item={true}
                     xs={12}
                     style={{
-                        paddingTop: '2em',
-                        paddingBottom: '1em'
+                        height: 85
                     }}
                 >
-                    <div
-                        style={{ maxWidth: '260px !important', height: '78px' }}
-                    >
-                        <div
-                            style={{
-                                display: this.state.loaded ? 'none' : 'block',
-                                textAlign: 'center'
-                            }}
-                        >
-                            <CircularProgress size={24} color="secondary" />
-                        </div>
-                        <Grow in={this.state.loaded} timeout={1000}>
-                            <TransparentPaper>
-                                <Recaptcha
-                                    ref={this.setRecaptchaRef}
-                                    sitekey={RECAPTCHA_SITE_KEY}
-                                    theme="light"
-                                    render="explicit"
-                                    onloadCallback={this.onLoad}
-                                    verifyCallback={this.props.onKeyChange}
-                                />
-                            </TransparentPaper>
-                        </Grow>
-                    </div>
+                    <CircularProgress
+                        style={{
+                            display: this.state.loaded ? 'none' : 'block'
+                        }}
+                        size={24}
+                    />
+                    <Fade in={this.state.loaded}>
+                        <TransparentPaper>
+                            <Recaptcha
+                                ref={this.setRecaptchaRef}
+                                sitekey={RECAPTCHA_SITE_KEY}
+                                theme="light"
+                                render="explicit"
+                                onloadCallback={this.onLoad}
+                                verifyCallback={this.props.onKeyChange}
+                            />
+                        </TransparentPaper>
+                    </Fade>
                 </Grid>
             </Grid>
         )

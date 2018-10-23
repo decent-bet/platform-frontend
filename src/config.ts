@@ -39,7 +39,7 @@ function getWsApiUrl() {
 function getThorNodeUrl() {
     switch (CURRENT_ENV) {
         case ENV_LOCAL:
-            return 'http://localhost:8669'
+            return 'https://thor-staging.decent.bet' // 'http://localhost:8669'
         case ENV_DEVELOPMENT:
             return 'https://thor-staging.decent.bet'
         case ENV_STAGING:
@@ -47,7 +47,7 @@ function getThorNodeUrl() {
         case ENV_PRODUCTION:
             return 'https://thor-staging.decent.bet'
         default:
-            return 'ws://localhost:3010'
+            return 'https://thor-staging.decent.bet'
     }
 }
 

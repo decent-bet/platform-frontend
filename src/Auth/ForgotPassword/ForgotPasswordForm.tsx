@@ -7,11 +7,12 @@ import LoadingButton from '../../common/components/LoadingButton'
 import actions from '../state/actions'
 
 class ForgotPasswordForm extends React.Component<any> {
-    private recaptcha: any
+    private recaptchaRef: any
 
     constructor(props: any) {
         super(props)
         this.onCaptchaKeyChange = this.onCaptchaKeyChange.bind(this)
+        this.onSetRecaptchaRef = this.onSetRecaptchaRef.bind(this)
     }
 
     public state = {
@@ -43,10 +44,14 @@ class ForgotPasswordForm extends React.Component<any> {
         this.setState({ recaptchaKey: key })
     }
 
+    private onSetRecaptchaRef(recaptchaRef: any): void {
+        this.recaptchaRef = recaptchaRef
+    }
+
     private handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()
-        if (this.recaptcha) {
-            this.recaptcha.reset()
+        if (this.recaptchaRef) {
+            this.recaptchaRef.reset()
         }
         await this.props.forgotPassword(
             this.state.email,
@@ -70,7 +75,10 @@ class ForgotPasswordForm extends React.Component<any> {
                     onChange={this.onEmailChange}
                     helperText={this.state.errorsMessage}
                 />
-                <Recaptcha onKeyChange={this.onCaptchaKeyChange} />
+                <Recaptcha
+                    onSetRef={this.onSetRecaptchaRef}
+                    onKeyChange={this.onCaptchaKeyChange}
+                />
                 <p>
                     <LoadingButton
                         isLoading={loading}
