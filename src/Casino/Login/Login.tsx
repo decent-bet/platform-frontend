@@ -105,6 +105,7 @@ class Login extends React.Component<ILoginProps, ILoginState> {
                             type="text"
                             fullWidth={true}
                             multiline={true}
+                            autoComplete="off"
                             label="Enter Passphrase or Private Key"
                             value={this.state.loginValue}
                             onChange={this.onLoginTextChangedListener}

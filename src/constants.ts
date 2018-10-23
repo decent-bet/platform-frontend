@@ -8,6 +8,7 @@ const ENV_STAGING: string = 'staging'
 const ENV_PRODUCTION: string = 'production'
 const AUTH_TOKEN_NAME: string = 'token'
 const ACCOUNT_ACTIVATED_NAME: string = 'account_activated'
+const ACCOUNT_TEMP_LOGIN_VALUE: string = 'acc_tmp_log'
 const WALLET_WEBSITE_URL: string = 'http://decent.bet/wallet.php'
 const RECAPTCHA_URL: string = 'https://www.google.com/recaptcha/api.js'
 
@@ -47,6 +48,7 @@ export {
     CHANNEL_STATUS_DEPOSITED,
     CHANNEL_STATUS_ACTIVATED,
     CHANNEL_STATUS_FINALIZED,
+    ACCOUNT_TEMP_LOGIN_VALUE,
     ENV_LOCAL,
     ENV_DEVELOPMENT,
     ENV_STAGING,

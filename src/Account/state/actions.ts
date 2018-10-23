@@ -21,14 +21,18 @@ function saveAccountInfo(keyHandler: IKeyHandler, formData: any): Promise<any> {
 function saveAccountAddress(
     account: any,
     publicAddress: string,
-    privateKey: string,
+    privateKeyOrMnemonic: string,
     keyHandler: IKeyHandler,
     thorify: any
 ): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
             const { approvalId } = account.verification.addressRegistration
-            const sign = thorify.eth.accounts.sign(approvalId, privateKey)
+            const sign = thorify.eth.accounts.sign(
+                approvalId,
+                privateKeyOrMnemonic
+            )
+
             const recovered = thorify.eth.accounts.recover(
                 approvalId,
                 sign.signature
@@ -45,6 +49,7 @@ function saveAccountAddress(
                 }
 
                 const response = await axios.post('/registration/address', data)
+                keyHandler.storeTempPrivateKeyOrMnemonic(privateKeyOrMnemonic)
                 resolve(response.data)
             }
         } catch (error) {

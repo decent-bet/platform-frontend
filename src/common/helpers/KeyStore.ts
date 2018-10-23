@@ -48,6 +48,13 @@ export default class KeyStore implements IKeyStore {
         return record && record.value ? record.value : null
     }
 
+    public async clearVariable(name): Promise<void> {
+        const record = await this.db.table('keys').get(name)
+        if (record && record.value) {
+            await this.db.table('keys').delete(name)
+        }
+    }
+
     public async addVariable(name, value): Promise<void> {
         return await this.db.table('keys').put({
             id: name,

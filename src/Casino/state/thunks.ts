@@ -2,9 +2,21 @@ import actions from './actions'
 import { IThunkDependencies } from '../../common/types'
 import { openAlert } from '../../common/state/thunks'
 
-export function getCasinoLoginStatus() {
+export function getCasinoLoginStatus(account: any) {
     return async (dispatch, _getState, { keyHandler }: IThunkDependencies) => {
-        return await dispatch(actions.getCasinoLoginStatus(keyHandler))
+        const statusResult = await dispatch(
+            actions.getCasinoLoginStatus(keyHandler)
+        )
+        if (statusResult.value === false) {
+            const tempSecret = await keyHandler.getTempPrivateKeyOrMnemonic()
+            if (tempSecret) {
+                await dispatch(authWallet(tempSecret, account))
+                await keyHandler.removeTempPrivateKeyOrMnemonic()
+                return true
+            }
+        }
+
+        return statusResult.value
     }
 }
 
@@ -93,10 +105,8 @@ export function subscribeToSpinResponses(listener) {
 }
 
 export function unsubscribeFromActiveSubscriptions() {
-    return async (dispatch, getState, {wsApi}) => {
-        await dispatch(
-            actions.unsubscribeFromActiveSubscriptions(wsApi)
-        )
+    return async (dispatch, getState, { wsApi }) => {
+        await dispatch(actions.unsubscribeFromActiveSubscriptions(wsApi))
     }
 }
 

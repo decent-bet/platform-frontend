@@ -13,11 +13,10 @@ export default function AuthResult(props: IAuthResult) {
                 xs={12}
                 style={{
                     paddingTop: '2em',
-                    paddingBottom: '1em',
-                    marginRight: '2em'
+                    paddingBottom: '1em'
                 }}
             >
-                <Typography variant="headline" align="center">
+                <Typography variant="subheading" align="center">
                     {props.message}
                 </Typography>
             </Grid>

@@ -1,5 +1,4 @@
 export default interface IKeyStore {
-
     createCryptoKey(): PromiseLike<CryptoKeyPair>
 
     getCryptoKey(): Promise<any>
@@ -13,6 +12,8 @@ export default interface IKeyStore {
     decrypt(data, keys): PromiseLike<any>
 
     clear(): Promise<void>
+
+    clearVariable(name): Promise<void>
 
     ab2str(uint8array): string
 
