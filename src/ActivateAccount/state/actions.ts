@@ -7,19 +7,19 @@ async function activateAccount(id: string, key: string) {
     return new Promise(async (resolve, reject) => {
         try {
             const response = await axios.post('/activate', data)
-            resolve(response.data.message || 'Account activated.')
+            resolve({ message: response.data.message || 'Account activated.' })
         } catch (error) {
             let errorMessage =
                 error.response && error.response.data
                     ? error.response.data.message
                     : 'Error when trying to activate the account, please check later.'
-            reject(errorMessage)
+            reject({ message: errorMessage })
         }
     })
 }
 
 export default createActions({
     [PREFIX]: {
-        [Actions.ACTIVATE_ACCOUNT]: activateAccount
+        [Actions.ACTIVATE]: activateAccount
     }
 })

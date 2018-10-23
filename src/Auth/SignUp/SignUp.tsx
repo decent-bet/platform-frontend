@@ -23,17 +23,19 @@ class SignUp extends React.Component<any> {
         return (
             <React.Fragment>
                 <CardContent>
-                    <Typography
-                        variant="headline"
-                        align="center"
-                        style={{ fontWeight: 'lighter' }}
-                    >
-                        Create New Account
-                    </Typography>
                     {this.props.processed ? (
                         <AuthResult message={this.props.resultMessage} />
                     ) : (
-                        <SignUpForm />
+                        <React.Fragment>
+                            <Typography
+                                variant="headline"
+                                align="center"
+                                style={{ fontWeight: 'lighter' }}
+                            >
+                                Create New Account
+                            </Typography>
+                            <SignUpForm />
+                        </React.Fragment>
                     )}
                 </CardContent>
                 <CardActions>
@@ -66,7 +68,7 @@ class SignUp extends React.Component<any> {
     }
 }
 
-const mapStateToProps = state => Object.assign({}, state.auth)
+const mapStateToProps = state => Object.assign({}, state.auth.signUp)
 
 const SignUpContainer = connect(mapStateToProps)(SignUp)
 export default SignUpContainer

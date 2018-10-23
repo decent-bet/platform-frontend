@@ -1,7 +1,8 @@
 import Actions, { PREFIX } from './actionTypes'
 import { FULFILLED } from 'redux-promise-middleware'
 
-const DefaultMainState = {
+const DefaultAppState = {
+    appLoaded: false,
     alertIsOpen: false,
     alertType: 'error',
     alertMessage: '',
@@ -9,31 +10,36 @@ const DefaultMainState = {
 }
 
 export default function reducer(
-    mainState = DefaultMainState,
+    state = DefaultAppState,
     action: any = { type: null }
 ) {
     switch (action.type) {
         case `${PREFIX}/${Actions.OPEN_ALERT}/${FULFILLED}`:
             return {
-                ...mainState,
+                ...state,
                 alertIsOpen: true,
                 alertType: action.payload.variant || 'error',
                 alertMessage: action.payload.message
             }
         case `${PREFIX}/${Actions.CLOSE_ALERT}/${FULFILLED}`:
             return {
-                ...mainState,
+                ...state,
                 alertIsOpen: false,
                 alertMessage: ''
             }
+        case `${PREFIX}/${Actions.APP_LOADED}/${FULFILLED}`:
+            return {
+                ...state,
+                appLoaded: true
+            }
         case `${PREFIX}/${Actions.SET_USER_AUTHENTICATION_STATUS}/${FULFILLED}`:
             return {
-                ...mainState,
+                ...state,
                 userIsAuthenticated: action.payload
             }
         case `${PREFIX}/${Actions.LOGOUT}/${FULFILLED}`:
-            return DefaultMainState
+            return DefaultAppState
         default:
-            return { ...mainState }
+            return { ...state }
     }
 }

@@ -17,7 +17,7 @@ import {
     VIEW_ACTIVATE_ACCOUNT
 } from '../routes'
 import {
-    setHttpAuthBaseUrl,
+    setAppLoaded,
     setUserAuthenticationStatus,
     closeAlert
 } from '../common/state/thunks'
@@ -25,20 +25,17 @@ import AppLoading from '../common/components/AppLoading'
 import TransparentPaper from '../common/components/TransparentPaper'
 import Alert from '../common/components/Alert'
 import ErrorBoundary from './ErrorBoundary'
-import { IAppState, AppState } from './AppState'
 import IAppProps from './IAppProps'
 
-class App extends React.Component<IAppProps, IAppState> {
+class App extends React.Component<IAppProps> {
     constructor(props: any) {
         super(props)
-        this.state = new AppState()
         this.renderRoutes = this.renderRoutes.bind(this)
     }
 
     public async componentDidMount() {
-        await this.props.setHttpAuthBaseUrl()
         await this.props.setUserAuthenticationStatus()
-        this.setState({ appLoaded: true })
+        await this.props.setAppLoaded()
     }
 
     private handleAlertClose = () => {
@@ -70,6 +67,7 @@ class App extends React.Component<IAppProps, IAppState> {
                                 />
 
                                 <Route
+                                    exact={true}
                                     path={VIEW_ACTIVATE_ACCOUNT}
                                     component={ActivateAccount}
                                 />
@@ -112,7 +110,7 @@ class App extends React.Component<IAppProps, IAppState> {
                 <CssBaseline />
                 <ErrorBoundary>
                     <MuiThemeProvider theme={DarkTheme}>
-                        {this.state.appLoaded === true ? (
+                        {this.props.appLoaded ? (
                             this.renderRoutes()
                         ) : (
                             <AppLoading />
@@ -129,7 +127,11 @@ const mapDispatchToProps = dispatch =>
     bindActionCreators(
         Object.assign(
             {},
-            { setHttpAuthBaseUrl, setUserAuthenticationStatus, closeAlert }
+            {
+                setAppLoaded,
+                setUserAuthenticationStatus,
+                closeAlert
+            }
         ),
         dispatch
     )

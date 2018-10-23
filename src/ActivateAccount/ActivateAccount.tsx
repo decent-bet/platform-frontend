@@ -15,7 +15,7 @@ class ActivateAccount extends React.Component<any> {
 
     public componentDidMount = async () => {
         let { id, key } = this.props.match.params
-        await this.props.activateAccount(id, key)
+        await this.props.activate(id, key)
     }
 
     private renderResult = () => {
@@ -25,16 +25,17 @@ class ActivateAccount extends React.Component<any> {
             <PublicRouteContainer>
                 <Grid
                     container={true}
-                    direction="row"
+                    direction="column"
                     alignItems="center"
-                    spacing={16}
+                    spacing={40}
                 >
                     <Grid item={true} xs={12}>
-                        <Typography>{this.props.resultMessage}</Typography>
+                        <Typography variant="headline" align="center">
+                            {this.props.resultMessage}
+                        </Typography>
                     </Grid>
                     <Grid item={true} xs={12}>
                         <Button
-                            disabled={!this.props.processed}
                             color="secondary"
                             variant="contained"
                             component={loginLink}
@@ -48,15 +49,15 @@ class ActivateAccount extends React.Component<any> {
     }
 
     public render() {
-        return this.props.processed ? (
-            this.renderResult()
-        ) : (
+        return this.props.loading ? (
             <AppLoading message="Processing the account activation..." />
+        ) : (
+            this.renderResult()
         )
     }
 }
 
-const mapStateToProps = state => Object.assign({}, state.auth.activateAccount)
+const mapStateToProps = state => Object.assign({}, state.activate)
 const mapDispatchToProps = dispatch =>
     bindActionCreators(Object.assign({}, actions.activateAccount), dispatch)
 

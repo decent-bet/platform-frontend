@@ -38,7 +38,9 @@ class SignUpForm extends React.Component<any> {
     }
 
     private onCaptchaKeyChange(key: string) {
-        this.setState({ recaptchaKey: key })
+        const { formData } = this.state
+        formData.recaptchaKey = key
+        this.setState({ formData })
     }
 
     private get isValidCredentials() {
@@ -88,26 +90,21 @@ class SignUpForm extends React.Component<any> {
     private handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()
 
-        let {
+        const {
             email,
             password,
             passwordConfirmation,
             recaptchaKey
         } = this.state.formData
         const { signUp } = this.props as any
+
         if (this.recaptchaRef) {
             this.recaptchaRef.reset()
+            let { formData } = this.state
+            formData.recaptchaKey = ''
+            this.setState({ formData })
         }
         await signUp(email, password, passwordConfirmation, recaptchaKey)
-
-        this.setState({
-            formData: {
-                email: '',
-                password: '',
-                passwordConfirmation: '',
-                recaptchaKey: ''
-            }
-        })
     }
 
     public render() {
@@ -163,7 +160,7 @@ class SignUpForm extends React.Component<any> {
                         disabled={!this.isValidCredentials || loading}
                         type="submit"
                     >
-                        'Create New Account
+                        Create New Account
                     </LoadingButton>
                 </p>
             </form>
@@ -173,7 +170,7 @@ class SignUpForm extends React.Component<any> {
 
 const mapStateToProps = state => Object.assign({}, state.auth.signUp)
 const mapDispatchToProps = dispatch =>
-    bindActionCreators(Object.assign({}, actions), dispatch)
+    bindActionCreators(Object.assign({}, actions.auth), dispatch)
 
 const SignUpFormContainer = connect(
     mapStateToProps,

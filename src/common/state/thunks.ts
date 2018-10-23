@@ -9,6 +9,12 @@ export function logout() {
     }
 }
 
+export function setAppLoaded() {
+    return async dispatch => {
+        return await dispatch(actions.appLoaded())
+    }
+}
+
 export function setUserAuthenticationStatus() {
     return async (dispatch, _getState, { keyHandler }: IThunkDependencies) => {
         await dispatch(actions.setUserAuthenticationStatus(keyHandler))
@@ -24,12 +30,6 @@ export function setAccountIsActivated(activated: boolean) {
 export function setHttpAuthHeader() {
     return async (dispatch, _getState, { keyHandler }: IThunkDependencies) => {
         await dispatch(actions.setHttpAuthHeader(keyHandler))
-    }
-}
-
-export function setHttpAuthBaseUrl() {
-    return async dispatch => {
-        await dispatch(actions.setHttpAuthBaseUrl())
     }
 }
 

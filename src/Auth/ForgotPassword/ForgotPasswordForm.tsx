@@ -50,13 +50,12 @@ class ForgotPasswordForm extends React.Component<any> {
 
     private handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()
+        const { email, recaptchaKey } = this.state
         if (this.recaptchaRef) {
             this.recaptchaRef.reset()
+            this.setState({ recaptchaKey: '' })
         }
-        await this.props.forgotPassword(
-            this.state.email,
-            this.state.recaptchaKey
-        )
+        await this.props.forgotPassword(email, recaptchaKey)
         this.setState({ email: '' })
     }
 

@@ -3,27 +3,25 @@ import { PENDING, FULFILLED, REJECTED } from 'redux-promise-middleware'
 
 const DefaultState = {
     resultMessage: '',
-    loading: false,
-    processed: false
+    loading: false
 }
 
-export default function authReducer(
+export default function reducer(
     state = DefaultState,
     action: any = { type: null }
 ) {
     switch (action.type) {
-        case `${PREFIX}/${Actions.ACTIVATE_ACCOUNT}/${PENDING}`:
+        case `${PREFIX}/${Actions.ACTIVATE}/${PENDING}`:
             return {
                 ...state,
                 loading: true
             }
-        case `${PREFIX}/${Actions.ACTIVATE_ACCOUNT}/${REJECTED}`:
-        case `${PREFIX}/${Actions.ACTIVATE_ACCOUNT}/${FULFILLED}`:
+        case `${PREFIX}/${Actions.ACTIVATE}/${REJECTED}`:
+        case `${PREFIX}/${Actions.ACTIVATE}/${FULFILLED}`:
             return {
                 ...state,
                 resultMessage: action.payload.message,
-                loading: false,
-                processed: true
+                loading: false
             }
         default:
             return { ...state }

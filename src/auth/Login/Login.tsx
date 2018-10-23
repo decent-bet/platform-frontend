@@ -105,9 +105,12 @@ class Login extends React.Component<any, ILoginState> {
 
     private async handleSubmit(event: React.FormEvent) {
         event.preventDefault()
-        let { email, password, recaptchaKey } = this.state.formData
+        const { email, password, recaptchaKey } = this.state.formData
         if (this.recaptchaRef) {
             this.recaptchaRef.reset()
+            let { formData } = this.state
+            formData.recaptchaKey = ''
+            this.setState({ formData })
         }
         const result = await this.props.makeLogin(email, password, recaptchaKey)
         if (result && result.value && result.value.error === true) {

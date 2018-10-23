@@ -5,6 +5,7 @@ import logger from 'redux-logger'
 import appReducer from './common/state'
 import mainReducer from './Main/state'
 import authReducer from './Auth/state'
+import activateAccountReducer from './ActivateAccount/state'
 import accountReducer from './Account/state'
 import casinoReducer from './Casino/state'
 import ContractFactory from './common/ContractFactory'
@@ -22,6 +23,7 @@ const CombinedReducers = combineReducers({
     main: mainReducer,
     auth: authReducer,
     account: accountReducer,
+    activate: activateAccountReducer,
     casino: casinoReducer
 })
 

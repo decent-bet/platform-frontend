@@ -43,7 +43,7 @@ const waitForRecaptcha = new Promise(resolve => {
     }, 1000)
 })
 
-export default class Recaptcha extends React.Component<
+export default class Recaptcha extends React.PureComponent<
     IRecaptchaProps,
     IRecaptchaState
 > {
@@ -107,7 +107,6 @@ export default class Recaptcha extends React.Component<
     }
 
     public render() {
-        console.log('this._containerRef', this._containerRef)
         return (
             <div
                 style={{

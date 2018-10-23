@@ -38,6 +38,13 @@ export default function reducer(
                 signUp: { loading: true }
             }
         case `${PREFIX}/${Actions.SIGN_UP}/${REJECTED}`:
+            return {
+                ...state,
+                signUp: {
+                    loading: false,
+                    processed: false
+                }
+            }
         case `${PREFIX}/${Actions.SIGN_UP}/${FULFILLED}`:
             return {
                 ...state,

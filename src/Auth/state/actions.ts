@@ -38,19 +38,26 @@ async function signUp(
     return new Promise(async (resolve, reject) => {
         try {
             if (password !== passwordConfirmation) {
-                reject('Password confirmation not valid')
+                reject({ message: 'Password confirmation not valid' })
                 return
             }
             const response = await axios.post('/register', data)
-            resolve(
-                response.data.message || 'A new account created successfully'
-            )
+            if (response.data.error === true) {
+                resolve({
+                    message: response.data.message || 'An error ocurred.'
+                })
+            } else {
+                resolve({
+                    message:
+                        'Account created, please check your email for your verification link to complete the registration process'
+                })
+            }
         } catch (error) {
             let errorMessage =
                 error.response && error.response.data
                     ? error.response.data.message
                     : 'Error trying to create a newe account, please check later.'
-            reject(errorMessage)
+            reject({ message: errorMessage })
         }
     })
 }
@@ -66,7 +73,7 @@ async function resetPasswordVerify(id: string, key: string) {
                 error.response && error.response.data
                     ? error.response.data.message
                     : 'Error on password recovery request, please check later.'
-            reject(errorMessage)
+            reject({ message: errorMessage })
         }
     })
 }

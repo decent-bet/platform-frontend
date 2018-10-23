@@ -9,7 +9,7 @@ import {
     RecaptchaContainerState
 } from './RecaptchaContainerState'
 
-export default class RecaptchaContainer extends React.Component<
+export default class RecaptchaContainer extends React.PureComponent<
     IRecaptchaContainerProps,
     IRecaptchaContainerState
 > {
