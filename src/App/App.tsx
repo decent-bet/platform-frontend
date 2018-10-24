@@ -7,6 +7,8 @@ import Main from '../Main'
 import Auth from '../Auth'
 import ActivateAccount from '../ActivateAccount'
 import Logout from '../Logout'
+import PrivacyPolicy from '../PrivacyPolicy'
+import TermsAndConditions from '../TermsAndConditions'
 import PrivateRoute from './PrivateRoute'
 import PublicRoute from './PublicRoute'
 import DarkTheme from '../common/themes/dark'
@@ -14,7 +16,9 @@ import {
     VIEW_LOGOUT,
     VIEW_MAIN,
     VIEW_AUTH,
-    VIEW_ACTIVATE_ACCOUNT
+    VIEW_ACTIVATE_ACCOUNT,
+    VIEW_PRIVACY_POLICY,
+    VIEW_TERMS_AND_CONDITIONS
 } from '../routes'
 import {
     setAppLoaded,
@@ -60,6 +64,16 @@ class App extends React.Component<IAppProps> {
                     <TransparentPaper>
                         <BrowserRouter>
                             <Switch>
+                                <Route
+                                    exact={true}
+                                    path={VIEW_PRIVACY_POLICY}
+                                    component={PrivacyPolicy}
+                                />
+                                <Route
+                                    exact={true}
+                                    path={VIEW_TERMS_AND_CONDITIONS}
+                                    component={TermsAndConditions}
+                                />
                                 <Route
                                     exact={true}
                                     path={VIEW_LOGOUT}
