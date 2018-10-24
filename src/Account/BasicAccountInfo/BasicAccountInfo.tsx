@@ -47,12 +47,9 @@ const styles = (theme: Theme) =>
                 content: ''
             }
         },
-        root: {
-            flexGrow: 1,
-            height: 250
-        },
         input: {
-            display: 'flex'
+            display: 'flex',
+            padding: '0px 0 7px !important'
         },
         valueContainer: {
             display: 'flex',
@@ -104,6 +101,7 @@ class BasicAccountInfo extends React.Component<
 
         this.onFormValueChange = this.onFormValueChange.bind(this)
         this.isValidDataInput = this.isValidDataInput.bind(this)
+        this.makeDateOfBirthMask = this.makeDateOfBirthMask.bind(this)
     }
 
     private get formHasError(): boolean {
@@ -113,8 +111,6 @@ class BasicAccountInfo extends React.Component<
             dob,
             country,
             state,
-            streetAddress,
-            phoneNumber,
             town
         } = this.state.formData
 
@@ -124,8 +120,6 @@ class BasicAccountInfo extends React.Component<
             !this.isValidDataInput('dob', dob) ||
             !this.isValidDataInput('country', country) ||
             !this.isValidDataInput('state', state) ||
-            !this.isValidDataInput('streetAddress', streetAddress) ||
-            !this.isValidDataInput('phoneNumber', phoneNumber) ||
             !this.isValidDataInput('town', town)
         )
     }
@@ -206,9 +200,6 @@ class BasicAccountInfo extends React.Component<
                 return validator.isLength(value, { min: 5, max: 500 })
             case 'county':
                 return validator.isLength(value, { min: 5, max: 500 })
-            case 'streetAddress':
-                return validator.isLength(value, { min: 5, max: 500 })
-
             case 'town':
                 return validator.isLength(value, { min: 2, max: 100 })
             default:
@@ -272,6 +263,12 @@ class BasicAccountInfo extends React.Component<
                 }
             })
         }
+    }
+
+    private makeDateOfBirthMask(value) {
+        return value
+            ? [/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/]
+            : []
     }
 
     private handleSubmit = async (event: React.FormEvent) => {
@@ -362,7 +359,7 @@ class BasicAccountInfo extends React.Component<
                             <Grid item={true} xs={12} sm={6}>
                                 <FormControl
                                     error={this.state.errors.lastName}
-                                    required={false}
+                                    required={true}
                                     fullWidth={true}
                                 >
                                     <InputLabel htmlFor="lastName">
@@ -390,6 +387,7 @@ class BasicAccountInfo extends React.Component<
                                     error={this.state.errors.dob}
                                 >
                                     <DatePicker
+                                        keyboard={true}
                                         className={
                                             !this.state.isEditing
                                                 ? classes.datePickerDisabled
@@ -405,7 +403,12 @@ class BasicAccountInfo extends React.Component<
                                         disableFuture={true}
                                         maxDate={this.maxDateOfBirth}
                                         required={true}
-                                        format="MMM dd, YYYY"
+                                        format="dd/MM/yyyy"
+                                        mask={this.makeDateOfBirthMask}
+                                        placeholder={format(
+                                            this.maxDateOfBirth,
+                                            'dd/MM/yyyy'
+                                        )}
                                         autoOk={true}
                                         value={this.state.selectedDob}
                                         onChange={this.handleDateOfBirthChange}
@@ -476,7 +479,7 @@ class BasicAccountInfo extends React.Component<
                             <Grid item={true} xs={12} sm={6}>
                                 <FormControl
                                     error={this.state.errors.streetAddress}
-                                    required={true}
+                                    required={false}
                                     fullWidth={true}
                                 >
                                     <InputLabel htmlFor="streetAddress">
@@ -563,7 +566,6 @@ class BasicAccountInfo extends React.Component<
                                         disabled={!this.state.isEditing}
                                         type="phone"
                                         autoComplete="off"
-                                        required={true}
                                         placeholder="Phone Number"
                                         name="phoneNumber"
                                         value={this.state.formData.phoneNumber}
