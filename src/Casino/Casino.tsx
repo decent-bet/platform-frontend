@@ -18,7 +18,7 @@ class Casino extends React.Component<any, any> {
     }
 
     public async componentDidMount() {
-        await this.props.getCasinoLoginStatus()
+        await this.props.getCasinoLoginStatus(this.props.account)
 
         if (this.props.isCasinoLogedIn === true) {
             await this.props.initializeCasino()

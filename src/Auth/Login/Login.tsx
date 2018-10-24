@@ -162,7 +162,7 @@ class Login extends React.Component<any, ILoginState> {
                             label="Password"
                             type="password"
                             name="password"
-                            autoComplete="none"
+                            autoComplete="off"
                             error={this.state.errors.password}
                             value={this.state.formData.password}
                             onChange={this.onValueChange}

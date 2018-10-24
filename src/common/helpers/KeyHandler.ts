@@ -1,5 +1,9 @@
 import { IKeyStore, IKeyHandler } from '../types'
-import { AUTH_TOKEN_NAME, ACCOUNT_ACTIVATED_NAME } from '../../constants'
+import {
+    AUTH_TOKEN_NAME,
+    ACCOUNT_ACTIVATED_NAME,
+    ACCOUNT_TEMP_LOGIN_VALUE
+} from '../../constants'
 
 class KeyHandler implements IKeyHandler {
     /**
@@ -76,6 +80,31 @@ class KeyHandler implements IKeyHandler {
 
     public async getAccountActivationStatus(): Promise<boolean> {
         return await this.keyStore.getVariable(ACCOUNT_ACTIVATED_NAME)
+    }
+
+    public async storeTempPrivateKey(value: string): Promise<void> {
+        const cryptoKey = await this.keyStore.getCryptoKey()
+
+        await this.keyStore.addVariable(
+            ACCOUNT_TEMP_LOGIN_VALUE,
+            await this.keyStore.encrypt(value, cryptoKey)
+        )
+    }
+
+    public async getTempPrivateKey(): Promise<string | null> {
+        const cryptoKey = await this.keyStore.getCryptoKey()
+        const tempBlob = await this.keyStore.getVariable(
+            ACCOUNT_TEMP_LOGIN_VALUE
+        )
+        if (tempBlob) {
+            return await this.keyStore.decrypt(tempBlob, cryptoKey)
+        }
+
+        return null
+    }
+
+    public async removeTempPrivateKey(): Promise<void> {
+        await this.keyStore.clearVariable(ACCOUNT_TEMP_LOGIN_VALUE)
     }
 
     /**

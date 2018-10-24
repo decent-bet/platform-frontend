@@ -10,7 +10,7 @@ import * as thunks from './state/thunks'
 import { faucet } from '../Casino/state/thunks'
 import { openAlert } from '../common/state/thunks'
 import './main.css'
-import { Grid, Fade } from '@material-ui/core'
+import { Grid, Fade, Typography } from '@material-ui/core'
 import AppLoading from '../common/components/AppLoading'
 import { VIEW_ACCOUNT, VIEW_ACCOUNT_NOTACTIVATED } from '../routes'
 
@@ -23,6 +23,7 @@ class Main extends React.Component<any, any> {
         }
 
         this.onCopyAddress = this.onCopyAddress.bind(this)
+        this.renderError = this.renderError.bind(this)
     }
 
     public async componentDidMount() {
@@ -51,8 +52,12 @@ class Main extends React.Component<any, any> {
         this.props.openAlert('Copied address to clipboard', 'info')
     }
 
+    private renderError() {
+        return <Typography>{this.props.errorMessage}</Typography>
+    }
+
     public render() {
-        if (!this.state.loaded) {
+        if (!this.state.loaded && !this.props.error) {
             return <AppLoading />
         }
 
@@ -73,7 +78,7 @@ class Main extends React.Component<any, any> {
         }
 
         return (
-            <Fade in={this.state.loaded} timeout={500}>
+            <Fade in={this.state.loaded || this.props.error} timeout={500}>
                 <React.Fragment>
                     <MainAppBar
                         onToggleDrawerListener={this.onToggleDrawerListener}
@@ -100,7 +105,11 @@ class Main extends React.Component<any, any> {
                         justify="center"
                     >
                         <Grid item={true} xs={12}>
-                            <MainRouter />
+                            {this.props.error ? (
+                                this.renderError()
+                            ) : (
+                                <MainRouter />
+                            )}
                         </Grid>
                     </Grid>
                     <AppDrawer
@@ -118,7 +127,10 @@ class Main extends React.Component<any, any> {
 
 const mapStateToProps = state => Object.assign({}, state.main, state.casino)
 const mapDispatchToProps = dispatch =>
-    bindActionCreators(Object.assign({}, thunks, { openAlert, faucet }), dispatch)
+    bindActionCreators(
+        Object.assign({}, thunks, { openAlert, faucet }),
+        dispatch
+    )
 
 const MainContainer = connect(
     mapStateToProps,

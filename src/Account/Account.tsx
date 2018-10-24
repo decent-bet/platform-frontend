@@ -5,8 +5,8 @@ import * as thunks from './state/thunks'
 import DateFnsUtils from 'material-ui-pickers/utils/date-fns-utils'
 import MuiPickersUtilsProvider from 'material-ui-pickers/utils/MuiPickersUtilsProvider'
 import { Grid, Paper, Stepper, StepButton, Step } from '@material-ui/core'
-import AccountAddress from './AccountAddress'
-import AccountInfo from './AccountInfo'
+import AccountAddress from './Address'
+import BasicAccountInfo from './BasicAccountInfo'
 import TransparentPaper from '../common/components/TransparentPaper'
 import { VIEW_CASINO } from '../routes'
 
@@ -140,7 +140,7 @@ class Account extends React.Component<any, IAccountState> {
                                     saveAccountAddress={this.saveAccountAddress}
                                 />
                             ) : (
-                                <AccountInfo
+                                <BasicAccountInfo
                                     isSaving={this.state.isSaving}
                                     account={this.props.account}
                                     accountIsVerified={

@@ -4,34 +4,35 @@ import {
     Card,
     CardContent,
     Input,
-    Select as MuiSelect,
     InputLabel,
-    MenuItem,
     FormControl,
-    FormHelperText
+    FormHelperText,
+    Typography
 } from '@material-ui/core'
 import Select from 'react-select'
 import { DatePicker } from 'material-ui-pickers'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import CalendarTodayIcon from '@material-ui/icons/CalendarToday'
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
 import { subYears, format, parse } from 'date-fns'
 import * as validator from 'validator'
 import countries from 'iso-3166-1/src/iso-3166'
 import { WithStyles, withStyles, createStyles, Theme } from '@material-ui/core'
-import AccountSectionHeader from './AccountSectionHeader'
-import AccountSectionActions from './AccountSectionActions'
+import AccountSectionHeader from '../AccountSectionHeader'
+import AccountSectionActions from '../AccountSectionActions'
 import CountryComponents from './CountryComponents'
+import {
+    BasicAccountInfoState,
+    IBasicAccountInfoState
+} from './BasicAccountInfoState'
 
 const FORMAT_DOB = `YYYY-MM-dd'T'X`
 const COUNTRY_LIST: [{ label: string; value: string }] = countries.map(
-    (item, index) => {
+    (item, _index) => {
         return { label: item.country, value: item.alpha3 }
     }
 )
 
-const SEXLIST = ['Male', 'Female']
 const styles = (theme: Theme) =>
     createStyles({
         datePickerDisabled: {
@@ -46,12 +47,9 @@ const styles = (theme: Theme) =>
                 content: ''
             }
         },
-        root: {
-            flexGrow: 1,
-            height: 250
-        },
         input: {
-            display: 'flex'
+            display: 'flex',
+            padding: '0px 0 7px !important'
         },
         valueContainer: {
             display: 'flex',
@@ -82,151 +80,49 @@ const styles = (theme: Theme) =>
         }
     })
 
-interface IAccountInfoState {
-    isEditing: boolean
-    selectedDob: Date
-    selectedCountry: any
-    formData: {
-        firstName: string
-        middleName: string
-        lastName: string
-        sex: string
-        dob: string
-        country: string
-        state: string
-        streetAddress: string
-        phoneNumber: string
-        postCode: string
-        town: string
-    }
-    errorMessages: {
-        firstName: string
-        middleName: string
-        lastName: string
-        sex: string
-        dob: string
-        country: string
-        state: string
-        streetAddress: string
-        phoneNumber: string
-        postCode: string
-        town: string
-    }
-    errors: {
-        firstName: boolean
-        middleName: boolean
-        lastName: boolean
-        sex: boolean
-        dob: boolean
-        country: boolean
-        state: boolean
-        streetAddress: boolean
-        phoneNumber: boolean
-        postCode: boolean
-        town: boolean
-    }
-}
-
-export interface IAccountInfoProps extends WithStyles<typeof styles, true> {
+export interface IBasicAccountInfoProps
+    extends WithStyles<typeof styles, true> {
     accountIsVerified: boolean
     account: any
     isSaving: boolean
     saveAccountInfo(data: any): void
 }
 
-class AccountInfo extends React.Component<
-    IAccountInfoProps,
-    IAccountInfoState
+class BasicAccountInfo extends React.Component<
+    IBasicAccountInfoProps,
+    IBasicAccountInfoState
 > {
     private maxDateOfBirth = subYears(new Date(), 18)
 
-    constructor(props: IAccountInfoProps) {
+    constructor(props: IBasicAccountInfoProps) {
         super(props)
 
-        this.state = {
-            isEditing: false,
-            selectedDob: this.maxDateOfBirth,
-            selectedCountry: null,
-            formData: {
-                firstName: '',
-                middleName: '',
-                lastName: '',
-                sex: '',
-                dob: '',
-                country: '',
-                state: '',
-                streetAddress: '',
-                phoneNumber: '',
-                postCode: '',
-                town: ''
-            },
-            errorMessages: {
-                firstName: '',
-                middleName: '',
-                lastName: '',
-                sex: '',
-                dob: '',
-                country: '',
-                state: '',
-                streetAddress: '',
-                phoneNumber: '',
-                postCode: '',
-                town: ''
-            },
-            errors: {
-                firstName: false,
-                middleName: false,
-                lastName: false,
-                sex: false,
-                dob: false,
-                country: false,
-                state: false,
-                streetAddress: false,
-                phoneNumber: false,
-                postCode: false,
-                town: false
-            }
-        }
+        this.state = new BasicAccountInfoState(this.maxDateOfBirth)
 
         this.onFormValueChange = this.onFormValueChange.bind(this)
         this.isValidDataInput = this.isValidDataInput.bind(this)
+        this.makeDateOfBirthMask = this.makeDateOfBirthMask.bind(this)
     }
 
     private get formHasError(): boolean {
         const {
             firstName,
-            middleName,
             lastName,
-            sex,
             dob,
             country,
             state,
-            streetAddress,
-            phoneNumber,
-            postCode,
             town
-        } = this.state.errors
+        } = this.state.formData
 
         return (
-            firstName ||
-            middleName ||
-            lastName ||
-            sex ||
-            dob ||
-            country ||
-            state ||
-            streetAddress ||
-            phoneNumber ||
-            postCode ||
-            town
+            !this.isValidDataInput('firstName', firstName) ||
+            !this.isValidDataInput('lastName', lastName) ||
+            !this.isValidDataInput('dob', dob) ||
+            !this.isValidDataInput('country', country) ||
+            !this.isValidDataInput('state', state) ||
+            !this.isValidDataInput('town', town)
         )
     }
-
-    private _sexItems = SEXLIST.map((sex, index) => (
-        <MenuItem value={sex} key={index}>
-            {sex}
-        </MenuItem>
-    ))
 
     private didToogleEdit = (event: React.MouseEvent) => {
         let { isEditing } = this.state
@@ -300,28 +196,14 @@ class AccountInfo extends React.Component<
                     validator.isAlpha(value) &&
                     validator.isLength(value, { min: 2, max: 100 })
                 )
-            case 'sex':
-                return validator.isIn(value, SEXLIST)
-            case 'middleName':
-                return (
-                    validator.isAlpha(value) &&
-                    validator.isLength(value, { min: 2, max: 100 })
-                )
             case 'state':
                 return validator.isLength(value, { min: 5, max: 500 })
             case 'county':
                 return validator.isLength(value, { min: 5, max: 500 })
-            case 'streetAddress':
-                return validator.isLength(value, { min: 5, max: 500 })
-
-            case 'phoneNumber':
-                return validator.isMobilePhone(value, 'any')
-            case 'postCode':
-                return validator.isPostalCode(value, 'any')
             case 'town':
                 return validator.isLength(value, { min: 2, max: 100 })
             default:
-                return false
+                return true
         }
     }
 
@@ -355,7 +237,6 @@ class AccountInfo extends React.Component<
             this.setState({ isEditing: true })
             this.handleDateOfBirthChange(this.state.selectedCountry)
         } else {
-
             const { basicVerification } = this.props.account.verification
 
             this.setState({
@@ -365,9 +246,7 @@ class AccountInfo extends React.Component<
                     new Date()
                 ),
                 selectedCountry: COUNTRY_LIST.find(
-                    item =>
-                        item.value ===
-                        basicVerification.country
+                    item => item.value === basicVerification.country
                 ),
                 formData: {
                     firstName: basicVerification.firstName,
@@ -377,15 +256,19 @@ class AccountInfo extends React.Component<
                     dob: basicVerification.dob,
                     country: basicVerification.country,
                     state: basicVerification.state,
-                    streetAddress: basicVerification
-                        .streetAddress,
-                    phoneNumber: basicVerification
-                        .phoneNumber,
+                    streetAddress: basicVerification.streetAddress,
+                    phoneNumber: basicVerification.phoneNumber,
                     postCode: basicVerification.postCode,
                     town: basicVerification.town
                 }
             })
         }
+    }
+
+    private makeDateOfBirthMask(value) {
+        return value
+            ? [/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/]
+            : []
     }
 
     private handleSubmit = async (event: React.FormEvent) => {
@@ -411,6 +294,11 @@ class AccountInfo extends React.Component<
                     <AccountSectionHeader
                         enableEdit={!this.props.accountIsVerified}
                         title="Account Info"
+                        subheader={
+                            <Typography color="primary">
+                                * required fields
+                            </Typography>
+                        }
                         isEditing={this.state.isEditing}
                         isSaving={this.props.isSaving}
                         didClickOnCancel={this.didToogleEdit}
@@ -429,6 +317,7 @@ class AccountInfo extends React.Component<
                                     </InputLabel>
                                     <Input
                                         type="text"
+                                        autoComplete="off"
                                         disableUnderline={!this.state.isEditing}
                                         disabled={!this.state.isEditing}
                                         placeholder="First name"
@@ -444,7 +333,7 @@ class AccountInfo extends React.Component<
                             <Grid item={true} xs={12} sm={6}>
                                 <FormControl
                                     error={this.state.errors.middleName}
-                                    required={true}
+                                    required={false}
                                     fullWidth={true}
                                 >
                                     <InputLabel htmlFor="middleName">
@@ -452,6 +341,7 @@ class AccountInfo extends React.Component<
                                     </InputLabel>
                                     <Input
                                         type="text"
+                                        autoComplete="off"
                                         disableUnderline={!this.state.isEditing}
                                         disabled={!this.state.isEditing}
                                         placeholder="Middle name"
@@ -469,7 +359,7 @@ class AccountInfo extends React.Component<
                             <Grid item={true} xs={12} sm={6}>
                                 <FormControl
                                     error={this.state.errors.lastName}
-                                    required={false}
+                                    required={true}
                                     fullWidth={true}
                                 >
                                     <InputLabel htmlFor="lastName">
@@ -479,6 +369,7 @@ class AccountInfo extends React.Component<
                                         disableUnderline={!this.state.isEditing}
                                         disabled={!this.state.isEditing}
                                         type="text"
+                                        autoComplete="off"
                                         placeholder="Last name"
                                         name="lastName"
                                         value={this.state.formData.lastName}
@@ -492,50 +383,18 @@ class AccountInfo extends React.Component<
                             <Grid item={true} xs={12} sm={6}>
                                 <FormControl
                                     required={true}
-                                    error={this.state.errors.sex}
-                                    fullWidth={true}
-                                >
-                                    <InputLabel htmlFor="sex">Sex</InputLabel>
-                                    <MuiSelect
-                                        disableUnderline={!this.state.isEditing}
-                                        disabled={!this.state.isEditing}
-                                        fullWidth={true}
-                                        IconComponent={
-                                            !this.state.isEditing
-                                                ? 'span'
-                                                : ArrowDropDownIcon
-                                        }
-                                        value={this.state.formData.sex}
-                                        onChange={this.onFormValueChange}
-                                        name="sex"
-                                        error={false}
-                                        required={true}
-                                    >
-                                        <MenuItem value="">
-                                            <em>Sex</em>
-                                        </MenuItem>
-                                        {this._sexItems}
-                                    </MuiSelect>
-                                    <FormHelperText>
-                                        {this.state.errorMessages.sex}
-                                    </FormHelperText>
-                                </FormControl>
-                            </Grid>
-                        </Grid>
-                        <Grid container={true} spacing={32}>
-                            <Grid item={true} xs={12} sm={6}>
-                                <FormControl
-                                    required={true}
                                     fullWidth={true}
                                     error={this.state.errors.dob}
                                 >
                                     <DatePicker
+                                        keyboard={true}
                                         className={
                                             !this.state.isEditing
                                                 ? classes.datePickerDisabled
                                                 : ''
                                         }
                                         name="selectedDob"
+                                        autoComplete="off"
                                         label="Date of birth"
                                         disabled={!this.state.isEditing}
                                         keyboardIcon={<CalendarTodayIcon />}
@@ -544,7 +403,12 @@ class AccountInfo extends React.Component<
                                         disableFuture={true}
                                         maxDate={this.maxDateOfBirth}
                                         required={true}
-                                        format="MMM dd, YYYY"
+                                        format="dd/MM/yyyy"
+                                        mask={this.makeDateOfBirthMask}
+                                        placeholder={format(
+                                            this.maxDateOfBirth,
+                                            'dd/MM/yyyy'
+                                        )}
                                         autoOk={true}
                                         value={this.state.selectedDob}
                                         onChange={this.handleDateOfBirthChange}
@@ -554,6 +418,8 @@ class AccountInfo extends React.Component<
                                     </FormHelperText>
                                 </FormControl>
                             </Grid>
+                        </Grid>
+                        <Grid container={true} spacing={32}>
                             <Grid item={true} xs={12} sm={6}>
                                 <Select
                                     name="country"
@@ -565,6 +431,7 @@ class AccountInfo extends React.Component<
                                             : ''
                                     }
                                     textFieldProps={{
+                                        autoComplete: 'off',
                                         required: true,
                                         fullWidth: true,
                                         helperText: this.state.errorMessages
@@ -582,23 +449,22 @@ class AccountInfo extends React.Component<
                                     cacheOptions={true}
                                 />
                             </Grid>
-                        </Grid>
-                        <Grid container={true} spacing={32}>
                             <Grid item={true} xs={12} sm={6}>
                                 <FormControl
                                     error={this.state.errors.state}
                                     required={true}
                                     fullWidth={true}
                                 >
-                                    <InputLabel htmlFor="lastName">
-                                        State
+                                    <InputLabel htmlFor="state">
+                                        Region
                                     </InputLabel>
                                     <Input
                                         error={this.state.errors.state}
                                         disableUnderline={!this.state.isEditing}
                                         disabled={!this.state.isEditing}
                                         type="text"
-                                        placeholder="State"
+                                        autoComplete="off"
+                                        placeholder="Region"
                                         name="state"
                                         value={this.state.formData.state}
                                         onChange={this.onFormValueChange}
@@ -608,10 +474,12 @@ class AccountInfo extends React.Component<
                                     </FormHelperText>
                                 </FormControl>
                             </Grid>
+                        </Grid>
+                        <Grid container={true} spacing={32}>
                             <Grid item={true} xs={12} sm={6}>
                                 <FormControl
                                     error={this.state.errors.streetAddress}
-                                    required={true}
+                                    required={false}
                                     fullWidth={true}
                                 >
                                     <InputLabel htmlFor="streetAddress">
@@ -619,6 +487,7 @@ class AccountInfo extends React.Component<
                                     </InputLabel>
                                     <Input
                                         type="text"
+                                        autoComplete="off"
                                         disableUnderline={!this.state.isEditing}
                                         disabled={!this.state.isEditing}
                                         placeholder="Street Address"
@@ -633,8 +502,6 @@ class AccountInfo extends React.Component<
                                     </FormHelperText>
                                 </FormControl>
                             </Grid>
-                        </Grid>
-                        <Grid container={true} spacing={32}>
                             <Grid item={true} xs={12} sm={6}>
                                 <FormControl
                                     error={this.state.errors.town}
@@ -646,6 +513,7 @@ class AccountInfo extends React.Component<
                                     </InputLabel>
                                     <Input
                                         type="text"
+                                        autoComplete="off"
                                         disableUnderline={!this.state.isEditing}
                                         disabled={!this.state.isEditing}
                                         placeholder="Town/City"
@@ -658,10 +526,12 @@ class AccountInfo extends React.Component<
                                     </FormHelperText>
                                 </FormControl>
                             </Grid>
+                        </Grid>
+                        <Grid container={true} spacing={32}>
                             <Grid item={true} xs={12} sm={6}>
                                 <FormControl
                                     error={this.state.errors.postCode}
-                                    required={true}
+                                    required={false}
                                     fullWidth={true}
                                 >
                                     <InputLabel htmlFor="postCode">
@@ -669,6 +539,7 @@ class AccountInfo extends React.Component<
                                     </InputLabel>
                                     <Input
                                         type="text"
+                                        autoComplete="off"
                                         disableUnderline={!this.state.isEditing}
                                         disabled={!this.state.isEditing}
                                         placeholder="Postal Code"
@@ -681,12 +552,10 @@ class AccountInfo extends React.Component<
                                     </FormHelperText>
                                 </FormControl>
                             </Grid>
-                        </Grid>
-                        <Grid container={true} spacing={32}>
                             <Grid item={true} xs={12} sm={6}>
                                 <FormControl
                                     error={this.state.errors.phoneNumber}
-                                    required={true}
+                                    required={false}
                                     fullWidth={true}
                                 >
                                     <InputLabel htmlFor="postCode">
@@ -696,7 +565,7 @@ class AccountInfo extends React.Component<
                                         disableUnderline={!this.state.isEditing}
                                         disabled={!this.state.isEditing}
                                         type="phone"
-                                        required={true}
+                                        autoComplete="off"
                                         placeholder="Phone Number"
                                         name="phoneNumber"
                                         value={this.state.formData.phoneNumber}
@@ -721,4 +590,4 @@ class AccountInfo extends React.Component<
     }
 }
 
-export default withStyles(styles, { withTheme: true })(AccountInfo)
+export default withStyles(styles, { withTheme: true })(BasicAccountInfo)

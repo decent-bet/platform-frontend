@@ -11,18 +11,16 @@ import {
     Typography,
     Button
 } from '@material-ui/core'
-import Accounts from 'web3-eth-accounts'
 import * as validator from 'validator'
-import { WALLET_WEBSITE_URL } from '../constants'
-import AccountSectionHeader from './AccountSectionHeader'
-import AccountSectionActions from './AccountSectionActions'
+import { Wallet } from 'ethers'
+import { WALLET_WEBSITE_URL, MNEMONIC_DPATH } from '../../constants'
+import AccountSectionHeader from '../AccountSectionHeader'
+import AccountSectionActions from '../AccountSectionActions'
 import {
     IAccountAddressState,
     AccountAddressState
 } from './AccountAddressState'
 import IAccountAddressProps from './IAccountAddressProps'
-
-const accounts = new Accounts()
 
 class AccountAddress extends React.Component<
     IAccountAddressProps,
@@ -38,7 +36,10 @@ class AccountAddress extends React.Component<
     private get formHasError() {
         if (
             validator.isLength(this.state.address, { min: 4, max: 300 }) &&
-            validator.isLength(this.state.privateKey, { min: 4, max: 300 })
+            validator.isLength(this.state.privateKeyOrMnemonic, {
+                min: 4,
+                max: 300
+            })
         ) {
             return false
         }
@@ -51,36 +52,51 @@ class AccountAddress extends React.Component<
         this.setState({ isEditing: !isEditing })
     }
 
-    private onFormValueChange = (
+    private onPrivateKeyOrMnemonicChange = (
         event: React.ChangeEvent<
             HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
         >
     ) => {
-        const value = event.target.value
-        const name = event.target.name
+        let loginValue = event.target.value
+        let address = ''
+        let privateKey = ''
+        const fieldName = 'privateKeyOrMnemonic'
         let { errorMessages, errors } = this.state
 
-        if (!event.target.validity.valid || !value || value.length < 4) {
-            errorMessages[name] = event.target.validationMessage
-            errors[name] = true
+        if (!event.target.validity.valid) {
+            errorMessages[fieldName] = event.target.validationMessage
+            errors[fieldName] = true
         } else {
-            errorMessages[name] = ''
-            errors[name] = false
-        }
-
-        if (name === 'privateKey') {
             try {
-                const account = accounts.privateKeyToAccount(value)
-                this.setState({
-                    privateKey: value,
-                    address: account.address,
-                    errorMessages,
-                    errors
-                })
+                let wallet
+                if (loginValue.includes(' ')) {
+                    // Passphrase Mnemonic mode
+                    wallet = Wallet.fromMnemonic(loginValue, MNEMONIC_DPATH)
+                } else {
+                    // Private Key Mode
+                    // Adds '0x' to the beginning of the key if it is not there.
+                    if (loginValue.substring(0, 2) !== '0x') {
+                        loginValue = '0x' + loginValue
+                    }
+                    wallet = new Wallet(loginValue)
+                }
+                address = wallet.address
+                privateKey = wallet.privateKey
             } catch (e) {
-                this.setState({ privateKey: value, errorMessages, errors })
+                errorMessages[fieldName] =
+                    'Error trying to process your Passphrase or Private Key.'
+                errors[fieldName] = false
+                loginValue = event.target.value
             }
         }
+
+        this.setState({
+            privateKeyOrMnemonic: loginValue,
+            privateKey,
+            address,
+            errorMessages,
+            errors
+        })
     }
 
     private handleSubmit = async (event: React.FormEvent) => {
@@ -133,23 +149,25 @@ class AccountAddress extends React.Component<
                                     </InputLabel>
                                     <Input
                                         type="text"
+                                        autoComplete="off"
                                         disableUnderline={!this.state.isEditing}
                                         disabled={!this.state.isEditing}
-                                        placeholder="Private key"
-                                        name="privateKey"
-                                        value={this.state.privateKey}
-                                        onChange={this.onFormValueChange}
+                                        placeholder="Enter Passphrase or Private Key"
+                                        name="privateKeyOrMnemonic"
+                                        value={this.state.privateKeyOrMnemonic}
+                                        onChange={
+                                            this.onPrivateKeyOrMnemonicChange
+                                        }
                                     />
-                                    <FormHelperText>
-                                        {this.state.errorMessages.address}
+                                    <FormHelperText component="small">
+                                        Your Passphrase or Private Key will be
+                                        used to sign a message and prove
+                                        ownership of the address you would like
+                                        to register. We never save or send to
+                                        our servers.
                                     </FormHelperText>
                                     <FormHelperText>
-                                        <Typography component="small">
-                                            Your private key will be used to
-                                            sign a message and prove ownership
-                                            of the address you would like to
-                                            register.
-                                        </Typography>
+                                        {this.state.errorMessages.address}
                                     </FormHelperText>
                                 </FormControl>
                             </Grid>
@@ -173,7 +191,6 @@ class AccountAddress extends React.Component<
                                         placeholder="Public Address"
                                         name="address"
                                         value={this.state.address}
-                                        onChange={this.onFormValueChange}
                                     />
                                     <FormHelperText>
                                         {this.state.errorMessages.address}

@@ -3,10 +3,17 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import actions from './state/actions'
 import { Link } from 'react-router-dom'
-import { Button, Grid, Typography } from '@material-ui/core'
+import {
+    Button,
+    Grid,
+    Typography,
+    CardActions,
+    CardContent
+} from '@material-ui/core'
 import { VIEW_LOGIN } from '../routes'
 import PublicRouteContainer from '../common/components/PublicRouteContainer'
 import AppLoading from 'src/common/components/AppLoading'
+import AuthResult from '../Auth/AuthResult'
 
 class ActivateAccount extends React.Component<any> {
     constructor(props) {
@@ -23,27 +30,32 @@ class ActivateAccount extends React.Component<any> {
 
         return (
             <PublicRouteContainer>
-                <Grid
-                    container={true}
-                    direction="column"
-                    alignItems="center"
-                    spacing={40}
-                >
-                    <Grid item={true} xs={12}>
-                        <Typography variant="headline" align="center">
-                            {this.props.resultMessage}
-                        </Typography>
+                <CardContent>
+                    <AuthResult message={this.props.resultMessage} />
+                </CardContent>
+                <CardActions>
+                    <Grid
+                        container={true}
+                        direction="column"
+                        alignItems="center"
+                        spacing={16}
+                    >
+                        <Grid item={true} xs={12}>
+                            <Typography variant="body2">
+                                Go to the login
+                            </Typography>
+                        </Grid>
+                        <Grid item={true} xs={12}>
+                            <Button
+                                color="secondary"
+                                variant="contained"
+                                component={loginLink}
+                            >
+                                Login
+                            </Button>
+                        </Grid>
                     </Grid>
-                    <Grid item={true} xs={12}>
-                        <Button
-                            color="secondary"
-                            variant="contained"
-                            component={loginLink}
-                        >
-                            Go to Login
-                        </Button>
-                    </Grid>
-                </Grid>
+                </CardActions>
             </PublicRouteContainer>
         )
     }

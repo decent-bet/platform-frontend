@@ -29,6 +29,7 @@ function saveAccountAddress(
         try {
             const { approvalId } = account.verification.addressRegistration
             const sign = thorify.eth.accounts.sign(approvalId, privateKey)
+
             const recovered = thorify.eth.accounts.recover(
                 approvalId,
                 sign.signature
@@ -45,6 +46,7 @@ function saveAccountAddress(
                 }
 
                 const response = await axios.post('/registration/address', data)
+                keyHandler.storeTempPrivateKey(privateKey)
                 resolve(response.data)
             }
         } catch (error) {

@@ -1,6 +1,6 @@
 import BaseContract from './BaseContract'
 
-export default class DecentBetTokenContract extends BaseContract {
+export default class DBETVETTokenContract extends BaseContract {
     /** Getters */
     async allowance(owner, spender) {
         return await this.instance.methods.allowance(owner, spender).call()

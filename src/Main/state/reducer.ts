@@ -1,7 +1,8 @@
 import Actions, { PREFIX } from './actionTypes'
-import { FULFILLED } from 'redux-promise-middleware'
+import { FULFILLED, REJECTED } from 'redux-promise-middleware'
 
-const DefaultMainState = {
+const DefaultState = {
+    error: false,
     account: null,
     accountIsActivated: false,
     accountIsVerified: false,
@@ -10,37 +11,43 @@ const DefaultMainState = {
 }
 
 export default function reducer(
-    mainState = DefaultMainState,
+    state = DefaultState,
     action: any = { type: null }
 ) {
     switch (action.type) {
         case `${PREFIX}/${Actions.GET_PUBLIC_ADDRESS}/${FULFILLED}`:
             return {
-                ...mainState,
+                ...state,
                 address: action.payload
             }
         case `${PREFIX}/${Actions.GET_ACCOUNT_ACTIVATION_STATUS}/${FULFILLED}`:
             return {
-                ...mainState,
+                ...state,
                 accountIsActivated: action.payload
             }
         case `${PREFIX}/${Actions.GET_USER_ACCOUNT}/${FULFILLED}`:
             return {
-                ...mainState,
+                ...state,
                 account: action.payload
+            }
+        case `${PREFIX}/${Actions.GET_USER_ACCOUNT}/${REJECTED}`:
+            return {
+                ...state,
+                error: true,
+                errorMessage: action.payload.message
             }
         case `${PREFIX}/${Actions.SET_ACCOUNT_HAS_ADDRESS}/${FULFILLED}`:
             return {
-                ...mainState,
+                ...state,
                 accountHasAddress: action.payload
             }
         case `${PREFIX}/${Actions.SET_ACCOUNT_IS_VERIFIED}/${FULFILLED}`:
             return {
-                ...mainState,
+                ...state,
                 accountIsVerified: action.payload
             }
 
         default:
-            return { ...mainState }
+            return { ...state }
     }
 }

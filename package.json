@@ -1,6 +1,6 @@
 {
     "name": "decent-bet-frontend",
-    "version": "1.0.21-develop",
+    "version": "1.0.22-develop",
     "homepage": "https://decent.bet",
     "private": true,
     "devDependencies": {
@@ -20,7 +20,7 @@
         "typescript": "3.0.3"
     },
     "dependencies": {
-        "@decent-bet/contract-slots": "1.0.0-alpha.4",
+        "@decent-bet/contract-slots": "1.0.0-alpha.8",
         "@material-ui/core": "^3.1.0",
         "@material-ui/icons": "^3.0.1",
         "aes256": "^1.0.3",
@@ -81,7 +81,6 @@
         "deploy:develop": "npm run build:develop && npm run deploy",
         "deploy:staging": "npm run build:staging && npm run deploy",
         "deploy:prod": "npm run build:prod && npm run deploy",
-        "deploy:local": "npm run build:local && npm run deploy",
         "test": "react-scripts-ts test --env=jsdom",
         "lint": "tslint src __tests__",
         "lint:fix": "tslint --fix src __tests__"

@@ -1,6 +1,6 @@
 import { Contracts } from './contracts'
 import {
-    TestDecentBetToken,
+    DBETVETToken,
     SlotsChannelManager,
     SlotsChannelFinalizer
 } from '@decent-bet/contract-slots'
@@ -8,7 +8,7 @@ import { IThorifyFactory, IKeyHandler } from '../types'
 
 export default class ContractFactory {
     private _jsonContracts = {
-        DecentBetToken: TestDecentBetToken,
+        DBETVETToken,
         SlotsChannelManager,
         SlotsChannelFinalizer
     }
@@ -75,9 +75,9 @@ export default class ContractFactory {
     }
 
     /**
-     * @returns {DecentBetTokenContract}
+     * @returns {DBETVETTokenContract}
      */
     public async decentBetTokenContract(): Promise<any> {
-        return await this.makeContract('DecentBetToken')
+        return await this.makeContract('DBETVETToken')
     }
 }

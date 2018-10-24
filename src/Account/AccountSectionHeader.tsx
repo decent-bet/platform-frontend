@@ -3,6 +3,7 @@ import { CardHeader } from '@material-ui/core'
 
 export interface IAccountSectionHeaderProps {
     title: string
+    subheader?: any
     didClickOnEdit: (event: React.MouseEvent) => void
     didClickOnCancel: (event: React.MouseEvent) => void
     isEditing: boolean
@@ -38,7 +39,12 @@ export default class AccountSectionHeader extends React.Component<
     } */
 
     public render() {
-        return <CardHeader title={this.props.title} />
+        return (
+            <CardHeader
+                title={this.props.title}
+                subheader={this.props.subheader}
+            />
+        )
 
         // return <CardHeader title={this.props.title} />
     }
