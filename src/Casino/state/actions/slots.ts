@@ -47,7 +47,11 @@ function waitForChannelActivation(
             )
             resolve(result)
         } catch (error) {
-            reject({ message: error.message })
+            console.error(error)
+            reject({
+                message:
+                    'Error waiting for channel activation, please try later.'
+            })
         }
     })
 }
@@ -139,7 +143,10 @@ function initChannel(
             const { id } = result.res
             resolve(id)
         } catch (error) {
-            reject({ message: error.message })
+            console.error(error)
+            reject({
+                message: 'Error initializing the channel, please try later.'
+            })
         }
     })
 }
@@ -216,8 +223,11 @@ function approve(amount, contractFactory, defaultAccount) {
                     }
                 }
             )
-        } catch (err) {
-            reject({ message: err.message })
+        } catch (error) {
+            console.error(error)
+            reject({
+                message: 'Error approving the deposit, please try later.'
+            })
         }
     })
 }
@@ -244,8 +254,9 @@ function depositChips(amount, contractFactory, defaultAccount) {
                     }
                 }
             )
-        } catch (err) {
-            reject({ message: err.message })
+        } catch (error) {
+            console.error(error)
+            reject({ message: 'Error in desposit chips, please try later.' })
         }
     })
 }
@@ -259,11 +270,14 @@ async function withdrawChips(amount, slotsContract) {
                 .then(data => {
                     resolve(data)
                 })
-                .catch(e => reject({ message: e.message }))
+                .catch(e => {
+                    console.error(e)
+                    reject({ message: 'Error loggin withdraw chips.' })
+                })
             await slotsContract.withdraw(amount)
             // helper.toggleSnackbar('Successfully sent withdraw transaction')
         } catch (err) {
-            reject({ message: 'Error sending withdraw tx' })
+            reject({ message: 'Error sending withdraw tx.' })
         }
     })
 }
@@ -281,10 +295,14 @@ async function claimChannel(channelId: number, slotsContract: any) {
                 .then(({ id, isHouse }) => {
                     resolve({ id, isHouse })
                 })
-                .catch(e => reject({ message: e.message }))
+                .catch(e => {
+                    console.error(e)
+                    reject({ message: 'Error in log claim channel.' })
+                })
             await slotsContract.claim(channelId)
-        } catch (e) {
-            reject({ message: e.message })
+        } catch (error) {
+            console.error(error)
+            reject({ message: 'Error claiming the channel, please try later.' })
         }
     })
 }
@@ -295,7 +313,8 @@ async function fetchAesKey(channelId, channelNonce, utils) {
             let key = await utils.getAesKey(channelNonce)
             resolve({ channelId, channelNonce, key })
         } catch (error) {
-            reject({ message: error.message })
+            console.error(error)
+            reject({ message: 'Error fetching Aes key' })
         }
     })
 }
@@ -404,7 +423,8 @@ function getDeposited(channelId, isHouse = false, contract) {
             const deposited = new BigNumber(rawBalance)
             resolve(deposited)
         } catch (error) {
-            reject({ message: error.message })
+            console.error(error)
+            reject({ message: 'Error in deposit, please try later.' })
         }
     })
 }
@@ -416,7 +436,8 @@ function getFinalBalances(channelId, isHouse = false, contract) {
             const finalbalance = new BigNumber(balance)
             resolve(finalbalance)
         } catch (error) {
-            reject({ message: error.message })
+            console.error(error)
+            reject({ message: 'Error getting the final balances' })
         }
     })
 }
@@ -659,8 +680,11 @@ function getChannels(contractFactory, wsApi, utils) {
                 },
                 reason => reject({ message: reason.message })
             )
-        } catch (e) {
-            return reject({ message: e.message })
+        } catch (error) {
+            console.error(error)
+            return reject({
+                message: 'Error getting the channels, please try later'
+            })
         }
     })
 }

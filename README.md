@@ -64,7 +64,7 @@ Consists of the platform pages - Slots betting casino and more.
     -   `build:develop`: Make a bundle build with `development` environtment
     -   `build:staging`: Make a bundle build with `staging` environtment
     -   `build:prod`: Make a bundle build with `production` environtment
-    -   `deploy`: Build and deploy a container image and Deploy to GCP.
+    -   `deploy`: Build a container image and Deploy to GCP.
     -   `deploy:develop`: Runs `build:develop` and then `deploy`.
     -   `deploy:staging`: Runs `build:staging` and then `deploy`.
     -   `deploy:prod`: Runs `build:prod` and then `deploy`.
