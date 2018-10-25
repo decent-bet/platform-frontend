@@ -1,36 +1,33 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { TextField } from '@material-ui/core'
+import {
+    TextField,
+    FormControl,
+    FormControlLabel,
+    FormHelperText,
+    Checkbox,
+    Typography,
+    Button
+} from '@material-ui/core'
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
+import CheckBoxIcon from '@material-ui/icons/CheckBox'
 import actions from '../state/actions'
 import Recaptcha from '../../common/components/Recaptcha'
 import LoadingButton from '../../common/components/LoadingButton'
+import { ISignUpState, SignUpState } from './SignUpState'
+import { VIEW_TERMS_AND_CONDITIONS, VIEW_PRIVACY_POLICY } from 'src/routes'
 
-class SignUpForm extends React.Component<any> {
+class SignUpForm extends React.Component<any, ISignUpState> {
     private recaptchaRef: any
     constructor(props: any) {
         super(props)
+        this.state = new SignUpState()
         this.onCaptchaKeyChange = this.onCaptchaKeyChange.bind(this)
         this.onSetRecaptchaRef = this.onSetRecaptchaRef.bind(this)
-    }
-
-    public state = {
-        formData: {
-            email: '',
-            password: '',
-            recaptchaKey: '',
-            passwordConfirmation: ''
-        },
-        errors: {
-            email: false,
-            password: false,
-            passwordConfirmation: false
-        },
-        errorMessages: {
-            email: '',
-            password: '',
-            passwordConfirmation: ''
-        }
+        this.handleAcceptedTerms = this.handleAcceptedTerms.bind(this)
+        this.onValueChange = this.onValueChange.bind(this)
+        this.handleSubmit = this.handleSubmit.bind(this)
     }
 
     private onSetRecaptchaRef(recaptchaRef: any): void {
@@ -47,19 +44,36 @@ class SignUpForm extends React.Component<any> {
         let {
             email,
             password,
+            aceptedTerms,
             passwordConfirmation,
             recaptchaKey
         } = this.state.formData
 
         return (
             email.length > 3 &&
+            aceptedTerms === true &&
             password.length > 4 &&
             recaptchaKey.length > 0 &&
             passwordConfirmation === password
         )
     }
 
-    private onValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    private handleAcceptedTerms(event: React.ChangeEvent<HTMLInputElement>) {
+        event.persist()
+        let { formData, errorMessages, errors } = this.state
+        formData.aceptedTerms = event.target.checked
+        if (formData.aceptedTerms) {
+            errorMessages.aceptedTerms = ''
+            errors.aceptedTerms = false
+        } else {
+            errorMessages.aceptedTerms =
+                'You must accept the Terms and Conditions and Privacy Policy.'
+            errors.aceptedTerms = true
+        }
+        this.setState({ formData, errorMessages, errors })
+    }
+
+    private onValueChange(event: React.ChangeEvent<HTMLInputElement>) {
         let { formData, errorMessages, errors } = this.state
         const value = event.target.value
         const name = event.target.name
@@ -87,7 +101,7 @@ class SignUpForm extends React.Component<any> {
         this.setState({ formData, errorMessages, errors })
     }
 
-    private handleSubmit = async (event: React.FormEvent) => {
+    private async handleSubmit(event: React.FormEvent) {
         event.preventDefault()
 
         const {
@@ -151,8 +165,59 @@ class SignUpForm extends React.Component<any> {
                     onSetRef={this.onSetRecaptchaRef}
                     onKeyChange={this.onCaptchaKeyChange}
                 />
+                <FormControl
+                    fullWidth={true}
+                    required={true}
+                    error={this.state.errors.aceptedTerms}
+                >
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                icon={
+                                    <CheckBoxOutlineBlankIcon fontSize="large" />
+                                }
+                                checkedIcon={<CheckBoxIcon fontSize="large" />}
+                                checked={this.state.formData.aceptedTerms}
+                                onChange={this.handleAcceptedTerms}
+                                value="accepted"
+                                color="primary"
+                                disabled={loading}
+                            />
+                        }
+                        label={
+                            <Typography
+                                component="span"
+                                variant="subheading"
+                                align="center"
+                            >
+                                I agree to the{' '}
+                                <Button
+                                    size="small"
+                                    color="primary"
+                                    target="_blank"
+                                    href={VIEW_TERMS_AND_CONDITIONS}
+                                >
+                                    Terms and Conditions
+                                </Button>{' '}
+                                and{' '}
+                                <Button
+                                    size="small"
+                                    color="primary"
+                                    target="_blank"
+                                    href={VIEW_PRIVACY_POLICY}
+                                >
+                                    Privacy Policy
+                                </Button>
+                            </Typography>
+                        }
+                    />
+                    <FormHelperText>
+                        {this.state.errorMessages.aceptedTerms}
+                    </FormHelperText>
+                </FormControl>
                 <p>
                     <LoadingButton
+                        style={{ marginTop: '1em' }}
                         isLoading={loading}
                         color="primary"
                         variant="contained"
