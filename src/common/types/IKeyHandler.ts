@@ -17,9 +17,6 @@ export default interface IKeyHandler {
         address: string
     }>
 
-    setAccountActivated(activated: boolean): Promise<void>
-    getAccountActivationStatus(): Promise<boolean>
-
     storeTempPrivateKey(value: string): Promise<void>
     getTempPrivateKey(): Promise<string | null>
     removeTempPrivateKey(): Promise<void>

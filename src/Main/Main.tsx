@@ -14,7 +14,9 @@ import { Grid, Fade, Typography } from '@material-ui/core'
 import AppLoading from '../common/components/AppLoading'
 import { VIEW_ACCOUNT, VIEW_ACCOUNT_NOTACTIVATED } from '../routes'
 
-class Main extends React.Component<any, any> {
+class Main extends React.PureComponent<any, any> {
+    private _activationTimer: any
+
     constructor(props: any) {
         super(props)
         this.state = {
@@ -26,8 +28,21 @@ class Main extends React.Component<any, any> {
         this.renderError = this.renderError.bind(this)
     }
 
+    public componentWillUnmount() {
+        if (this._activationTimer) {
+            clearInterval(this._activationTimer)
+        }
+    }
+
     public async componentDidMount() {
         await this.props.initializeMain()
+
+        if (!this.props.accountIsActivated) {
+            this._activationTimer = setInterval(async () => {
+                await this.props.initializeMain()
+            }, 5000)
+        }
+
         this.setState({ loaded: true })
     }
 
@@ -77,6 +92,10 @@ class Main extends React.Component<any, any> {
             }
         }
 
+        if (accountIsActivated && this._activationTimer) {
+            clearInterval(this._activationTimer)
+        }
+
         return (
             <Fade in={this.state.loaded || this.props.error} timeout={500}>
                 <React.Fragment>
@@ -105,11 +124,7 @@ class Main extends React.Component<any, any> {
                         justify="center"
                     >
                         <Grid item={true} xs={12}>
-                            {this.props.error ? (
-                                this.renderError()
-                            ) : (
-                                <MainRouter />
-                            )}
+                            <MainRouter />
                         </Grid>
                     </Grid>
                     <AppDrawer

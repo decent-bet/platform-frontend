@@ -3,19 +3,6 @@ import { IRecaptchaProps, DefaultRecaptchaProps } from './RecaptchaProps'
 import { IRecaptchaState, RecaptchaState } from './RecaptchaState'
 import { RECAPTCHA_URL } from '../../../constants'
 
-const getCaptchaLoaded = (): any => {
-    const _window: any = window
-    if (
-        typeof _window !== 'undefined' &&
-        typeof _window.grecaptcha !== 'undefined' &&
-        typeof _window.grecaptcha.render !== 'undefined'
-    ) {
-        return _window.grecaptcha
-    }
-
-    return null
-}
-
 const injectScript = (): void => {
     const filtered = Array.from(document.scripts).filter(
         script => script.src.indexOf(RECAPTCHA_URL) > -1
@@ -33,16 +20,6 @@ const injectScript = (): void => {
     }
 }
 
-const waitForRecaptcha = new Promise(resolve => {
-    let interval = setInterval(() => {
-        const grecaptcha = getCaptchaLoaded()
-        if (grecaptcha !== null) {
-            clearInterval(interval)
-            resolve(grecaptcha)
-        }
-    }, 1000)
-})
-
 export default class Recaptcha extends React.PureComponent<
     IRecaptchaProps,
     IRecaptchaState
@@ -53,16 +30,49 @@ export default class Recaptcha extends React.PureComponent<
     constructor(props: IRecaptchaProps) {
         super(props)
         this.state = new RecaptchaState()
+        this.reset = this.reset.bind(this)
+        this.renderGrecaptcha = this.renderGrecaptcha.bind(this)
+        this.waitForRecaptcha = this.waitForRecaptcha.bind(this)
     }
 
-    public componentDidMount() {
-        if (getCaptchaLoaded() === null) {
+    private get captchaLoaded() {
+        const _window: any = window
+        if (
+            typeof _window !== 'undefined' &&
+            typeof _window.grecaptcha !== 'undefined' &&
+            typeof _window.grecaptcha.render !== 'undefined'
+        ) {
+            return _window.grecaptcha
+        }
+
+        return null
+    }
+
+    public async componentDidMount() {
+        if (this.captchaLoaded === null) {
             injectScript()
         }
-        this._renderGrecaptcha()
+
+        await this.renderGrecaptcha()
     }
 
-    private _renderGrecaptcha() {
+    public componentWillUnmount() {
+        this.reset()
+    }
+
+    private waitForRecaptcha() {
+        return new Promise(resolve => {
+            let interval = setInterval(() => {
+                const grecaptcha = this.captchaLoaded
+                if (grecaptcha !== null) {
+                    clearInterval(interval)
+                    resolve(grecaptcha)
+                }
+            }, 1000)
+        })
+    }
+
+    private async renderGrecaptcha() {
         const {
             sitekey,
             theme,
@@ -76,25 +86,26 @@ export default class Recaptcha extends React.PureComponent<
             onloadCallback
         } = this.props
 
-        waitForRecaptcha.then((grecaptcha: any) => {
-            grecaptcha.ready(() => {
-                const widget = grecaptcha.render(this._containerRef, {
-                    sitekey,
-                    theme,
-                    type,
-                    size,
-                    tabindex,
-                    hl,
-                    badge,
-                    onloadCallback,
-                    callback: verifyCallback,
-                    'expired-callback': expiredCallback
-                })
-                this.setState({ grecaptcha, widget })
-                if (onloadCallback) {
-                    onloadCallback()
-                }
+        const grecaptcha: any = await this.waitForRecaptcha()
+
+        grecaptcha.ready(async () => {
+            const widget = await grecaptcha.render(this._containerRef, {
+                sitekey,
+                theme,
+                type,
+                size,
+                tabindex,
+                hl,
+                badge,
+                onloadCallback,
+                callback: verifyCallback,
+                'expired-callback': expiredCallback
             })
+
+            this.setState({ grecaptcha, widget })
+            if (onloadCallback) {
+                onloadCallback()
+            }
         })
     }
 
