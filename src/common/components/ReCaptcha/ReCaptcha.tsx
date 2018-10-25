@@ -53,7 +53,6 @@ export default class Recaptcha extends React.PureComponent<
     constructor(props: IRecaptchaProps) {
         super(props)
         this.state = new RecaptchaState()
-        this._containerRef = null
     }
 
     public componentDidMount() {
