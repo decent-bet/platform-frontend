@@ -1,7 +1,16 @@
-node_modules
+# dependencies
+/node_modules
+
+# testing
+/coverage
+
+# production
+
+# misc
 Dockerfile
 docker-compose.yml
 .DS_Store
+.dockerignore
 .gitignore
 README.md
 .env
@@ -9,6 +18,13 @@ README.md
 deployment
 data
 .prettierrc
+images.d.ts
+VERSION
+__tests__
+docker-build.sh
+docker-build.local.sh
+docs
+
 
 
 

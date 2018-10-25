@@ -1,0 +1,67 @@
+{
+    "extends": ["tslint:recommended", "tslint-react", "tslint-config-prettier"],
+    "rules": {
+        "react/prop-types": false,
+        "comma-dangle": false,
+        "no-undef": false,
+        "member-ordering": false,
+        "object-literal-sort-keys": false, //Disable for typescript,
+        "no-console": false,
+        "one-variable-per-declaration": false,
+        "curly": false,
+        "variable-name": false,
+        "jsdoc-format": false,
+        "radix": false,
+        "no-shadowed-variable": false,
+        "no-empty": false,
+        "no-var-requires": false,
+        "only-arrow-functions": false,
+        "class-name": false,
+        "ordered-imports": false,
+        "prefer-const": false
+    },
+    "jsRules": {
+        "object-literal-sort-keys": false, //Disable for javascript
+        "no-console": false,
+        "one-variable-per-declaration": false,
+        "curly": false,
+        "variable-name": false,
+        "jsdoc-format": false,
+        "radix": false,
+        "no-shadowed-variable": false,
+        "no-empty": false,
+        "no-var-requires": false,
+        "only-arrow-functions": false,
+        "class-name": false,
+        "ordered-imports": false,
+        "prefer-const": false,
+        "no-bitwise": false
+    },
+    "globals": {
+        "process": true,
+        "setTimeout": true,
+        "clearTimeout": true,
+        "setInterval": true,
+        "clearInterval": true,
+        "window": true,
+        "document": true,
+        "localStorage": true,
+        "jest": true,
+        "require": true,
+        "global": true,
+        "expect": true,
+        "it": true,
+        "beforeEach": true,
+        "describe": true,
+        "console": true,
+        "location": true
+    },
+    "linterOptions": {
+        "exclude": [
+            "public",
+            "config/**/*.js",
+            "node_modules/**/*.ts",
+            "coverage/lcov-report/*.js"
+        ]
+    }
+}

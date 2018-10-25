@@ -1,2 +1,5 @@
 {
+    "eslint.packageManager": "yarn",
+    "editor.formatOnSave": true,
+    "debug.allowBreakpointsEverywhere": true
 }

@@ -1,0 +1,54 @@
+/* Page structure with CSS Grid */
+.slots {
+    
+}
+
+
+.slots > *:not(.game-card) {
+    grid-column: 1 / -1;
+}
+
+.slots .channel-description header{
+    flex: 0 30%;
+    padding: 16px;
+
+    color: #303030;
+    border: 1px solid #303030;
+    background-color: #f2b45c;
+    text-align: center;
+    align-items: center;
+    font-weight: bold;
+}
+
+/* Game Card */
+.slots .game-card {
+    cursor: pointer;
+    border-radius: 2px !important;
+}
+
+.slots .game-card > * {
+    height: 192px;
+}
+
+.slots .chip-toolbar-container {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-items: space-between;
+}
+
+.slots .chip-toolbar-container > * {
+    flex: 0 auto;
+}
+
+/* Typography */
+.slots .title-container h3 {
+    color: #f2b45c;
+}
+
+.slots .text-gold {
+    color: #f2b45c;
+}
+
+.slots .slot-channel-row .slot-channel-button span {
+    text-transform: capitalize !important; /* Capitalization for the buttons */
+}

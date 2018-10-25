@@ -1,14 +1,8 @@
 #!/bin/bash
-VERSION=$(cat ./VERSION)
-echo "Updating submodules for games"
-git submodule foreach git pull origin master
+VERSION=$1
 
-echo "Creating a build for production"
-nvm use
-yarn install --silent --production=false
-yarn build
-
-echo "Building and pushing version $VERSION"
+echo "Building version $VERSION"
 docker build -t us.gcr.io/dbet-platform/platform-frontend:$VERSION .
 docker tag us.gcr.io/dbet-platform/platform-frontend:$VERSION us.gcr.io/dbet-platform/platform-frontend:$VERSION
+echo "Pushing version $VERSION"
 docker push us.gcr.io/dbet-platform/platform-frontend

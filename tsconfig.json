@@ -1,0 +1,42 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "outDir": "out",
+        "module": "esnext",
+        "target": "es5",
+        "lib": ["es2017", "dom"],
+        "sourceMap": true,
+        "allowJs": true,
+        "jsx": "react",
+        "moduleResolution": "node",
+        "forceConsistentCasingInFileNames": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noImplicitAny": false,
+        "strictNullChecks": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "noUnusedLocals": true,
+        "skipLibCheck": true,
+        "allowSyntheticDefaultImports": true,
+        "downlevelIteration": true
+    },
+    "include": [
+        "node_modules/@types/*/*.d.ts",
+        "node_modules/electron/electron.d.ts",
+        "node_modules/electron-updater/out/*.d.ts",
+        "node_modules/electron-builder-http/out/*.d.ts",
+        "src/**/*.ts",
+        "src/**/*.js",
+        "typings/**/*.d.ts",
+        "images.d.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "build",
+        "scripts",
+        "acceptance-tests",
+        "webpack",
+        "jest",
+        "src/setupTests.ts"
+    ]
+}

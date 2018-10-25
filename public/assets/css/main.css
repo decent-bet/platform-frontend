@@ -1,0 +1,41 @@
+html,
+body {
+    overflow-x: hidden;
+    height: 100%;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    background-repeat: repeat;
+    background-position: top center;
+    background-image: url('../img/app-bg.png');
+    background-size: contain;
+    background-color: #2a324e !important;
+}
+
+/* Scrollbars */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+::-webkit-scrollbar,
+::-mox-scrollbar,
+::scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track,
+::-moz-scrollbar-track,
+::scrollbar-track {
+    background-color: rgb(47, 49, 62);
+}
+
+::-webkit-scrollbar-thumb,
+::-moz-scrollbar-thumb,
+::scrollbar-thumb {
+    background-color: #ffcb79;
+}
