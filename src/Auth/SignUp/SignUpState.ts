@@ -1,6 +1,6 @@
 export interface ISignUpState {
     formData: {
-        aceptedTerms: boolean
+        acceptedTerms: boolean
         email: string
         password: string
         recaptchaKey: string
@@ -9,13 +9,13 @@ export interface ISignUpState {
 
     errors: {
         email: boolean
-        aceptedTerms: boolean
+        acceptedTerms: boolean
         password: boolean
         passwordConfirmation: boolean
     }
 
     errorMessages: {
-        aceptedTerms: string
+        acceptedTerms: string
         email: string
         password: string
         passwordConfirmation: string
@@ -24,7 +24,7 @@ export interface ISignUpState {
 
 export class SignUpState implements ISignUpState {
     public formData = {
-        aceptedTerms: false,
+        acceptedTerms: false,
         email: '',
         password: '',
         recaptchaKey: '',
@@ -32,14 +32,14 @@ export class SignUpState implements ISignUpState {
     }
 
     public errors = {
-        aceptedTerms: false,
+        acceptedTerms: false,
         email: false,
         password: false,
         passwordConfirmation: false
     }
 
     public errorMessages = {
-        aceptedTerms: '',
+        acceptedTerms: '',
         email: '',
         password: '',
         passwordConfirmation: ''

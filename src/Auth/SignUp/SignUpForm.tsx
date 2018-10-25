@@ -44,14 +44,14 @@ class SignUpForm extends React.Component<any, ISignUpState> {
         let {
             email,
             password,
-            aceptedTerms,
+            acceptedTerms,
             passwordConfirmation,
             recaptchaKey
         } = this.state.formData
 
         return (
             email.length > 3 &&
-            aceptedTerms === true &&
+            acceptedTerms &&
             password.length > 4 &&
             recaptchaKey.length > 0 &&
             passwordConfirmation === password
@@ -61,14 +61,14 @@ class SignUpForm extends React.Component<any, ISignUpState> {
     private handleAcceptedTerms(event: React.ChangeEvent<HTMLInputElement>) {
         event.persist()
         let { formData, errorMessages, errors } = this.state
-        formData.aceptedTerms = event.target.checked
-        if (formData.aceptedTerms) {
-            errorMessages.aceptedTerms = ''
-            errors.aceptedTerms = false
+        formData.acceptedTerms = event.target.checked
+        if (formData.acceptedTerms) {
+            errorMessages.acceptedTerms = ''
+            errors.acceptedTerms = false
         } else {
-            errorMessages.aceptedTerms =
+            errorMessages.acceptedTerms =
                 'You must accept the Terms and Conditions and Privacy Policy.'
-            errors.aceptedTerms = true
+            errors.acceptedTerms = true
         }
         this.setState({ formData, errorMessages, errors })
     }
@@ -168,7 +168,7 @@ class SignUpForm extends React.Component<any, ISignUpState> {
                 <FormControl
                     fullWidth={true}
                     required={true}
-                    error={this.state.errors.aceptedTerms}
+                    error={this.state.errors.acceptedTerms}
                 >
                     <FormControlLabel
                         control={
@@ -177,7 +177,7 @@ class SignUpForm extends React.Component<any, ISignUpState> {
                                     <CheckBoxOutlineBlankIcon fontSize="large" />
                                 }
                                 checkedIcon={<CheckBoxIcon fontSize="large" />}
-                                checked={this.state.formData.aceptedTerms}
+                                checked={this.state.formData.acceptedTerms}
                                 onChange={this.handleAcceptedTerms}
                                 value="accepted"
                                 color="primary"
@@ -212,7 +212,7 @@ class SignUpForm extends React.Component<any, ISignUpState> {
                         }
                     />
                     <FormHelperText>
-                        {this.state.errorMessages.aceptedTerms}
+                        {this.state.errorMessages.acceptedTerms}
                     </FormHelperText>
                 </FormControl>
                 <p>
