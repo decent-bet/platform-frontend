@@ -15,7 +15,7 @@ import PublicRouteContainer from '../common/components/PublicRouteContainer'
 import AppLoading from 'src/common/components/AppLoading'
 import AuthResult from '../Auth/AuthResult'
 
-class ActivateAccount extends React.PureComponent<any, any> {
+class ActivateAccount extends React.Component<any, any> {
     constructor(props) {
         super(props)
         this.state = { processed: false }

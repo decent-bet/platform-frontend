@@ -52,14 +52,10 @@ async function setAccountIsVerified(account: any): Promise<boolean> {
     )
 }
 
-async function getAccountActivationStatus(
-    keyHandler: IKeyHandler
-): Promise<boolean> {
-    const status = await keyHandler.getAccountActivationStatus()
-    if (status) {
-        return status
+async function getAccountActivationStatus(account: any): Promise<boolean> {
+    if (account) {
+        return account.activated
     }
-
     return false
 }
 

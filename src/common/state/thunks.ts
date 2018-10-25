@@ -21,12 +21,6 @@ export function setUserAuthenticationStatus() {
     }
 }
 
-export function setAccountIsActivated(activated: boolean) {
-    return async (dispatch, _getState, { keyHandler }: IThunkDependencies) => {
-        await dispatch(actions.setAccountIsActivated(activated, keyHandler))
-    }
-}
-
 export function setHttpAuthHeader() {
     return async (dispatch, _getState, { keyHandler }: IThunkDependencies) => {
         await dispatch(actions.setHttpAuthHeader(keyHandler))

@@ -27,7 +27,7 @@ import {
 } from '../../routes'
 import AuthResult from '../AuthResult'
 
-class SignUp extends React.PureComponent<any, ISignUpState> {
+class SignUp extends React.Component<any, ISignUpState> {
     private recaptchaRef: any
     constructor(props) {
         super(props)
@@ -37,6 +37,7 @@ class SignUp extends React.PureComponent<any, ISignUpState> {
         this.handleAcceptedTerms = this.handleAcceptedTerms.bind(this)
         this.onValueChange = this.onValueChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
+        this.renderForm = this.renderForm.bind(this)
     }
 
     private onSetRecaptchaRef(recaptchaRef: any): void {
@@ -143,6 +144,7 @@ class SignUp extends React.PureComponent<any, ISignUpState> {
                     label="Email"
                     type="email"
                     name="email"
+                    autoComplete="off"
                     error={this.state.errors.email}
                     value={this.state.formData.email}
                     required={true}
@@ -155,7 +157,7 @@ class SignUp extends React.PureComponent<any, ISignUpState> {
                     label="Password"
                     type="password"
                     name="password"
-                    autoComplete="none"
+                    autoComplete="off"
                     error={this.state.errors.password}
                     value={this.state.formData.password}
                     onChange={this.onValueChange}

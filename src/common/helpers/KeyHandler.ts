@@ -1,9 +1,5 @@
 import { IKeyStore, IKeyHandler } from '../types'
-import {
-    AUTH_TOKEN_NAME,
-    ACCOUNT_ACTIVATED_NAME,
-    ACCOUNT_TEMP_LOGIN_VALUE
-} from '../../constants'
+import { AUTH_TOKEN_NAME, ACCOUNT_TEMP_LOGIN_VALUE } from '../../constants'
 
 class KeyHandler implements IKeyHandler {
     /**
@@ -72,14 +68,6 @@ class KeyHandler implements IKeyHandler {
         }
 
         return null
-    }
-
-    public async setAccountActivated(activated: boolean): Promise<void> {
-        await this.keyStore.addVariable(ACCOUNT_ACTIVATED_NAME, activated)
-    }
-
-    public async getAccountActivationStatus(): Promise<boolean> {
-        return await this.keyStore.getVariable(ACCOUNT_ACTIVATED_NAME)
     }
 
     public async storeTempPrivateKey(value: string): Promise<void> {

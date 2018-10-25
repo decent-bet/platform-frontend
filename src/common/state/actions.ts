@@ -24,21 +24,12 @@ async function logout(keyHandler: IKeyHandler) {
     await keyHandler.clearStorage()
 }
 
-async function setAccountIsActivated(
-    activated: boolean,
-    keyHandler: IKeyHandler
-) {
-    await keyHandler.setAccountActivated(activated)
-    return activated
-}
-
 export default createActions({
     [PREFIX]: {
         [Actions.APP_LOADED]: setAppLoaded,
         [Actions.OPEN_ALERT]: openAlert,
         [Actions.CLOSE_ALERT]: closeAlert,
         [Actions.LOGOUT]: logout,
-        [Actions.SET_USER_AUTHENTICATION_STATUS]: setUserAuthenticationStatus,
-        [Actions.SET_ACCOUNT_IS_ACTIVATED]: setAccountIsActivated
+        [Actions.SET_USER_AUTHENTICATION_STATUS]: setUserAuthenticationStatus
     }
 })
