@@ -1,4 +1,5 @@
 export interface ISignUpState {
+    formSubmited: boolean
     formData: {
         acceptedTerms: boolean
         email: string
@@ -23,6 +24,7 @@ export interface ISignUpState {
 }
 
 export class SignUpState implements ISignUpState {
+    public formSubmited = false
     public formData = {
         acceptedTerms: false,
         email: '',

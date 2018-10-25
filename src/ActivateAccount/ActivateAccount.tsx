@@ -15,14 +15,20 @@ import PublicRouteContainer from '../common/components/PublicRouteContainer'
 import AppLoading from 'src/common/components/AppLoading'
 import AuthResult from '../Auth/AuthResult'
 
-class ActivateAccount extends React.Component<any> {
+class ActivateAccount extends React.PureComponent<any, any> {
     constructor(props) {
         super(props)
+        this.state = { processed: false }
     }
 
     public componentDidMount = async () => {
         let { id, key } = this.props.match.params
         await this.props.activate(id, key)
+        this.setState({ processed: true })
+    }
+
+    public componentWillUnmount() {
+        this.setState({ processed: false })
     }
 
     private renderResult = () => {
@@ -61,7 +67,7 @@ class ActivateAccount extends React.Component<any> {
     }
 
     public render() {
-        return this.props.loading ? (
+        return this.props.loading && this.state.processed ? (
             <AppLoading message="Processing the account activation..." />
         ) : (
             this.renderResult()
