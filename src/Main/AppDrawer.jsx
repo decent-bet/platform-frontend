@@ -7,7 +7,8 @@ import {
     VIEW_SLOTS,
     VIEW_SLOTS_GAME,
     VIEW_LOGOUT,
-    VIEW_ACCOUNT
+    VIEW_ACCOUNT,
+    VIEW_ACCOUNT_NOTACTIVATED
 } from '../routes'
 import { CURRENT_ENV, ENV_PRODUCTION } from '../constants'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
@@ -41,7 +42,10 @@ export default function AppDrawer({
 
                     <AppDrawerItem
                         viewToSelect={VIEW_ACCOUNT}
-                        isSelected={selectedView === VIEW_ACCOUNT}
+                        isSelected={
+                            selectedView === VIEW_ACCOUNT ||
+                            selectedView === VIEW_ACCOUNT_NOTACTIVATED
+                        }
                         onViewChangeListener={onViewChangeListener}
                         title="Account"
                         icon={<AccountCircleIcon />}

@@ -11,8 +11,7 @@ import React, { Component } from 'react'
 
 export default class StateChannelBuilder extends Component {
     state = {
-        value: '100',
-        acceptanceChecked: true
+        value: '100'
     }
 
     onValueChanged = event => this.setState({ value: event.target.value })
@@ -61,7 +60,7 @@ export default class StateChannelBuilder extends Component {
                         variant="raised"
                         color="primary"
                         onClick={this.commit}
-                        disabled={!this.state.acceptanceChecked}
+                        disabled={this.props.tokenBalance <= 0}
                     >
                         Play Slots
                     </Button>

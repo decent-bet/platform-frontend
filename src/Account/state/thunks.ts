@@ -48,3 +48,17 @@ export function authenticate(privateKey: string, account: any) {
         await dispatch(authWallet(privateKey, account)) // authenticate the user the first time
     }
 }
+
+export function requestActivationEmail() {
+    return async dispatch => {
+        const result = await dispatch(actions.requestActivationEmail())
+        const { value } = result
+
+        dispatch(
+            openAlert(
+                value ? value.message : 'An error ocurred. Please try later',
+                value ? 'success' : 'error'
+            )
+        )
+    }
+}

@@ -5,5 +5,5 @@ services:
         image: dbet-platform/platform-frontend:latest
         container_name: 'platform-frontend-nginx'
         ports:
-            - 3000:80
+            - 80:80
         restart: always

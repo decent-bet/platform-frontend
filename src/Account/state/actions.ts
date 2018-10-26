@@ -59,9 +59,25 @@ function saveAccountAddress(
     })
 }
 
+function requestActivationEmail(): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await axios.post('/activate/request')
+            resolve(response.data)
+        } catch (error) {
+            let errorMessage =
+                error.response && error.response.data
+                    ? error.response.data.message
+                    : error.message // 'Error trying save your VET address, please check later.'
+            reject({ message: errorMessage })
+        }
+    })
+}
+
 export default createActions({
     [PREFIX]: {
         [Actions.SAVE_ACCOUNT_INFO]: saveAccountInfo,
-        [Actions.SAVE_ACCOUNT_ADDRESS]: saveAccountAddress
+        [Actions.SAVE_ACCOUNT_ADDRESS]: saveAccountAddress,
+        [Actions.REQUEST_ACTIVATION_EMAIL]: requestActivationEmail
     }
 })

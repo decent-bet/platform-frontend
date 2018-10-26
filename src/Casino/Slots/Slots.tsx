@@ -226,6 +226,7 @@ class Slots extends React.Component<any, ISlotsState> {
                 <Grid item={true} xs={12}>
                     <StateChannelBuilder
                         onBuildChannelListener={this.onBuildChannelListener}
+                        tokenBalance={this.props.tokenBalance}
                     />
                 </Grid>
             </Grid>
@@ -333,7 +334,7 @@ class Slots extends React.Component<any, ISlotsState> {
     }
 }
 
-const mapStateToProps = state => Object.assign({}, state.casino)
+const mapStateToProps = state => Object.assign({}, state.casino, state.main)
 const mapDispatchToProps = dispatch =>
     bindActionCreators(Object.assign({}, thunks), dispatch)
 

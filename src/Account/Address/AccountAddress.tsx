@@ -145,14 +145,17 @@ class AccountAddress extends React.Component<
                                     fullWidth={true}
                                 >
                                     <InputLabel htmlFor="privateKey">
-                                        Private key
+                                        {
+                                            'Passphrase or Private Key V3 (Vechain) token version'
+                                        }
                                     </InputLabel>
                                     <Input
                                         type="text"
                                         autoComplete="off"
                                         disableUnderline={!this.state.isEditing}
                                         disabled={!this.state.isEditing}
-                                        placeholder="Enter Passphrase or Private Key"
+                                        placeholder="Enter Passphrase or Private Key V3 (Vechain) token
+                                        version"
                                         name="privateKeyOrMnemonic"
                                         value={this.state.privateKeyOrMnemonic}
                                         onChange={
@@ -160,21 +163,16 @@ class AccountAddress extends React.Component<
                                         }
                                     />
                                     <FormHelperText component="small">
-                                        Your Passphrase or Private Key will be
-                                        used to sign a message and prove
-                                        ownership of the address you would like
-                                        to register. We never save or send to
-                                        our servers.
+                                        <Typography color="secondary">
+                                            *This will be the only wallet
+                                            address you will be able to fund
+                                            your play with.
+                                        </Typography>
                                     </FormHelperText>
                                     <FormHelperText>
                                         {this.state.errorMessages.address}
                                     </FormHelperText>
                                 </FormControl>
-                            </Grid>
-                        </Grid>
-
-                        <Grid container={true} spacing={32}>
-                            <Grid item={true} xs={12} sm={12}>
                                 <FormControl
                                     error={this.state.errors.address}
                                     fullWidth={true}
@@ -198,13 +196,22 @@ class AccountAddress extends React.Component<
                                 </FormControl>
                             </Grid>
                         </Grid>
-
-                        <Grid container={true} spacing={32}>
+                        <Grid
+                            container={true}
+                            spacing={32}
+                            direction="row"
+                            alignItems="center"
+                        >
                             <Grid item={true} xl={12}>
-                                <Typography variant="subheading">
-                                    Do not have an Public Address and Private
-                                    Key ?, you can download our{' '}
+                                <Typography>
+                                    Do not have an Public Address and
+                                    Phassphrase or Private Key ?, you can
+                                    download our{' '}
                                     <Button
+                                        style={{
+                                            paddingLeft: 2,
+                                            paddingRight: 2
+                                        }}
                                         variant="flat"
                                         color="primary"
                                         target="_blank"
@@ -213,6 +220,14 @@ class AccountAddress extends React.Component<
                                         DBET Wallet
                                     </Button>{' '}
                                     and create a new one.
+                                </Typography>
+                                <Typography
+                                    variant="subheading"
+                                    color="primary"
+                                >
+                                    *To export your private key from the DBET
+                                    wallet, be sure to select V3 (Vechain) token
+                                    version before exporting.
                                 </Typography>
                             </Grid>
                         </Grid>
