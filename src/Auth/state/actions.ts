@@ -11,7 +11,7 @@ async function forgotPassword(email: string, captchaKey: string) {
     const data = { email, captchaKey }
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await axios.post('/password/reset', data)
+            const response = await axios.post('/password/reset/request', data)
             resolve({
                 message:
                     response.data.message ||

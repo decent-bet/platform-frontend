@@ -2,14 +2,7 @@ import * as React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
-import {
-    Button,
-    Grid,
-    CardActions,
-    CardContent,
-    Typography,
-    TextField
-} from '@material-ui/core'
+import { Button, Grid, Typography, TextField } from '@material-ui/core'
 import { makeLogin } from '../state/thunks'
 import * as validator from 'validator'
 import { VIEW_FORGOT_PASSWORD, VIEW_SIGNUP, VIEW_MAIN } from '../../routes'
@@ -137,98 +130,92 @@ class Login extends React.Component<any, ILoginState> {
 
         return (
             <React.Fragment>
-                <CardContent>
-                    <Typography
-                        variant="headline"
-                        align="center"
-                        style={{ fontWeight: 'lighter' }}
-                    >
-                        Please login to continue
+                <Typography
+                    variant="headline"
+                    align="center"
+                    style={{ fontWeight: 'lighter' }}
+                >
+                    Please login to continue
+                </Typography>
+                <form onSubmit={this.handleSubmit}>
+                    <TextField
+                        label="Email"
+                        type="email"
+                        name="email"
+                        autoComplete="off"
+                        error={this.state.errors.email}
+                        value={this.state.formData.email}
+                        required={true}
+                        fullWidth={true}
+                        onChange={this.onValueChange}
+                        helperText={this.state.errorsMessages.email}
+                    />
+
+                    <TextField
+                        label="Password"
+                        type="password"
+                        name="password"
+                        autoComplete="off"
+                        error={this.state.errors.password}
+                        value={this.state.formData.password}
+                        onChange={this.onValueChange}
+                        required={true}
+                        fullWidth={true}
+                        helperText={this.state.errorsMessages.password}
+                    />
+
+                    <Typography variant="subheading">
+                        Forgot your password ?
+                        <Button
+                            component={forgotPasswordLink}
+                            disableRipple={true}
+                            color="primary"
+                            style={{
+                                textTransform: 'none',
+                                margin: '0 !important'
+                            }}
+                        >
+                            Click here
+                        </Button>
                     </Typography>
-                    <form onSubmit={this.handleSubmit}>
-                        <TextField
-                            label="Email"
-                            type="email"
-                            name="email"
-                            autoComplete="off"
-                            error={this.state.errors.email}
-                            value={this.state.formData.email}
-                            required={true}
+                    <Recaptcha
+                        onSetRef={this.onSetRecaptchaRef}
+                        onKeyChange={this.onCaptchaKeyChange}
+                    />
+                    <p>
+                        <LoadingButton
+                            isLoading={this.state.loading}
+                            color="primary"
+                            variant="contained"
+                            type="submit"
                             fullWidth={true}
-                            onChange={this.onValueChange}
-                            helperText={this.state.errorsMessages.email}
-                        />
-
-                        <TextField
-                            label="Password"
-                            type="password"
-                            name="password"
-                            autoComplete="off"
-                            error={this.state.errors.password}
-                            value={this.state.formData.password}
-                            onChange={this.onValueChange}
-                            required={true}
-                            fullWidth={true}
-                            helperText={this.state.errorsMessages.password}
-                        />
-
-                        <Typography variant="subheading">
-                            Forgot your password ?
-                            <Button
-                                component={forgotPasswordLink}
-                                disableRipple={true}
-                                color="primary"
-                                style={{
-                                    textTransform: 'none',
-                                    margin: '0 !important'
-                                }}
-                            >
-                                Click here
-                            </Button>
+                            disabled={this.formHasError || this.state.loading}
+                        >
+                            Login
+                        </LoadingButton>
+                    </p>
+                </form>
+                <Grid
+                    container={true}
+                    direction="column"
+                    alignItems="center"
+                    spacing={16}
+                >
+                    <Grid item={true} xs={12}>
+                        <Typography variant="body2">
+                            Don’t have an account?
                         </Typography>
-                        <Recaptcha
-                            onSetRef={this.onSetRecaptchaRef}
-                            onKeyChange={this.onCaptchaKeyChange}
-                        />
-                        <p>
-                            <LoadingButton
-                                isLoading={this.state.loading}
-                                color="primary"
-                                variant="contained"
-                                type="submit"
-                                fullWidth={true}
-                                disabled={
-                                    this.formHasError || this.state.loading
-                                }
-                            >
-                                Login
-                            </LoadingButton>
-                        </p>
-                    </form>
-                </CardContent>
-                <CardActions>
-                    <Grid
-                        container={true}
-                        direction="column"
-                        alignItems="center"
-                        spacing={16}
-                    >
-                        <Grid item={true} xs={12}>
-                            <Typography variant="body2">
-                                Don’t have an account?
-                            </Typography>
-                        </Grid>
-                        <Grid item={true} xs={12}>
-                            <Button
-                                color="secondary"
-                                variant="contained"
-                                component={signUpLink}
-                            >
-                                Create New Account
-                            </Button>
-                        </Grid>
                     </Grid>
-                </CardActions>
+                    <Grid item={true} xs={12}>
+                        <Button
+                            color="secondary"
+                            variant="contained"
+                            component={signUpLink}
+                        >
+                            Create New Account
+                        </Button>
+                    </Grid>
+                </Grid>
             </React.Fragment>
         )
     }

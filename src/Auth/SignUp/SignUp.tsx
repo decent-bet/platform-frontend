@@ -4,8 +4,6 @@ import { bindActionCreators } from 'redux'
 import {
     Button,
     Grid,
-    CardActions,
-    CardContent,
     Typography,
     TextField,
     FormControl,
@@ -26,10 +24,11 @@ import {
     VIEW_PRIVACY_POLICY
 } from '../../routes'
 import AuthResult from '../AuthResult'
+import ISignUpProps from './ISignUpProps'
 
-class SignUp extends React.Component<any, ISignUpState> {
+class SignUp extends React.Component<ISignUpProps, ISignUpState> {
     private recaptchaRef: any
-    constructor(props) {
+    constructor(props: ISignUpProps) {
         super(props)
         this.state = new SignUpState()
         this.onCaptchaKeyChange = this.onCaptchaKeyChange.bind(this)
@@ -124,7 +123,6 @@ class SignUp extends React.Component<any, ISignUpState> {
             passwordConfirmation,
             recaptchaKey
         } = this.state.formData
-        const { signUp } = this.props as any
 
         if (this.recaptchaRef) {
             this.recaptchaRef.reset()
@@ -132,12 +130,16 @@ class SignUp extends React.Component<any, ISignUpState> {
             formData.recaptchaKey = ''
             this.setState({ formData })
         }
-        await signUp(email, password, passwordConfirmation, recaptchaKey)
+        await this.props.signUp(
+            email,
+            password,
+            passwordConfirmation,
+            recaptchaKey
+        )
         this.setState({ formSubmited: true })
     }
 
     private renderForm() {
-        let { loading } = this.props as any
         return (
             <form onSubmit={this.handleSubmit}>
                 <TextField
@@ -197,7 +199,7 @@ class SignUp extends React.Component<any, ISignUpState> {
                                 onChange={this.handleAcceptedTerms}
                                 value="accepted"
                                 color="primary"
-                                disabled={loading}
+                                disabled={this.props.loading}
                             />
                         }
                         label={
@@ -234,11 +236,13 @@ class SignUp extends React.Component<any, ISignUpState> {
                 <p>
                     <LoadingButton
                         style={{ marginTop: '1em' }}
-                        isLoading={loading}
+                        isLoading={this.props.loading}
                         color="primary"
                         variant="contained"
                         fullWidth={true}
-                        disabled={!this.isValidCredentials || loading}
+                        disabled={
+                            !this.isValidCredentials || this.props.loading
+                        }
                         type="submit"
                     >
                         Create New Account
@@ -253,47 +257,43 @@ class SignUp extends React.Component<any, ISignUpState> {
 
         return (
             <React.Fragment>
-                <CardContent>
-                    {this.props.processed && this.state.formSubmited ? (
-                        <AuthResult message={this.props.resultMessage} />
-                    ) : (
-                        <React.Fragment>
-                            <Typography
-                                variant="headline"
-                                align="center"
-                                style={{ fontWeight: 'lighter' }}
-                            >
-                                Create New Account
-                            </Typography>
-                            {this.renderForm()}
-                        </React.Fragment>
-                    )}
-                </CardContent>
-                <CardActions>
-                    <Grid
-                        container={true}
-                        direction="column"
-                        alignItems="center"
-                        spacing={16}
-                    >
-                        <Grid item={true} xs={12}>
-                            <Typography variant="body2">
-                                {this.props.processed
-                                    ? 'Go to the login'
-                                    : 'Already have an account?'}
-                            </Typography>
-                        </Grid>
-                        <Grid item={true} xs={12}>
-                            <Button
-                                color="secondary"
-                                variant="contained"
-                                component={loginLink}
-                            >
-                                Login
-                            </Button>
-                        </Grid>
+                {this.props.processed && this.state.formSubmited ? (
+                    <AuthResult message={this.props.resultMessage} />
+                ) : (
+                    <React.Fragment>
+                        <Typography
+                            variant="headline"
+                            align="center"
+                            style={{ fontWeight: 'lighter' }}
+                        >
+                            Create New Account
+                        </Typography>
+                        {this.renderForm()}
+                    </React.Fragment>
+                )}
+                <Grid
+                    container={true}
+                    direction="column"
+                    alignItems="center"
+                    spacing={16}
+                >
+                    <Grid item={true} xs={12}>
+                        <Typography variant="body2">
+                            {this.props.processed
+                                ? 'Go to the login'
+                                : 'Already have an account?'}
+                        </Typography>
                     </Grid>
-                </CardActions>
+                    <Grid item={true} xs={12}>
+                        <Button
+                            color="secondary"
+                            variant="contained"
+                            component={loginLink}
+                        >
+                            Login
+                        </Button>
+                    </Grid>
+                </Grid>
             </React.Fragment>
         )
     }

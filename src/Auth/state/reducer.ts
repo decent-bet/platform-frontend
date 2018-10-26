@@ -16,6 +16,7 @@ const DefaultState = {
         loading: false
     },
     resetPassword: {
+        verified: false,
         processed: false,
         resultMessage: '',
         loading: false
@@ -74,15 +75,30 @@ export default function reducer(
                 ...state,
                 resetPassword: { loading: true }
             }
-        case `${PREFIX}/${Actions.RESET_PASSWORD_VERIFY}/${REJECTED}`:
-        case `${PREFIX}/${Actions.RESET_PASSWORD}/${REJECTED}`:
         case `${PREFIX}/${Actions.RESET_PASSWORD_VERIFY}/${FULFILLED}`:
+            return {
+                ...state,
+                resetPassword: {
+                    loading: false,
+                    verified: true
+                }
+            }
+        case `${PREFIX}/${Actions.RESET_PASSWORD_VERIFY}/${REJECTED}`:
+            return {
+                ...state,
+                resetPassword: {
+                    loading: false,
+                    verified: false,
+                    resultMessage: action.payload.message
+                }
+            }
+        case `${PREFIX}/${Actions.RESET_PASSWORD}/${REJECTED}`:
         case `${PREFIX}/${Actions.RESET_PASSWORD}/${FULFILLED}`:
             return {
                 ...state,
                 resetPassword: {
-                    processed: true,
                     loading: false,
+                    processed: true,
                     resultMessage: action.payload.message
                 }
             }

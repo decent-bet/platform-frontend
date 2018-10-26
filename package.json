@@ -1,6 +1,6 @@
 {
     "name": "decent-bet-frontend",
-    "version": "1.0.28-develop",
+    "version": "1.0.29-develop",
     "homepage": "https://decent.bet",
     "private": true,
     "devDependencies": {
@@ -21,8 +21,8 @@
     },
     "dependencies": {
         "@decent-bet/contract-slots": "1.0.0-beta.8",
-        "@material-ui/core": "^3.1.0",
-        "@material-ui/icons": "^3.0.1",
+        "@material-ui/core": "3.1.0",
+        "@material-ui/icons": "3.0.1",
         "aes256": "^1.0.3",
         "axios": "^0.18.0",
         "bignumber.js": "^7.0.0",
@@ -64,7 +64,7 @@
         "solidity-sha3": "^0.4.1",
         "swarm-js": "^0.1.37",
         "thor-devkit": "0.2.4",
-        "thorify": "^1.0.1",
+        "thorify": "^1.0.3",
         "validator": "^10.8.0",
         "web3": "1.0.0-beta.35"
     },
