@@ -56,11 +56,7 @@ class App extends React.Component<IAppProps> {
                 alignContent="center"
                 justify="center"
             >
-                <Grid
-                    item={true}
-                    xs={12}
-                    style={{ paddingLeft: '2em', paddingRight: '2em' }}
-                >
+                <Grid item={true} xs={12}>
                     <TransparentPaper>
                         <BrowserRouter>
                             <Switch>

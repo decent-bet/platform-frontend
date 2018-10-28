@@ -397,7 +397,11 @@ class BasicAccountInfo extends React.Component<
                                         autoComplete="off"
                                         label="Date of birth"
                                         disabled={!this.state.isEditing}
-                                        keyboardIcon={<CalendarTodayIcon />}
+                                        keyboardIcon={
+                                            this.state.isEditing ? (
+                                                <CalendarTodayIcon />
+                                            ) : null
+                                        }
                                         leftArrowIcon={<ChevronLeftIcon />}
                                         rightArrowIcon={<ChevronRightIcon />}
                                         disableFuture={true}

@@ -5,27 +5,47 @@ import { withStyles } from '@material-ui/core'
 import { Card, Grid, CardHeader, CardContent } from '@material-ui/core'
 import TransparentPaper from '../TransparentPaper'
 import IPublicRouteContainerProps from './IPublicRouteContainerProps'
+import withWidth from '@material-ui/core/withWidth'
 import styles from './styles'
 
 class PublicRouteContainer extends React.Component<IPublicRouteContainerProps> {
     public render() {
+        let cardWidth
+        let alignItems
+        switch (this.props.width) {
+            case 'xs':
+                cardWidth = '23rem'
+                alignItems = 'flex-start'
+                break
+            case 'sm':
+                cardWidth = '37rem'
+                alignItems = 'flex-start'
+                break
+            case 'md':
+            case 'lg':
+                cardWidth = '37rem'
+                alignItems = 'center'
+                break
+            default:
+                cardWidth = '23rem'
+                alignItems = 'center'
+                break
+        }
+
         return (
             <Grid
                 container={true}
                 className={this.props.classes.root}
                 direction="column"
                 alignItems="center"
-                justify="center"
+                justify={alignItems}
             >
-                <Grid
-                    item={true}
-                    xs={12}
-                    sm={5}
-                    md={5}
-                    className={this.props.classes.grid}
-                >
+                <Grid item={true}>
                     <TransparentPaper>
-                        <Card className={this.props.classes.card}>
+                        <Card
+                            className={this.props.classes.card}
+                            style={{ width: cardWidth }}
+                        >
                             <CardHeader
                                 avatar={
                                     <img
@@ -43,5 +63,5 @@ class PublicRouteContainer extends React.Component<IPublicRouteContainerProps> {
         )
     }
 }
-
-export default withStyles(styles)(PublicRouteContainer)
+const styledComponent = withStyles(styles)(PublicRouteContainer)
+export default withWidth()(styledComponent)

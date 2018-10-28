@@ -10,13 +10,14 @@ import ethUnits from 'ethereum-units'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import * as Thunks from '../state/thunks'
-import { CHANNEL_STATUS_FINALIZED } from '../../constants'
+import { CHANNEL_STATUS_FINALIZED, MIN_VTHO_AMOUNT } from '../../constants'
 import ChannelDetail from './ChannelDetail'
 import Iframe from './Iframe'
 import BigNumber from 'bignumber.js'
 import AppLoading from '../../common/components/AppLoading'
 import './game.css'
 import { VIEW_SLOTS } from 'src/routes'
+import ConfirmationDialog from '../../common/components/ConfirmationDialog'
 
 class Game extends Component {
     constructor(props) {
@@ -25,6 +26,7 @@ class Game extends Component {
         this.renderGame = this.renderGame.bind(this)
     }
     state = {
+        dialogIsOpen: false,
         isFinalizing: false,
         spinCallback: null
     }
@@ -38,7 +40,10 @@ class Game extends Component {
         // Maybe we should use websockets to communicate instead?
         window.slotsController = {
             spin: this.spin,
-            balances: this.getBalance
+            balances: this.getBalance,
+            vthoBalance: this.props.vthoBalance,
+            minVthoAmount: MIN_VTHO_AMOUNT,
+            onSpinWithoutMinBalance: this.onSpinWithoutMinBalance
         }
     }
 
@@ -122,6 +127,14 @@ class Game extends Component {
         }
     }
 
+    onSpinWithoutMinBalance = () => {
+        this.setState({ dialogIsOpen: true })
+    }
+
+    onCloseDialog = () => {
+        this.setState({ dialogIsOpen: false })
+    }
+
     onFinalizeListener = async () => {
         this.setState({ isFinalizing: true })
         await this.props.dispatch(
@@ -168,15 +181,24 @@ class Game extends Component {
             const game = this.props.match.params.gameName || 'game'
             const path = `${process.env.PUBLIC_URL}/slots-${game}/game`
             return (
-                <Iframe
-                    className="full-size"
-                    id="slots-iframe"
-                    url={path}
-                    width="100%"
-                    height="100%"
-                    position="relative"
-                    allowFullScreen={true}
-                />
+                <React.Fragment>
+                    <ConfirmationDialog
+                        title="Minimum VTHO balance"
+                        content="VTHO balance is too low to complete the transaction. Please ensure you have over 7500 VTHO to complete the transaction."
+                        open={this.state.dialogIsOpen}
+                        onClickOk={this.onCloseDialog}
+                        onClose={this.onCloseDialog}
+                    />
+                    <Iframe
+                        className="full-size"
+                        id="slots-iframe"
+                        url={path}
+                        width="100%"
+                        height="100%"
+                        position="relative"
+                        allowFullScreen={true}
+                    />
+                </React.Fragment>
             )
         } else {
             return <AppLoading message="Loading the game..." />
@@ -285,6 +307,8 @@ export default connect((state, props) => {
             }
         }
     }
+
+    channelData.vthoBalance = state.casino.vthoBalance.toFixed(5)
 
     return channelData
 })(Game)

@@ -9,11 +9,11 @@ import SlotsList from './SlotsList'
 import StateChannelBuilder from './StateChannelBuilder'
 import StateChannelTable from './StateChannelTable'
 import StateChannelToolbar from './StateChannelToolbar'
-import StateChannelWaiter from './StateChannelWaiter'
 import TransparentPaper from '../../common/components/TransparentPaper'
 import './slots.css'
 import { VIEW_SLOTS } from 'src/routes'
 import { ISlotsState, SlotsState } from './SlotsState'
+import AppLoading from '../../common/components/AppLoading'
 
 class Slots extends React.Component<any, ISlotsState> {
     constructor(props: any) {
@@ -211,9 +211,7 @@ class Slots extends React.Component<any, ISlotsState> {
 
     private renderLoadingState(message?: any) {
         return (
-            <StateChannelWaiter
-                message={message ? message : this.state.buildStatus}
-            />
+            <AppLoading message={message ? message : this.state.buildStatus} />
         )
     }
 

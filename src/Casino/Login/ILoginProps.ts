@@ -4,4 +4,5 @@ import styles from './styles'
 export default interface ILoginProps extends WithStyles<typeof styles> {
     onLoginSuccess: () => void
     account: any
+    fullScreen?: boolean
 }

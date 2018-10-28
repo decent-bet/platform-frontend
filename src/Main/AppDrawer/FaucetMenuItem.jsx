@@ -1,6 +1,6 @@
 import React from 'react'
 import { ListItem, ListItemIcon, ListItemText, Avatar } from '@material-ui/core'
-import vechainIcon from '../assets/img/vechain-96x96.png'
+import vechainIcon from '../../assets/img/vechain-96x96.png'
 
 export default function FaucetMenuItem({ onFaucetClickedListener }) {
     // if (provider === PROVIDER_DBET) {
@@ -13,8 +13,15 @@ export default function FaucetMenuItem({ onFaucetClickedListener }) {
             onClick={onFaucetClickedListener}
         >
             <ListItemIcon>
-                <Avatar src={vechainIcon} style={{height: 21, width: 21, padding: 3, backgroundColor: '#ffffff'}}>
-                </Avatar>
+                <Avatar
+                    src={vechainIcon}
+                    style={{
+                        height: 21,
+                        width: 21,
+                        padding: 3,
+                        backgroundColor: '#ffffff'
+                    }}
+                />
             </ListItemIcon>
 
             <ListItemText>Claim Faucet</ListItemText>

@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 import {
     Dialog,
     Button,
@@ -10,19 +10,19 @@ import {
 
 export default function ConfirmationDialog({
     title,
-    onClick,
+    content,
     open,
-    onClose,
-    message
+    onClickOk,
+    onClose
 }) {
     return (
         <Dialog open={open} onClose={onClose}>
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>
-                <DialogContentText>{message}</DialogContentText>
+                <DialogContentText>{content}</DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button variant="flat" color="primary" onClick={onClick}>
+                <Button variant="flat" color="primary" onClick={onClickOk}>
                     OK
                 </Button>
             </DialogActions>
