@@ -1,6 +1,6 @@
 {
     "name": "decent-bet-frontend",
-    "version": "1.0.29-develop",
+    "version": "1.0.30-develop",
     "homepage": "https://decent.bet",
     "private": true,
     "devDependencies": {
