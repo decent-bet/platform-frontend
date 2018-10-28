@@ -1,8 +1,8 @@
 import * as React from 'react'
-import { Button, ButtonBase, Typography } from '@material-ui/core'
+import { Button, Typography, Grid } from '@material-ui/core'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import InfoIcon from '@material-ui/icons/Info'
-import ConfirmationDialog from '../../common/components/ConfirmationDialog'
+import MinVTHODialog from '../MinVTHODialog'
 import IAppBarToolbarProps from './IAppBarToolbarProps'
 import { IAppBarToolbarState, AppBarToolbarState } from './AppBarToolbarState'
 
@@ -42,44 +42,76 @@ export default class AppBarToolbar extends React.Component<
         }
 
         return (
-            <React.Fragment>
+            <Grid
+                container={true}
+                direction="row"
+                justify="flex-end"
+                alignItems="center"
+            >
                 {this.props.accountHasAddress ? (
                     <CopyToClipboard
-                        className="toolbar-button hidden-md-down"
                         text={this.props.address}
                         onCopy={this.props.onCopyAddress}
                     >
-                        <ButtonBase component="button">
-                            <Typography style={{ textTransform: 'none' }}>
-                                Public Address: {this.props.address}
+                        <Button variant="flat">
+                            <Typography
+                                color="primary"
+                                component="span"
+                                style={{ textTransform: 'none' }}
+                            >
+                                Public Address:
+                                {'  '}
                             </Typography>
-                        </ButtonBase>
+                            <Typography
+                                component="span"
+                                style={{ textTransform: 'none' }}
+                            >
+                                {this.props.address}
+                            </Typography>
+                        </Button>
                     </CopyToClipboard>
                 ) : null}
 
                 {this.props.isCasinoLogedIn ? (
                     <React.Fragment>
-                        <Button variant="flat" className="toolbar-button">
-                            Tokens: {tokenBalance.toFixed(2)} DBETs
+                        <Button variant="flat">
+                            <Typography
+                                color="primary"
+                                component="span"
+                                style={{ textTransform: 'none' }}
+                            >
+                                Tokens:
+                                {'  '}
+                            </Typography>
+                            <Typography component="span">
+                                {tokenBalance.toFixed(2)} DBETs
+                            </Typography>
                         </Button>
-                        <Button
-                            onClick={this.onClickOpenDialog}
-                            variant="flat"
-                            className="toolbar-button"
-                        >
-                            <InfoIcon style={{ marginRight: 3 }} /> Balance:{' '}
-                            {vthoBalance.toFixed(5)} VTHO
+                        <Button onClick={this.onClickOpenDialog} variant="flat">
+                            <InfoIcon
+                                color="primary"
+                                style={{ marginRight: 3 }}
+                            />
+                            <Typography
+                                color="primary"
+                                component="span"
+                                style={{ textTransform: 'none' }}
+                            >
+                                Balance:
+                                {'  '}
+                            </Typography>
+                            <Typography component="span">
+                                {vthoBalance.toFixed(5)} VTHO
+                            </Typography>
                         </Button>
-                        <ConfirmationDialog
-                            title="Minimum VTHO balance"
-                            content="The minimum VTHO balance to play slots is 7500. This is to ensure enough VTHO is present to cover transaction fees for closing a slots session."
+                        <MinVTHODialog
                             open={this.state.dialogIsOpen}
                             onClickOk={this.onClickOk}
-                            onClose={this.onCloseDialog}
+                            onCloseDialog={this.onCloseDialog}
                         />
                     </React.Fragment>
                 ) : null}
-            </React.Fragment>
+            </Grid>
         )
     }
 }

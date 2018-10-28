@@ -11,6 +11,7 @@ import { faucet } from '../Casino/state/thunks'
 import { openAlert } from '../common/state/thunks'
 import './main.css'
 import { Grid, Fade, Typography } from '@material-ui/core'
+import withWidth, { isWidthDown } from '@material-ui/core/withWidth'
 import AppLoading from '../common/components/AppLoading'
 import { VIEW_ACCOUNT, VIEW_ACCOUNT_NOTACTIVATED } from '../routes'
 
@@ -102,19 +103,21 @@ class Main extends React.PureComponent<any, any> {
                     <MainAppBar
                         onToggleDrawerListener={this.onToggleDrawerListener}
                     >
-                        <AppBarToolbar
-                            accountHasAddress={accountHasAddress}
-                            isCasinoLogedIn={this.props.isCasinoLogedIn}
-                            onCopyAddress={this.onCopyAddress}
-                            address={
-                                this.props.accountHasAddress
-                                    ? this.props.account.verification
-                                          .addressRegistration.vetAddress
-                                    : ''
-                            }
-                            tokenBalance={this.props.tokenBalance}
-                            vthoBalance={this.props.vthoBalance}
-                        />
+                        {isWidthDown('sm', this.props.width) ? null : (
+                            <AppBarToolbar
+                                accountHasAddress={accountHasAddress}
+                                isCasinoLogedIn={this.props.isCasinoLogedIn}
+                                onCopyAddress={this.onCopyAddress}
+                                address={
+                                    this.props.accountHasAddress
+                                        ? this.props.account.verification
+                                              .addressRegistration.vetAddress
+                                        : ''
+                                }
+                                tokenBalance={this.props.tokenBalance}
+                                vthoBalance={this.props.vthoBalance}
+                            />
+                        )}
                     </MainAppBar>
                     <Grid
                         style={{ marginTop: '80px', marginBottom: '80px' }}
@@ -133,6 +136,17 @@ class Main extends React.PureComponent<any, any> {
                         onViewChangeListener={this.onViewChangeListener}
                         selectedView={this.props.location.pathname}
                         onFaucetClickedListener={this.onFaucetClickedListener}
+                        accountHasAddress={accountHasAddress}
+                        isCasinoLogedIn={this.props.isCasinoLogedIn}
+                        onCopyAddress={this.onCopyAddress}
+                        address={
+                            this.props.accountHasAddress
+                                ? this.props.account.verification
+                                      .addressRegistration.vetAddress
+                                : ''
+                        }
+                        tokenBalance={this.props.tokenBalance}
+                        vthoBalance={this.props.vthoBalance}
                     />
                 </React.Fragment>
             </Fade>
@@ -151,4 +165,4 @@ const MainContainer = connect(
     mapStateToProps,
     mapDispatchToProps
 )(Main)
-export default MainContainer
+export default withWidth()(MainContainer)
