@@ -5,27 +5,26 @@ import { withStyles } from '@material-ui/core'
 import { Card, Grid, CardHeader, CardContent } from '@material-ui/core'
 import TransparentPaper from '../TransparentPaper'
 import IPublicRouteContainerProps from './IPublicRouteContainerProps'
+import withWidth, { isWidthUp } from '@material-ui/core/withWidth'
 import styles from './styles'
 
 class PublicRouteContainer extends React.Component<IPublicRouteContainerProps> {
     public render() {
+        const cardWidth = isWidthUp('xs', this.props.width) ? '23rem' : '38rem'
+
         return (
             <Grid
                 container={true}
                 className={this.props.classes.root}
                 direction="column"
                 alignItems="center"
-                justify="center"
             >
-                <Grid
-                    item={true}
-                    xs={12}
-                    sm={5}
-                    md={5}
-                    className={this.props.classes.grid}
-                >
+                <Grid item={true} xs={12}>
                     <TransparentPaper>
-                        <Card className={this.props.classes.card}>
+                        <Card
+                            className={this.props.classes.card}
+                            style={{ width: cardWidth }}
+                        >
                             <CardHeader
                                 avatar={
                                     <img
@@ -43,5 +42,5 @@ class PublicRouteContainer extends React.Component<IPublicRouteContainerProps> {
         )
     }
 }
-
-export default withStyles(styles)(PublicRouteContainer)
+const styledComponent = withStyles(styles)(PublicRouteContainer)
+export default withWidth()(styledComponent)

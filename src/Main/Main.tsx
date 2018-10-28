@@ -63,7 +63,7 @@ class Main extends React.PureComponent<any, any> {
         this.props.history.push(newView)
     }
 
-    private onCopyAddress():void {
+    private onCopyAddress(): void {
         this.props.openAlert('Copied address to clipboard', 'info')
     }
 

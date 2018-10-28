@@ -4,11 +4,11 @@ const styles = () =>
     createStyles({
         root: { height: '100vh' },
         grid: {
-            height: '100%',
-            width: '38rem'
+            height: '90%',
+            width: '100%'
         },
         card: {
-            width: '37rem',
+            width: '100%',
             padding: '1em',
             marginTop: '1em',
             boxShadow:

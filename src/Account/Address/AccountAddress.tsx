@@ -184,6 +184,8 @@ class AccountAddress extends React.Component<
                                             : 'Public Address'}
                                     </InputLabel>
                                     <Input
+                                        multiline={true}
+                                        rows={2}
                                         type="text"
                                         disabled={true}
                                         placeholder="Public Address"
