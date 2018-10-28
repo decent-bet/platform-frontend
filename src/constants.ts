@@ -10,7 +10,7 @@ const AUTH_TOKEN_NAME: string = 'token'
 const ACCOUNT_TEMP_LOGIN_VALUE: string = 'acc_tmp_log'
 const WALLET_WEBSITE_URL: string = 'http://decent.bet/wallet.php'
 const RECAPTCHA_URL: string = 'https://www.google.com/recaptcha/api.js'
-
+const MIN_VTHO_AMOUNT: number = 7500
 const CURRENT_ENV: string = process.env.REACT_APP_ENV || ENV_LOCAL
 
 const symbolA = 1
@@ -43,6 +43,7 @@ const paytable = {
 }
 
 export {
+    MIN_VTHO_AMOUNT,
     MNEMONIC_DPATH,
     CHANNEL_STATUS_DEPOSITED,
     CHANNEL_STATUS_ACTIVATED,
