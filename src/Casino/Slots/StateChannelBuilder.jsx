@@ -27,7 +27,7 @@ export default class StateChannelBuilder extends Component {
 
     isValueValid = () => {
         const parsedValue = parseInt(this.state.value, 10)
-        return parsedValue >= 100 && parsedValue <= 1000
+        return parsedValue >= 100 && parsedValue <= 10000
     }
 
     onAcceptanceCheckedListener = () =>
@@ -38,7 +38,7 @@ export default class StateChannelBuilder extends Component {
     render() {
         const currentValue = parseInt(this.state.value, 10) || ''
         const isValid = this.isValueValid() || currentValue === ''
-        const errorText = isValid ? null : 'Between [100 and 1000]'
+        const errorText = isValid ? null : 'Between [100 and 10000]'
         return (
             <Card>
                 <CardHeader
