@@ -67,7 +67,8 @@ Consists of the platform pages - Slots betting casino and more.
     -   `deploy`: Build a container image and Deploy to GCP.
     -   `deploy:develop`: Build a container image and deploy to GCP, Runs the script `build:develop` inside the container.
     -   `deploy:staging`: Build a container image and deploy to GCP, Runs the script `build:staging` inside the container.
-    -   `deploy:staging`: Build a container image and deploy to GCP, Runs the script `build:prod` inside the container.
+    -   `deploy:prod`: Build a container image and deploy to GCP, Runs the script `build:prod` inside the container.
+    -   `deploy:local`: Build a container image and run on local with docker-compose, Runs the script `build:local` inside the container.
 
 -   You can deploy the build files using a simple express server and [pm2](https://github.com/Unitech/pm2), [serve](https://github.com/zeit/serve) or [nginx](https://nginx.org/).
 
