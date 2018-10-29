@@ -1,6 +1,6 @@
 {
     "name": "decent-bet-frontend",
-    "version": "1.0.29-develop",
+    "version": "1.0.30-develop",
     "homepage": "https://decent.bet",
     "private": true,
     "devDependencies": {
@@ -77,10 +77,10 @@
         "build:develop": "export REACT_APP_ENV=development && react-scripts-ts build",
         "build:staging": "export REACT_APP_ENV=staging && react-scripts-ts build",
         "build:prod": "export REACT_APP_ENV=production && react-scripts-ts build",
-        "deploy": "sh ./docker-build.sh $npm_package_version",
-        "deploy:develop": "npm run build:develop && npm run deploy",
-        "deploy:staging": "npm run build:staging && npm run deploy",
-        "deploy:prod": "npm run build:prod && npm run deploy",
+        "deploy": "sh ./docker-build.local.sh $npm_package_version",
+        "deploy:develop": "npm run deploy develop",
+        "deploy:staging": "npm run deploy staging",
+        "deploy:prod": "npm run deploy prod",
         "test": "react-scripts-ts test --env=jsdom",
         "lint": "tslint src __tests__",
         "lint:fix": "tslint --fix src __tests__"

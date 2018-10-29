@@ -18,12 +18,11 @@ README.md
 deployment
 data
 .prettierrc
-images.d.ts
-VERSION
 __tests__
 docker-build.sh
 docker-build.local.sh
 docs
+build
 
 
 
