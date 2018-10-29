@@ -16,7 +16,6 @@ WORKDIR $HOME
 # Install app dependencies
 COPY . $HOME/
 RUN npm i --silent
-ENV BUILD_ARG="build:$APP_ENV"
 RUN npm run build:${APP_ENV}
 
 
