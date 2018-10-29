@@ -77,7 +77,7 @@
         "build:develop": "export REACT_APP_ENV=development && react-scripts-ts build",
         "build:staging": "export REACT_APP_ENV=staging && react-scripts-ts build",
         "build:prod": "export REACT_APP_ENV=production && react-scripts-ts build",
-        "deploy": "sh ./docker-build.local.sh $npm_package_version",
+        "deploy": "sh ./docker-build.sh $npm_package_version",
         "deploy:develop": "npm run deploy develop",
         "deploy:staging": "npm run deploy staging",
         "deploy:prod": "npm run deploy prod",

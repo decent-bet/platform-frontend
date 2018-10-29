@@ -22,12 +22,12 @@ CMD ["npm", "run", "build:$APP_ENV"]
 ## Switch to nginx 
 FROM nginx:alpine
 
-ENV SOURCE=/var/service/build
+ENV SOURCE=/var/service
 
 ## Remove default nginx website
 RUN rm -rf /usr/share/nginx/html/*
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY --from=builder $SOURCE /usr/share/nginx/html
+COPY --from=builder $SOURCE/build /usr/share/nginx/html
 
 
 ## Expose port and start application
