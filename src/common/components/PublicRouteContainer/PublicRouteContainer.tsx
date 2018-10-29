@@ -23,11 +23,12 @@ class PublicRouteContainer extends React.Component<IPublicRouteContainerProps> {
                 break
             case 'md':
             case 'lg':
+            case 'xl':
                 cardWidth = '37rem'
                 alignItems = 'center'
                 break
             default:
-                cardWidth = '23rem'
+                cardWidth = '37rem'
                 alignItems = 'center'
                 break
         }
@@ -40,7 +41,7 @@ class PublicRouteContainer extends React.Component<IPublicRouteContainerProps> {
                 alignItems="center"
                 justify={alignItems}
             >
-                <Grid item={true}>
+                <Grid item={true} xs={12} sm={4} md={4} xl={4}>
                     <TransparentPaper>
                         <Card
                             className={this.props.classes.card}
