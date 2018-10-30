@@ -22,6 +22,7 @@ let theme = createMuiTheme({
     },
 
     typography: {
+        useNextVariants: true,
         fontFamily: '"Roboto", sans-serif'
     },
 

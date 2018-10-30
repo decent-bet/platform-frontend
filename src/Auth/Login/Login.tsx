@@ -131,7 +131,7 @@ class Login extends React.Component<any, ILoginState> {
         return (
             <React.Fragment>
                 <Typography
-                    variant="headline"
+                    variant="h5"
                     align="center"
                     style={{ fontWeight: 'lighter' }}
                 >
@@ -164,7 +164,7 @@ class Login extends React.Component<any, ILoginState> {
                         helperText={this.state.errorsMessages.password}
                     />
 
-                    <Typography variant="subheading">
+                    <Typography variant="subtitle1">
                         Forgot your password ?
                         <Button
                             component={forgotPasswordLink}
@@ -202,7 +202,7 @@ class Login extends React.Component<any, ILoginState> {
                     spacing={16}
                 >
                     <Grid item={true} xs={12}>
-                        <Typography variant="body2">
+                        <Typography variant="body1">
                             Don’t have an account?
                         </Typography>
                     </Grid>

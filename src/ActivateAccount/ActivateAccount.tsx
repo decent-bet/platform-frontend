@@ -47,7 +47,7 @@ class ActivateAccount extends React.Component<any, any> {
                         spacing={16}
                     >
                         <Grid item={true} xs={12}>
-                            <Typography variant="body2">
+                            <Typography variant="body1">
                                 Go to the login
                             </Typography>
                         </Grid>

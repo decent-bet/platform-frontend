@@ -205,7 +205,7 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
                         label={
                             <Typography
                                 component="span"
-                                variant="subheading"
+                                variant="subtitle1"
                                 align="center"
                             >
                                 I agree to the{' '}
@@ -262,7 +262,7 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
                 ) : (
                     <React.Fragment>
                         <Typography
-                            variant="headline"
+                            variant="h5"
                             align="center"
                             style={{ fontWeight: 'lighter' }}
                         >
@@ -278,7 +278,7 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
                     spacing={16}
                 >
                     <Grid item={true} xs={12}>
-                        <Typography variant="body2">
+                        <Typography variant="body1">
                             {this.props.processed
                                 ? 'Go to the login'
                                 : 'Already have an account?'}

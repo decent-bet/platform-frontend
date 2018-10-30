@@ -273,7 +273,7 @@ class Game extends React.Component<any, any> {
             >
                 <Grid item={true}>
                     <Button
-                        variant="raised"
+                        variant="contained"
                         color="primary"
                         onClick={this.back}
                     >
@@ -282,7 +282,7 @@ class Game extends React.Component<any, any> {
                 </Grid>
                 <Grid item={true}>
                     <Button
-                        variant="raised"
+                        variant="contained"
                         color="primary"
                         onClick={this.onFinalizeListener}
                     >

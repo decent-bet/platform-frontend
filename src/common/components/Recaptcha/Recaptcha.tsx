@@ -25,7 +25,7 @@ export default class Recaptcha extends React.PureComponent<
     IRecaptchaState
 > {
     public static defaultProps = new DefaultRecaptchaProps()
-    private _containerRef: any
+    private _containerRef: HTMLDivElement | null
 
     constructor(props: IRecaptchaProps) {
         super(props)

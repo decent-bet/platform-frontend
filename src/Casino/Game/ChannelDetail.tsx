@@ -55,7 +55,7 @@ export default class ChannelDetail extends React.Component<any, any> {
                             <ButtonBase
                                 onClick={this.onExpanderClickedListener}
                             >
-                                <Typography variant="title">
+                                <Typography variant="h6">
                                     Data for Nerds
                                 </Typography>
                             </ButtonBase>
@@ -141,7 +141,7 @@ export default class ChannelDetail extends React.Component<any, any> {
                                     </List>
                                 </Grid>
                                 <Grid item={true}>
-                                    <Typography variant="title">
+                                    <Typography variant="h6">
                                         Spin History
                                     </Typography>
                                 </Grid>

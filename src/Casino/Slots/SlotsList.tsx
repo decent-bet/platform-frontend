@@ -48,7 +48,7 @@ export default function SlotsList({
                                     <Typography
                                         style={{ color: DARK_TEXT_COLOR }}
                                         align="center"
-                                        variant="title"
+                                        variant="h6"
                                     >
                                         {balance} DBETs
                                     </Typography>

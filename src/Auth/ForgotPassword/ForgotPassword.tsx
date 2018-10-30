@@ -116,7 +116,7 @@ class ForgotPassword extends React.Component<
         return (
             <React.Fragment>
                 <Typography
-                    variant="headline"
+                    variant="h5"
                     align="center"
                     style={{ fontWeight: 'lighter' }}
                 >
@@ -134,7 +134,7 @@ class ForgotPassword extends React.Component<
                     spacing={16}
                 >
                     <Grid item={true} xs={12}>
-                        <Typography variant="body2">Want to login?</Typography>
+                        <Typography variant="body1">Want to login?</Typography>
                     </Grid>
                     <Grid item={true} xs={12}>
                         <Button

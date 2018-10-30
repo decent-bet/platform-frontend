@@ -53,7 +53,7 @@ export default class AppBarToolbar extends React.Component<
                         text={this.props.address}
                         onCopy={this.props.onCopyAddress}
                     >
-                        <Button variant="flat">
+                        <Button variant="text">
                             <Typography
                                 color="primary"
                                 component="span"
@@ -76,7 +76,7 @@ export default class AppBarToolbar extends React.Component<
 
                 {this.props.isCasinoLogedIn ? (
                     <React.Fragment>
-                        <Button variant="flat">
+                        <Button variant="text">
                             <Typography
                                 color="primary"
                                 component="span"
@@ -91,7 +91,7 @@ export default class AppBarToolbar extends React.Component<
                                 {tokenBalance.toFixed(2)} DBETs
                             </Typography>
                         </Button>
-                        <Button onClick={this.onClickOpenDialog} variant="flat">
+                        <Button onClick={this.onClickOpenDialog} variant="text">
                             <InfoIcon
                                 color="primary"
                                 style={{ marginRight: 3 }}

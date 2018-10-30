@@ -44,7 +44,7 @@ class AccountNotActivated extends React.Component<any, any> {
                 <CardContent>
                     <Grid container={true} spacing={32} direction="row">
                         <Grid item={true} xs={12} sm={12}>
-                            <Typography variant="subheading" component="div">
+                            <Typography variant="subtitle1" component="div">
                                 Please check your email or request a new
                                 activation email:
                                 {'   '}

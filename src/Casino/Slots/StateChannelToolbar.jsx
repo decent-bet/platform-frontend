@@ -10,7 +10,7 @@ export default class StateChannelToolbar extends Component {
         const disabled = channel && channel.info ? (!channel.info.finalized || channel.info.claimed) : true 
         return (
             <Button
-                variant="raised"
+                variant="contained"
                 color="primary"
                 onClick={this.onClaimListener}
                 disabled={disabled}

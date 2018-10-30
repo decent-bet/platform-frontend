@@ -180,34 +180,23 @@ export default class SlotsChannelManagerContract extends BaseContract {
         })
     }
 
-    async logChannelFinalized(id, fromBlock, toBlock) {
+    logChannelFinalized(id, fromBlock, toBlock) {
         return new Promise(async (resolve, reject) => {
-            let listenerSettings = {
-                config: {
+            this.instance.events
+                .LogChannelFinalized({
                     filter: {
                         user: await this._keyHandler.getPublicAddress(),
                         id
                     },
                     fromBlock: fromBlock ? fromBlock : 0,
-                    toBlock: toBlock ? toBlock : 'latest',
-                    order: 'DESC',
-                    options: { offset: 0, limit: 1 }
-                },
-                interval: 2000,
-                top: null
-            }
-
-            let events = await this.listenForEvent(
-                'LogChannelFinalized',
-                listenerSettings,
-                events => events && events.length > 0
-            )
-            let [event] = events
-            if (!event || !event.returnValues || !event.returnValues) {
-                reject(new Error('Error on LogChannelFinalized.'))
-            }
-
-            resolve(data.returnValues.id)
+                    toBlock: toBlock ? toBlock : 'latest'
+                })
+                .on('data', data => {
+                    resolve(data.returnValues.id)
+                })
+                .on('error', err => {
+                    reject(err)
+                })
         })
     }
 
@@ -220,8 +209,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
                     },
                     fromBlock: fromBlock ? fromBlock : 0,
                     toBlock: toBlock ? toBlock : 'latest',
-                    order: 'DESC',
-                    options: { offset: 0, limit: 1 }
+                    order: 'DESC'
                 },
                 interval: 2000,
                 top: null

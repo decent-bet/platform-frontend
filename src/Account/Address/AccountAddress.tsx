@@ -214,7 +214,7 @@ class AccountAddress extends React.Component<
                                             paddingLeft: 2,
                                             paddingRight: 2
                                         }}
-                                        variant="flat"
+                                        variant="text"
                                         color="primary"
                                         target="_blank"
                                         href={WALLET_WEBSITE_URL}
@@ -224,7 +224,7 @@ class AccountAddress extends React.Component<
                                     and create a new one.
                                 </Typography>
                                 <Typography
-                                    variant="subheading"
+                                    variant="subtitle1"
                                     color="primary"
                                 >
                                     *To export your private key from the DBET
@@ -259,7 +259,7 @@ class AccountAddress extends React.Component<
                 <CardContent>
                     <Grid container={true} spacing={40}>
                         <Grid item={true} xl={12}>
-                            <Typography variant="subheading">
+                            <Typography variant="subtitle1">
                                 Public Address
                             </Typography>
                             <Typography color="primary">
