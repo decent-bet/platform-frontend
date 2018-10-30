@@ -182,21 +182,32 @@ export default class SlotsChannelManagerContract extends BaseContract {
 
     async logChannelFinalized(id, fromBlock, toBlock) {
         return new Promise(async (resolve, reject) => {
-            this.instance.events
-                .LogChannelFinalized({
+            let listenerSettings = {
+                config: {
                     filter: {
                         user: await this._keyHandler.getPublicAddress(),
                         id
                     },
                     fromBlock: fromBlock ? fromBlock : 0,
-                    toBlock: toBlock ? toBlock : 'latest'
-                })
-                .on('data', data => {
-                    resolve(data.returnValues.id)
-                })
-                .on('error', err => {
-                    reject(err)
-                })
+                    toBlock: toBlock ? toBlock : 'latest',
+                    order: 'DESC',
+                    options: { offset: 0, limit: 1 }
+                },
+                interval: 2000,
+                top: null
+            }
+
+            let events = await this.listenForEvent(
+                'LogChannelFinalized',
+                listenerSettings,
+                events => events && events.length > 0
+            )
+            let [event] = events
+            if (!event || !event.returnValues || !event.returnValues) {
+                reject(new Error('Error on LogChannelFinalized.'))
+            }
+
+            resolve(data.returnValues.id)
         })
     }
 
@@ -212,7 +223,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
                     order: 'DESC',
                     options: { offset: 0, limit: 1 }
                 },
-                interval: 1000,
+                interval: 2000,
                 top: null
             }
 
@@ -230,24 +241,6 @@ export default class SlotsChannelManagerContract extends BaseContract {
                 id: event.returnValues.id,
                 isHouse: event.returnValues.isHouse
             })
-
-            /* this.instance.events
-                .LogClaimChannelTokens({
-                    filter: {
-                        id
-                    },
-                    fromBlock: fromBlock ? fromBlock : 0,
-                    toBlock: toBlock ? toBlock : 'latest'
-                })
-                .on('data', data => {
-                    resolve({
-                        id: data.returnValues.id,
-                        isHouse: data.returnValues.isHouse
-                    })
-                })
-                .on('error', err => {
-                    reject(err)
-                }) */
         })
     }
 

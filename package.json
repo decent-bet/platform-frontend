@@ -66,7 +66,7 @@
         "thor-devkit": "0.2.4",
         "thorify": "^1.0.3",
         "validator": "^10.8.0",
-        "web3": "1.0.0-beta.35"
+        "web3": "1.0.0-beta.36"
     },
     "scripts": {
         "start": "export BROWSER=none && react-scripts-ts start",
