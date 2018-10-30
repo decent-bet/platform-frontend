@@ -282,15 +282,24 @@ async function withdrawChips(amount, slotsContract) {
 async function claimChannel(channelId: number, slotsContract: any) {
     return new Promise(async (resolve, reject) => {
         try {
-            slotsContract
+            const eventEmiter = slotsContract
                 .logClaimChannelTokens(channelId)
-                .then(({ id, isHouse }) => {
-                    resolve({ id, isHouse })
+                .on('data', data => {
+                    if (data) {
+                        const { id, isHouse } = data.returnValues
+
+                        eventEmiter.unsubscribe()
+                        resolve({
+                            id,
+                            isHouse
+                        })
+                    }
                 })
-                .catch(e => {
-                    console.error(e)
-                    reject({ message: 'Error in log claim channel.' })
+                .on('error', err => {
+                    eventEmiter.unsubscribe()
+                    reject(err)
                 })
+
             await slotsContract.claim(channelId)
         } catch (error) {
             console.error(error)

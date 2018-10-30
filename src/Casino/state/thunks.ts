@@ -311,13 +311,21 @@ export function finalizeChannel(channelId, state) {
 export function watcherChannelFinalized(channelId) {
     return async (
         dispatch,
-        getState,
+        _getState,
         { contractFactory }: IThunkDependencies
     ) => {
         try {
             const contract = await contractFactory.slotsChannelManagerContract()
-            const id = await contract.logChannelFinalized(channelId)
-            return await dispatch(actions.setChannelFinalized(id))
+            await contract
+                .logChannelFinalized(channelId)
+                .on('data', async data => {
+                    return await dispatch(
+                        actions.setChannelFinalized(data.returnValues.id)
+                    )
+                })
+                .on('error', err => {
+                    throw err
+                })
         } catch (error) {
             console.error('Finalized channel event', error)
             return

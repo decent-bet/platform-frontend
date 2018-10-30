@@ -20,6 +20,7 @@ class AppLoading extends React.Component<any> {
                             <Typography variant="h5" align="center">
                                 {this.props.message}
                             </Typography>
+                            {this.props.children}
                         </Grid>
                     ) : null}
                 </Grid>

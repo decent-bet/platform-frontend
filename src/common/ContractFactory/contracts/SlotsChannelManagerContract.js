@@ -163,72 +163,51 @@ export default class SlotsChannelManagerContract extends BaseContract {
         return event.returnValues.id
     }
 
-    async logChannelActivate(channelId) {
-        return new Promise((resolve, reject) => {
-            this.instance.events
-                .LogChannelActivate({
-                    filter: {
-                        id: channelId
-                    }
-                })
-                .on('data', data => {
-                    resolve(data.returnValues.id)
-                })
-                .on('error', err => {
-                    reject(err)
-                })
-        })
-    }
-
-    logChannelFinalized(id, fromBlock, toBlock) {
-        return new Promise(async (resolve, reject) => {
-            this.instance.events
-                .LogChannelFinalized({
-                    filter: {
-                        user: await this._keyHandler.getPublicAddress(),
-                        id
-                    },
-                    fromBlock: fromBlock ? fromBlock : 0,
-                    toBlock: toBlock ? toBlock : 'latest'
-                })
-                .on('data', data => {
-                    resolve(data.returnValues.id)
-                })
-                .on('error', err => {
-                    reject(err)
-                })
-        })
-    }
-
-    logClaimChannelTokens(id, fromBlock, toBlock) {
+    logChannelActivate(channelId) {
         return new Promise(async (resolve, reject) => {
             let listenerSettings = {
                 config: {
                     filter: {
-                        id
-                    },
-                    fromBlock: fromBlock ? fromBlock : 0,
-                    toBlock: toBlock ? toBlock : 'latest',
-                    order: 'DESC'
+                        id: channelId
+                    }
                 },
                 interval: 2000,
                 top: null
             }
 
             let events = await this.listenForEvent(
-                'logClaimChannelTokens',
+                'LogChannelActivate',
                 listenerSettings,
                 events => events && events.length > 0
             )
+
             let [event] = events
             if (!event || !event.returnValues || !event.returnValues) {
-                reject(new Error('Error on logClaimChannelTokens.'))
+                reject(new Error('Error on LogChannelActivate.'))
             }
 
-            resolve({
-                id: event.returnValues.id,
-                isHouse: event.returnValues.isHouse
-            })
+            resolve(event.returnValues.id)
+        })
+    }
+
+    async logChannelFinalized(id, fromBlock, toBlock) {
+        return this.instance.events.LogChannelFinalized({
+            filter: {
+                user: await this._keyHandler.getPublicAddress(),
+                id
+            },
+            fromBlock: fromBlock ? fromBlock : 0,
+            toBlock: toBlock ? toBlock : 'latest'
+        })
+    }
+
+    logClaimChannelTokens(id, fromBlock, toBlock) {
+        return this.instance.events.LogClaimChannelTokens({
+            filter: {
+                id
+            },
+            fromBlock: fromBlock ? fromBlock : 0,
+            toBlock: toBlock ? toBlock : 'latest'
         })
     }
 

@@ -3,6 +3,7 @@ export interface ISlotsState {
     buildStatus: string
     claimableChannels: any[]
     activeChannels: any[]
+    claimingChannel?: string | null
     currentChannel: string
 }
 
@@ -12,4 +13,5 @@ export class SlotsState implements ISlotsState {
     public claimableChannels = []
     public activeChannels = []
     public currentChannel = '0x'
+    public claimingChannel = null
 }

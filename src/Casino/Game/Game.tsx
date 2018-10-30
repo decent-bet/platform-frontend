@@ -6,7 +6,7 @@ import {
     Button,
     Typography,
     Grid,
-    Fade
+    Slide
 } from '@material-ui/core'
 import ethUnits from 'ethereum-units'
 import { connect } from 'react-redux'
@@ -27,7 +27,7 @@ declare global {
     }
 }
 
-class Game extends React.Component<any, any> {
+class Game extends React.PureComponent<any, any> {
     constructor(props) {
         super(props)
         this.state = {
@@ -226,7 +226,14 @@ class Game extends React.Component<any, any> {
 
             return (
                 <React.Fragment>
-                    <Fade in={!this.state.isLoadingGame}>
+                    {this.state.isLoadingGame ? (
+                        <AppLoading message={this.state.loadingMessage} />
+                    ) : null}
+                    <Slide
+                        direction="up"
+                        in={!this.state.isLoadingGame}
+                        timeout={1000}
+                    >
                         <IFrame
                             title="Slots Game"
                             onLoad={this.onIFrameLoad}
@@ -236,10 +243,7 @@ class Game extends React.Component<any, any> {
                             height="100%"
                             allowFullScreen={true}
                         />
-                    </Fade>
-                    {this.state.isLoadingGame ? (
-                        <AppLoading message={this.state.loadingMessage} />
-                    ) : null}
+                    </Slide>
                 </React.Fragment>
             )
         } else {
@@ -285,6 +289,9 @@ class Game extends React.Component<any, any> {
                         variant="contained"
                         color="primary"
                         onClick={this.onFinalizeListener}
+                        disabled={
+                            this.props.status === CHANNEL_STATUS_FINALIZED
+                        }
                     >
                         Exit Slots
                     </Button>
@@ -325,8 +332,8 @@ class Game extends React.Component<any, any> {
                                 maxWidth: 1300,
                                 width: '100%',
                                 marginBottom: '2em',
-                                paddingLeft: '1em',
-                                paddingRight: '1em'
+                                paddingLeft: '2em',
+                                paddingRight: '2em'
                             }}
                         >
                             {this.renderGame()}
@@ -357,7 +364,7 @@ export default connect((state: any, props: any) => {
     if (!channelData) {
         channelData = {}
     }
-    channelData.channelId = props.match.params.id
+    channelData.channelId = channelId
 
     // Get the Balances for the House and the user. Set them as 'initialDeposit' if nothing is found
     if (!channelData.info) {

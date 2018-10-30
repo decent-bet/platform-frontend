@@ -4,7 +4,7 @@ import * as React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import * as thunks from '../state/thunks'
-import { Grid } from '@material-ui/core'
+import { Grid, Typography } from '@material-ui/core'
 import SlotsList from './SlotsList'
 import StateChannelBuilder from './StateChannelBuilder'
 import StateChannelTable from './StateChannelTable'
@@ -41,6 +41,7 @@ class Slots extends React.Component<any, ISlotsState> {
         this.renderStateMachine = this.renderStateMachine.bind(this)
         this.renderSelectGameState = this.renderSelectGameState.bind(this)
         this.renderListGamesState = this.renderListGamesState.bind(this)
+        this.renderClaimingStatus = this.renderClaimingStatus.bind(this)
     }
 
     /**
@@ -182,7 +183,7 @@ class Slots extends React.Component<any, ISlotsState> {
 
     // Claims the tokens from a Channel
     private async onClaimChannelListener(channelId): Promise<void> {
-        this.setState({ stateMachine: 'claiming' })
+        this.setState({ stateMachine: 'claiming', claimingChannel: channelId })
         await this.props.claimAndWithdrawFromChannel(channelId)
         // Refresh UI
         await this.refreshChannels()
@@ -208,9 +209,12 @@ class Slots extends React.Component<any, ISlotsState> {
         )
     }
 
-    private renderLoadingState(message?: any) {
+    private renderLoadingState(message?: any, children?: any) {
         return (
-            <AppLoading message={message ? message : this.state.buildStatus} />
+            <AppLoading
+                message={message ? message : this.state.buildStatus}
+                children={children}
+            />
         )
     }
 
@@ -292,6 +296,36 @@ class Slots extends React.Component<any, ISlotsState> {
         )
     }
 
+    private renderClaimingStatus() {
+        let claimingTokens
+        let claimingChannel: any
+        if (this.state.claimingChannel) {
+            claimingChannel = this.props.channels[this.state.claimingChannel]
+        }
+
+        const { finalBalances } = claimingChannel
+        claimingTokens = finalBalances
+            ? finalBalances.dividedBy(units.ether).toFixed()
+            : 0
+        const currentBalanceNode = (
+            <React.Fragment>
+                <Typography align="center">
+                    <Typography component="span">
+                        Your current token balance is
+                    </Typography>
+                    <Typography component="span" color="primary">
+                        {this.props.tokenBalance.toFixed(2)}
+                    </Typography>
+                </Typography>
+            </React.Fragment>
+        )
+
+        return this.renderLoadingState(
+            `Claiming ${claimingTokens} DBETs...`,
+            currentBalanceNode
+        )
+    }
+
     private renderStateMachine() {
         switch (this.state.stateMachine) {
             case 'loading':
@@ -306,7 +340,7 @@ class Slots extends React.Component<any, ISlotsState> {
                 return this.renderSelectGameState()
 
             case 'claiming':
-                return this.renderLoadingState('Claiming DBETs...')
+                return this.renderClaimingStatus()
             default:
                 return this.renderLoadingState()
         }

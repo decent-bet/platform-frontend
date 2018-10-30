@@ -81,6 +81,26 @@ class AppDrawer extends React.Component<IAppDrawerProps, IAppDrawerState> {
 
                     {this.props.isCasinoLogedIn ? (
                         <React.Fragment>
+                            <ListItem button={true}>
+                                <ListItemText
+                                    primary={
+                                        <Typography color="primary">
+                                            Tokens:
+                                        </Typography>
+                                    }
+                                    secondary={
+                                        <Typography variant="caption">
+                                            {this.props.tokenBalance.toFixed(2)}{' '}
+                                            DBETs
+                                        </Typography>
+                                    }
+                                />
+                                <MinVTHODialog
+                                    open={this.state.dialogIsOpen}
+                                    onClickOk={this.onClickOk}
+                                    onCloseDialog={this.onCloseDialog}
+                                />
+                            </ListItem>
                             <ListItem
                                 button={true}
                                 onClick={this.onClickOpenDialog}
@@ -105,26 +125,6 @@ class AppDrawer extends React.Component<IAppDrawerProps, IAppDrawerState> {
                                             VTHO
                                         </Typography>
                                     }
-                                />
-                            </ListItem>
-                            <ListItem button={true}>
-                                <ListItemText
-                                    primary={
-                                        <Typography color="primary">
-                                            Tokens:
-                                        </Typography>
-                                    }
-                                    secondary={
-                                        <Typography variant="caption">
-                                            {this.props.tokenBalance.toFixed(2)}{' '}
-                                            DBETs
-                                        </Typography>
-                                    }
-                                />
-                                <MinVTHODialog
-                                    open={this.state.dialogIsOpen}
-                                    onClickOk={this.onClickOk}
-                                    onCloseDialog={this.onCloseDialog}
                                 />
                             </ListItem>
                         </React.Fragment>
