@@ -324,7 +324,7 @@ class DecentWSAPI {
          * Sign a string and return (hash, v, r, s) used by ecrecover to regenerate the user's address;
          */
         return new Promise(async (resolve, reject) => {
-            let msgHash: any = ethUtil.sha3(text)
+            let msgHash = ethUtil.sha3(text)
             let { privateKey } = await this.keyHandler.getWalletValues()
             privateKey = ethUtil.toBuffer(privateKey)
             let defaultAccount = await this.keyHandler.getPublicAddress()
