@@ -10,7 +10,7 @@ export default function PublicAppBar(props: { title: string }) {
                 <Link to="/" className="logo-container">
                     <img src={dbetLogo} className="logo" alt="Decent.bet" />
                 </Link>
-                <Typography variant="title" align="center">
+                <Typography variant="h6" align="center">
                     {props.title}
                 </Typography>
             </Toolbar>

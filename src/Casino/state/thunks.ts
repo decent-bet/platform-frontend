@@ -73,17 +73,11 @@ export function initializeSlots() {
     }
 }
 
-export function spin(totalBetSize, props, listener) {
-    return (_dispatch, _getState, { slotsChannelHandler }) => {
-        return new Promise(async (resolve, reject) => {
-            try {
-                await slotsChannelHandler.spin(totalBetSize, props, listener)
-                resolve()
-            } catch (error) {
-                console.log(error)
-                reject('Error on SPIN')
-            }
-        })
+export function spin(totalBetSize, props, listener?) {
+    return async (dispatch, _getState, { slotsChannelHandler }) => {
+        await dispatch(
+            actions.makeSpin(totalBetSize, props, listener, slotsChannelHandler)
+        )
     }
 }
 
@@ -138,14 +132,16 @@ export function fetchChannels() {
 /**
  * Claims all the tokens in a channel and withdraws all tokens from the wallet
  * @param {string} channelId
- * @returns {Promise}
+ * @returns {Promise<void>}
  */
-export function claimAndWithdrawFromChannel(channelId: string) {
+export function claimAndWithdrawFromChannel(
+    channelId: string
+): (dispatch, state, IThunkDependencies) => Promise<void> {
     return async (
         dispatch,
         _getState,
         { contractFactory, keyHandler }: IThunkDependencies
-    ) => {
+    ): Promise<void> => {
         let contract = await contractFactory.slotsChannelManagerContract()
         // Claim the channel, check token total in the contract, and withdraw tokens
 
@@ -251,7 +247,7 @@ export function depositIntoCreatedChannel(id, statusUpdateListener) {
  * @param {string} channelId
  * @param {string} msg
  */
-export function spinAndIncreaseNonce(channelId, msg) {
+export function spinAndIncreaseNonce(channelId: string, msg: string) {
     return async dispatch => {
         await dispatch(actions.postSpin(channelId, msg))
         await dispatch(actions.nonceIncrease(channelId))
@@ -262,7 +258,7 @@ export function initializeGame(channelId) {
     return async (
         dispatch,
         _getState,
-        { contractFactory, wsApi, utils }: IThunkDependencies
+        { contractFactory, keyHandler, wsApi, utils }: IThunkDependencies
     ) => {
         const result = await dispatch(
             actions.getChannelNonce(channelId, contractFactory)
@@ -270,6 +266,7 @@ export function initializeGame(channelId) {
         const channelNonce = result.value
         await dispatch(actions.getAesKey(channelId, channelNonce, utils))
         await dispatch(actions.getChannelDetails(channelId, contractFactory))
+
         await dispatch(
             actions.getLastSpin(
                 channelId,
@@ -279,6 +276,14 @@ export function initializeGame(channelId) {
                 utils
             )
         )
+        const vetAddress = (await keyHandler.getPublicAddress()) || ''
+        await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
+        await dispatch(actions.getTokens(contractFactory, vetAddress))
+    }
+}
+
+export function initializeWaiters(channelId) {
+    return async dispatch => {
         await dispatch(watcherChannelFinalized(channelId))
         await dispatch(watcherChannelClaimed(channelId))
     }
@@ -306,13 +311,22 @@ export function finalizeChannel(channelId, state) {
 export function watcherChannelFinalized(channelId) {
     return async (
         dispatch,
-        getState,
+        _getState,
         { contractFactory }: IThunkDependencies
     ) => {
         try {
             const contract = await contractFactory.slotsChannelManagerContract()
-            const id = await contract.logChannelFinalized(channelId)
-            return await dispatch(actions.setChannelFinalized(id))
+            const eventEmiter = await contract.logChannelFinalized(channelId)
+
+            eventEmiter
+                .on('data', async data => {
+                    return await dispatch(
+                        actions.setChannelFinalized(data.returnValues.id)
+                    )
+                })
+                .on('error', err => {
+                    throw err
+                })
         } catch (error) {
             console.error('Finalized channel event', error)
             return

@@ -16,7 +16,7 @@ export default function AuthResult(props: IAuthResult) {
                     paddingBottom: '1em'
                 }}
             >
-                <Typography variant="subheading" align="center">
+                <Typography variant="subtitle1" align="center">
                     {props.message}
                 </Typography>
             </Grid>

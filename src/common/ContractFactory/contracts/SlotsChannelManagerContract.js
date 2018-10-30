@@ -133,10 +133,11 @@ export default class SlotsChannelManagerContract extends BaseContract {
      * Events
      */
     async logNewChannel(transaction) {
+        const userAddress = await this._keyHandler.getPublicAddress()
         let listenerSettings = {
             config: {
                 filter: {
-                    user: await this._keyHandler.getPublicAddress()
+                    user: userAddress
                 },
                 fromBlock: transaction.blockNumber,
                 toBlock: transaction.blockNumber,
@@ -163,66 +164,56 @@ export default class SlotsChannelManagerContract extends BaseContract {
         return event.returnValues.id
     }
 
-    async logChannelActivate(channelId) {
-        return new Promise((resolve, reject) => {
-            this.instance.events
-                .LogChannelActivate({
+    logChannelActivate(channelId) {
+        return new Promise(async (resolve, reject) => {
+            let listenerSettings = {
+                config: {
                     filter: {
                         id: channelId
                     }
-                })
-                .on('data', data => {
-                    resolve(data.returnValues.id)
-                })
-                .on('error', err => {
-                    reject(err)
-                })
+                },
+                interval: 2000,
+                top: null
+            }
+
+            let events = await this.listenForEvent(
+                'LogChannelActivate',
+                listenerSettings,
+                events => events && events.length > 0
+            )
+
+            let [event] = events
+            if (!event || !event.returnValues || !event.returnValues) {
+                reject(new Error('Error on LogChannelActivate.'))
+            }
+
+            resolve(event.returnValues.id)
         })
     }
 
     async logChannelFinalized(id, fromBlock, toBlock) {
-        return new Promise(async (resolve, reject) => {
-            this.instance.events
-                .LogChannelFinalized({
-                    filter: {
-                        user: await this._keyHandler.getPublicAddress(),
-                        id
-                    },
-                    fromBlock: fromBlock ? fromBlock : 0,
-                    toBlock: toBlock ? toBlock : 'latest'
-                })
-                .on('data', data => {
-                    resolve(data.returnValues.id)
-                })
-                .on('error', err => {
-                    reject(err)
-                })
+        const userAddress = await this._keyHandler.getPublicAddress()
+        return this.instance.events.LogChannelFinalized({
+            filter: {
+                user: userAddress,
+                id
+            },
+            fromBlock: fromBlock ? fromBlock : 0,
+            toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
-    async logClaimChannelTokens(id, fromBlock, toBlock) {
-        return new Promise((resolve, reject) => {
-            this.instance.events
-                .LogClaimChannelTokens({
-                    filter: {
-                        id
-                    },
-                    fromBlock: fromBlock ? fromBlock : 0,
-                    toBlock: toBlock ? toBlock : 'latest'
-                })
-                .on('data', data => {
-                    resolve({
-                        id: data.returnValues.id,
-                        isHouse: data.returnValues.isHouse
-                    })
-                })
-                .on('error', err => {
-                    reject(err)
-                })
+    logClaimChannelTokens(id, fromBlock, toBlock) {
+        return this.instance.events.LogClaimChannelTokens({
+            filter: {
+                id
+            },
+            fromBlock: fromBlock ? fromBlock : 0,
+            toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
-    async logDeposit(fromBlock, toBlock) {
+    logDeposit(fromBlock, toBlock) {
         return new Promise(async (resolve, reject) => {
             this.instance.events
                 .LogDeposit({
@@ -241,22 +232,33 @@ export default class SlotsChannelManagerContract extends BaseContract {
         })
     }
 
-    async logWithdraw(fromBlock, toBlock) {
+    logWithdraw(fromBlock, toBlock) {
         return new Promise(async (resolve, reject) => {
-            this.instance.events
-                .LogWithdraw({
+            let listenerSettings = {
+                config: {
                     filter: {
                         _address: await this._keyHandler.getPublicAddress()
                     },
                     fromBlock: fromBlock ? fromBlock : 0,
-                    toBlock: toBlock ? toBlock : 'latest'
-                })
-                .on('data', data => {
-                    resolve(data)
-                })
-                .on('error', err => {
-                    reject(err)
-                })
+                    toBlock: toBlock ? toBlock : 'latest',
+                    order: 'DESC',
+                    options: { offset: 0, limit: 1 }
+                },
+                interval: 1000,
+                top: 60
+            }
+
+            let events = await this.listenForEvent(
+                'LogWithdraw',
+                listenerSettings,
+                events => events && events.length > 0
+            )
+            let [event] = events
+            if (!event || !event.returnValues || !event.returnValues) {
+                reject(new Error('Error on logWithdraw.'))
+            }
+
+            resolve(event.returnValues)
         })
     }
 }

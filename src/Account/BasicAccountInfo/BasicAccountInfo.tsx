@@ -10,10 +10,10 @@ import {
     Typography
 } from '@material-ui/core'
 import Select from 'react-select'
-import { DatePicker } from 'material-ui-pickers'
+import { InlineDatePicker } from 'material-ui-pickers'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
-import CalendarTodayIcon from '@material-ui/icons/CalendarToday'
+import EventIcon from '@material-ui/icons/Event'
 import { subYears, format, parse } from 'date-fns'
 import * as validator from 'validator'
 import countries from 'iso-3166-1/src/iso-3166'
@@ -136,7 +136,7 @@ class BasicAccountInfo extends React.Component<
             errors.dob = true
             errorMessages.dob = ''
             this.setState({
-                selectedDob: date,
+                selectedDob: null,
                 formData,
                 errors,
                 errorMessages
@@ -380,13 +380,14 @@ class BasicAccountInfo extends React.Component<
                                     </FormHelperText>
                                 </FormControl>
                             </Grid>
+
                             <Grid item={true} xs={12} sm={6}>
                                 <FormControl
                                     required={true}
                                     fullWidth={true}
                                     error={this.state.errors.dob}
                                 >
-                                    <DatePicker
+                                    <InlineDatePicker
                                         keyboard={true}
                                         className={
                                             !this.state.isEditing
@@ -399,7 +400,7 @@ class BasicAccountInfo extends React.Component<
                                         disabled={!this.state.isEditing}
                                         keyboardIcon={
                                             this.state.isEditing ? (
-                                                <CalendarTodayIcon />
+                                                <EventIcon />
                                             ) : null
                                         }
                                         leftArrowIcon={<ChevronLeftIcon />}

@@ -1,6 +1,6 @@
 export interface IBasicAccountInfoState {
     isEditing: boolean
-    selectedDob: Date
+    selectedDob?: Date | null
     selectedCountry: any
     formData: {
         firstName: string

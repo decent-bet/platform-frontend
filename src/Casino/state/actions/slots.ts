@@ -5,7 +5,6 @@ import BigNumber from 'bignumber.js'
 import { toDate } from 'date-fns'
 import { tap, map } from 'rxjs/operators'
 import { IContractFactory, IUtils } from 'src/common/types'
-
 // Get the allowance
 function fetchAllowance(contractFactory, defaultAccount): Promise<any> {
     return new Promise(async (resolve, reject) => {
@@ -270,19 +269,12 @@ function depositChips(amount, contractFactory, defaultAccount) {
 async function withdrawChips(amount, slotsContract) {
     return new Promise(async (resolve, reject) => {
         try {
-            slotsContract
-                .logWithdraw()
-                .then(data => {
-                    resolve(data)
-                })
-                .catch(e => {
-                    console.error(e)
-                    reject({ message: 'Error loggin withdraw chips.' })
-                })
             await slotsContract.withdraw(amount)
-            // helper.toggleSnackbar('Successfully sent withdraw transaction')
-        } catch (err) {
-            reject({ message: 'Error sending withdraw tx.' })
+            const eventResult = await slotsContract.logWithdraw()
+            resolve(eventResult)
+        } catch (error) {
+            console.error(error)
+            reject({ message: 'Error on withdraw transaction.' })
         }
     })
 }
@@ -295,15 +287,24 @@ async function withdrawChips(amount, slotsContract) {
 async function claimChannel(channelId: number, slotsContract: any) {
     return new Promise(async (resolve, reject) => {
         try {
-            slotsContract
+            const eventEmiter = slotsContract
                 .logClaimChannelTokens(channelId)
-                .then(({ id, isHouse }) => {
-                    resolve({ id, isHouse })
+                .on('data', data => {
+                    if (data) {
+                        const { id, isHouse } = data.returnValues
+
+                        eventEmiter.unsubscribe()
+                        resolve({
+                            id,
+                            isHouse
+                        })
+                    }
                 })
-                .catch(e => {
-                    console.error(e)
-                    reject({ message: 'Error in log claim channel.' })
+                .on('error', err => {
+                    eventEmiter.unsubscribe()
+                    reject(err)
                 })
+
             await slotsContract.claim(channelId)
         } catch (error) {
             console.error(error)
@@ -736,7 +737,7 @@ function unsubscribeFromActiveSubscriptions(wsApi) {
 async function subscribeToFinalizeResponses(listener, wsApi) {
     wsApi.getFinalizeChannelResponseSubscription(
         null,
-        async ({ req, res }) => {
+        async ({ _req, res }) => {
             try {
                 if (res.error) {
                     throw new Error(res.message ? res.message : res.error)
@@ -748,6 +749,23 @@ async function subscribeToFinalizeResponses(listener, wsApi) {
         },
         true
     )
+}
+
+async function makeSpin(
+    totalBetSize,
+    props,
+    listener,
+    slotsChannelHandler
+): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await slotsChannelHandler.spin(totalBetSize, props, listener)
+            resolve()
+        } catch (error) {
+            console.log(error)
+            reject({ message: 'Error making spin action.' })
+        }
+    })
 }
 
 /**
@@ -821,6 +839,7 @@ export default createActions({
         [Actions.GET_LAST_SPIN]: getLastSpin,
         [Actions.FINALIZE_CHANNEL]: finalizeChannel,
         [Actions.NONCE_INCREASE]: channelId => ({ channelId }),
-        [Actions.POST_SPIN]: (channelId, spin) => ({ ...spin, channelId })
+        [Actions.POST_SPIN]: (channelId, spin) => ({ ...spin, channelId }),
+        [Actions.MAKE_SPIN]: makeSpin
     }
 })

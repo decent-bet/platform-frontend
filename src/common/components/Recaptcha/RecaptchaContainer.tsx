@@ -58,9 +58,9 @@ export default class RecaptchaContainer extends React.PureComponent<
                         style={{
                             display: this.state.loaded ? 'none' : 'block'
                         }}
-                        size={24}
+                        size={36}
                     />
-                    <Fade in={this.state.loaded}>
+                    <Fade in={this.state.loaded} timeout={500}>
                         <TransparentPaper>
                             <Recaptcha
                                 ref={this.setRecaptchaRef}

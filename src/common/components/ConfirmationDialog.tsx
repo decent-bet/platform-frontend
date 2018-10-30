@@ -22,7 +22,7 @@ export default function ConfirmationDialog({
                 <DialogContentText>{content}</DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button variant="flat" color="primary" onClick={onClickOk}>
+                <Button variant="text" color="primary" onClick={onClickOk}>
                     OK
                 </Button>
             </DialogActions>

@@ -132,7 +132,7 @@ class ResetPassword extends React.Component<
                 {this.props.verified && !this.state.formSubmited ? (
                     <React.Fragment>
                         <Typography
-                            variant="headline"
+                            variant="h5"
                             align="center"
                             style={{ fontWeight: 'lighter' }}
                         >
@@ -152,7 +152,7 @@ class ResetPassword extends React.Component<
                     spacing={16}
                 >
                     <Grid item={true} xs={12}>
-                        <Typography variant="body2">
+                        <Typography variant="body1">
                             Go to the login?{' '}
                         </Typography>
                     </Grid>

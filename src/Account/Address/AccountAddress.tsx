@@ -154,8 +154,7 @@ class AccountAddress extends React.Component<
                                         autoComplete="off"
                                         disableUnderline={!this.state.isEditing}
                                         disabled={!this.state.isEditing}
-                                        placeholder="Enter Passphrase or Private Key V3 (Vechain) token
-                                        version"
+                                        placeholder="Enter Passphrase or Private Key V3 (Vechain) token version"
                                         name="privateKeyOrMnemonic"
                                         value={this.state.privateKeyOrMnemonic}
                                         onChange={
@@ -214,7 +213,7 @@ class AccountAddress extends React.Component<
                                             paddingLeft: 2,
                                             paddingRight: 2
                                         }}
-                                        variant="flat"
+                                        variant="text"
                                         color="primary"
                                         target="_blank"
                                         href={WALLET_WEBSITE_URL}
@@ -223,10 +222,7 @@ class AccountAddress extends React.Component<
                                     </Button>{' '}
                                     and create a new one.
                                 </Typography>
-                                <Typography
-                                    variant="subheading"
-                                    color="primary"
-                                >
+                                <Typography variant="subtitle1" color="primary">
                                     *To export your private key from the DBET
                                     wallet, be sure to select V3 (Vechain) token
                                     version before exporting.
@@ -259,7 +255,7 @@ class AccountAddress extends React.Component<
                 <CardContent>
                     <Grid container={true} spacing={40}>
                         <Grid item={true} xl={12}>
-                            <Typography variant="subheading">
+                            <Typography variant="subtitle1">
                                 Public Address
                             </Typography>
                             <Typography color="primary">

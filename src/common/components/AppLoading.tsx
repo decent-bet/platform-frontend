@@ -17,9 +17,10 @@ class AppLoading extends React.Component<any> {
                     </Grid>
                     {this.props.message ? (
                         <Grid item={true} xs={12}>
-                            <Typography variant="headline" align="center">
+                            <Typography variant="h5" align="center">
                                 {this.props.message}
                             </Typography>
+                            {this.props.children}
                         </Grid>
                     ) : null}
                 </Grid>

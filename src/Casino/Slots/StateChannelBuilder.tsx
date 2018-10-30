@@ -86,7 +86,7 @@ export default class StateChannelBuilder extends React.Component<
                     </CardContent>
                     <CardActions>
                         <Button
-                            variant="raised"
+                            variant="contained"
                             color="primary"
                             onClick={this.onClicPlay}
                             disabled={this.props.tokenBalance <= 0}

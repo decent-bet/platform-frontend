@@ -3,17 +3,17 @@ export default interface IKeyStore {
 
     getCryptoKey(): Promise<any>
 
-    getVariable(name): Promise<any>
+    getVariable(name: string): Promise<any>
 
-    addVariable(name, value): Promise<void>
+    addVariable(name: string, value: any): Promise<void>
 
-    encrypt(data, keys): PromiseLike<any>
+    encrypt(data: string, keys: CryptoKeyPair): PromiseLike<ArrayBuffer>
 
-    decrypt(data, keys): PromiseLike<any>
+    decrypt(data: ArrayBuffer, keys: CryptoKeyPair): PromiseLike<any>
 
     clear(): Promise<void>
 
-    clearVariable(name): Promise<void>
+    clearVariable(name: string): Promise<void>
 
     ab2str(uint8array): string
 

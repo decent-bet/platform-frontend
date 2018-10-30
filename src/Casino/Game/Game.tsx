@@ -1,43 +1,83 @@
+import * as React from 'react'
 import {
     Card,
     CardHeader,
     CardContent,
     Button,
     Typography,
-    Grid
+    Grid,
+    Slide
 } from '@material-ui/core'
 import ethUnits from 'ethereum-units'
-import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import * as Thunks from '../state/thunks'
 import { CHANNEL_STATUS_FINALIZED, MIN_VTHO_AMOUNT } from '../../constants'
 import ChannelDetail from './ChannelDetail'
-import Iframe from './Iframe'
+import IFrame from './IFrame'
 import BigNumber from 'bignumber.js'
 import AppLoading from '../../common/components/AppLoading'
 import './game.css'
 import { VIEW_SLOTS } from 'src/routes'
 import ConfirmationDialog from '../../common/components/ConfirmationDialog'
 
-class Game extends Component {
+declare global {
+    // tslint:disable-next-line:interface-name
+    interface Window {
+        slotsController: any
+    }
+}
+
+class Game extends React.PureComponent<any, any> {
     constructor(props) {
         super(props)
+        this.state = {
+            isLoading: true,
+            loadingMessage: '',
+            dialogIsOpen: false,
+            isFinalizing: false,
+            spinCallback: null
+        }
+
         this.formatEther = this.formatEther.bind(this)
         this.renderGame = this.renderGame.bind(this)
-    }
-    state = {
-        dialogIsOpen: false,
-        isFinalizing: false,
-        spinCallback: null
+        this.onIFrameLoad = this.onIFrameLoad.bind(this)
+        this.setupSlotsController = this.setupSlotsController.bind(this)
+        this.onIFrameLoad = this.onIFrameLoad.bind(this)
+        this.initSubscriptions = this.initSubscriptions.bind(this)
+        this.unsubscribeFromActiveSubscriptions = this.unsubscribeFromActiveSubscriptions.bind(
+            this
+        )
+        this.subscribeToSpinResponses = this.subscribeToSpinResponses.bind(this)
+        this.spin = this.spin.bind(this)
+        this.getBalance = this.getBalance.bind(this)
+        this.onSpinWithoutMinBalance = this.onSpinWithoutMinBalance.bind(this)
+        this.onCloseDialog = this.onCloseDialog.bind(this)
+        this.onFinalizeListener = this.onFinalizeListener.bind(this)
+        this.subscribeToFinalizeResponses = this.subscribeToFinalizeResponses.bind(
+            this
+        )
+        this.back = this.back.bind(this)
+        this.renderGame = this.renderGame.bind(this)
+        this.renderHeader = this.renderHeader.bind(this)
+        this.renderChannelDetail = this.renderChannelDetail.bind(this)
     }
 
-    componentDidMount = () => {
+    public async componentDidMount() {
+        this.setState({
+            isLoading: true,
+            loadingMessage: 'Loading the game...'
+        })
         const { dispatch, channelId } = this.props
-        dispatch(Thunks.initializeGame(channelId))
-        this.initSubscriptions()
 
-        // TODO: Make this less ugly
-        // Maybe we should use websockets to communicate instead?
+        await dispatch(Thunks.initializeGame(channelId))
+        dispatch(Thunks.initializeWaiters(channelId))
+
+        this.initSubscriptions()
+        this.setupSlotsController()
+        this.setState({ isLoading: false, isLoadingGame: true })
+    }
+
+    private setupSlotsController() {
         window.slotsController = {
             spin: this.spin,
             balances: this.getBalance,
@@ -47,27 +87,31 @@ class Game extends Component {
         }
     }
 
-    componentWillUnmount = () => {
+    public componentWillUnmount() {
         this.unsubscribeFromActiveSubscriptions()
     }
 
-    formatEther(ether): string {
+    private formatEther(ether): string {
         const units = ethUnits.units.ether
 
         return new BigNumber(ether).dividedBy(units).toFixed(2)
     }
 
-    initSubscriptions = () => {
+    private onIFrameLoad() {
+        this.setState({ isLoadingGame: false, loadingMessage: '' })
+    }
+
+    private initSubscriptions(): void {
         this.subscribeToSpinResponses()
         this.subscribeToFinalizeResponses()
     }
 
-    unsubscribeFromActiveSubscriptions = () => {
+    private unsubscribeFromActiveSubscriptions() {
         const { dispatch } = this.props
         dispatch(Thunks.unsubscribeFromActiveSubscriptions())
     }
 
-    subscribeToSpinResponses = () => {
+    private subscribeToSpinResponses() {
         const { dispatch, channelId } = this.props
 
         const onSpinResponseListener = (
@@ -80,12 +124,7 @@ class Game extends Component {
             if (!err) {
                 console.log('onSpinResponseListener', this.props.houseSpins)
                 let isValidHouseSpin = dispatch(
-                    Thunks.verifyHouseSpin(
-                        this.props,
-                        houseSpin,
-                        userSpin,
-                        lines
-                    )
+                    Thunks.verifyHouseSpin(this.props, houseSpin, userSpin)
                 )
                 if (isValidHouseSpin) listener(err, msg, lines)
             }
@@ -112,7 +151,7 @@ class Game extends Component {
         dispatch(Thunks.subscribeToSpinResponses(onSpinResponseListener))
     }
 
-    spin = (lines, betSize, callback) => {
+    private spin(lines, betSize, callback) {
         const { dispatch } = this.props
         const totalBetSize = lines * betSize
 
@@ -120,29 +159,29 @@ class Game extends Component {
         this.setState({ spinCallback: callback })
     }
 
-    getBalance = () => {
+    private getBalance() {
         return {
             user: this.formatEther(this.props.userBalance),
             house: this.formatEther(this.props.houseBalance)
         }
     }
 
-    onSpinWithoutMinBalance = () => {
+    private onSpinWithoutMinBalance() {
         this.setState({ dialogIsOpen: true })
     }
 
-    onCloseDialog = () => {
+    private onCloseDialog() {
         this.setState({ dialogIsOpen: false })
     }
 
-    onFinalizeListener = async () => {
-        this.setState({ isFinalizing: true })
+    private async onFinalizeListener() {
+        this.setState({ isFinalizing: true, loadingMessage: 'Exiting...' })
         await this.props.dispatch(
             Thunks.finalizeChannel(this.props.channelId, this.props)
         )
     }
 
-    subscribeToFinalizeResponses = () => {
+    private subscribeToFinalizeResponses() {
         const { dispatch } = this.props
 
         const onFinalizeResponseListener = (err, msg) => {
@@ -159,9 +198,11 @@ class Game extends Component {
     /**
      * Go to the previous page
      */
-    back = () => this.props.history.push(VIEW_SLOTS)
+    private back() {
+        this.props.history.push(VIEW_SLOTS)
+    }
 
-    renderGame() {
+    private renderGame() {
         if (this.props.status === CHANNEL_STATUS_FINALIZED) {
             return (
                 <Card className="card full-size">
@@ -179,33 +220,38 @@ class Game extends Component {
             )
         } else if (this.props.lastSpinLoaded) {
             const game = this.props.match.params.gameName || 'game'
-            const path = `${process.env.PUBLIC_URL}/slots-${game}/game`
+            const path = `${
+                process.env.PUBLIC_URL
+            }/slots-${game}/game/index.html`
+
             return (
                 <React.Fragment>
-                    <ConfirmationDialog
-                        title="Minimum VTHO balance"
-                        content="VTHO balance is too low to complete the transaction. Please ensure you have over 7500 VTHO to complete the transaction."
-                        open={this.state.dialogIsOpen}
-                        onClickOk={this.onCloseDialog}
-                        onClose={this.onCloseDialog}
-                    />
-                    <Iframe
-                        className="full-size"
-                        id="slots-iframe"
-                        url={path}
-                        width="100%"
-                        height="100%"
-                        position="relative"
-                        allowFullScreen={true}
-                    />
+                    {this.state.isLoadingGame ? (
+                        <AppLoading message={this.state.loadingMessage} />
+                    ) : null}
+                    <Slide
+                        direction="up"
+                        in={!this.state.isLoadingGame}
+                        timeout={1000}
+                    >
+                        <IFrame
+                            title="Slots Game"
+                            onLoad={this.onIFrameLoad}
+                            id="slots-IFrame"
+                            src={path}
+                            width="100%"
+                            height="100%"
+                            allowFullScreen={true}
+                        />
+                    </Slide>
                 </React.Fragment>
             )
         } else {
-            return <AppLoading message="Loading the game..." />
+            return <AppLoading message={this.state.loadingMessage} />
         }
     }
 
-    renderChannelDetail = () => {
+    private renderChannelDetail() {
         if (this.props.info) {
             return (
                 <ChannelDetail
@@ -216,69 +262,101 @@ class Game extends Component {
                 />
             )
         }
+
+        return null
     }
 
-    renderHeader = () => (
-        <Grid
-            container={true}
-            direction="row"
-            justify="space-between"
-            spacing={40}
-        >
-            <Grid item={true}>
-                <Button variant="raised" color="primary" onClick={this.back}>
-                    Lobby
-                </Button>
+    private renderHeader() {
+        return (
+            <Grid
+                container={true}
+                direction="row"
+                style={{ paddingLeft: '1.5em', paddingRight: '1.5em' }}
+                justify="space-between"
+                spacing={40}
+            >
+                <Grid item={true}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={this.back}
+                    >
+                        Lobby
+                    </Button>
+                </Grid>
+                <Grid item={true}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={this.onFinalizeListener}
+                        disabled={
+                            this.props.status === CHANNEL_STATUS_FINALIZED
+                        }
+                    >
+                        Exit Slots
+                    </Button>
+                </Grid>
             </Grid>
-            <Grid item={true}>
-                <Button
-                    variant="raised"
-                    color="primary"
-                    onClick={this.onFinalizeListener}
-                >
-                    Exit Slots
-                </Button>
-            </Grid>
-        </Grid>
-    )
+        )
+    }
 
-    renderInner = () => {
-        if (this.state.isFinalizing) {
+    public render() {
+        if (this.state.isFinalizing || this.state.isLoading) {
             // If finalizing, print simple placeholder
-            return <AppLoading message="Exiting..." />
+            return <AppLoading message={this.state.loadingMessage} />
         } else {
             // Show normal page
             return (
-                <Fragment>
+                <React.Fragment>
+                    <ConfirmationDialog
+                        title="Minimum VTHO balance"
+                        content="VTHO balance is too low to complete the transaction. Please ensure you have over 7500 VTHO to complete the transaction."
+                        open={this.state.dialogIsOpen}
+                        onClickOk={this.onCloseDialog}
+                        onClose={this.onCloseDialog}
+                    />
                     {this.renderHeader()}
+
                     <Grid
                         container={true}
-                        direction="row"
+                        direction="column"
+                        alignItems="center"
                         justify="center"
                         spacing={40}
                     >
                         <Grid
                             item={true}
                             xs={12}
-                            style={{ height: 600, maxWidth: 1300 }}
+                            style={{
+                                height: 600,
+                                maxWidth: 1300,
+                                width: '100%',
+                                marginBottom: '2em',
+                                paddingLeft: '2em',
+                                paddingRight: '2em'
+                            }}
                         >
                             {this.renderGame()}
                         </Grid>
-                        <Grid item={true} xs={12}>
+                        <Grid
+                            item={true}
+                            xs={12}
+                            style={{
+                                paddingLeft: '2.5em',
+                                paddingRight: '2.5em',
+                                width: '100%'
+                            }}
+                        >
                             {this.renderChannelDetail()}
                         </Grid>
                     </Grid>
-                </Fragment>
+                </React.Fragment>
             )
         }
     }
-
-    render() {
-        return this.renderInner()
-    }
 }
 
-export default connect((state, props) => {
+export default connect((state: any, props: any) => {
     // This component's props is the data of a single State Channel,
     // whose ID is defined in `props.match.params.id`
     let channelId = props.match.params.id
@@ -286,7 +364,7 @@ export default connect((state, props) => {
     if (!channelData) {
         channelData = {}
     }
-    channelData.channelId = props.match.params.id
+    channelData.channelId = channelId
 
     // Get the Balances for the House and the user. Set them as 'initialDeposit' if nothing is found
     if (!channelData.info) {

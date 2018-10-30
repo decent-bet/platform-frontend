@@ -25,11 +25,11 @@ export default class Recaptcha extends React.PureComponent<
     IRecaptchaState
 > {
     public static defaultProps = new DefaultRecaptchaProps()
-    private _containerRef: any
-
+    private _containerRef: React.RefObject<HTMLDivElement>
     constructor(props: IRecaptchaProps) {
         super(props)
         this.state = new RecaptchaState()
+        this._containerRef = React.createRef<HTMLDivElement>()
         this.reset = this.reset.bind(this)
         this.renderGrecaptcha = this.renderGrecaptcha.bind(this)
         this.waitForRecaptcha = this.waitForRecaptcha.bind(this)
@@ -89,7 +89,7 @@ export default class Recaptcha extends React.PureComponent<
         const grecaptcha: any = await this.waitForRecaptcha()
 
         grecaptcha.ready(async () => {
-            const widget = await grecaptcha.render(this._containerRef, {
+            const widget = await grecaptcha.render(this._containerRef.current, {
                 sitekey,
                 theme,
                 type,
@@ -123,7 +123,7 @@ export default class Recaptcha extends React.PureComponent<
                     maxWidth: '260px !important',
                     height: 78
                 }}
-                ref={el => (this._containerRef = el)}
+                ref={this._containerRef}
             />
         )
     }

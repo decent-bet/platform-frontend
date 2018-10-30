@@ -46,7 +46,7 @@ class ErrorBoundary extends React.Component<any, any> {
                         <DialogContentText component="div">
                             <Typography
                                 color="textSecondary"
-                                variant="subheading"
+                                variant="subtitle1"
                             >
                                 {message}
                             </Typography>

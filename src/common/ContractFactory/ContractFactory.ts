@@ -47,7 +47,8 @@ export default class ContractFactory {
             const contract = this._jsonContracts[contractName]
             const instance = new this._thorify.eth.Contract(contract.raw.abi)
             const chainTag = await this._thorify.eth.getChainTag()
-            const contractAddress = contract.address[chainTag]
+            let contractAddress = contract.address[chainTag]
+
             instance.options.address = contractAddress
             contractItem = new Contracts[`${contractName}Contract`](
                 this._thorify,

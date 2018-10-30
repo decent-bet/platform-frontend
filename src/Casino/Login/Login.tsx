@@ -87,7 +87,7 @@ class Login extends React.Component<ILoginProps, ILoginState> {
                                 />
                             </Grid>
                             <Grid item={true}>
-                                <Typography variant="title">
+                                <Typography variant="h6">
                                     Play on the Casino
                                 </Typography>
                             </Grid>
@@ -114,7 +114,7 @@ class Login extends React.Component<ILoginProps, ILoginState> {
                     <DialogActions className={this.props.classes.actions}>
                         <LoadingButton
                             isLoading={this.state.processing}
-                            variant="raised"
+                            variant="contained"
                             color="primary"
                             disabled={this.state.hasError}
                             type="submit"
