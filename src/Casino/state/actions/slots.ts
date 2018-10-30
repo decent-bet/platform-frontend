@@ -77,7 +77,11 @@ function initChannel(
             let tokenInstance = tokenContract.instance
             let slotsAddress = slotsInstance.options.address
             let tokenAddress = tokenInstance.options.address
-            let channelNonce = thorify.utils.asciiToHex(utils.random(32))
+            let block = await thorify.eth.getBlock('latest')
+            let blockHash = block.id
+            let blockNumber = block.number
+            let address = thorify.eth.defaultAccount
+            let channelNonce = thorify.utils.sha3(blockHash + address)
             const params = await utils.getChannelDepositParams(channelNonce)
             const { initialUserNumber, finalUserHash } = params
 
@@ -132,7 +136,8 @@ function initChannel(
                 initialUserNumber,
                 finalUserHash,
                 userTxs,
-                blockRef
+                blockRef,
+                blockNumber
             )
             if (result.res.error)
                 throw new Error(

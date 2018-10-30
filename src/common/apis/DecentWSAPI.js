@@ -142,7 +142,8 @@ class DecentWSAPI {
         initialUserNumber,
         finalUserHash,
         userTxs,
-        blockRef
+        blockRef,
+        blockNumber
     ) => {
         return new Promise(async (resolve, reject) => {
             try {
@@ -164,7 +165,8 @@ class DecentWSAPI {
                     initialUserNumber,
                     finalUserHash,
                     userTxs,
-                    blockRef
+                    blockRef,
+                    blockNumber
                 }
                 console.log('initChannel', req)
                 this.socket.emit(path, req)
