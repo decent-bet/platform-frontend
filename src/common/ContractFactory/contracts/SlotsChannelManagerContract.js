@@ -200,9 +200,38 @@ export default class SlotsChannelManagerContract extends BaseContract {
         })
     }
 
-    async logClaimChannelTokens(id, fromBlock, toBlock) {
-        return new Promise((resolve, reject) => {
-            this.instance.events
+    logClaimChannelTokens(id, fromBlock, toBlock) {
+        return new Promise(async (resolve, reject) => {
+            let listenerSettings = {
+                config: {
+                    filter: {
+                        id
+                    },
+                    fromBlock: fromBlock ? fromBlock : 0,
+                    toBlock: toBlock ? toBlock : 'latest',
+                    order: 'DESC',
+                    options: { offset: 0, limit: 1 }
+                },
+                interval: 1000,
+                top: null
+            }
+
+            let events = await this.listenForEvent(
+                'logClaimChannelTokens',
+                listenerSettings,
+                events => events && events.length > 0
+            )
+            let [event] = events
+            if (!event || !event.returnValues || !event.returnValues) {
+                reject(new Error('Error on logClaimChannelTokens.'))
+            }
+
+            resolve({
+                id: event.returnValues.id,
+                isHouse: event.returnValues.isHouse
+            })
+
+            /* this.instance.events
                 .LogClaimChannelTokens({
                     filter: {
                         id
@@ -218,7 +247,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
                 })
                 .on('error', err => {
                     reject(err)
-                })
+                }) */
         })
     }
 
@@ -243,20 +272,31 @@ export default class SlotsChannelManagerContract extends BaseContract {
 
     async logWithdraw(fromBlock, toBlock) {
         return new Promise(async (resolve, reject) => {
-            this.instance.events
-                .LogWithdraw({
+            let listenerSettings = {
+                config: {
                     filter: {
                         _address: await this._keyHandler.getPublicAddress()
                     },
                     fromBlock: fromBlock ? fromBlock : 0,
-                    toBlock: toBlock ? toBlock : 'latest'
-                })
-                .on('data', data => {
-                    resolve(data)
-                })
-                .on('error', err => {
-                    reject(err)
-                })
+                    toBlock: toBlock ? toBlock : 'latest',
+                    order: 'DESC',
+                    options: { offset: 0, limit: 1 }
+                },
+                interval: 1000,
+                top: 60
+            }
+
+            let events = await this.listenForEvent(
+                'LogWithdraw',
+                listenerSettings,
+                events => events && events.length > 0
+            )
+            let [event] = events
+            if (!event || !event.returnValues || !event.returnValues) {
+                reject(new Error('Error on logWithdraw.'))
+            }
+
+            resolve(event.returnValues)
         })
     }
 }

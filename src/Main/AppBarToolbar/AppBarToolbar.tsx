@@ -57,10 +57,12 @@ export default class AppBarToolbar extends React.Component<
                             <Typography
                                 color="primary"
                                 component="span"
-                                style={{ textTransform: 'none' }}
+                                style={{
+                                    textTransform: 'none',
+                                    paddingRight: '0.4em'
+                                }}
                             >
                                 Public Address:
-                                {'  '}
                             </Typography>
                             <Typography
                                 component="span"
@@ -78,10 +80,12 @@ export default class AppBarToolbar extends React.Component<
                             <Typography
                                 color="primary"
                                 component="span"
-                                style={{ textTransform: 'none' }}
+                                style={{
+                                    textTransform: 'none',
+                                    paddingRight: '0.4em'
+                                }}
                             >
                                 Tokens:
-                                {'  '}
                             </Typography>
                             <Typography component="span">
                                 {tokenBalance.toFixed(2)} DBETs
@@ -95,10 +99,12 @@ export default class AppBarToolbar extends React.Component<
                             <Typography
                                 color="primary"
                                 component="span"
-                                style={{ textTransform: 'none' }}
+                                style={{
+                                    textTransform: 'none',
+                                    paddingRight: '0.4em'
+                                }}
                             >
                                 Balance:
-                                {'  '}
                             </Typography>
                             <Typography component="span">
                                 {vthoBalance.toFixed(5)} VTHO

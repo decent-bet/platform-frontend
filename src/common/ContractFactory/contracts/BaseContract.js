@@ -45,7 +45,8 @@ export default class BaseContract {
                     .pipe(
                         flatMap(() => from(promiseEvent)),
                         switchMap(i => of(i)),
-                        tap(() => {
+                        tap(i => {
+                            console.log('On tap', i)
                             totalRequests++
                         })
                     )

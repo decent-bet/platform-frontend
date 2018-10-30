@@ -189,8 +189,7 @@ class Slots extends React.Component<any, ISlotsState> {
     }
 
     private onGoToGameroomListener(gameName): void {
-        const path = `${VIEW_SLOTS}${this.state.currentChannel}/${gameName}`
-        this.props.history.push(path)
+        location.href = `${VIEW_SLOTS}${this.state.currentChannel}/${gameName}`
     }
 
     /**
