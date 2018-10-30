@@ -1,6 +1,6 @@
 import { Contracts } from './contracts'
+import { DBETVETToken } from '@decent-bet/contract-migration'
 import {
-    DBETVETToken,
     SlotsChannelManager,
     SlotsChannelFinalizer
 } from '@decent-bet/contract-slots'
