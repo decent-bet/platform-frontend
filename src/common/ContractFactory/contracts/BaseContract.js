@@ -46,15 +46,10 @@ export default class BaseContract {
                         flatMap(() => from(promiseEvent)),
                         switchMap(i => of(i)),
                         tap(i => {
-                            console.log('On tap', i)
                             totalRequests++
                         })
                     )
                     .subscribe(events => {
-                        console.log(
-                            `----------listenForEvent: ${eventName} - requests: ${totalRequests}`,
-                            events
-                        )
                         if (
                             unsubscribeCondition(events) || //ask for the unsubscribeCondition function
                             (settings.top &&
@@ -66,7 +61,6 @@ export default class BaseContract {
                         }
                     })
             } catch (error) {
-                console.log(`Errro on listenForEvent: ${eventName}`, error)
                 return reject(error)
             }
         })
@@ -91,8 +85,6 @@ export default class BaseContract {
         }
     ) {
         if (config.filter === {}) delete config.filter
-
-        console.log('getPastEvents', eventName, config)
 
         return await this.instance.getPastEvents(eventName, config)
     }
@@ -143,8 +135,6 @@ export default class BaseContract {
             gasPriceCoef
         }
 
-        console.log('signAndSendRawTransaction - txBody:', txBody)
-
         let { privateKey } = await this._keyHandler.getWalletValues()
         let signed = await this._web3.eth.accounts.signTransaction(
             txBody,
@@ -193,7 +183,6 @@ export default class BaseContract {
     async signAndSendRawTransactionWithClauses(clauses) {
         const gas = Transaction.intrinsicGas(clauses)
         const blockRef = await this._web3.eth.getBlockRef()
-        console.log('signAndSendRawTransactionWithClauses', gas, blockRef)
 
         const body = {
             chainTag: await this._web3.eth.getChainTag(),
@@ -221,7 +210,7 @@ export default class BaseContract {
                 '0x' + raw.toString('hex')
             )
         } catch (error) {
-            console.error('signAndSendRawTransaction error', error.stack)
+            console.error('signAndSendRawTransaction error', error)
             return null
         }
     }
