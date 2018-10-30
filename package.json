@@ -20,8 +20,8 @@
         "typescript": "3.0.3"
     },
     "dependencies": {
-        "@decent-bet/contract-migration": "^1.0.0",
-        "@decent-bet/contract-slots": "1.0.0-beta.8",
+        "@decent-bet/contract-migration": "^1.0.1",
+        "@decent-bet/contract-slots": "1.0.0-rc.1",
         "@material-ui/core": "3.1.0",
         "@material-ui/icons": "3.0.1",
         "aes256": "^1.0.3",
