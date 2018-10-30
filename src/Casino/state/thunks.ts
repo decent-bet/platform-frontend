@@ -316,8 +316,9 @@ export function watcherChannelFinalized(channelId) {
     ) => {
         try {
             const contract = await contractFactory.slotsChannelManagerContract()
-            contract
-                .logChannelFinalized(channelId)
+            const eventEmiter = await contract.logChannelFinalized(channelId)
+
+            eventEmiter
                 .on('data', async data => {
                     return await dispatch(
                         actions.setChannelFinalized(data.returnValues.id)
