@@ -72,9 +72,9 @@
     },
     "scripts": {
         "start": "export BROWSER=none && react-scripts-ts start",
-        "start:develop": "export BROWSER=none && REACT_APP_ENV=development && react-scripts-ts start",
-        "start:staging": "export BROWSER=none && REACT_APP_ENV=staging && react-scripts-ts start",
-        "start:prod": "export BROWSER=none && REACT_APP_ENV=production && react-scripts-ts start",
+        "start:develop": "export BROWSER=none && export REACT_APP_ENV=development && react-scripts-ts start",
+        "start:staging": "export BROWSER=none && export REACT_APP_ENV=staging && react-scripts-ts start",
+        "start:prod": "export BROWSER=none && export REACT_APP_ENV=production && react-scripts-ts start",
         "build:local": "export REACT_APP_ENV=local && react-scripts-ts build",
         "build:develop": "export REACT_APP_ENV=development && react-scripts-ts build",
         "build:staging": "export REACT_APP_ENV=staging && react-scripts-ts build",

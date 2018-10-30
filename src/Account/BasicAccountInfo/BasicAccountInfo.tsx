@@ -136,7 +136,7 @@ class BasicAccountInfo extends React.Component<
             errors.dob = true
             errorMessages.dob = ''
             this.setState({
-                selectedDob: date,
+                selectedDob: null,
                 formData,
                 errors,
                 errorMessages

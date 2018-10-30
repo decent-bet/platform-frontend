@@ -154,8 +154,7 @@ class AccountAddress extends React.Component<
                                         autoComplete="off"
                                         disableUnderline={!this.state.isEditing}
                                         disabled={!this.state.isEditing}
-                                        placeholder="Enter Passphrase or Private Key V3 (Vechain) token
-                                        version"
+                                        placeholder="Enter Passphrase or Private Key V3 (Vechain) token version"
                                         name="privateKeyOrMnemonic"
                                         value={this.state.privateKeyOrMnemonic}
                                         onChange={
@@ -223,10 +222,7 @@ class AccountAddress extends React.Component<
                                     </Button>{' '}
                                     and create a new one.
                                 </Typography>
-                                <Typography
-                                    variant="subtitle1"
-                                    color="primary"
-                                >
+                                <Typography variant="subtitle1" color="primary">
                                     *To export your private key from the DBET
                                     wallet, be sure to select V3 (Vechain) token
                                     version before exporting.

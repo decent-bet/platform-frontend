@@ -20,7 +20,7 @@ import {
     VIEW_ACCOUNT,
     VIEW_ACCOUNT_NOTACTIVATED
 } from '../../routes'
-import { CURRENT_ENV, ENV_PRODUCTION } from '../../constants'
+import { CURRENT_ENV, ENV_PRODUCTION, ENV_STAGING } from '../../constants'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
 import VideogameAssetIcon from '@material-ui/icons/VideogameAsset'
@@ -33,6 +33,9 @@ import { IAppDrawerState, AppDrawerState } from './AppDrawerState'
 class AppDrawer extends React.Component<IAppDrawerProps, IAppDrawerState> {
     constructor(props: IAppDrawerProps) {
         super(props)
+        console.log(
+            `CURRENT_ENV: ${CURRENT_ENV}, ENV_PRODUCTION: ${ENV_PRODUCTION}, ENV_STAGING: ${ENV_STAGING}`
+        )
         this.state = new AppDrawerState()
         this.onClickOpenDialog = this.onClickOpenDialog.bind(this)
         this.onClickOk = this.onClickOk.bind(this)
@@ -193,7 +196,8 @@ class AppDrawer extends React.Component<IAppDrawerProps, IAppDrawerState> {
                         title="Account"
                         icon={<AccountCircleIcon />}
                     />
-                    {CURRENT_ENV !== ENV_PRODUCTION ? (
+                    {CURRENT_ENV !== ENV_PRODUCTION &&
+                    CURRENT_ENV !== ENV_STAGING ? (
                         <FaucetMenuItem
                             onFaucetClickedListener={
                                 this.props.onFaucetClickedListener

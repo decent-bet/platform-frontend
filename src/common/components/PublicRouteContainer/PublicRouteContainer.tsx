@@ -41,7 +41,7 @@ class PublicRouteContainer extends React.Component<IPublicRouteContainerProps> {
                 alignItems="center"
                 justify={alignItems}
             >
-                <Grid item={true} xs={12} sm={4} md={4} xl={4}>
+                <Grid item={true} xs={12}>
                     <TransparentPaper>
                         <Card
                             className={this.props.classes.card}
