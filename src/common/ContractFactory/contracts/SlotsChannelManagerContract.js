@@ -133,10 +133,11 @@ export default class SlotsChannelManagerContract extends BaseContract {
      * Events
      */
     async logNewChannel(transaction) {
+        const userAddress = await this._keyHandler.getPublicAddress()
         let listenerSettings = {
             config: {
                 filter: {
-                    user: await this._keyHandler.getPublicAddress()
+                    user: userAddress
                 },
                 fromBlock: transaction.blockNumber,
                 toBlock: transaction.blockNumber,
@@ -191,9 +192,10 @@ export default class SlotsChannelManagerContract extends BaseContract {
     }
 
     async logChannelFinalized(id, fromBlock, toBlock) {
+        const userAddress = await this._keyHandler.getPublicAddress()
         return this.instance.events.LogChannelFinalized({
             filter: {
-                user: await this._keyHandler.getPublicAddress(),
+                user: userAddress,
                 id
             },
             fromBlock: fromBlock ? fromBlock : 0,
@@ -211,7 +213,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
         })
     }
 
-    async logDeposit(fromBlock, toBlock) {
+    logDeposit(fromBlock, toBlock) {
         return new Promise(async (resolve, reject) => {
             this.instance.events
                 .LogDeposit({
@@ -230,7 +232,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
         })
     }
 
-    async logWithdraw(fromBlock, toBlock) {
+    logWithdraw(fromBlock, toBlock) {
         return new Promise(async (resolve, reject) => {
             let listenerSettings = {
                 config: {
