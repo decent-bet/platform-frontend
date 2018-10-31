@@ -110,7 +110,6 @@ export default class BaseContract {
      * @param {string} address
      */
     async getBalance(address) {
-        console.log('getBalance()', address)
         return await this._web3.eth.getEnergy(address)
     }
 
