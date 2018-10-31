@@ -7,7 +7,10 @@ export default class StateChannelToolbar extends Component {
 
     render() {
         const { channel } = this.props
-        const disabled = channel && channel.info ? (!channel.info.finalized || channel.info.claimed) : true 
+        const disabled =
+            channel && channel.info
+                ? !channel.info.finalized || channel.info.claimed
+                : true
         return (
             <Button
                 variant="contained"

@@ -269,8 +269,9 @@ export default class Utils implements IUtils {
         const chainTag = await this.thorify.eth.getChainTag()
         const expiration = 32
         const gasPriceCoef = 0
-        const gas = 1000000
+        const gas = 500000
         const nonce = 11111111
+
         let tx = new Transaction({
             chainTag,
             blockRef,

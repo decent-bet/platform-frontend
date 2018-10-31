@@ -804,6 +804,7 @@ function finalizeChannel(channelId, state, contractFactory, wsApi, utils) {
             await wsApi.finalizeChannel(channelId, userSpin, aesKey)
             resolve(txHash)
         } catch (err) {
+            console.error(err)
             reject({ message: 'Error sending finalize channel transaction' })
         }
     })

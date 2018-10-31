@@ -33,9 +33,6 @@ import { IAppDrawerState, AppDrawerState } from './AppDrawerState'
 class AppDrawer extends React.Component<IAppDrawerProps, IAppDrawerState> {
     constructor(props: IAppDrawerProps) {
         super(props)
-        console.log(
-            `CURRENT_ENV: ${CURRENT_ENV}, ENV_PRODUCTION: ${ENV_PRODUCTION}, ENV_STAGING: ${ENV_STAGING}`
-        )
         this.state = new AppDrawerState()
         this.onClickOpenDialog = this.onClickOpenDialog.bind(this)
         this.onClickOk = this.onClickOk.bind(this)
