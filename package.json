@@ -1,6 +1,6 @@
 {
     "name": "decent-bet-frontend",
-    "version": "1.0.31-develop",
+    "version": "1.0.32-beta",
     "homepage": "https://decent.bet",
     "private": true,
     "devDependencies": {
@@ -79,7 +79,7 @@
         "build:develop": "export REACT_APP_ENV=development && react-scripts-ts build",
         "build:staging": "export REACT_APP_ENV=staging && react-scripts-ts build",
         "build:prod": "export REACT_APP_ENV=production && react-scripts-ts build",
-        "deploy": "docker build --build-arg APP_ENV=$APP_ENV -t us.gcr.io/dbet-platform/platform-frontend:$npm_package_version . && docker tag us.gcr.io/dbet-platform/platform-frontend:$npm_package_version us.gcr.io/dbet-platform/platform-frontend:$npm_package_version && docker push us.gcr.io/dbet-platform/platform-frontend",
+        "deploy": "docker build --build-arg APP_ENV=$APP_ENV -t us.gcr.io/dbet-platform/platform-frontend:$npm_package_version . && docker tag us.gcr.io/dbet-platform/platform-frontend:$npm_package_version us.gcr.io/dbet-platform/platform-frontend:$npm_package_version && docker push us.gcr.io/dbet-platform/platform-frontend::$npm_package_version",
         "deploy:develop": "export APP_ENV=develop && npm run deploy",
         "deploy:staging": "export APP_ENV=staging && npm run deploy",
         "deploy:prod": "export APP_ENV=prod && npm run deploy",
