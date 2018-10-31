@@ -66,6 +66,46 @@ function getRecaptchaKey() {
     }
 }
 
+function getChannelSettings() {
+    switch (CURRENT_ENV) {
+        case ENV_LOCAL:
+            return {
+                CHANNEL_EXPIRATION: 32,
+                CHANNEL_GAS_PRICE_COEF: 0,
+                CHANNEL_GAS_DEFAULT_VALUE: 400000,
+                CHANNEL_NONCE: 11111111
+            }
+        case ENV_DEVELOPMENT:
+            return {
+                CHANNEL_EXPIRATION: 32,
+                CHANNEL_GAS_PRICE_COEF: 0,
+                CHANNEL_GAS_DEFAULT_VALUE: 400000,
+                CHANNEL_NONCE: 11111111
+            }
+        case ENV_STAGING:
+            return {
+                CHANNEL_EXPIRATION: 32,
+                CHANNEL_GAS_PRICE_COEF: 0,
+                CHANNEL_GAS_DEFAULT_VALUE: 400000,
+                CHANNEL_NONCE: 11111111
+            }
+        case ENV_PRODUCTION:
+            return {
+                CHANNEL_EXPIRATION: 32,
+                CHANNEL_GAS_PRICE_COEF: 0,
+                CHANNEL_GAS_DEFAULT_VALUE: 400000,
+                CHANNEL_NONCE: 11111111
+            }
+        default:
+            return {
+                CHANNEL_EXPIRATION: 32,
+                CHANNEL_GAS_PRICE_COEF: 0,
+                CHANNEL_GAS_DEFAULT_VALUE: 400000,
+                CHANNEL_NONCE: 11111111
+            }
+    }
+}
+export const CHANNEL_SETTINGS = getChannelSettings()
 export const AUTH_API_URL: string = getAuthApiUrl()
 export const RECAPTCHA_SITE_KEY: string = getRecaptchaKey()
 export const THOR_NODE_URL: string = getThorNodeUrl()

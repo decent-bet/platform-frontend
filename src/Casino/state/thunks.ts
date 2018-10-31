@@ -37,10 +37,10 @@ export function initializeCasino() {
         await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
         await dispatch(actions.getTokens(contractFactory, vetAddress))
 
-        setTimeout(async () => {
+        return setInterval(async () => {
             await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
             await dispatch(actions.getTokens(contractFactory, vetAddress))
-        }, 4000)
+        }, 3000)
     }
 }
 
