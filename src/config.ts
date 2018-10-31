@@ -15,7 +15,7 @@ function getAuthApiUrl(): string {
         case ENV_STAGING:
             return 'https://kyc-staging.decent.bet/api'
         case ENV_PRODUCTION:
-            return 'https://kyc-staging.decent.bet/api'
+            return 'https://kyc.decent.bet/api'
         default:
             return 'http://localhost:3200/api'
     }
@@ -30,7 +30,7 @@ function getWsApiUrl() {
         case ENV_STAGING:
             return 'wss://channels-api-staging.decent.bet'
         case ENV_PRODUCTION:
-            return 'wss://channels-api-staging.decent.bet'
+            return 'wss://channels-api.decent.bet'
         default:
             return 'ws://localhost:3010'
     }
@@ -45,7 +45,7 @@ function getThorNodeUrl() {
         case ENV_STAGING:
             return 'https://thor-staging.decent.bet'
         case ENV_PRODUCTION:
-            return 'https://thor-staging.decent.bet'
+            return 'https://thor.decent.bet'
         default:
             return 'https://thor-staging.decent.bet'
     }
