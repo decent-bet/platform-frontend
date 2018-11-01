@@ -1,5 +1,6 @@
 export interface ISlotsState {
     stateMachine: string
+    minVTHOdialogIsOpen: boolean
     buildStatus: string
     claimableChannels: any[]
     activeChannels: any[]
@@ -9,6 +10,7 @@ export interface ISlotsState {
 
 export class SlotsState implements ISlotsState {
     public stateMachine = 'loading'
+    public minVTHOdialogIsOpen = false
     public buildStatus = ''
     public claimableChannels = []
     public activeChannels = []

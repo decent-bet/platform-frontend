@@ -15,7 +15,7 @@ import withWidth, { isWidthDown } from '@material-ui/core/withWidth'
 import AppLoading from '../common/components/AppLoading'
 import { VIEW_ACCOUNT, VIEW_ACCOUNT_NOTACTIVATED } from '../routes'
 
-class Main extends React.PureComponent<any, any> {
+class Main extends React.Component<any, any> {
     private _activationTimer: any
 
     constructor(props: any) {
@@ -29,12 +29,6 @@ class Main extends React.PureComponent<any, any> {
         this.renderError = this.renderError.bind(this)
     }
 
-    public componentWillUnmount() {
-        if (this._activationTimer) {
-            clearInterval(this._activationTimer)
-        }
-    }
-
     public async componentDidMount() {
         await this.props.initializeMain()
 
@@ -45,6 +39,12 @@ class Main extends React.PureComponent<any, any> {
         }
 
         this.setState({ loaded: true })
+    }
+
+    public componentWillUnmount() {
+        if (this._activationTimer) {
+            clearInterval(this._activationTimer)
+        }
     }
 
     // Faucet Button Clicked. Execute Faucet
@@ -93,8 +93,14 @@ class Main extends React.PureComponent<any, any> {
             }
         }
 
-        if (accountIsActivated && this._activationTimer) {
-            clearInterval(this._activationTimer)
+        if (accountIsActivated) {
+            if (this._activationTimer) {
+                clearInterval(this._activationTimer)
+            }
+
+            if (this.props.location.pathname === VIEW_ACCOUNT_NOTACTIVATED) {
+                return <Redirect to={VIEW_ACCOUNT} />
+            }
         }
 
         return (
@@ -126,7 +132,14 @@ class Main extends React.PureComponent<any, any> {
                         alignItems="center"
                         justify="center"
                     >
-                        <Grid item={true} xs={12}>
+                        <Grid
+                            item={true}
+                            xs={12}
+                            style={{
+                                paddingLeft: '1.5em',
+                                paddingRight: '1.5em'
+                            }}
+                        >
                             <MainRouter />
                         </Grid>
                     </Grid>

@@ -27,13 +27,14 @@ declare global {
     }
 }
 
-class Game extends React.PureComponent<any, any> {
+class Game extends React.Component<any, any> {
     constructor(props) {
         super(props)
         this.state = {
             isLoading: true,
             loadingMessage: '',
             dialogIsOpen: false,
+            minVTHOdialogIsOpen: false,
             isFinalizing: false,
             spinCallback: null
         }
@@ -50,8 +51,6 @@ class Game extends React.PureComponent<any, any> {
         this.subscribeToSpinResponses = this.subscribeToSpinResponses.bind(this)
         this.spin = this.spin.bind(this)
         this.getBalance = this.getBalance.bind(this)
-        this.onSpinWithoutMinBalance = this.onSpinWithoutMinBalance.bind(this)
-        this.onCloseDialog = this.onCloseDialog.bind(this)
         this.onFinalizeListener = this.onFinalizeListener.bind(this)
         this.subscribeToFinalizeResponses = this.subscribeToFinalizeResponses.bind(
             this
@@ -60,6 +59,7 @@ class Game extends React.PureComponent<any, any> {
         this.renderGame = this.renderGame.bind(this)
         this.renderHeader = this.renderHeader.bind(this)
         this.renderChannelDetail = this.renderChannelDetail.bind(this)
+        this.onCloseMinVTHODialog = this.onCloseMinVTHODialog.bind(this)
     }
 
     public async componentDidMount() {
@@ -77,13 +77,15 @@ class Game extends React.PureComponent<any, any> {
         this.setState({ isLoading: false, isLoadingGame: true })
     }
 
+    private onCloseMinVTHODialog() {
+        this.setState({ minVTHOdialogIsOpen: false })
+    }
+
     private setupSlotsController() {
         window.slotsController = {
             spin: this.spin,
             balances: this.getBalance,
-            vthoBalance: this.props.vthoBalance,
-            minVthoAmount: MIN_VTHO_AMOUNT,
-            onSpinWithoutMinBalance: this.onSpinWithoutMinBalance
+            vthoBalance: this.props.vthoBalance
         }
     }
 
@@ -166,19 +168,15 @@ class Game extends React.PureComponent<any, any> {
         }
     }
 
-    private onSpinWithoutMinBalance() {
-        this.setState({ dialogIsOpen: true })
-    }
-
-    private onCloseDialog() {
-        this.setState({ dialogIsOpen: false })
-    }
-
     private async onFinalizeListener() {
-        this.setState({ isFinalizing: true, loadingMessage: 'Exiting...' })
-        await this.props.dispatch(
-            Thunks.finalizeChannel(this.props.channelId, this.props)
-        )
+        if (this.props.vthoBalance < MIN_VTHO_AMOUNT) {
+            this.setState({ minVTHOdialogIsOpen: true })
+        } else {
+            this.setState({ isFinalizing: true, loadingMessage: 'Exiting...' })
+            await this.props.dispatch(
+                Thunks.finalizeChannel(this.props.channelId, this.props)
+            )
+        }
     }
 
     private subscribeToFinalizeResponses() {
@@ -226,6 +224,13 @@ class Game extends React.PureComponent<any, any> {
 
             return (
                 <React.Fragment>
+                    <ConfirmationDialog
+                        title="Minimum VTHO balance"
+                        content={`VTHO balance is too low to complete the transaction. Please ensure you have over ${MIN_VTHO_AMOUNT} VTHO to complete the transaction.`}
+                        open={this.state.minVTHOdialogIsOpen}
+                        onClickOk={this.onCloseMinVTHODialog}
+                        onClose={this.onCloseMinVTHODialog}
+                    />
                     {this.state.isLoadingGame ? (
                         <AppLoading message={this.state.loadingMessage} />
                     ) : null}
@@ -302,27 +307,19 @@ class Game extends React.PureComponent<any, any> {
 
     public render() {
         if (this.state.isFinalizing || this.state.isLoading) {
-            // If finalizing, print simple placeholder
             return <AppLoading message={this.state.loadingMessage} />
         } else {
             // Show normal page
             return (
                 <React.Fragment>
-                    <ConfirmationDialog
-                        title="Minimum VTHO balance"
-                        content="VTHO balance is too low to complete the transaction. Please ensure you have over 7500 VTHO to complete the transaction."
-                        open={this.state.dialogIsOpen}
-                        onClickOk={this.onCloseDialog}
-                        onClose={this.onCloseDialog}
-                    />
                     {this.renderHeader()}
 
                     <Grid
                         container={true}
-                        direction="column"
+                        direction="row"
                         alignItems="center"
                         justify="center"
-                        spacing={40}
+                        spacing={24}
                     >
                         <Grid
                             item={true}

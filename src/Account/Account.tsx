@@ -2,7 +2,7 @@ import * as React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as thunks from './state/thunks'
-import DateFnsUtils from 'material-ui-pickers/utils/date-fns-utils'
+import MomentUtils from 'material-ui-pickers/utils/moment-utils'
 import { MuiPickersUtilsProvider } from 'material-ui-pickers'
 import { Grid, Paper, Stepper, StepButton, Step } from '@material-ui/core'
 import AccountAddress from './Address'
@@ -100,14 +100,20 @@ class Account extends React.Component<any, IAccountState> {
 
     public render() {
         return (
-            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <MuiPickersUtilsProvider utils={MomentUtils}>
                 <Grid
                     container={true}
                     direction="row"
                     justify="center"
                     alignItems="center"
                 >
-                    <Grid item={true} xs={10}>
+                    <Grid
+                        item={true}
+                        xs={10}
+                        style={{
+                            maxWidth: 1300
+                        }}
+                    >
                         <TransparentPaper>
                             <Stepper
                                 nonLinear={this.props.accountHasAddress}
@@ -128,7 +134,14 @@ class Account extends React.Component<any, IAccountState> {
                             </Stepper>
                         </TransparentPaper>
                     </Grid>
-                    <Grid item={true} xs={12} md={9}>
+                    <Grid
+                        item={true}
+                        xs={12}
+                        md={9}
+                        style={{
+                            maxWidth: 1300
+                        }}
+                    >
                         <Paper>
                             {this.state.activeStep === 0 ? (
                                 <AccountAddress
