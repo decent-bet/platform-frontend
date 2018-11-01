@@ -14,7 +14,7 @@ import { InlineDatePicker } from 'material-ui-pickers'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import EventIcon from '@material-ui/icons/Event'
-import { subYears, format, parse } from 'date-fns'
+import * as moment from 'moment'
 import * as validator from 'validator'
 import countries from 'iso-3166-1/src/iso-3166'
 import { WithStyles, withStyles, createStyles, Theme } from '@material-ui/core'
@@ -26,7 +26,6 @@ import {
     IBasicAccountInfoState
 } from './BasicAccountInfoState'
 
-const FORMAT_DOB = `YYYY-MM-dd'T'X`
 const COUNTRY_LIST: [{ label: string; value: string }] = countries.map(
     (item, _index) => {
         return { label: item.country, value: item.alpha3 }
@@ -92,12 +91,14 @@ class BasicAccountInfo extends React.Component<
     IBasicAccountInfoProps,
     IBasicAccountInfoState
 > {
-    private maxDateOfBirth = subYears(new Date(), 18)
+    private maxDateOfBirth = moment()
+        .subtract(18, 'years')
+        .toDate()
 
     constructor(props: IBasicAccountInfoProps) {
         super(props)
 
-        this.state = new BasicAccountInfoState(this.maxDateOfBirth)
+        this.state = new BasicAccountInfoState()
 
         this.onFormValueChange = this.onFormValueChange.bind(this)
         this.isValidDataInput = this.isValidDataInput.bind(this)
@@ -144,7 +145,7 @@ class BasicAccountInfo extends React.Component<
             return
         }
 
-        formData.dob = format(date, FORMAT_DOB)
+        formData.dob = moment(date, moment.ISO_8601).format()
         if (!validator.isISO8601(formData.dob)) {
             errors.dob = true
             errorMessages.dob = 'Invalid date'
@@ -235,16 +236,15 @@ class BasicAccountInfo extends React.Component<
     public componentDidMount() {
         if (!this.props.accountIsVerified) {
             this.setState({ isEditing: true })
-            this.handleDateOfBirthChange(this.state.selectedCountry)
+            this.handleDateOfBirthChange(this.state.selectedDob)
         } else {
             const { basicVerification } = this.props.account.verification
 
             this.setState({
-                selectedDob: parse(
+                selectedDob: moment(
                     basicVerification.dob,
-                    'YYYY-MM-dd',
-                    new Date()
-                ),
+                    'YYYY-MM-dd'
+                ).toDate(),
                 selectedCountry: COUNTRY_LIST.find(
                     item => item.value === basicVerification.country
                 ),
@@ -408,12 +408,11 @@ class BasicAccountInfo extends React.Component<
                                         disableFuture={true}
                                         maxDate={this.maxDateOfBirth}
                                         required={true}
-                                        format="dd/MM/yyyy"
+                                        format="MM/DD/YYYY"
                                         mask={this.makeDateOfBirthMask}
-                                        placeholder={format(
-                                            this.maxDateOfBirth,
-                                            'dd/MM/yyyy'
-                                        )}
+                                        placeholder={moment(
+                                            this.maxDateOfBirth
+                                        ).format('MM/DD/YYYY')}
                                         autoOk={true}
                                         value={this.state.selectedDob}
                                         onChange={this.handleDateOfBirthChange}

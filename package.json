@@ -1,6 +1,6 @@
 {
     "name": "decent-bet-frontend",
-    "version": "1.0.37-beta",
+    "version": "1.0.38-beta",
     "homepage": "https://decent.bet",
     "private": true,
     "devDependencies": {
@@ -33,7 +33,6 @@
         "classnames": "^2.2.6",
         "countdown": "^2.6.0",
         "crypto-js": "^3.1.9-1",
-        "date-fns": "2.0.0-alpha.16",
         "dexie": "^2.0.4",
         "ethereum-units": "0.0.1-b",
         "ethereumjs-util": "^5.1.5",
@@ -42,6 +41,7 @@
         "iso-3166-1": "^1.1.0",
         "keythereum": "^1.0.2",
         "material-ui-pickers": "1.0.1",
+        "moment": "^2.22.2",
         "react": "^16.2.0",
         "react-animations": "^1.0.0",
         "react-copy-to-clipboard": "^5.0.1",

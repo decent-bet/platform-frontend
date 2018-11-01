@@ -11,9 +11,11 @@ import StateChannelTable from './StateChannelTable'
 import StateChannelToolbar from './StateChannelToolbar'
 import TransparentPaper from '../../common/components/TransparentPaper'
 import './slots.css'
-import { VIEW_SLOTS } from 'src/routes'
+import { VIEW_SLOTS } from '../../routes'
+import ConfirmationDialog from '../../common/components/ConfirmationDialog'
 import { ISlotsState, SlotsState } from './SlotsState'
 import AppLoading from '../../common/components/AppLoading'
+import { MIN_VTHO_AMOUNT } from '../../constants'
 
 class Slots extends React.Component<any, ISlotsState> {
     constructor(props: any) {
@@ -21,6 +23,7 @@ class Slots extends React.Component<any, ISlotsState> {
         this.state = new SlotsState()
 
         this.isChannelClaimed = this.isChannelClaimed.bind(this)
+        this.onCloseMinVTHODialog = this.onCloseMinVTHODialog.bind(this)
         this.refreshChannels = this.refreshChannels.bind(this)
         this.onBuildChannelListener = this.onBuildChannelListener.bind(this)
         this.onUpdateBuildStatusListener = this.onUpdateBuildStatusListener.bind(
@@ -66,6 +69,10 @@ class Slots extends React.Component<any, ISlotsState> {
         }
     }
 
+    public componentWillUnmount() {
+        this.setState(new SlotsState())
+    }
+
     public async componentDidUpdate(prevProps, prevState) {
         if (this.props.slotsInitialized !== prevProps.slotsInitialized) {
             this.setState({ stateMachine: 'loading' })
@@ -74,16 +81,18 @@ class Slots extends React.Component<any, ISlotsState> {
         }
     }
 
+    private onCloseMinVTHODialog() {
+        this.setState({ minVTHOdialogIsOpen: false })
+    }
+
     private async refreshChannels(): Promise<void> {
         // Get channels and wait
-        setTimeout(() => {
-            this.setState({
-                stateMachine: 'loading',
-                buildStatus: 'Fetching channels...'
-            })
-        }, 1000)
+        this.setState({
+            stateMachine: 'loading',
+            buildStatus: 'Fetching channels...'
+        })
+
         const result = await this.props.fetchChannels()
-        console.log('fetchChannels', result)
         const channels: any[] = result.value
 
         // Make a list of all usable channels for the user and publish it
@@ -123,7 +132,6 @@ class Slots extends React.Component<any, ISlotsState> {
         }
 
         this.setState({ activeChannels, claimableChannels })
-        console.log({ activeChannels, claimableChannels, nonDepositedChannels })
 
         // If there is exactly one usable channel active, switch to it.
         if (activeChannels.length === 1) {
@@ -134,7 +142,6 @@ class Slots extends React.Component<any, ISlotsState> {
         } else if (nonDepositedChannels.length >= 1) {
             // Continue building channel
             const channel = nonDepositedChannels[0]
-            console.log('Continue building channel', channel)
 
             // Update UI. Tell the user we are building the channel
             this.setState({
@@ -183,10 +190,17 @@ class Slots extends React.Component<any, ISlotsState> {
 
     // Claims the tokens from a Channel
     private async onClaimChannelListener(channelId): Promise<void> {
-        this.setState({ stateMachine: 'claiming', claimingChannel: channelId })
-        await this.props.claimAndWithdrawFromChannel(channelId)
-        // Refresh UI
-        await this.refreshChannels()
+        if (this.props.vthoBalance < MIN_VTHO_AMOUNT) {
+            this.setState({ minVTHOdialogIsOpen: true })
+        } else {
+            this.setState({
+                stateMachine: 'claiming',
+                claimingChannel: channelId
+            })
+            await this.props.claimAndWithdrawFromChannel(channelId)
+            // Refresh UI
+            await this.refreshChannels()
+        }
     }
 
     private onGoToGameroomListener(gameName): void {
@@ -228,6 +242,7 @@ class Slots extends React.Component<any, ISlotsState> {
                     <StateChannelBuilder
                         onBuildChannelListener={this.onBuildChannelListener}
                         tokenBalance={this.props.tokenBalance}
+                        vthoBalance={this.props.vthoBalance}
                     />
                 </Grid>
             </Grid>
@@ -309,11 +324,15 @@ class Slots extends React.Component<any, ISlotsState> {
             : 0
         const currentBalanceNode = (
             <React.Fragment>
-                <Typography align="center">
+                <Typography align="center" variant="subtitle2">
                     <Typography component="span">
                         Your current token balance is
                     </Typography>
-                    <Typography component="span" color="primary">
+                    <Typography
+                        component="span"
+                        color="primary"
+                        variant="subtitle2"
+                    >
                         {this.props.tokenBalance.toFixed(2)}
                     </Typography>
                 </Typography>
@@ -355,7 +374,14 @@ class Slots extends React.Component<any, ISlotsState> {
                 justify="center"
                 alignItems="center"
             >
-                <Grid item={true} xs={12} style={{ maxWidth: 1250 }}>
+                <Grid item={true} xs={12} style={{ maxWidth: 1300 }}>
+                    <ConfirmationDialog
+                        title="Minimum VTHO balance"
+                        content={`VTHO balance is too low to complete the transaction. Please ensure you have over ${MIN_VTHO_AMOUNT} VTHO to complete the transaction.`}
+                        open={this.state.minVTHOdialogIsOpen}
+                        onClickOk={this.onCloseMinVTHODialog}
+                        onClose={this.onCloseMinVTHODialog}
+                    />
                     <TransparentPaper>
                         {this.renderStateMachine()}
                     </TransparentPaper>

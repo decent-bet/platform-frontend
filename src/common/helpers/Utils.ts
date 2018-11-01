@@ -3,6 +3,7 @@ import { IKeyHandler, IUtils, IThorifyFactory } from '../types'
 import ethUtil from 'ethereumjs-util'
 import { SHA256, AES } from 'crypto-js'
 import BigNumber from 'bignumber.js'
+import * as moment from 'moment'
 
 const { cry, Transaction } = require('thor-devkit')
 
@@ -228,7 +229,12 @@ export default class Utils implements IUtils {
     }
 
     public getTimestampInMillis(): number {
-        return Math.round(new Date().getTime())
+        return Math.round(
+            moment()
+                .utc()
+                .toDate()
+                .getTime()
+        )
     }
 
     public getEtherInWei(): any {

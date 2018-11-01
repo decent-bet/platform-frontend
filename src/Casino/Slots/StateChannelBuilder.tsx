@@ -6,9 +6,10 @@ import {
     CardHeader,
     CardContent,
     Button,
-    TextField
+    TextField,
+    Typography
 } from '@material-ui/core'
-import { MIN_VTHO_AMOUNT } from 'src/constants'
+import { MIN_VTHO_AMOUNT } from '../../constants'
 import ConfirmationDialog from '../../common/components/ConfirmationDialog'
 
 export interface IStateChannelBuilderState {
@@ -30,6 +31,8 @@ export default class StateChannelBuilder extends React.Component<
         this.onCloseDialog = this.onCloseDialog.bind(this)
         this.onValueChanged = this.onValueChanged.bind(this)
         this.onClicPlay = this.onClicPlay.bind(this)
+        this.isBalanceValid = this.isBalanceValid.bind(this)
+        this.isValueValid = this.isValueValid.bind(this)
     }
 
     private onClickOk() {
@@ -58,9 +61,16 @@ export default class StateChannelBuilder extends React.Component<
         onBuildChannelListener(finalValue)
     }
 
-    private isValueValid = () => {
+    private isValueValid() {
         const parsedValue = parseInt(this.state.value, 10)
         return parsedValue >= 100 && parsedValue <= 1000
+    }
+
+    private isBalanceValid() {
+        return (
+            this.props.tokenBalance > 0 &&
+            this.props.vthoBalance > MIN_VTHO_AMOUNT
+        )
     }
 
     public render() {
@@ -75,11 +85,17 @@ export default class StateChannelBuilder extends React.Component<
                         subheader="How many DBETs would you like?"
                     />
                     <CardContent>
+                        {!this.isBalanceValid() ? (
+                            <Typography color="error">
+                                VTHO balance is too low
+                            </Typography>
+                        ) : null}
                         <TextField
                             name="initial-deposit"
-                            value={currentValue}
+                            value={this.isBalanceValid() ? currentValue : ''}
                             onChange={this.onValueChanged}
                             error={!isValid}
+                            disabled={!this.isBalanceValid()}
                             helperText={errorText}
                             fullWidth={true}
                         />
@@ -89,7 +105,7 @@ export default class StateChannelBuilder extends React.Component<
                             variant="contained"
                             color="primary"
                             onClick={this.onClicPlay}
-                            disabled={this.props.tokenBalance <= 0}
+                            disabled={!this.isBalanceValid()}
                         >
                             Play Slots
                         </Button>

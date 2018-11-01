@@ -2,7 +2,6 @@ import CryptoJs, { AES } from 'crypto-js'
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from '../actionTypes'
 import BigNumber from 'bignumber.js'
-import { toDate } from 'date-fns'
 import { tap, map } from 'rxjs/operators'
 import { IContractFactory, IUtils } from 'src/common/types'
 // Get the allowance
@@ -355,7 +354,7 @@ function getChannelInfo(channelId, contract) {
                 finalized: info[3],
                 initialDeposit: info[4],
                 finalNonce: info[5],
-                endTime: toDate(info[6]),
+                endTime: info[6],
                 exists: playerAddress === '0x0'
             }
             resolve(result)

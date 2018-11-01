@@ -41,7 +41,8 @@ export interface IBasicAccountInfoState {
 }
 
 export class BasicAccountInfoState implements IBasicAccountInfoState {
-    constructor(public selectedDob: Date) {}
+    constructor() {}
+    public selectedDob = null
     public isEditing = false
     public selectedCountry = null
     public formData = {

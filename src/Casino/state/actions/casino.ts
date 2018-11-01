@@ -145,25 +145,21 @@ export async function executeDepositTokens(amount, contractFactory) {
 export async function executeWithdrawTokens(
     amount,
     session,
-    { contractFactory, helper }
+    { contractFactory }
 ) {
     try {
         let contract = await contractFactory.bettingProviderContract()
         let txHash = await contract.withdraw(amount, session)
-        let msg = `Successfully sent withdraw transaction ${txHash}`
-        helper.toggleSnackbar(msg)
+        // let msg = `Successfully sent withdraw transaction ${txHash}`
+        // helper.toggleSnackbar(msg)
         return txHash
     } catch (err) {
         console.log('Error withdrawing tokens', err.message)
-        helper.toggleSnackbar('Error sending withdraw transaction')
+        // helper.toggleSnackbar('Error sending withdraw transaction')
     }
 }
 
-export async function executeApproveAndDepositTokens(
-    amount,
-    contractFactory,
-    helper
-) {
+export async function executeApproveAndDepositTokens(amount, contractFactory) {
     let bettingProviderContract = await contractFactory.bettingProviderContract()
     let bettingProvider = bettingProviderContract.options.address
 
@@ -173,7 +169,7 @@ export async function executeApproveAndDepositTokens(
             bettingProvider,
             amount
         )
-        helper.toggleSnackbar('Successfully sent approve transaction')
+        // helper.toggleSnackbar('Successfully sent approve transaction')
         let txHash2 = await executeDepositTokens(amount, contractFactory)
         return [txHash, txHash2]
     } catch (err) {

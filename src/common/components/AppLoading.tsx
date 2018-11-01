@@ -6,12 +6,17 @@ class AppLoading extends React.Component<any> {
         return (
             <Grid
                 container={true}
-                direction="column"
+                direction="row"
                 alignItems="center"
                 justify="center"
                 style={{ height: '60vh', width: '100%' }}
             >
-                <Grid container={true} direction="column" alignItems="center">
+                <Grid
+                    container={true}
+                    direction="column"
+                    alignItems="center"
+                    justify="center"
+                >
                     <Grid item={true} xs={12}>
                         <CircularProgress />
                     </Grid>
