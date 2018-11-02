@@ -69,7 +69,7 @@ export default class StateChannelToolbar extends React.Component<any, any> {
                 onClick={this.onClaimListener}
                 disabled={!this.state.enabledClaim}
             >
-                Claim Chips
+                Claim DBETs
             </Button>
         )
     }

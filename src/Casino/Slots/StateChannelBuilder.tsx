@@ -82,7 +82,7 @@ export default class StateChannelBuilder extends React.Component<
                 <Card>
                     <CardHeader
                         title="Let's play Slots"
-                        subheader="How many DBETs would you like?"
+                        subheader="How many DBETs would you like to play with?"
                     />
                     <CardContent>
                         {this.props.vthoBalance < MIN_VTHO_AMOUNT ? (
