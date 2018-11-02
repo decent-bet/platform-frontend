@@ -7,7 +7,6 @@ export default class StateChannelToolbar extends React.Component<any, any> {
     constructor(props: any) {
         super(props)
         this.state = {
-            endTime: null,
             enableClaim: false
         }
         this.onClaimListener = this.onClaimListener.bind(this)
@@ -20,7 +19,6 @@ export default class StateChannelToolbar extends React.Component<any, any> {
                 let endTime = moment.unix(sourceEndtime)
                 // add 10 seconds to the finalize datetime
                 endTime.add({ seconds: 10 })
-                this.setState({ endTime })
 
                 if (moment().isAfter(endTime)) {
                     this.setState({ enabledClaim: true })
@@ -33,8 +31,6 @@ export default class StateChannelToolbar extends React.Component<any, any> {
                     }, 3000)
                 }
             }
-        } else {
-            this.setState({ endTime: null })
         }
     }
 
