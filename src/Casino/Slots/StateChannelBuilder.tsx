@@ -85,9 +85,14 @@ export default class StateChannelBuilder extends React.Component<
                         subheader="How many DBETs would you like?"
                     />
                     <CardContent>
-                        {!this.isBalanceValid() ? (
+                        {this.props.vthoBalance < MIN_VTHO_AMOUNT ? (
                             <Typography color="error">
                                 VTHO balance is too low
+                            </Typography>
+                        ) : null}
+                        {this.props.tokenBalance <= 0 ? (
+                            <Typography color="error">
+                                DBET balance is too low
                             </Typography>
                         ) : null}
                         <TextField
