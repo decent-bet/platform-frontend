@@ -45,7 +45,7 @@ export default function StateChannelTable({
         <Card className="card">
             <CardHeader
                 title="Finished Slot Games"
-                subheader="You must wait 15 minutes after exiting to claim these games"
+                subheader="You must wait 15 minutes after finishing your session to claim your DBETs"
             />
             {claimableChannelsComponents}
         </Card>

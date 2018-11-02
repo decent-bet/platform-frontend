@@ -50,7 +50,7 @@ export default function SlotsList({
                                         align="center"
                                         variant="h6"
                                     >
-                                        {balance} DBETs
+                                        Session Balance: {balance} DBETs
                                     </Typography>
                                 </CardContent>
                             </Card>
