@@ -79,7 +79,7 @@ function fetchBalance(contractFactory, vetAddress): Promise<any> {
             let slotsContract = await contractFactory.slotsChannelManagerContract()
             let balance = await slotsContract.balanceOf(vetAddress)
             balance = balance || 0
-            resolve(parseFloat(balance).toFixed())
+            resolve(balance)
         } catch (err) {
             console.log(err)
             reject({ message: 'Error retrieving the balance' })
