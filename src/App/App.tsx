@@ -38,7 +38,18 @@ class App extends React.Component<IAppProps> {
     }
 
     public async componentDidMount() {
+        // const $authentication =
         await this.props.setUserAuthenticationStatus()
+        // $authentication.subscribe(jwt => {
+        //     if (jwt) {
+        //       this.nav.setRoot(HomePage)
+        //     } else {
+        //       this.nav.setRoot(LoginPage)
+        //     }
+        //   })
+
+        //   this.authProvider.checkLogin();
+        // });
         await this.props.setAppLoaded()
     }
 

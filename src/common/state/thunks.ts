@@ -21,12 +21,6 @@ export function setUserAuthenticationStatus() {
     }
 }
 
-export function setHttpAuthHeader() {
-    return async (dispatch, _getState, { keyHandler }: IThunkDependencies) => {
-        await dispatch(actions.setHttpAuthHeader(keyHandler))
-    }
-}
-
 export function openAlert(message: string, variant: AlertVariant) {
     return async dispatch => {
         await dispatch(actions.openAlert(message, variant))
