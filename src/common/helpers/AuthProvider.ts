@@ -1,22 +1,25 @@
+import { IAuthProvider, IKeyHandler } from '../types'
 import { switchMap } from 'rxjs/operators'
 import { ReplaySubject, Observable, of, defer } from 'rxjs'
 import axios from 'axios'
-import { IKeyHandler } from '../types'
 import jwtDecode from 'jwt-decode'
-// import * as moment from 'moment'
+import * as moment from 'moment'
 
-export class AuthProvider {
-    public authUser = new ReplaySubject<any>(1)
+export default class AuthProvider implements IAuthProvider {
+    public authUser: ReplaySubject<any> = new ReplaySubject<any>(1)
 
     constructor(private readonly keyHandler: IKeyHandler) {}
 
-    public checkLogin() {
+    public checkLogin(): void {
         this.keyHandler.getAuthToken().then(jwt => {
             if (!jwt) {
                 this.logout()
             } else {
                 const decoded: any = jwtDecode(jwt)
-                const currentTime = Date.now() / 1000
+                const currentTime =
+                    moment()
+                        .utc()
+                        .unix() / 1000
                 if (decoded.exp < currentTime) {
                     this.logout()
                 } else {
@@ -35,11 +38,11 @@ export class AuthProvider {
 
         return defer(async () => {
             const response = await axios.post('/login', data)
-            if (response) {
-                const { accessToken } = response.data
-                await this.keyHandler.setAuthToken(accessToken)
-                this.handleJwtResponse(accessToken)
-            }
+
+            const { accessToken } = response.data
+            await this.keyHandler.setAuthToken(accessToken)
+            await this.keyHandler.setAuthToken(accessToken)
+            this.authUser.next(accessToken)
 
             return {
                 error: false,
@@ -49,14 +52,8 @@ export class AuthProvider {
         }).pipe(switchMap(i => of(i)))
     }
 
-    private async handleJwtResponse(jwt: string) {
-        console.log('jwt', jwt)
-        await this.keyHandler.setAuthToken(jwt)
-        this.authUser.next(jwt)
-        return jwt
-    }
-
-    public logout() {
-        this.keyHandler.clearStorage().then(() => this.authUser.next(null))
+    public async logout(): Promise<void> {
+        await this.keyHandler.clearStorage()
+        this.authUser.next(null)
     }
 }

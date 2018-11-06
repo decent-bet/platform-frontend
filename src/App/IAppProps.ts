@@ -1,4 +1,5 @@
 import { AlertVariant } from './../common/components/Alert'
+import { ReplaySubject } from 'rxjs'
 
 export default interface IAppProps {
     appLoaded: boolean
@@ -7,6 +8,7 @@ export default interface IAppProps {
     alertMessage: string
     userIsAuthenticated: boolean
     setHttpAuthBaseUrl(): Promise<void>
-    setUserAuthenticationStatus(): Promise<void>
+    getAuthenticationSubject(): Promise<any>
     setAppLoaded(): Promise<void>
+    checkLogin(): Promise<void>
 }

@@ -1,7 +1,8 @@
+import { ReplaySubject } from 'rxjs'
+import { IAuthProvider } from 'src/common/types'
 import { AlertVariant } from './../components/Alert'
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from './actionTypes'
-import { IKeyHandler } from '../types'
 
 async function openAlert(message: string, variant: AlertVariant) {
     return { message: message || 'Sorry, an error occurred.', variant }
@@ -15,13 +16,18 @@ async function setAppLoaded() {
     return true
 }
 
-async function setUserAuthenticationStatus(keyHandler: IKeyHandler) {
-    let token = await keyHandler.getAuthToken()
-    return token !== null && token !== undefined
+async function getAuthenticationSubject(
+    authProvider: IAuthProvider
+): Promise<ReplaySubject<any>> {
+    return authProvider.authUser
 }
 
-async function logout(keyHandler: IKeyHandler) {
-    await keyHandler.clearStorage()
+async function logout(authProvider: IAuthProvider) {
+    await authProvider.logout()
+}
+
+async function checkLogin(authProvider: IAuthProvider) {
+    authProvider.checkLogin()
 }
 
 export default createActions({
@@ -30,6 +36,7 @@ export default createActions({
         [Actions.OPEN_ALERT]: openAlert,
         [Actions.CLOSE_ALERT]: closeAlert,
         [Actions.LOGOUT]: logout,
-        [Actions.SET_USER_AUTHENTICATION_STATUS]: setUserAuthenticationStatus
+        [Actions.GET_AUTHENTICATION_SUBJECT]: getAuthenticationSubject,
+        [Actions.CHECK_LOGIN]: checkLogin
     }
 })

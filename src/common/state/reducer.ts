@@ -32,10 +32,10 @@ export default function reducer(
                 ...state,
                 appLoaded: true
             }
-        case `${PREFIX}/${Actions.SET_USER_AUTHENTICATION_STATUS}/${FULFILLED}`:
+
+        case `${PREFIX}/${Actions.GET_AUTHENTICATION_SUBJECT}/${FULFILLED}`:
             return {
-                ...state,
-                userIsAuthenticated: action.payload
+                ...state
             }
         case `${PREFIX}/${Actions.LOGOUT}/${FULFILLED}`:
             return DefaultAppState

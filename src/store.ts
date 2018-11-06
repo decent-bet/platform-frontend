@@ -17,6 +17,7 @@ import { CURRENT_ENV, ENV_DEVELOPMENT } from './constants'
 import Utils from './common/helpers/Utils'
 import DecentWSAPI from './common/apis/DecentWSAPI'
 import SlotsChannelHandler from './common/apis/SlotsChannelHandler'
+import AuthProvider from './common/helpers/AuthProvider'
 // Combine all Reducers
 const CombinedReducers = combineReducers({
     app: appReducer,
@@ -33,6 +34,8 @@ const contractFactory = new ContractFactory(thorifyFactory, keyHandler)
 const utils = new Utils(keyHandler, thorifyFactory)
 const wsApi = new DecentWSAPI(keyHandler, utils)
 const slotsChannelHandler = new SlotsChannelHandler(wsApi, utils)
+const authProvider = new AuthProvider(keyHandler)
+
 // Setup middlewares
 const middlewares = [
     ReduxThunk.withExtraArgument({
@@ -41,7 +44,8 @@ const middlewares = [
         thorifyFactory,
         utils,
         wsApi,
-        slotsChannelHandler
+        slotsChannelHandler,
+        authProvider
     }), // inject dependencies
     promiseMiddleware({ promiseTypeDelimiter: '/' }),
     RejectionCatcherMiddleware

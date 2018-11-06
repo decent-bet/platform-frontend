@@ -22,7 +22,8 @@ import {
 } from '../routes'
 import {
     setAppLoaded,
-    setUserAuthenticationStatus,
+    getAuthenticationSubject,
+    checkLogin,
     closeAlert
 } from '../common/state/thunks'
 import AppLoading from '../common/components/AppLoading'
@@ -30,27 +31,37 @@ import TransparentPaper from '../common/components/TransparentPaper'
 import Alert from '../common/components/Alert'
 import ErrorBoundary from './ErrorBoundary'
 import IAppProps from './IAppProps'
+import { ReplaySubject, Subscription } from 'rxjs'
 
-class App extends React.Component<IAppProps> {
+class App extends React.Component<IAppProps, any> {
+    private _authSubscription$: Subscription
+
     constructor(props: any) {
         super(props)
         this.renderRoutes = this.renderRoutes.bind(this)
+        this.state = { userIsAuthenticated: false }
     }
 
     public async componentDidMount() {
-        // const $authentication =
-        await this.props.setUserAuthenticationStatus()
-        // $authentication.subscribe(jwt => {
-        //     if (jwt) {
-        //       this.nav.setRoot(HomePage)
-        //     } else {
-        //       this.nav.setRoot(LoginPage)
-        //     }
-        //   })
+        const authResult = await this.props.getAuthenticationSubject()
+        const subject$ = authResult.value as ReplaySubject<any>
 
-        //   this.authProvider.checkLogin();
-        // });
-        await this.props.setAppLoaded()
+        this._authSubscription$ = subject$.subscribe(async jwt => {
+            if (jwt) {
+                this.setState({ userIsAuthenticated: true })
+            } else {
+                this.setState({ userIsAuthenticated: false })
+            }
+
+            await this.props.checkLogin()
+            await this.props.setAppLoaded()
+        })
+    }
+
+    public componentWillUnmount() {
+        if (this._authSubscription$) {
+            this._authSubscription$.unsubscribe()
+        }
     }
 
     private handleAlertClose = () => {
@@ -96,14 +107,14 @@ class App extends React.Component<IAppProps> {
                                     path={VIEW_AUTH}
                                     component={Auth}
                                     userIsAuthenticated={
-                                        this.props.userIsAuthenticated
+                                        this.state.userIsAuthenticated
                                     }
                                 />
                                 <PrivateRoute
                                     path={VIEW_MAIN}
                                     component={Main}
                                     userIsAuthenticated={
-                                        this.props.userIsAuthenticated
+                                        this.state.userIsAuthenticated
                                     }
                                 />
                             </Switch>
@@ -150,7 +161,8 @@ const mapDispatchToProps = dispatch =>
             {},
             {
                 setAppLoaded,
-                setUserAuthenticationStatus,
+                getAuthenticationSubject,
+                checkLogin,
                 closeAlert
             }
         ),

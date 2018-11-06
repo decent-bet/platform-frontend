@@ -4,8 +4,12 @@ import { AlertVariant } from '../components/Alert'
 const actions: any = Actions.app
 
 export function logout() {
-    return async (dispatch, _getState, { keyHandler }: IThunkDependencies) => {
-        return await dispatch(actions.logout(keyHandler))
+    return async (
+        dispatch,
+        _getState,
+        { authProvider }: IThunkDependencies
+    ) => {
+        return await dispatch(actions.logout(authProvider))
     }
 }
 
@@ -15,15 +19,29 @@ export function setAppLoaded() {
     }
 }
 
-export function setUserAuthenticationStatus() {
-    return async (dispatch, _getState, { keyHandler }: IThunkDependencies) => {
-        await dispatch(actions.setUserAuthenticationStatus(keyHandler))
+export function getAuthenticationSubject() {
+    return async (
+        dispatch,
+        _getState,
+        { authProvider }: IThunkDependencies
+    ) => {
+        return await dispatch(actions.getAuthenticationSubject(authProvider))
     }
 }
 
 export function openAlert(message: string, variant: AlertVariant) {
     return async dispatch => {
         await dispatch(actions.openAlert(message, variant))
+    }
+}
+
+export function checkLogin() {
+    return async (
+        dispatch,
+        _getState,
+        { authProvider }: IThunkDependencies
+    ) => {
+        return await dispatch(actions.checkLogin(authProvider))
     }
 }
 
