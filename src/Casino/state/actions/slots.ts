@@ -665,7 +665,6 @@ function getChannels(contractFactory, wsApi, utils) {
                     )
                 })
             )
-            console.log('channels$', channels$)
 
             const subs = channels$.subscribe(
                 async items => {

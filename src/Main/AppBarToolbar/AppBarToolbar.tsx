@@ -99,10 +99,10 @@ export default class AppBarToolbar extends React.Component<
                                             paddingRight: '0.4em'
                                         }}
                                     >
-                                        Tokens:
+                                        DBETs:
                                     </Typography>
                                     <Typography component="span">
-                                        {tokenBalance.toFixed(2)} DBETs
+                                        {tokenBalance.toFixed(2)}
                                     </Typography>
                                 </Button>
                                 <Button
@@ -130,11 +130,11 @@ export default class AppBarToolbar extends React.Component<
                                             paddingRight: '0.4em'
                                         }}
                                     >
-                                        Balance:
+                                        VTHO:
                                     </Typography>
 
                                     <Typography component="span">
-                                        {vthoBalance.toFixed(5)} VTHO
+                                        {vthoBalance.toFixed(5)}
                                     </Typography>
                                 </Button>
                                 <MinVTHODialog

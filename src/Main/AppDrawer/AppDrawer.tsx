@@ -85,13 +85,12 @@ class AppDrawer extends React.Component<IAppDrawerProps, IAppDrawerState> {
                                 <ListItemText
                                     primary={
                                         <Typography color="primary">
-                                            Tokens:
+                                            DBETs:
                                         </Typography>
                                     }
                                     secondary={
                                         <Typography variant="caption">
-                                            {this.props.tokenBalance.toFixed(2)}{' '}
-                                            DBETs
+                                            {this.props.tokenBalance.toFixed(2)}
                                         </Typography>
                                     }
                                 />
@@ -115,14 +114,13 @@ class AppDrawer extends React.Component<IAppDrawerProps, IAppDrawerState> {
                                                         marginBottom: -5
                                                     }}
                                                 />{' '}
-                                                Balance:
+                                                VTHO:
                                             </Typography>
                                         </React.Fragment>
                                     }
                                     secondary={
                                         <Typography variant="caption">
-                                            {this.props.vthoBalance.toFixed(5)}{' '}
-                                            VTHO
+                                            {this.props.vthoBalance.toFixed(5)}
                                         </Typography>
                                     }
                                 />
