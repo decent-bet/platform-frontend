@@ -1,6 +1,6 @@
 {
     "name": "decent-bet-frontend",
-    "version": "1.0.40-beta",
+    "version": "1.0.41-develop",
     "homepage": "https://decent.bet",
     "private": true,
     "devDependencies": {
@@ -22,7 +22,7 @@
     },
     "dependencies": {
         "@decent-bet/contract-migration": "^1.0.1",
-        "@decent-bet/contract-slots": "1.0.0-rc.1",
+        "@decent-bet/contract-slots": "1.0.0-alpha.9",
         "@material-ui/core": "^3.3.2",
         "@material-ui/icons": "^3.0.1",
         "aes256": "^1.0.3",
@@ -73,15 +73,12 @@
     "scripts": {
         "start": "export BROWSER=none && react-scripts-ts start",
         "start:develop": "export BROWSER=none && export REACT_APP_ENV=development && react-scripts-ts start",
-        "start:staging": "export BROWSER=none && export REACT_APP_ENV=staging && react-scripts-ts start",
         "start:prod": "export BROWSER=none && export REACT_APP_ENV=production && react-scripts-ts start",
         "build:local": "export REACT_APP_ENV=local && react-scripts-ts build",
         "build:develop": "export REACT_APP_ENV=development && react-scripts-ts build",
-        "build:staging": "export REACT_APP_ENV=staging && react-scripts-ts build",
         "build:prod": "export REACT_APP_ENV=production && react-scripts-ts build",
         "deploy": "docker build --build-arg APP_ENV=$APP_ENV -t us.gcr.io/dbet-platform/platform-frontend:$npm_package_version . && docker tag us.gcr.io/dbet-platform/platform-frontend:$npm_package_version us.gcr.io/dbet-platform/platform-frontend:$npm_package_version && docker push us.gcr.io/dbet-platform/platform-frontend:$npm_package_version",
         "deploy:develop": "export APP_ENV=develop && npm run deploy",
-        "deploy:staging": "export APP_ENV=staging && npm run deploy",
         "deploy:prod": "export APP_ENV=prod && npm run deploy",
         "deploy:local": "docker build --build-arg APP_ENV=local -t dbet-platform/platform-frontend:latest . && docker tag dbet-platform/platform-frontend:latest dbet-platform/platform-frontend:latest && docker-compose up --force-recreate",
         "test": "react-scripts-ts test --env=jsdom",
