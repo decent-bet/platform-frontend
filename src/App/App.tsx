@@ -52,10 +52,10 @@ class App extends React.Component<IAppProps, any> {
             } else {
                 this.setState({ userIsAuthenticated: false })
             }
-
-            await this.props.checkLogin()
             await this.props.setAppLoaded()
         })
+
+        await this.props.checkLogin()
     }
 
     public componentWillUnmount() {

@@ -1,5 +1,4 @@
-import { AlertVariant } from './../common/components/Alert'
-import { ReplaySubject } from 'rxjs'
+import { AlertVariant } from '../common/components/Alert'
 
 export default interface IAppProps {
     appLoaded: boolean

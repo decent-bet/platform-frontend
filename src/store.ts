@@ -28,13 +28,14 @@ const CombinedReducers = combineReducers({
     casino: casinoReducer
 })
 
-const keyHandler = new KeyHandler(new KeyStore())
+const keyStore = new KeyStore()
+const keyHandler = new KeyHandler(keyStore)
+const authProvider = new AuthProvider(keyHandler)
 const thorifyFactory = new ThorifyFactory(keyHandler)
 const contractFactory = new ContractFactory(thorifyFactory, keyHandler)
 const utils = new Utils(keyHandler, thorifyFactory)
 const wsApi = new DecentWSAPI(keyHandler, utils)
 const slotsChannelHandler = new SlotsChannelHandler(wsApi, utils)
-const authProvider = new AuthProvider(keyHandler)
 
 // Setup middlewares
 const middlewares = [

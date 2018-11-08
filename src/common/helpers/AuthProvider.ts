@@ -1,19 +1,22 @@
 import { IAuthProvider, IKeyHandler } from '../types'
-import { switchMap } from 'rxjs/operators'
-import { ReplaySubject, Observable, of, defer } from 'rxjs'
+import { ReplaySubject } from 'rxjs'
 import axios from 'axios'
 import jwtDecode from 'jwt-decode'
 import * as moment from 'moment'
 
 export default class AuthProvider implements IAuthProvider {
-    public authUser: ReplaySubject<any> = new ReplaySubject<any>(1)
+    public authUser: ReplaySubject<any>
+    private keyHandler: IKeyHandler
 
-    constructor(private readonly keyHandler: IKeyHandler) {}
+    constructor(keyHandler: IKeyHandler) {
+        this.keyHandler = keyHandler
+        this.authUser = new ReplaySubject<any>(1)
+    }
 
-    public checkLogin(): void {
-        this.keyHandler.getAuthToken().then(jwt => {
+    public async checkLogin(): Promise<void> {
+        this.keyHandler.getAuthToken().then(async jwt => {
             if (!jwt) {
-                this.logout()
+                this.authUser.next(null)
             } else {
                 const decoded: any = jwtDecode(jwt)
                 const currentTime =
@@ -21,7 +24,7 @@ export default class AuthProvider implements IAuthProvider {
                         .utc()
                         .unix() / 1000
                 if (decoded.exp < currentTime) {
-                    this.logout()
+                    await this.logout()
                 } else {
                     this.authUser.next(jwt)
                 }
@@ -29,27 +32,23 @@ export default class AuthProvider implements IAuthProvider {
         })
     }
 
-    public login(
+    public async login(
         email: string,
         password: string,
         captchaKey: string
-    ): Observable<any> {
+    ): Promise<any> {
         const data = { email, password, captchaKey }
+        const response = await axios.post('/login', data)
+        const { accessToken, refreshToken, activated, message } = response.data
 
-        return defer(async () => {
-            const response = await axios.post('/login', data)
+        await this.keyHandler.setAuthToken(accessToken, refreshToken)
+        this.authUser.next(accessToken)
 
-            const { accessToken } = response.data
-            await this.keyHandler.setAuthToken(accessToken)
-            await this.keyHandler.setAuthToken(accessToken)
-            this.authUser.next(accessToken)
-
-            return {
-                error: false,
-                activated: response.data.activated,
-                message: response.data.message || 'Successfully logged in'
-            }
-        }).pipe(switchMap(i => of(i)))
+        return {
+            error: false,
+            activated,
+            message
+        }
     }
 
     public async logout(): Promise<void> {

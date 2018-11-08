@@ -1,9 +1,7 @@
 import axios from 'axios'
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from './actionTypes'
-import { IKeyHandler } from '../../common/types'
-import IAuthProvider from 'src/common/types/IAuthProvider'
-import { finalize } from 'rxjs/operators'
+import { IAuthProvider } from '../../common/types'
 
 /**
  * @param {string} email
@@ -118,23 +116,30 @@ function login(
     captchaKey: string,
     authProvider: IAuthProvider
 ) {
-    return new Promise((resolve, reject) => {
-        authProvider.login(email, password, captchaKey).subscribe(
-            result => {
-                resolve(result)
-            },
-            error => {
-                let errorMessage =
-                    error.response && error.response.data
-                        ? error.response.data.message
-                        : 'Error trying to login, please check later.'
-                reject({
-                    error: true,
-                    activated: false,
-                    message: errorMessage
-                })
+    return new Promise(async (resolve, reject) => {
+        try {
+            const result = await authProvider.login(email, password, captchaKey)
+            resolve(result)
+        } catch (error) {
+            let errorMessage
+
+            if (error && error.message) {
+                errorMessage = error.message
+            } else if (
+                error.response &&
+                error.response.data &&
+                error.response.data.message
+            ) {
+                errorMessage = error.response.data.message
+            } else {
+                errorMessage = 'Error trying to login, please check later.'
             }
-        )
+            reject({
+                error: true,
+                activated: false,
+                message: errorMessage
+            })
+        }
     })
 }
 
