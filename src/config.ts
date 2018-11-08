@@ -2,7 +2,6 @@ import {
     CURRENT_ENV,
     ENV_LOCAL,
     ENV_DEVELOPMENT,
-    ENV_STAGING,
     ENV_PRODUCTION
 } from './constants'
 
@@ -12,8 +11,6 @@ function getAuthApiUrl(): string {
             return 'http://localhost:3200/api'
         case ENV_DEVELOPMENT:
             return 'https://kyc-api-development.decent.bet/api'
-        case ENV_STAGING:
-            return 'https://kyc-staging.decent.bet/api'
         case ENV_PRODUCTION:
             return 'https://kyc.decent.bet/api'
         default:
@@ -27,8 +24,6 @@ function getWsApiUrl() {
             return 'ws://localhost:3010'
         case ENV_DEVELOPMENT:
             return 'wss://channels-api-development.decent.bet'
-        case ENV_STAGING:
-            return 'wss://channels-api-staging.decent.bet'
         case ENV_PRODUCTION:
             return 'wss://channels-api.decent.bet'
         default:
@@ -42,8 +37,6 @@ function getThorNodeUrl() {
             return 'https://thor-staging.decent.bet' // 'http://localhost:8669'
         case ENV_DEVELOPMENT:
             return 'https://thor-staging.decent.bet'
-        case ENV_STAGING:
-            return 'https://thor-staging.decent.bet'
         case ENV_PRODUCTION:
             return 'https://thor.decent.bet'
         default:
@@ -56,8 +49,6 @@ function getRecaptchaKey() {
         case ENV_LOCAL:
             return '6LfAVnYUAAAAAO9j5Y5T_4qzRwx1R6DOLUXru0s4'
         case ENV_DEVELOPMENT:
-            return '6LepTnYUAAAAAF4Jtoh2Hwk3f_AKijaT7owk6eTU'
-        case ENV_STAGING:
             return '6LepTnYUAAAAAF4Jtoh2Hwk3f_AKijaT7owk6eTU'
         case ENV_PRODUCTION:
             return '6LepTnYUAAAAAF4Jtoh2Hwk3f_AKijaT7owk6eTU'
@@ -76,13 +67,6 @@ function getChannelSettings() {
                 CHANNEL_NONCE: 11111111
             }
         case ENV_DEVELOPMENT:
-            return {
-                CHANNEL_EXPIRATION: 32,
-                CHANNEL_GAS_PRICE_COEF: 0,
-                CHANNEL_GAS_DEFAULT_VALUE: 500000,
-                CHANNEL_NONCE: 11111111
-            }
-        case ENV_STAGING:
             return {
                 CHANNEL_EXPIRATION: 32,
                 CHANNEL_GAS_PRICE_COEF: 0,
