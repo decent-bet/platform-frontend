@@ -24,6 +24,7 @@ import {
     setAppLoaded,
     getAuthenticationSubject,
     checkLogin,
+    logout,
     closeAlert
 } from '../common/state/thunks'
 import AppLoading from '../common/components/AppLoading'
@@ -35,24 +36,36 @@ import { ReplaySubject, Subscription } from 'rxjs'
 
 class App extends React.Component<IAppProps, any> {
     private _authSubscription$: Subscription
+    private _authTimer: NodeJS.Timer
 
     constructor(props: any) {
         super(props)
         this.renderRoutes = this.renderRoutes.bind(this)
         this.state = { userIsAuthenticated: false }
+        this.setAuthTimer = this.setAuthTimer.bind(this)
     }
 
     public async componentDidMount() {
         const authResult = await this.props.getAuthenticationSubject()
         const subject$ = authResult.value as ReplaySubject<any>
 
-        this._authSubscription$ = subject$.subscribe(async jwt => {
-            if (jwt) {
+        this._authSubscription$ = subject$.subscribe(async isAuthenticated => {
+            if (isAuthenticated) {
                 this.setState({ userIsAuthenticated: true })
+                if (!this._authTimer) {
+                    this.setAuthTimer()
+                }
             } else {
                 this.setState({ userIsAuthenticated: false })
+                if (this._authTimer) {
+                    clearInterval(this._authTimer)
+                    await this.props.logout()
+                }
             }
-            await this.props.setAppLoaded()
+
+            if (!this.props.appLoaded) {
+                await this.props.setAppLoaded()
+            }
         })
 
         await this.props.checkLogin()
@@ -62,6 +75,16 @@ class App extends React.Component<IAppProps, any> {
         if (this._authSubscription$) {
             this._authSubscription$.unsubscribe()
         }
+
+        if (this._authTimer) {
+            clearInterval(this._authTimer)
+        }
+    }
+
+    private setAuthTimer(): void {
+        this._authTimer = setInterval(async () => {
+            await this.props.checkLogin()
+        }, 1000)
     }
 
     private handleAlertClose = () => {
@@ -163,6 +186,7 @@ const mapDispatchToProps = dispatch =>
                 setAppLoaded,
                 getAuthenticationSubject,
                 checkLogin,
+                logout,
                 closeAlert
             }
         ),

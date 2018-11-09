@@ -9,6 +9,7 @@ class KeyHandler implements IKeyHandler {
     /**
      * Caches a wallet's private key
      */
+
     public async setupWallet(
         privateKey: string,
         address: string,
@@ -29,7 +30,6 @@ class KeyHandler implements IKeyHandler {
             )
         }
     }
-
     /**
      * Returns private key and mnemonic of the logged in user
      */
