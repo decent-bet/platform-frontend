@@ -13,7 +13,7 @@ import ThorifyFactory from './common/helpers/ThorifyFactory'
 import KeyStore from './common/helpers/KeyStore'
 import KeyHandler from './common/helpers/KeyHandler'
 import { RejectionCatcherMiddleware } from './common/helpers/RejectionCatcherMiddleware'
-import { CURRENT_ENV, ENV_DEVELOPMENT } from './constants'
+import { CURRENT_ENV, ENV_LOCAL } from './constants'
 import Utils from './common/helpers/Utils'
 import DecentWSAPI from './common/apis/DecentWSAPI'
 import SlotsChannelHandler from './common/apis/SlotsChannelHandler'
@@ -53,7 +53,7 @@ const middlewares = [
 ]
 
 // Only log redux on development
-if (CURRENT_ENV === ENV_DEVELOPMENT) {
+if (CURRENT_ENV === ENV_LOCAL) {
     middlewares.push(logger)
 }
 

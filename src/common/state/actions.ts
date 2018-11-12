@@ -16,6 +16,10 @@ async function setAppLoaded() {
     return true
 }
 
+/**
+ * Get the {ReplaceSubject<bool>} to subscribe for the authentication status
+ * See {@link IAuthProvider} and [AuthProvider's authUser property] {@link IAuthProvider#authUser}
+ */
 async function getAuthenticationSubject(
     authProvider: IAuthProvider
 ): Promise<ReplaySubject<any>> {

@@ -237,6 +237,7 @@ class DecentWSAPI {
                     })
                 )
             } catch (e) {
+                console.error(e)
                 reject(e)
             }
         })

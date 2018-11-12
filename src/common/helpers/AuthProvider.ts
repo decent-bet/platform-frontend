@@ -9,15 +9,18 @@ const ACCESS_TOKEN_LIFETIME_MS: number = 5 * 60 * 1000
 export default class AuthProvider implements IAuthProvider {
     /**
      * ReplaySubject used to store the user authentication status
-     * @var {ReplaySubject<any>} authUser
+     * A variant of Subject that "replays" or emits old values to new subscribers.
+     * It buffers a set number of values and will emit those values immediately to any new subscribers in addition to emitting new values to existing subscribers.
+     * {@link https://rxjs-dev.firebaseapp.com/api/index/class/ReplaySubject ReplaySubject}
+     * @var {ReplaySubject<boolean>} authUser
      */
-    public authUser: ReplaySubject<any>
+    public authUser: ReplaySubject<boolean>
 
     /**
      * @param {IKeyHandler} keyHandler
      */
     constructor(private keyHandler: IKeyHandler) {
-        this.authUser = new ReplaySubject<any>(1)
+        this.authUser = new ReplaySubject<boolean>(1)
     }
 
     /**
@@ -31,28 +34,21 @@ export default class AuthProvider implements IAuthProvider {
                 this.authUser.next(false)
                 return
             }
-            console.log('on checkLogin')
             const decoded: any = jwtDecode(accessToken)
 
             const currentTime = moment()
                 .utc()
                 .valueOf()
 
-            console.log('expire date: ', moment(decoded.exp).toDate())
-            console.log('current: ', moment(currentTime).toDate())
-
-            // the token is expired, should be make a logout
+            // the token is expired, we should make a logout
             if (currentTime > decoded.exp) {
-                console.log('token expired')
                 this.authUser.next(false)
             } else {
                 const tokenCompareLifetime =
                     decoded.exp - ACCESS_TOKEN_LIFETIME_MS
                 if (currentTime >= tokenCompareLifetime) {
-                    console.log('try to refresh')
                     await this.refresh(accessToken)
                 } else {
-                    console.log('token is valid')
                     this.authUser.next(true)
                 }
             }

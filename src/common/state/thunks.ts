@@ -19,6 +19,10 @@ export function setAppLoaded() {
     }
 }
 
+/**
+ * Get the {ReplaceSubject<bool>} to subscribe for the authentication status
+ * See {@link IAuthProvider} and [AuthProvider's authUser property] {@link IAuthProvider#authUser}
+ */
 export function getAuthenticationSubject() {
     return async (
         dispatch,

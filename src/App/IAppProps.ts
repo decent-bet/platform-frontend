@@ -13,4 +13,5 @@ export default interface IAppProps extends RouterProps {
     setAppLoaded(): Promise<void>
     checkLogin(): Promise<any>
     refreshToken(): Promise<void>
+    closeAlert(): Promise<void>
 }

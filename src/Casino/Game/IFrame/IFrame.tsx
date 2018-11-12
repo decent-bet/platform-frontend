@@ -4,7 +4,7 @@
 import React from 'react'
 import IFrameProps from './IFrameProps'
 
-export default class IFrame extends React.Component<IFrameProps> {
+export default class IFrame extends React.PureComponent<IFrameProps> {
     private _iframeRef: React.RefObject<HTMLIFrameElement>
 
     constructor(props: IFrameProps) {
@@ -34,6 +34,7 @@ export default class IFrame extends React.Component<IFrameProps> {
                 frameBorder={this.props.frameBorder || '0'}
                 id={this.props.id}
                 src={this.props.src}
+                seamless={true}
                 allowFullScreen={this.props.allowFullScreen || false}
                 style={{
                     position: 'relative',
