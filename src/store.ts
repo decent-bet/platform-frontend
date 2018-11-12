@@ -13,10 +13,11 @@ import ThorifyFactory from './common/helpers/ThorifyFactory'
 import KeyStore from './common/helpers/KeyStore'
 import KeyHandler from './common/helpers/KeyHandler'
 import { RejectionCatcherMiddleware } from './common/helpers/RejectionCatcherMiddleware'
-import { CURRENT_ENV, ENV_DEVELOPMENT } from './constants'
+import { CURRENT_ENV, ENV_LOCAL } from './constants'
 import Utils from './common/helpers/Utils'
 import DecentWSAPI from './common/apis/DecentWSAPI'
 import SlotsChannelHandler from './common/apis/SlotsChannelHandler'
+import AuthProvider from './common/helpers/AuthProvider'
 // Combine all Reducers
 const CombinedReducers = combineReducers({
     app: appReducer,
@@ -27,12 +28,15 @@ const CombinedReducers = combineReducers({
     casino: casinoReducer
 })
 
-const keyHandler = new KeyHandler(new KeyStore())
+const keyStore = new KeyStore()
+const keyHandler = new KeyHandler(keyStore)
+const authProvider = new AuthProvider(keyHandler)
 const thorifyFactory = new ThorifyFactory(keyHandler)
 const contractFactory = new ContractFactory(thorifyFactory, keyHandler)
 const utils = new Utils(keyHandler, thorifyFactory)
 const wsApi = new DecentWSAPI(keyHandler, utils)
 const slotsChannelHandler = new SlotsChannelHandler(wsApi, utils)
+
 // Setup middlewares
 const middlewares = [
     ReduxThunk.withExtraArgument({
@@ -41,14 +45,15 @@ const middlewares = [
         thorifyFactory,
         utils,
         wsApi,
-        slotsChannelHandler
+        slotsChannelHandler,
+        authProvider
     }), // inject dependencies
     promiseMiddleware({ promiseTypeDelimiter: '/' }),
     RejectionCatcherMiddleware
 ]
 
 // Only log redux on development
-if (CURRENT_ENV === ENV_DEVELOPMENT) {
+if (CURRENT_ENV === ENV_LOCAL) {
     middlewares.push(logger)
 }
 

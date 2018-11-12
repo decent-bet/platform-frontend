@@ -9,6 +9,7 @@ class KeyHandler implements IKeyHandler {
     /**
      * Caches a wallet's private key
      */
+
     public async setupWallet(
         privateKey: string,
         address: string,
@@ -29,7 +30,6 @@ class KeyHandler implements IKeyHandler {
             )
         }
     }
-
     /**
      * Returns private key and mnemonic of the logged in user
      */
@@ -100,8 +100,15 @@ class KeyHandler implements IKeyHandler {
      * @param {string} token
      * @returns {Promise<void>}
      */
-    public async setAuthToken(token: string): Promise<void> {
+    public async setAuthToken(
+        token: string,
+        refreshToken: string
+    ): Promise<void> {
         await this.keyStore.addVariable(AUTH_TOKEN_NAME, token)
+        await this.keyStore.addVariable(
+            `${AUTH_TOKEN_NAME}_REFRESH`,
+            refreshToken
+        )
     }
 
     /**
@@ -110,6 +117,14 @@ class KeyHandler implements IKeyHandler {
      */
     public async getAuthToken(): Promise<string> {
         return await this.keyStore.getVariable(AUTH_TOKEN_NAME)
+    }
+
+    /**
+     * Return the stored refresh token if exists
+     * @returns {Promise<string>}
+     */
+    public async getRefreshToken(): Promise<string> {
+        return await this.keyStore.getVariable(`${AUTH_TOKEN_NAME}_REFRESH`)
     }
 
     public async clearStorage(): Promise<void> {

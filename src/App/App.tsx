@@ -18,11 +18,13 @@ import {
     VIEW_AUTH,
     VIEW_ACTIVATE_ACCOUNT,
     VIEW_PRIVACY_POLICY,
-    VIEW_TERMS_AND_CONDITIONS
+    VIEW_TERMS_AND_CONDITIONS,
+    VIEW_LOGIN
 } from '../routes'
 import {
-    setAppLoaded,
-    setUserAuthenticationStatus,
+    getAuthenticationSubject,
+    checkLogin,
+    logout,
     closeAlert
 } from '../common/state/thunks'
 import AppLoading from '../common/components/AppLoading'
@@ -30,21 +32,68 @@ import TransparentPaper from '../common/components/TransparentPaper'
 import Alert from '../common/components/Alert'
 import ErrorBoundary from './ErrorBoundary'
 import IAppProps from './IAppProps'
+import { IAppState, AppState } from './AppState'
+import { ReplaySubject, Subscription } from 'rxjs'
 
-class App extends React.Component<IAppProps> {
+class App extends React.PureComponent<IAppProps, IAppState> {
+    private _authSubscription$: Subscription
+    private _authTimer: NodeJS.Timer // to store the timeout
+
     constructor(props: any) {
         super(props)
         this.renderRoutes = this.renderRoutes.bind(this)
+        this.state = new AppState()
+        this.setAuthTimer = this.setAuthTimer.bind(this)
     }
 
     public async componentDidMount() {
-        await this.props.setUserAuthenticationStatus()
-        await this.props.setAppLoaded()
+        /**
+         * Get the {ReplaceSubject<bool>} to subscribe for the authentication status
+         * See {@link IAuthProvider} and [AuthProvider's authUser property] {@link IAuthProvider#authUser}
+         */
+        const authResult = await this.props.getAuthenticationSubject()
+        const subject$ = authResult.value as ReplaySubject<boolean>
+
+        this._authSubscription$ = subject$.subscribe(async isAuthenticated => {
+            if (isAuthenticated) {
+                this.setState({ userIsAuthenticated: true })
+                if (!this._authTimer) {
+                    this.setAuthTimer()
+                }
+            } else {
+                this.setState({ userIsAuthenticated: false })
+                if (this._authTimer) {
+                    clearInterval(this._authTimer)
+                    this.setState({ appLoaded: false })
+                    await this.props.logout()
+                    if (window.location.href !== VIEW_LOGIN) {
+                        window.location.href = VIEW_LOGIN
+                    }
+                }
+            }
+
+            if (!this.state.appLoaded) {
+                this.setState({ appLoaded: true })
+            }
+        })
+
+        await this.props.checkLogin()
     }
 
-    private handleAlertClose = () => {
-        const { closeAlert } = this.props as any
-        closeAlert()
+    public componentWillUnmount() {
+        if (this._authSubscription$) {
+            this._authSubscription$.unsubscribe()
+        }
+
+        if (this._authTimer) {
+            clearInterval(this._authTimer)
+        }
+    }
+
+    private setAuthTimer(): void {
+        this._authTimer = setInterval(async () => {
+            await this.props.checkLogin()
+        }, 1000)
     }
 
     private renderRoutes() {
@@ -85,20 +134,20 @@ class App extends React.Component<IAppProps> {
                                     path={VIEW_AUTH}
                                     component={Auth}
                                     userIsAuthenticated={
-                                        this.props.userIsAuthenticated
+                                        this.state.userIsAuthenticated
                                     }
                                 />
                                 <PrivateRoute
                                     path={VIEW_MAIN}
                                     component={Main}
                                     userIsAuthenticated={
-                                        this.props.userIsAuthenticated
+                                        this.state.userIsAuthenticated
                                     }
                                 />
                             </Switch>
                         </BrowserRouter>
                         <Alert
-                            onClose={this.handleAlertClose}
+                            onClose={this.props.closeAlert}
                             variant={this.props.alertType || 'error'}
                             transition="down"
                             anchorOrigin={{
@@ -120,7 +169,7 @@ class App extends React.Component<IAppProps> {
                 <CssBaseline />
                 <ErrorBoundary>
                     <MuiThemeProvider theme={DarkTheme}>
-                        {this.props.appLoaded ? (
+                        {this.state.appLoaded ? (
                             this.renderRoutes()
                         ) : (
                             <AppLoading />
@@ -138,8 +187,9 @@ const mapDispatchToProps = dispatch =>
         Object.assign(
             {},
             {
-                setAppLoaded,
-                setUserAuthenticationStatus,
+                getAuthenticationSubject,
+                checkLogin,
+                logout,
                 closeAlert
             }
         ),

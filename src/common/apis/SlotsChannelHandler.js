@@ -38,6 +38,7 @@ export default class SlotsChannelHandler {
                 callback(null, response.message, userSpin, houseSpin, lines)
             }
         } catch (error) {
+            console.error(error)
             if (callback) callback(error)
         }
     }
@@ -121,7 +122,8 @@ export default class SlotsChannelHandler {
              * Verify spin hashes
              */
             if (userSpin.nonce > 1) {
-                let prevHouseSpin = state.houseSpins[state.houseSpins.length - 1]
+                let prevHouseSpin =
+                    state.houseSpins[state.houseSpins.length - 1]
                 if (houseSpin.reelSeedHash !== prevHouseSpin.prevReelSeedHash)
                     reject(new Error('Invalid reel seed hash'))
                 else if (
@@ -139,15 +141,13 @@ export default class SlotsChannelHandler {
                     ).toString() !== houseSpin.reelHash
                 )
                     reject(new Error('Invalid reel hash'))
-                else
-                    resolve()
+                else resolve()
             } else {
                 if (houseSpin.userHash !== userSpin.userHash)
                     reject(new Error('Invalid user hash'))
                 else if (houseSpin.prevUserHash !== userSpin.prevUserHash)
                     reject(new Error('Invalid user hash'))
-                else
-                    resolve()
+                else resolve()
             }
         })
     }
@@ -175,11 +175,11 @@ export default class SlotsChannelHandler {
         let totalReward = 0
         console.log(
             'calculateReelPayout lines: ' +
-            JSON.stringify(lines) +
-            ', ' +
-            adjustedBetSize +
-            ', ' +
-            typeof adjustedBetSize
+                JSON.stringify(lines) +
+                ', ' +
+                adjustedBetSize +
+                ', ' +
+                typeof adjustedBetSize
         )
         for (let i = 0; i < adjustedBetSize; i++)
             totalReward += this.getLineRewardMultiplier(lines[i])
