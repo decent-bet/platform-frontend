@@ -1,6 +1,9 @@
 # base
 FROM node:10-alpine AS builder
+
 ARG APP_ENV
+
+ENV NPM_CONFIG_LOGLEVEL=error
 ENV HOME=/var/service
 
 # Add Git and Build Tools.
