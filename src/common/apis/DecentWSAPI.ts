@@ -1,3 +1,4 @@
+import { IUtils, IKeyHandler } from 'src/common/types'
 import io from 'socket.io-client'
 import { WS_API_URL } from '../../config'
 
@@ -12,20 +13,30 @@ const {
     paths
 } = require('./wspaths')
 
-class DecentWSAPI {
-    constructor(keyHandler, utils) {
-        this.keyHandler = keyHandler
-        this.utils = utils
+export default class DecentWSAPI {
+    private subscriptions: any
+    private _socket: SocketIOClient.Socket
+
+    constructor(
+        private readonly keyHandler: IKeyHandler,
+        private readonly utils: IUtils
+    ) {
         this.subscriptions = {}
-        this._initSocket()
     }
 
-    _initSocket() {
-        this.socket = io(WS_API_URL)
+    private _initSocket() {
+        this._socket = io(WS_API_URL)
         this._initSocketListeners()
     }
 
-    _initSocketEmitListener = _path => {
+    private get socket() {
+        if (!this._socket) {
+            this._initSocket()
+        }
+        return this._socket
+    }
+
+    private _initSocketEmitListener(_path) {
         this.socket.on(_path, ({ req, res }) => {
             console.log(
                 `Received event from: ${_path}. Request: ${JSON.stringify(
@@ -42,7 +53,7 @@ class DecentWSAPI {
         })
     }
 
-    _initSocketListeners() {
+    private _initSocketListeners() {
         this.socket.on('connect', () => {
             console.log(`Connected to Websocket server @ ${WS_API_URL}`)
             this._initSocketEmitListener(PATH_POST_INIT_CHANNEL)
@@ -57,20 +68,20 @@ class DecentWSAPI {
         })
     }
 
-    _subscribe(_path, cb) {
+    private _subscribe(_path, cb) {
         if (!this.subscriptions[_path]) this.subscriptions[_path] = []
         const index = this.subscriptions[_path].length
         cb.unsubscribe = () => this._unsubscribe(_path, index)
         this.subscriptions[_path].push(cb)
     }
 
-    _unsubscribe(_path, index) {
+    private _unsubscribe(_path, index) {
         if (!this.subscriptions[_path]) return
         delete this.subscriptions[_path][index]
     }
 
-    _getResponseSubscription(path, _req, cb, keepAlive) {
-        const callback = ({ req, res }) => {
+    private _getResponseSubscription(path, _req, cb, keepAlive?: boolean) {
+        const callback: any = ({ req, res }) => {
             console.log(
                 '_getResponseSubscription',
                 path,
@@ -92,7 +103,7 @@ class DecentWSAPI {
         return this._subscribe(path, callback)
     }
 
-    clearSubscriptions() {
+    public clearSubscriptions() {
         paths.map(path => {
             if (this.subscriptions[path])
                 for (let i = 0; i < this.subscriptions[path].length; i++)
@@ -100,7 +111,7 @@ class DecentWSAPI {
         })
     }
 
-    getInitChannelResponseSubscription(req, cb, keepAlive) {
+    public getInitChannelResponseSubscription(req, cb, keepAlive?: boolean) {
         return this._getResponseSubscription(
             PATH_POST_INIT_CHANNEL,
             req,
@@ -109,7 +120,7 @@ class DecentWSAPI {
         )
     }
 
-    getProcessSpinResponseSubscription(req, cb, keepAlive) {
+    public getProcessSpinResponseSubscription(req, cb, keepAlive?: boolean) {
         return this._getResponseSubscription(
             PATH_POST_PROCESS_SPIN,
             req,
@@ -118,7 +129,7 @@ class DecentWSAPI {
         )
     }
 
-    getLastSpinResponseSubscription(req, cb, keepAlive) {
+    public getLastSpinResponseSubscription(req, cb, keepAlive?: boolean) {
         return this._getResponseSubscription(
             PATH_GET_LAST_SPIN,
             req,
@@ -127,7 +138,11 @@ class DecentWSAPI {
         )
     }
 
-    getFinalizeChannelResponseSubscription(req, cb, keepAlive) {
+    public getFinalizeChannelResponseSubscription(
+        req,
+        cb,
+        keepAlive?: boolean
+    ) {
         return this._getResponseSubscription(
             PATH_POST_FINALIZE_CHANNEL,
             req,
@@ -136,7 +151,17 @@ class DecentWSAPI {
         )
     }
 
-    initChannel = (
+    /**
+     *
+     * @param initialDeposit
+     * @param channelNonce
+     * @param initialUserNumber
+     * @param finalUserHash
+     * @param userTxs
+     * @param blockRef
+     * @param blockNumber
+     */
+    public initChannel(
         initialDeposit,
         channelNonce,
         initialUserNumber,
@@ -144,7 +169,7 @@ class DecentWSAPI {
         userTxs,
         blockRef,
         blockNumber
-    ) => {
+    ): Promise<any> {
         return new Promise(async (resolve, reject) => {
             try {
                 let path = PATH_POST_INIT_CHANNEL
@@ -183,8 +208,13 @@ class DecentWSAPI {
         })
     }
 
-    /** Off-chain finally verifiable slot spins */
-    spin = async (id, spin, aesKey) => {
+    /**
+     *Off-chain finally verifiable slot spins
+     * @param id
+     * @param spin
+     * @param aesKey
+     */
+    public async spin(id, spin, aesKey): Promise<any> {
         /**
          * Spin:
          *
@@ -246,7 +276,7 @@ class DecentWSAPI {
     /**
      * Get the latest encrypted spin saved by the house
      **/
-    getLastSpin = id => {
+    public getLastSpin(id): Promise<any> {
         return new Promise(async (resolve, reject) => {
             try {
                 let path = PATH_GET_LAST_SPIN
@@ -281,7 +311,7 @@ class DecentWSAPI {
      * Notify the house when the user would like to finalize a channel to ensure the user can't spin while the
      * close channel transaction is being sent to the network
      *  */
-    finalizeChannel = (id, spin, aesKey) => {
+    public finalizeChannel(id, spin, aesKey): Promise<any> {
         return new Promise(async (resolve, reject) => {
             try {
                 let encryptedSpin = cryptoJs.AES.encrypt(
@@ -321,8 +351,11 @@ class DecentWSAPI {
         })
     }
 
-    /** Solidity ecsign implementation */
-    signString = async text => {
+    /**
+     * Solidity ecsign implementation
+     * @param {string} text
+     */
+    public signString(text: string): Promise<any> {
         /*
          * Sign a string and return (hash, v, r, s) used by ecrecover to regenerate the user's address;
          */
@@ -363,17 +396,14 @@ class DecentWSAPI {
             if (address && adr !== address.toLowerCase())
                 reject(new Error('Invalid address for signed message'))
 
-            resolve({ msgHash: msgHash, sig: sgn })
+            resolve({ msgHash, sig: sgn })
         })
     }
 
-    _getSign = async (path, timestamp) => {
+    private async _getSign(path, timestamp): Promise<any> {
         let input = path + timestamp
-        let sign = await this.signString(input)
+        let sign: any = await this.signString(input)
         console.log('_getSign', input, sign)
-
         return sign.sig
     }
 }
-
-export default DecentWSAPI
