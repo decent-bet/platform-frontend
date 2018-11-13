@@ -1,3 +1,4 @@
+import IAuthProvider from './IAuthProvider'
 import IKeyHandler from './IKeyHandler'
 import IKeyStore from './IKeyStore'
 import IContractFactory from './IContractFactory'
@@ -11,5 +12,6 @@ export {
     IContractFactory,
     IThorifyFactory,
     IUtils,
+    IAuthProvider,
     IThunkDependencies
 }

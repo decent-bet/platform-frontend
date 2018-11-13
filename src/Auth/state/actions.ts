@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from './actionTypes'
-import { IKeyHandler } from '../../common/types'
+import { IAuthProvider } from '../../common/types'
 
 /**
  * @param {string} email
@@ -110,28 +110,35 @@ async function resetPassword(
     })
 }
 
-async function login(
+function login(
     email: string,
     password: string,
     captchaKey: string,
-    keyHandler: IKeyHandler
+    authProvider: IAuthProvider
 ) {
-    const data = { email, password, captchaKey }
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await axios.post('/login', data)
-            await keyHandler.setAuthToken(response.data.accessToken)
-            resolve({
-                error: false,
-                activated: response.data.activated,
-                message: response.data.message || 'Successfully logged in'
-            })
+            const result = await authProvider.login(email, password, captchaKey)
+            resolve(result)
         } catch (error) {
-            let errorMessage =
-                error.response && error.response.data
-                    ? error.response.data.message
-                    : 'Error trying to login, please check later.'
-            reject({ error: true, activated: false, message: errorMessage })
+            let errorMessage
+
+            if (error && error.message) {
+                errorMessage = error.message
+            } else if (
+                error.response &&
+                error.response.data &&
+                error.response.data.message
+            ) {
+                errorMessage = error.response.data.message
+            } else {
+                errorMessage = 'Error trying to login, please check later.'
+            }
+            reject({
+                error: true,
+                activated: false,
+                message: errorMessage
+            })
         }
     })
 }

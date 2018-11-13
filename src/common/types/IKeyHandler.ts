@@ -27,7 +27,9 @@ export default interface IKeyHandler {
 
     getAuthToken(): Promise<string>
 
-    setAuthToken(token: string): Promise<void>
+    getRefreshToken(): Promise<string>
+
+    setAuthToken(token: string, refreshToken: string): Promise<void>
 
     clearStorage(): Promise<void>
 }

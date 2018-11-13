@@ -757,8 +757,12 @@ async function makeSpin(
 ): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
-            await slotsChannelHandler.spin(totalBetSize, props, listener)
-            resolve()
+            const spinResult = await slotsChannelHandler.spin(
+                totalBetSize,
+                props,
+                listener
+            )
+            resolve(spinResult)
         } catch (error) {
             console.log(error)
             reject({ message: 'Error making spin action.' })

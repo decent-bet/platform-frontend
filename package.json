@@ -17,7 +17,7 @@
         "@types/validator": "^9.4.2",
         "ajv": "^6.5.4",
         "jest": "^23.6.0",
-        "react-scripts-ts": "^3.1.0",
+        "react-scripts-ts": "^4.0.8",
         "typescript": "^3.0.3"
     },
     "dependencies": {
@@ -25,6 +25,7 @@
         "@decent-bet/contract-slots": "1.0.0-alpha.9",
         "@material-ui/core": "^3.3.2",
         "@material-ui/icons": "^3.0.1",
+        "@types/jwt-decode": "^2.2.1",
         "aes256": "^1.0.3",
         "axios": "^0.18.0",
         "bignumber.js": "^7.0.0",
@@ -39,6 +40,7 @@
         "ethers": "^4.0.7",
         "eventing-bus": "^1.3.3",
         "iso-3166-1": "^1.1.0",
+        "jwt-decode": "^2.2.0",
         "keythereum": "^1.0.2",
         "material-ui-pickers": "1.0.1",
         "moment": "^2.22.2",
@@ -84,5 +86,11 @@
         "test": "react-scripts-ts test --env=jsdom",
         "lint": "tslint src __tests__",
         "lint:fix": "tslint --fix src __tests__"
-    }
+    },
+    "browserslist": [
+        ">0.2%",
+        "not dead",
+        "not ie <= 11",
+        "not op_mini all"
+    ]
 }

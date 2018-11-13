@@ -7,21 +7,20 @@ import AppLoadding from '../common/components/AppLoading'
 
 function Logout(props) {
     props.logout().then(() => {
-        window.location.href = VIEW_LOGIN
+        if (window.location.href !== VIEW_LOGIN) {
+            window.location.href = VIEW_LOGIN
+        }
     })
 
-    return (
-        <AppLoadding/>
-    )
+    return <AppLoadding />
 }
 
 const mapStateToProps = state => Object.assign({}, state.app)
-const mapDispatchToProps = dispatch => bindActionCreators(Object.assign(
-        {},
-        thunks
-    ), dispatch)
+const mapDispatchToProps = dispatch =>
+    bindActionCreators(Object.assign({}, thunks), dispatch)
 
-
-const LogoutContainer = connect(mapStateToProps, mapDispatchToProps)(Logout)
+const LogoutContainer = connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Logout)
 export default LogoutContainer
-
