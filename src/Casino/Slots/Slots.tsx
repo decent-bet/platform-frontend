@@ -34,10 +34,12 @@ class Slots extends React.Component<any, ISlotsState> {
         this.renderStateChannelToolbar = this.renderStateChannelToolbar.bind(
             this
         )
+        this.onClaimFromContract = this.onClaimFromContract.bind(this)
         this.renderLoadingState = this.renderLoadingState.bind(this)
         this.renderSelectChannelsState = this.renderSelectChannelsState.bind(
             this
         )
+        this.renderCurrentBalanceNode = this.renderCurrentBalanceNode.bind(this)
         this.channelBalanceParser = this.channelBalanceParser.bind(this)
         this.renderSelectGameState = this.renderSelectGameState.bind(this)
         this.renderChannelTable = this.renderChannelTable.bind(this)
@@ -213,7 +215,7 @@ class Slots extends React.Component<any, ISlotsState> {
     private renderStateChannelToolbar(channel) {
         return (
             <Grid container={true} direction="row">
-                <Grid item={true}>
+                <Grid item={true} xs={12}>
                     <StateChannelToolbar
                         channel={channel}
                         onClaimChannelListener={this.onClaimChannelListener}
@@ -249,6 +251,19 @@ class Slots extends React.Component<any, ISlotsState> {
         )
     }
 
+    private async onClaimFromContract(): Promise<void> {
+        if (this.props.vthoBalance < MIN_VTHO_AMOUNT) {
+            this.setState({ minVTHOdialogIsOpen: true })
+        } else {
+            this.setState({
+                stateMachine: 'claiming_from_contract'
+            })
+            await this.props.claimDbetsFromContract()
+
+            // Refresh UI
+            await this.refreshChannels()
+        }
+    }
     /**
      * Parses the user's balance on a state channel
      * @param {any} channel
@@ -297,10 +312,15 @@ class Slots extends React.Component<any, ISlotsState> {
     }
 
     private renderChannelTable() {
+        const userBalance = new BigNumber(this.props.balance)
+            .dividedBy(units.ether)
+            .toFixed(2)
         return (
             <Grid container={true} direction="row" spacing={40}>
                 <Grid item={true} xs={12}>
                     <StateChannelTable
+                        userBalance={userBalance}
+                        onClaimFromContract={this.onClaimFromContract}
                         channelMap={this.props.channels}
                         claimableChannels={this.state.claimableChannels}
                         /* Function as a child. Receives `channel` */
@@ -311,18 +331,8 @@ class Slots extends React.Component<any, ISlotsState> {
         )
     }
 
-    private renderClaimingStatus() {
-        let claimingTokens
-        let claimingChannel: any
-        if (this.state.claimingChannel) {
-            claimingChannel = this.props.channels[this.state.claimingChannel]
-        }
-
-        const { finalBalances } = claimingChannel
-        claimingTokens = finalBalances
-            ? finalBalances.dividedBy(units.ether).toFixed()
-            : 0
-        const currentBalanceNode = (
+    private renderCurrentBalanceNode() {
+        return (
             <React.Fragment>
                 <Typography align="center" variant="subtitle2">
                     <Typography component="span">
@@ -338,10 +348,22 @@ class Slots extends React.Component<any, ISlotsState> {
                 </Typography>
             </React.Fragment>
         )
+    }
+    private renderClaimingStatus() {
+        let claimingTokens
+        let claimingChannel: any
+        if (this.state.claimingChannel) {
+            claimingChannel = this.props.channels[this.state.claimingChannel]
+        }
+
+        const { finalBalances } = claimingChannel
+        claimingTokens = finalBalances
+            ? finalBalances.dividedBy(units.ether).toFixed()
+            : 0
 
         return this.renderLoadingState(
             `Claiming ${claimingTokens} DBETs...`,
-            currentBalanceNode
+            this.renderCurrentBalanceNode()
         )
     }
 
@@ -357,7 +379,14 @@ class Slots extends React.Component<any, ISlotsState> {
                 return this.renderListGamesState()
             case 'select_game':
                 return this.renderSelectGameState()
-
+            case 'claiming_from_contract':
+                const userBalance = new BigNumber(this.props.balance)
+                    .dividedBy(units.ether)
+                    .toFixed(2)
+                return this.renderLoadingState(
+                    `Withdrawing ${userBalance} DBETs from Smart Contract...`,
+                    this.renderCurrentBalanceNode()
+                )
             case 'claiming':
                 return this.renderClaimingStatus()
             default:

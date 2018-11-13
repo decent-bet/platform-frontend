@@ -65,6 +65,7 @@ function authWallet(data: string, account: any, keyHandler: IKeyHandler) {
 
             resolve(true)
         } catch (error) {
+            console.error(error)
             reject({
                 message: error.message
             })
@@ -80,9 +81,9 @@ function fetchBalance(contractFactory, vetAddress): Promise<any> {
             let balance = await slotsContract.balanceOf(vetAddress)
             balance = balance || 0
             resolve(balance)
-        } catch (err) {
-            console.log(err)
-            reject({ message: 'Error retrieving the balance' })
+        } catch (error) {
+            console.error(error)
+            reject({ message: 'Error retrieving the user balance' })
         }
     })
 }
@@ -96,6 +97,7 @@ export function fetchVTHOBalance(contractFactory, vetAddress): Promise<any> {
             const balance = new BigNumber(rawAmount).dividedBy(units.ether)
             resolve(balance)
         } catch (error) {
+            console.error(error)
             reject({ message: error.message })
         }
     })
@@ -110,7 +112,8 @@ export function fetchTokens(contractFactory, vetAddress) {
                 .dividedBy(units.ether)
                 .toNumber()
             resolve(tokens)
-        } catch (err) {
+        } catch (error) {
+            console.error(error)
             reject({ message: 'Error retrieving token balance' })
         }
     })
@@ -122,61 +125,11 @@ function faucet(contractFactory, accountAddress): Promise<any> {
             let contract = await contractFactory.decentBetTokenContract()
             const tx = await contract.faucet(accountAddress)
             resolve(tx)
-        } catch {
+        } catch (error) {
+            console.error(error)
             reject({ message: 'Error processing the Faucet' })
         }
     })
-}
-
-export async function executeDepositTokens(amount, contractFactory) {
-    try {
-        let contract = await contractFactory.bettingProviderContract()
-
-        let txHash = await contract.deposit(amount)
-        // let msg = `Successfully sent deposit transaction: ${txHash}`
-        // helper.toggleSnackbar(msg)
-        return txHash
-    } catch (err) {
-        console.log('Error depositing tokens', err.message)
-        // helper.toggleSnackbar('Error sending deposit transaction')
-    }
-}
-
-export async function executeWithdrawTokens(
-    amount,
-    session,
-    { contractFactory }
-) {
-    try {
-        let contract = await contractFactory.bettingProviderContract()
-        let txHash = await contract.withdraw(amount, session)
-        // let msg = `Successfully sent withdraw transaction ${txHash}`
-        // helper.toggleSnackbar(msg)
-        return txHash
-    } catch (err) {
-        console.log('Error withdrawing tokens', err.message)
-        // helper.toggleSnackbar('Error sending withdraw transaction')
-    }
-}
-
-export async function executeApproveAndDepositTokens(amount, contractFactory) {
-    let bettingProviderContract = await contractFactory.bettingProviderContract()
-    let bettingProvider = bettingProviderContract.options.address
-
-    try {
-        let decentBetTokenContract = await contractFactory.decentBetTokenContract()
-        let txHash = await decentBetTokenContract.approve(
-            bettingProvider,
-            amount
-        )
-        // helper.toggleSnackbar('Successfully sent approve transaction')
-        let txHash2 = await executeDepositTokens(amount, contractFactory)
-        return [txHash, txHash2]
-    } catch (err) {
-        return []
-        // console.log('Error approving dbets', err.message)
-        // helper.toggleSnackbar('Error sending approve transaction')
-    }
 }
 
 export default createActions({
@@ -187,9 +140,6 @@ export default createActions({
         [Actions.SET_SLOTS_INITIALIZED]: setSlotsInitialized,
         [Actions.GET_TOKENS]: fetchTokens,
         [Actions.GET_VTHO_BALANCE]: fetchVTHOBalance,
-        [Actions.GET_BALANCE]: fetchBalance,
-        [Actions.WITHDRAW_TOKENS]: executeWithdrawTokens,
-        [Actions.DEPOSIT_TOKENS]: executeDepositTokens,
-        [Actions.APPROVE_AND_DEPOSIT_TOKENS]: executeApproveAndDepositTokens
+        [Actions.GET_BALANCE]: fetchBalance
     }
 })

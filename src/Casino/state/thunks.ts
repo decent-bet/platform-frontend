@@ -70,6 +70,7 @@ export function initializeSlots() {
         const vetAddress = await keyHandler.getPublicAddress()
         await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
         await dispatch(actions.getAllowance(contractFactory, vetAddress))
+        await dispatch(actions.getBalance(contractFactory, vetAddress))
     }
 }
 
@@ -130,6 +131,42 @@ export function fetchChannels() {
 }
 
 /**
+ *
+ * Claim dbets from the contract
+ *
+ * @param amount
+ */
+export function claimDbetsFromContract() {
+    return async (
+        dispatch,
+        _getState,
+        { keyHandler, contractFactory }: IThunkDependencies
+    ) => {
+        const vetAddress = await keyHandler.getPublicAddress()
+        const tokensInContract = await dispatch(
+            actions.getBalance(contractFactory, vetAddress)
+        )
+
+        if (
+            tokensInContract &&
+            tokensInContract.value &&
+            tokensInContract.value > 0
+        ) {
+            const slotsContract = await contractFactory.slotsChannelManagerContract()
+
+            await dispatch(
+                actions.withdrawChips(tokensInContract.value, slotsContract)
+            )
+
+            // Update the balance
+            await dispatch(actions.getTokens(contractFactory, vetAddress))
+            await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
+            await dispatch(actions.getBalance(contractFactory, vetAddress))
+        }
+    }
+}
+
+/**
  * Claims all the tokens in a channel and withdraws all tokens from the wallet
  * @param {string} channelId
  * @returns {Promise<void>}
@@ -159,6 +196,7 @@ export function claimAndWithdrawFromChannel(
         // Update the balance
         await dispatch(actions.getTokens(contractFactory, vetAddress))
         await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
+        await dispatch(actions.getBalance(contractFactory, vetAddress))
     }
 }
 
