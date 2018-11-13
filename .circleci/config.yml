@@ -1,0 +1,90 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/platform-frontend
+    environment:
+      PROJECT_ID: dbet-platform
+    docker:
+    - image: docker:18.06.1-ce-git
+    steps:
+      - checkout
+      - setup_remote_docker
+      - restore_cache:
+          keys:
+            - v1-{{ .Branch }}-{{ .Environment.CIRCLE_TAG }}
+            - v1-{{ .Branch }}
+            - v1-
+          paths:
+            - /caches/app.tar
+      - run:
+          name: Load Docker image layer cache
+          command: |
+            set +o pipefail
+            docker load -i /caches/app.tar | true
+      - run:
+          name: Build application Docker image
+          command: |
+            if [ -z "${CIRCLE_TAG}" ]; then
+              docker build --build-arg=${CIRCLE_BRANCH} --cache-from=us.gcr.io/${PROJECT_ID}/platform-frontend -t us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_SHA1 .
+              docker tag us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_SHA1 us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_BRANCH
+            else
+              docker build --build-arg=master --cache-from=us.gcr.io/${PROJECT_ID}/platform-frontend -t us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_SHA1 .
+              docker tag us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_SHA1 us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_TAG
+            fi
+      - run:
+          name: Save Docker image layer cache
+          command: |
+            mkdir -p /caches
+            docker save -o /caches/app.tar us.gcr.io/${PROJECT_ID}/platform-frontend
+      - save_cache:
+          key: v1-{{ .Branch }}-{{ .Environment.CIRCLE_TAG }}-{{ epoch }}
+          paths:
+            - /caches/app.tar
+      - save_cache:
+          key: v1-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}-{{ .Environment.CIRCLE_TAG }}
+          paths:
+            - /caches/app.tar
+  push-image-to-gcecr:
+    working_directory: ~/platform-frontend
+    docker:
+      - image: google/cloud-sdk
+    environment:
+      PROJECT_ID: dbet-platform
+    steps:
+      - setup_remote_docker
+      - restore_cache:
+          keys:
+            - v1-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}-{{ .Environment.CIRCLE_TAG }}
+            - v1-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+            - v1-
+          paths:
+            - /caches/app.tar
+      - run:
+          name: Load Docker image layer cache
+          command: |
+            set +o pipefail
+            docker load -i /caches/app.tar | true
+      - run:
+          name: Push image to GCE Container Registry
+          command: |
+            echo $GCLOUD_SERVICE_KEY | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
+            export GOOGLE_APPLICATION_CREDENTIALS=${HOME}/gcloud-service-key.json
+            gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
+            gcloud config set project ${PROJECT_ID}
+            gcloud docker -- push us.gcr.io/${PROJECT_ID}/platform-frontend
+workflows:
+  version: 2
+  build-test-deploy:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /.*/
+      - push-image-to-gcecr:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
