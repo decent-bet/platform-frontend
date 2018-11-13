@@ -5,11 +5,11 @@ ENV HOME=/var/service
 
 # Add Git and Build Tools.
 RUN apk --no-cache --virtual build-dependencies add \
-    git \
-    openssh \
-    python \
-    make \
-    g++
+  git \
+  openssh \
+  python \
+  make \
+  g++
 
 WORKDIR $HOME
 
