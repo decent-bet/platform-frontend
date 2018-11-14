@@ -32,7 +32,7 @@ jobs:
               docker build --cache-from=us.gcr.io/${PROJECT_ID}/platform-frontend -t us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_SHA1 . --build-arg APP_ENV=develop
               docker tag us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_SHA1 us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_BRANCH
             else
-              if [[ $CIRCLE_TAG == *develop* ]]; then
+              if [[ $CIRCLE_TAG == .*develop ]]; then
                 docker build --cache-from=us.gcr.io/${PROJECT_ID}/platform-frontend -t us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_SHA1 . --build-arg APP_ENV=develop
                 docker tag us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_SHA1 us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_TAG
               else
