@@ -35,10 +35,11 @@ jobs:
             else
               if [[ ${CIRCLE_TAG} == *-develop* ]]; then
                 docker build --cache-from=us.gcr.io/${PROJECT_ID}/platform-frontend -t us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_SHA1 . --build-arg APP_ENV=develop
+                docker tag us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_SHA1 us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_TAG
               else
                 docker build --cache-from=us.gcr.io/${PROJECT_ID}/platform-frontend -t us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_SHA1 . --build-arg APP_ENV=master
+                docker tag us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_SHA1 us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_TAG
               fi
-              docker tag us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_SHA1 us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_TAG
             fi
       - run:
           name: Save Docker image layer cache
