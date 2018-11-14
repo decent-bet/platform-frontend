@@ -3,7 +3,7 @@ import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from '../actionTypes'
 import BigNumber from 'bignumber.js'
 import { tap, map } from 'rxjs/operators'
-import { IContractFactory, IUtils } from 'src/common/types'
+import { IContractFactory, IUtils } from '../../../common/types'
 // Get the allowance
 function fetchAllowance(contractFactory, defaultAccount): Promise<any> {
     return new Promise(async (resolve, reject) => {
@@ -277,7 +277,6 @@ async function withdrawChips(amount, slotsContract) {
         }
     })
 }
-
 /**
  * Allows users to claim DBETs from a closed channel
  * @param {number} channelId
