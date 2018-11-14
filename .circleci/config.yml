@@ -16,9 +16,8 @@ jobs:
       - setup_remote_docker
       - restore_cache:
           keys:
-            - v1-{{ .Branch }}-{{ .Environment.CIRCLE_TAG }}
-            - v1-{{ .Branch }}
-            - v1-
+            - v2-{{ .Branch }}-{{ .Environment.CIRCLE_TAG }}
+            - v2-{{ .Branch }}
           paths:
             - /caches/app.tar
       - run:
@@ -47,11 +46,11 @@ jobs:
             mkdir -p /caches
             docker save -o /caches/app.tar us.gcr.io/${PROJECT_ID}/platform-frontend
       - save_cache:
-          key: v1-{{ .Branch }}-{{ .Environment.CIRCLE_TAG }}-{{ epoch }}
+          key: v2-{{ .Branch }}-{{ .Environment.CIRCLE_TAG }}-{{ epoch }}
           paths:
             - /caches/app.tar
       - save_cache:
-          key: v1-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}-{{ .Environment.CIRCLE_TAG }}
+          key: v2-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}-{{ .Environment.CIRCLE_TAG }}-{{ epoch }}
           paths:
             - /caches/app.tar
   push-image-to-gcecr:
@@ -64,9 +63,8 @@ jobs:
       - setup_remote_docker
       - restore_cache:
           keys:
-            - v1-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}-{{ .Environment.CIRCLE_TAG }}
-            - v1-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
-            - v1-
+            - v2-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}-{{ .Environment.CIRCLE_TAG }}
+            - v2-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
           paths:
             - /caches/app.tar
       - run:
