@@ -69,6 +69,7 @@ export function initializeSlots() {
     ) => {
         const vetAddress = await keyHandler.getPublicAddress()
         await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
+        await dispatch(actions.getBalance(contractFactory, vetAddress))
         await dispatch(actions.getAllowance(contractFactory, vetAddress))
         await dispatch(actions.getBalance(contractFactory, vetAddress))
     }
@@ -83,8 +84,15 @@ export function spin(totalBetSize, props, listener?) {
 }
 
 export function verifyHouseSpin(props, houseSpin, userSpin) {
-    return async (_dispatch, _getState, { slotsChannelHandler }) => {
-        await slotsChannelHandler.verifyHouseSpin(props, houseSpin, userSpin)
+    return async (dispatch, _getState, { slotsChannelHandler }) => {
+        await dispatch(
+            actions.verifyHouseSpin(
+                slotsChannelHandler,
+                props,
+                houseSpin,
+                userSpin
+            )
+        )
     }
 }
 
@@ -101,13 +109,13 @@ export function subscribeToSpinResponses(listener) {
 }
 
 export function unsubscribeFromActiveSubscriptions() {
-    return async (dispatch, getState, { wsApi }) => {
+    return async (dispatch, _getState, { wsApi }) => {
         await dispatch(actions.unsubscribeFromActiveSubscriptions(wsApi))
     }
 }
 
 export function subscribeToFinalizeResponses(listener) {
-    return async (dispatch, getState, { wsApi, slotsChannelHandler }) => {
+    return async (dispatch, _getState, { wsApi, slotsChannelHandler }) => {
         await dispatch(
             actions.subscribeToFinalizeResponses(
                 listener,

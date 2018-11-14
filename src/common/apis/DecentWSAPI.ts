@@ -295,12 +295,16 @@ export default class DecentWSAPI {
                     id
                 }
                 this.socket.emit(path, req)
-                this.getLastSpinResponseSubscription(req, ({ req, res }) =>
-                    resolve({
-                        req,
-                        res
-                    })
-                )
+                this.getLastSpinResponseSubscription(req, ({ req, res }) => {
+                    if (res.error) {
+                        reject(res)
+                    } else {
+                        resolve({
+                            req,
+                            res
+                        })
+                    }
+                })
             } catch (e) {
                 reject(e)
             }

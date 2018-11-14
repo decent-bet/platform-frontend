@@ -49,18 +49,6 @@ class Slots extends React.Component<any, ISlotsState> {
         this.renderClaimingStatus = this.renderClaimingStatus.bind(this)
     }
 
-    /**
-     * Has the channel been claimed?
-     * @param {any} channel
-     * @returns {boolean}
-     */
-    private isChannelClaimed(channel: any): boolean {
-        if (!channel.info) return false
-        return (
-            channel.info.finalized && channel.deposited.isLessThanOrEqualTo(0)
-        )
-    }
-
     public async componentDidMount() {
         if (this.props.slotsInitialized) {
             this.setState({ stateMachine: 'loading' })
@@ -81,6 +69,18 @@ class Slots extends React.Component<any, ISlotsState> {
             await this.props.initializeSlots()
             await this.refreshChannels()
         }
+    }
+
+    /**
+     * Has the channel been claimed?
+     * @param {any} channel
+     * @returns {boolean}
+     */
+    private isChannelClaimed(channel: any): boolean {
+        if (!channel.info) return false
+        return (
+            channel.info.finalized && channel.deposited.isLessThanOrEqualTo(0)
+        )
     }
 
     private onCloseMinVTHODialog() {

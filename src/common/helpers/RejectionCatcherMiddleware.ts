@@ -10,7 +10,14 @@ export const RejectionCatcherMiddleware: Middleware = (api: MiddlewareAPI) => (
     if (actionType.endsWith('/REJECTED')) {
         const { payload } = action as any
         if (payload) {
-            api.dispatch(actions.openAlert(payload.message, payload.variant))
+            if (payload.error && payload.error.code) {
+                const { message } = payload.error
+                api.dispatch(actions.openAlert(message, payload.variant))
+            } else {
+                api.dispatch(
+                    actions.openAlert(payload.message, payload.variant)
+                )
+            }
         }
     }
 

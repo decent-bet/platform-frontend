@@ -67,6 +67,7 @@ function authWallet(data: string, account: any, keyHandler: IKeyHandler) {
         } catch (error) {
             console.error(error)
             reject({
+                error,
                 message: error.message
             })
         }
@@ -83,7 +84,7 @@ function fetchBalance(contractFactory, vetAddress): Promise<any> {
             resolve(balance)
         } catch (error) {
             console.error(error)
-            reject({ message: 'Error retrieving the user balance' })
+            reject({ error, message: 'Error retrieving the balance' })
         }
     })
 }
@@ -98,7 +99,7 @@ export function fetchVTHOBalance(contractFactory, vetAddress): Promise<any> {
             resolve(balance)
         } catch (error) {
             console.error(error)
-            reject({ message: error.message })
+            reject({ error, message: 'Error fetching the VTHO balance' })
         }
     })
 }
@@ -114,7 +115,7 @@ export function fetchTokens(contractFactory, vetAddress) {
             resolve(tokens)
         } catch (error) {
             console.error(error)
-            reject({ message: 'Error retrieving token balance' })
+            reject({ error, message: 'Error retrieving token balance' })
         }
     })
 }
@@ -127,7 +128,7 @@ function faucet(contractFactory, accountAddress): Promise<any> {
             resolve(tx)
         } catch (error) {
             console.error(error)
-            reject({ message: 'Error processing the Faucet' })
+            reject({ error, message: 'Error processing the Faucet' })
         }
     })
 }
