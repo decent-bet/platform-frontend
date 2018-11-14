@@ -93,7 +93,7 @@ class App extends React.PureComponent<IAppProps, IAppState> {
     private setAuthTimer(): void {
         this._authTimer = setInterval(async () => {
             await this.props.checkLogin()
-        }, 1000)
+        }, 5000)
     }
 
     private renderRoutes() {
