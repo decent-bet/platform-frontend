@@ -111,3 +111,18 @@ const components = {
 }
 
 export default components
+
+/** 
+ * 
+ * textFieldProps={{
+            autoComplete: 'off',
+            required: true,
+            fullWidth: true,
+            helperText: this.state.errorMessages
+                .country,
+            label: 'Country',
+            placeholder: 'Country',
+            error: this.state.errors.country
+        }}
+        classes={classes}
+*/

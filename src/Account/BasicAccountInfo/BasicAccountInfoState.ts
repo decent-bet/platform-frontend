@@ -1,7 +1,6 @@
 export interface IBasicAccountInfoState {
     isEditing: boolean
-    selectedDob?: Date | null
-    selectedCountry: any
+    selectedDob: Date | null
     formData: {
         firstName: string
         middleName: string
@@ -44,7 +43,6 @@ export class BasicAccountInfoState implements IBasicAccountInfoState {
     constructor() {}
     public selectedDob = null
     public isEditing = false
-    public selectedCountry = null
     public formData = {
         firstName: '',
         middleName: '',
