@@ -1,4 +1,3 @@
-import { SHA256 } from 'crypto-js'
 import React from 'react'
 import {
     Grid,
@@ -9,14 +8,15 @@ import {
     TableCell,
     Typography
 } from '@material-ui/core'
+import Utils from '../../common/helpers/Utils'
 
 export default function spinHistory({ houseSpins, userHashes }) {
     let spinArray = []
     if (houseSpins) {
-        spinArray = houseSpins.map(spin => {
+        spinArray = houseSpins.map(async spin => {
             const isValid =
                 spin.reelHash ===
-                SHA256(spin.reelSeedHash + spin.reel.toString()).toString()
+                (await Utils.sha256(spin.reelSeedHash + spin.reel.toString()))
             const userHash = userHashes[userHashes.length - spin.nonce]
             return {
                 ...spin,

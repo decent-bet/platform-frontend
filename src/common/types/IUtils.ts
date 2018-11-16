@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 export default interface IUtils {
     signString(text, keyHandler: IKeyHandler): Promise<any>
 
-    getUserHashes(randomNumber: number): string[]
+    getUserHashes(randomNumber: number): Promise<string[]>
 
     random(length): string
 

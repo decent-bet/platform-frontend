@@ -4,7 +4,6 @@ import {
     NUMBER_OF_LINES,
     NUMBER_OF_REELS
 } from '../../constants'
-import { SHA256 } from 'crypto-js'
 import BigNumber from 'bignumber.js'
 
 export default class SlotsChannelHandler {
