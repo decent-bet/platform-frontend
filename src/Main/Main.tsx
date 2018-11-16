@@ -15,7 +15,7 @@ import withWidth, { isWidthDown } from '@material-ui/core/withWidth'
 import AppLoading from '../common/components/AppLoading'
 import { VIEW_ACCOUNT, VIEW_ACCOUNT_NOTACTIVATED } from '../routes'
 
-class Main extends React.PureComponent<any, any> {
+class Main extends React.Component<any, any> {
     private _activationTimer: any
 
     constructor(props: any) {
@@ -47,7 +47,7 @@ class Main extends React.PureComponent<any, any> {
         }
     }
 
-    /* public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+    public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
         if (
             this.state.loaded !== nextState.loaded ||
             this.state.drawerOpen !== nextState.drawerOpen ||
@@ -63,7 +63,7 @@ class Main extends React.PureComponent<any, any> {
         }
 
         return false
-    } */
+    }
 
     // Faucet Button Clicked. Execute Faucet
     private onFaucetClickedListener = async () => {

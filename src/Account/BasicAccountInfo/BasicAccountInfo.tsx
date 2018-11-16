@@ -26,7 +26,7 @@ import IBasicAccountInfoProps from './IBasicAccountInfoProps'
 import styles from './styles'
 import SelectCountry from './SelectCountry'
 
-class BasicAccountInfo extends React.PureComponent<
+class BasicAccountInfo extends React.Component<
     IBasicAccountInfoProps,
     IBasicAccountInfoState
 > {
