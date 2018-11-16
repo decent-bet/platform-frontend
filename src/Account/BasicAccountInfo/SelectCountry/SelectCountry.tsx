@@ -1,14 +1,13 @@
 import * as React from 'react'
 import Select from 'react-select'
-import countries from './countries'
+import countryList from './countryList'
 import styles from './styles'
 import * as validator from 'validator'
 import getCustomComponents from './CustomComponents'
 import ISelectCountryProps from './ISelectCountryProps'
-import { ISelectCountryState, SelectCountryState } from './SelectCountryState'
+import SelectCountryState from './SelectCountryState'
+import ISelectCountryState from './SelectCountryState'
 import { withStyles } from '@material-ui/core'
-
-import DarkTheme from '../../../common/themes/dark'
 
 class SelectCountry extends React.Component<
     ISelectCountryProps,
@@ -23,8 +22,9 @@ class SelectCountry extends React.Component<
     public componentDidMount() {
         const { currentCountry } = this.props
         if (currentCountry && currentCountry.length > 0) {
-            const selectedCountry =
-                countries.find(item => item.value === currentCountry) || null
+            const selectedCountry = countryList.find(
+                item => item.value === currentCountry
+            )
 
             this.setState({ selectedCountry })
         }
@@ -73,7 +73,6 @@ class SelectCountry extends React.Component<
 
         return (
             <Select
-                theme={DarkTheme}
                 placeholder="Country"
                 isSearchable={true}
                 name="country"
@@ -82,7 +81,7 @@ class SelectCountry extends React.Component<
                 className={
                     !this.props.isEditing ? classes.disableInputUnderline : ''
                 }
-                options={countries}
+                options={countryList}
                 value={this.state.selectedCountry}
                 onChange={this.onCountryValueChange}
                 components={getCustomComponents(
