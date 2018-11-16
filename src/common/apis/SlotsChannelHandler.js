@@ -1,3 +1,4 @@
+import Utils from '../../common/helpers/Utils'
 import {
     reels as slotReels,
     paytable,
@@ -48,7 +49,7 @@ export default class SlotsChannelHandler {
          * matches the channel's player address
          *
          */
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             let nonSignatureSpin = this.utils.duplicate(houseSpin)
             delete nonSignatureSpin.sign
 
@@ -121,24 +122,23 @@ export default class SlotsChannelHandler {
              * Verify spin hashes
              */
             if (userSpin.nonce > 1) {
+                const prevReelSeedHash = await Utils.sha256(
+                    houseSpin.prevReelSeedHash
+                ).toString()
+                const reelSeedHashPlusReel = await Utils.sha256(
+                    houseSpin.reelSeedHash + houseSpin.reel.toString()
+                ).toString()
                 let prevHouseSpin =
                     state.houseSpins[state.houseSpins.length - 1]
                 if (houseSpin.reelSeedHash !== prevHouseSpin.prevReelSeedHash)
                     reject(new Error('Invalid reel seed hash'))
-                else if (
-                    SHA256(houseSpin.prevReelSeedHash).toString() !==
-                    houseSpin.reelSeedHash
-                )
+                else if (prevReelSeedHash !== houseSpin.reelSeedHash)
                     reject(new Error('Invalid reel seed hash'))
                 else if (houseSpin.userHash !== userSpin.userHash)
                     reject(new Error('Invalid user hash'))
                 else if (houseSpin.prevUserHash !== userSpin.prevUserHash)
                     reject(new Error('Invalid user hash'))
-                else if (
-                    SHA256(
-                        houseSpin.reelSeedHash + houseSpin.reel.toString()
-                    ).toString() !== houseSpin.reelHash
-                )
+                else if (reelSeedPlusReelHash !== houseSpin.reelHash)
                     reject(new Error('Invalid reel hash'))
                 else resolve()
             } else {
