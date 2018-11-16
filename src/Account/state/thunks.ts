@@ -9,10 +9,8 @@ const actions: any = Actions.account
 import { IThunkDependencies } from '../../common/types'
 
 export function saveAccountInfo(formData: any) {
-    return async (dispatch, _getState, { keyHandler }: IThunkDependencies) => {
-        const result = await dispatch(
-            actions.saveAccountInfo(keyHandler, formData)
-        )
+    return async dispatch => {
+        const result = await dispatch(actions.saveAccountInfo(formData))
         dispatch(openAlert(result.value.message, 'success'))
         await dispatch(setAccountIsVerified())
     }
