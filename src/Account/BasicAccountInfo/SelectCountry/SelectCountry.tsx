@@ -3,18 +3,21 @@ import Select from 'react-select'
 import countries from './countries'
 import styles from './styles'
 import * as validator from 'validator'
-// import CustomComponents from './CustomComponents'
+import getCustomComponents from './CustomComponents'
 import ISelectCountryProps from './ISelectCountryProps'
 import { ISelectCountryState, SelectCountryState } from './SelectCountryState'
 import { withStyles } from '@material-ui/core'
 
-class SelectCountry extends React.PureComponent<
+import DarkTheme from '../../../common/themes/dark'
+
+class SelectCountry extends React.Component<
     ISelectCountryProps,
     ISelectCountryState
 > {
     constructor(props: ISelectCountryProps) {
         super(props)
         this.state = new SelectCountryState()
+        this.onCountryValueChange = this.onCountryValueChange.bind(this)
     }
 
     public componentDidMount() {
@@ -28,11 +31,13 @@ class SelectCountry extends React.PureComponent<
     }
 
     private onCountryValueChange(item: { value: string; label: string }) {
+        let { selectedCountry } = this.state
         if (
-            this.state.selectedCountry &&
-            this.state.selectedCountry.value !== item.value
+            item &&
+            (!selectedCountry ||
+                (selectedCountry && selectedCountry.value !== item.value))
         ) {
-            let { error, errorMessage, selectedCountry } = this.state
+            let { error, errorMessage } = this.state
             const country = item.value || ''
             selectedCountry = item
 
@@ -68,6 +73,9 @@ class SelectCountry extends React.PureComponent<
 
         return (
             <Select
+                theme={DarkTheme}
+                placeholder="Country"
+                isSearchable={true}
                 name="country"
                 styles={selectStyles}
                 isDisabled={!this.props.isEditing}
@@ -77,6 +85,10 @@ class SelectCountry extends React.PureComponent<
                 options={countries}
                 value={this.state.selectedCountry}
                 onChange={this.onCountryValueChange}
+                components={getCustomComponents(
+                    this.state.error,
+                    this.state.errorMessage
+                )}
             />
         )
     }

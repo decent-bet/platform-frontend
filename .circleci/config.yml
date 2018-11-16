@@ -16,9 +16,7 @@ jobs:
       - setup_remote_docker
       - restore_cache:
           keys:
-            - v1-{{ .Branch }}-{{ .Environment.CIRCLE_TAG }}
-            - v1-{{ .Branch }}
-            - v1-
+            - v2-{{ .Branch }}-{{ .Environment.CIRCLE_TAG }}
           paths:
             - /caches/app.tar
       - run:
@@ -33,12 +31,14 @@ jobs:
               docker build --cache-from=us.gcr.io/${PROJECT_ID}/platform-frontend -t us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_SHA1 . --build-arg APP_ENV=develop
               docker tag us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_SHA1 us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_BRANCH
             else
-              if [[ ${CIRCLE_TAG} == *-develop* ]]; then
+              if echo $CIRCLE_TAG | grep -Eq '.*-develop'
+              then
                 docker build --cache-from=us.gcr.io/${PROJECT_ID}/platform-frontend -t us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_SHA1 . --build-arg APP_ENV=develop
+                docker tag us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_SHA1 us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_TAG
               else
                 docker build --cache-from=us.gcr.io/${PROJECT_ID}/platform-frontend -t us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_SHA1 . --build-arg APP_ENV=master
+                docker tag us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_SHA1 us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_TAG
               fi
-              docker tag us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_SHA1 us.gcr.io/${PROJECT_ID}/platform-frontend:$CIRCLE_TAG
             fi
       - run:
           name: Save Docker image layer cache
@@ -46,11 +46,11 @@ jobs:
             mkdir -p /caches
             docker save -o /caches/app.tar us.gcr.io/${PROJECT_ID}/platform-frontend
       - save_cache:
-          key: v1-{{ .Branch }}-{{ .Environment.CIRCLE_TAG }}-{{ epoch }}
+          key: v2-{{ .Branch }}-{{ .Environment.CIRCLE_TAG }}-{{ epoch }}
           paths:
             - /caches/app.tar
       - save_cache:
-          key: v1-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}-{{ .Environment.CIRCLE_TAG }}
+          key: v2-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}-{{ .Environment.CIRCLE_TAG }}-{{ epoch }}
           paths:
             - /caches/app.tar
   push-image-to-gcecr:
@@ -63,9 +63,8 @@ jobs:
       - setup_remote_docker
       - restore_cache:
           keys:
-            - v1-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}-{{ .Environment.CIRCLE_TAG }}
-            - v1-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
-            - v1-
+            - v2-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}-{{ .Environment.CIRCLE_TAG }}
+            - v2-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
           paths:
             - /caches/app.tar
       - run:

@@ -57,7 +57,10 @@ class Main extends React.Component<any, any> {
             this.props.accountHasAddress !== nextProps.accountHasAddress ||
             this.props.isCasinoLogedIn !== nextProps.isCasinoLogedIn ||
             this.props.location.pathname !== nextProps.location.pathname ||
-            this.props.error !== nextProps.error
+            this.props.error !== nextProps.error ||
+            this.props.width !== nextProps.width ||
+            this.props.tokenBalance !== nextProps.tokenBalance ||
+            this.props.vthoBalance !== nextProps.vthoBalance
         ) {
             return true
         }
