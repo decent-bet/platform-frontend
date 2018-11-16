@@ -1,7 +1,6 @@
 import * as ethUnits from 'ethereum-units'
 import { IKeyHandler, IUtils, IThorifyFactory } from '../types'
 import ethUtil from 'ethereumjs-util'
-import { SHA256, AES } from 'crypto-js'
 import BigNumber from 'bignumber.js'
 import * as moment from 'moment'
 
@@ -82,11 +81,11 @@ export default class Utils implements IUtils {
         let randomNumber = this.random(18)
 
         const key = await this.getAesKey(channelNonce)
-        let initialUserNumber = AES.encrypt(
+        let initialUserNumber = await Utils.encryptAES(
             randomNumber.toString(),
             key
         ).toString()
-        let userHashes = this.getUserHashes(randomNumber)
+        let userHashes = await this.getUserHashes(randomNumber)
         let finalUserHash = userHashes[userHashes.length - 1]
 
         return {
@@ -95,11 +94,13 @@ export default class Utils implements IUtils {
         }
     }
 
-    public getUserHashes(randomNumber: any): string[] {
+    public async getUserHashes(randomNumber: any): Promise<string[]> {
         let lastHash
         let hashes: string[] = []
         for (let i = 0; i < 1000; i++) {
-            let hash = SHA256(i === 0 ? randomNumber : lastHash).toString()
+            let hash = await Utils.sha256(
+                i === 0 ? randomNumber : lastHash
+            ).toString()
             hashes.push(hash)
             lastHash = hash
         }
@@ -303,5 +304,97 @@ export default class Utils implements IUtils {
             sign,
             id
         }
+    }
+
+    // References
+    // https://github.com/diafygi/webcrypto-examples/#aes-gcm
+    /**
+     * Imports key
+     * @param key
+     */
+    private static async importKey(key: string) {
+        return await window.crypto.subtle.importKey(
+            'raw',
+            new TextEncoder().encode(key),
+            'AES-GCM',
+            false,
+            ['encrypt', 'decrypt']
+        )
+    }
+
+    /**
+     * Encrypts with AES-GCM
+     * @param key Key as string
+     * @param buffer Data buffer as string
+     */
+    public static async encryptAES(key: string, buffer: string) {
+        const data: Uint8Array = new TextEncoder().encode(buffer)
+        const cryptoKey = await Utils.importKey(key)
+        let encrypted = await window.crypto.subtle.encrypt(
+            {
+                name: 'AES-GCM',
+                iv: window.crypto.getRandomValues(new Uint8Array(12))
+            },
+            cryptoKey,
+            data
+        )
+
+        return encrypted
+    }
+
+    /**
+     * Decrypts with AES-GCM
+     * @param key Key as string
+     * @param buffer Data buffer as string
+     */
+    public static async decryptAES(key: string, buffer: string) {
+        const data: Uint8Array = new TextEncoder().encode(buffer)
+        const cryptoKey = await Utils.importKey(key)
+        let result = await window.crypto.subtle.decrypt(
+            {
+                name: 'AES-GCM',
+                iv: new ArrayBuffer(12)
+            },
+            cryptoKey,
+            data
+        )
+
+        return result
+    }
+
+    // References
+    // https://gist.github.com/GaspardP/fffdd54f563f67be8944
+    // https://github.com/diafygi/webcrypto-examples/#sha-256---digest
+
+    // Computes the SHA-256 digest of a string with Web Crypto
+    // Source: https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest
+    /**
+     * Returns a SHA256 hash
+     * @param str data
+     */
+    public static async sha256(str) {
+        // Get the string as arraybuffer.
+        const buffer = new TextEncoder().encode(str)
+        const hash = await crypto.subtle.digest('SHA-256', buffer)
+        return this.hex(hash)
+    }
+
+    public static hex(buffer) {
+        let digest = ''
+        const view = new DataView(buffer)
+        for (let i = 0; i < view.byteLength; i += 4) {
+            // We use getUint32 to reduce the number of iterations (notice the `i += 4`)
+            const value = view.getUint32(i)
+            // toString(16) will transform the integer into the corresponding hex string
+            // but will remove any initial "0"
+            const stringValue = value.toString(16)
+            // One Uint32 element is 4 bytes or 8 hex chars (it would also work with 4
+            // chars for Uint16 and 2 chars for Uint8)
+            const padding = '00000000'
+            const paddedValue = (padding + stringValue).slice(-padding.length)
+            digest += paddedValue
+        }
+
+        return digest
     }
 }

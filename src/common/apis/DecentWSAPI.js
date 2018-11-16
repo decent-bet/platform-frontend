@@ -1,7 +1,7 @@
+import Utils from '../../common/helpers/Utils'
 import io from 'socket.io-client'
 import { WS_API_URL } from '../../config'
 
-const cryptoJs = require('crypto-js')
 const ethUtil = require('ethereumjs-util')
 const {
     PATH_POST_INIT_CHANNEL,
@@ -206,7 +206,7 @@ class DecentWSAPI {
         return new Promise(async (resolve, reject) => {
             try {
                 console.log('Spin', id, spin, aesKey)
-                let encryptedSpin = cryptoJs.AES.encrypt(
+                let encryptedSpin = await Utils.encryptAES(
                     JSON.stringify(spin),
                     aesKey
                 ).toString()
@@ -284,7 +284,7 @@ class DecentWSAPI {
     finalizeChannel = (id, spin, aesKey) => {
         return new Promise(async (resolve, reject) => {
             try {
-                let encryptedSpin = cryptoJs.AES.encrypt(
+                let encryptedSpin = await Utils.encryptAES(
                     JSON.stringify(spin),
                     aesKey
                 ).toString()

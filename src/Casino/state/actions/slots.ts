@@ -1,9 +1,9 @@
-import CryptoJs, { AES } from 'crypto-js'
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from '../actionTypes'
 import BigNumber from 'bignumber.js'
 import { tap, map } from 'rxjs/operators'
 import { IContractFactory, IUtils } from '../../../common/types'
+import Utils from '../../../common/helpers/Utils'
 // Get the allowance
 function fetchAllowance(contractFactory, defaultAccount): Promise<any> {
     return new Promise(async (resolve, reject) => {
@@ -519,10 +519,11 @@ function loadLastSpin(id, channelNonce, hashes, aesKey, wsApi, utils) {
             let userSpin, houseSpins
             if (encryptedSpin) {
                 try {
-                    let rawSpinData = AES.decrypt(encryptedSpin, aesKey)
-                    userSpin = JSON.parse(
-                        rawSpinData.toString(CryptoJs.enc.Utf8)
+                    let rawSpinData = await Utils.decryptAES(
+                        encryptedSpin,
+                        aesKey
                     )
+                    userSpin = JSON.parse(rawSpinData.toString())
                 } catch (e) {
                     throw e
                 }
@@ -533,10 +534,10 @@ function loadLastSpin(id, channelNonce, hashes, aesKey, wsApi, utils) {
                 houseSpins = []
             }
 
-            let initialUserNumber = AES.decrypt(
+            let initialUserNumber = await Utils.decryptAES(
                 hashes.initialUserNumber,
                 aesKey
-            ).toString(CryptoJs.enc.Utf8)
+            ).toString()
             let userHashes = utils.getUserHashes(initialUserNumber)
             let index = userHashes.length - 1
             if (userHashes[index] !== hashes.finalUserHash) {
