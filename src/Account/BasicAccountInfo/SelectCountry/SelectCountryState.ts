@@ -1,12 +1,9 @@
-export interface ISelectCountryState {
-    selectedCountry?: { value: string; label: string } | null
-    errorMessage: string
-    error: boolean
-}
+import ISelectCountryState from './ISelectCountryState'
+import { ICountryItem } from './CountryItem'
 
-export class SelectCountryState implements ISelectCountryState {
+export default class SelectCountryState implements ISelectCountryState {
     constructor() {}
-    public selectedCountry = undefined
+    public selectedCountry?: ICountryItem | null | undefined
     public errorMessage = ''
     public error = false
 }

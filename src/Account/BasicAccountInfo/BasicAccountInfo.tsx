@@ -18,10 +18,8 @@ import moment from 'moment'
 import * as validator from 'validator'
 import AccountSectionHeader from '../AccountSectionHeader'
 import AccountSectionActions from '../AccountSectionActions'
-import {
-    BasicAccountInfoState,
-    IBasicAccountInfoState
-} from './BasicAccountInfoState'
+import BasicAccountInfoState from './BasicAccountInfoState'
+import IBasicAccountInfoState from './IBasicAccountInfoState'
 import IBasicAccountInfoProps from './IBasicAccountInfoProps'
 import styles from './styles'
 import SelectCountry from './SelectCountry'
