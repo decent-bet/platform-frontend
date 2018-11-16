@@ -81,12 +81,15 @@ class App extends React.Component<IAppProps, IAppState> {
     }
 
     public shouldComponentUpdate(
-        _nextProps: IAppProps,
+        nextProps: IAppProps,
         nextState: IAppState
     ): boolean {
         if (
             this.state.userIsAuthenticated !== nextState.userIsAuthenticated ||
-            this.state.appLoaded !== nextState.appLoaded
+            this.state.appLoaded !== nextState.appLoaded || 
+            this.props.alertIsOpen !== nextProps.alertIsOpen ||
+            this.props.alertMessage !== nextProps.alertMessage ||
+            this.props.alertType !== nextProps.alertType
         ) {
             return true
         }
