@@ -19,23 +19,23 @@ export default class SlotsChannelHandler {
      * @param state
      * @param callback
      */
-    spin = async (betSize, state, callback) => {
+    async spin(betSize, state, callback) {
         const id = state.channelId
         betSize = this.utils.convertToEther(betSize)
 
         try {
             let userSpin = await this.utils.getSpin(betSize, state, false)
-            let { response } = await this.wsApi.spin(id, userSpin, state.aesKey)
+            let { res } = await this.wsApi.spin(id, userSpin, state.aesKey)
 
-            if (response.error)
-                throw new Error(
-                    response.message ? response.message : response.error
-                )
+            if (!res) throw new Error('Not response received from channels api')
+
+            if (res.error)
+                throw new Error(res.message ? res.message : res.error)
 
             if (callback) {
-                let houseSpin = response.message
-                let lines = this.getLines(response.message.reel)
-                callback(null, response.message, userSpin, houseSpin, lines)
+                let houseSpin = res.message
+                let lines = this.getLines(res.message.reel)
+                callback(null, res.message, userSpin, houseSpin, lines)
             }
         } catch (error) {
             console.error(error)
