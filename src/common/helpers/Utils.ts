@@ -81,9 +81,10 @@ export default class Utils implements IUtils {
         let randomNumber = this.random(18)
 
         const key = await this.getAesKey(channelNonce)
+        let cryptokey = await Utils.importKey(key)
         let initialUserNumber = await Utils.encryptAES(
-            randomNumber.toString(),
-            key
+            cryptokey,
+            randomNumber
         ).toString()
         let userHashes = await this.getUserHashes(randomNumber)
         let finalUserHash = userHashes[userHashes.length - 1]
@@ -308,18 +309,22 @@ export default class Utils implements IUtils {
 
     // References
     // https://github.com/diafygi/webcrypto-examples/#aes-gcm
+
     /**
-     * Imports key
-     * @param key
+     * Import passphrase key using AES-CBC 256
+     * @param randomIV
+     * @param passphraseKey
      */
-    private static async importKey(key: string) {
-        return await window.crypto.subtle.importKey(
-            'raw',
-            new TextEncoder().encode(key),
-            'AES-GCM',
-            false,
-            ['encrypt', 'decrypt']
-        )
+    public static async importKey(passphraseKey: string) {
+        const passphrase = new TextEncoder().encode(passphraseKey)
+        const pwHash = await crypto.subtle.digest('SHA-256', passphrase)
+
+        // TODO: IV needs to be random and shared
+        const alg = { name: 'AES-CBC', iv: passphrase.slice(0, 8), length: 256 }
+        return await crypto.subtle.importKey('raw', pwHash, alg, false, [
+            'decrypt',
+            'encrypt'
+        ])
     }
 
     /**
@@ -327,15 +332,11 @@ export default class Utils implements IUtils {
      * @param key Key as string
      * @param buffer Data buffer as string
      */
-    public static async encryptAES(key: string, buffer: string) {
+    public static async encryptAES(key: CryptoKey, buffer: string) {
         const data: Uint8Array = new TextEncoder().encode(buffer)
-        const cryptoKey = await Utils.importKey(key)
         let encrypted = await window.crypto.subtle.encrypt(
-            {
-                name: 'AES-GCM',
-                iv: window.crypto.getRandomValues(new Uint8Array(12))
-            },
-            cryptoKey,
+            key.algorithm,
+            key,
             data
         )
 
@@ -347,15 +348,11 @@ export default class Utils implements IUtils {
      * @param key Key as string
      * @param buffer Data buffer as string
      */
-    public static async decryptAES(key: string, buffer: string) {
+    public static async decryptAES(key: CryptoKey, buffer: string) {
         const data: Uint8Array = new TextEncoder().encode(buffer)
-        const cryptoKey = await Utils.importKey(key)
         let result = await window.crypto.subtle.decrypt(
-            {
-                name: 'AES-GCM',
-                iv: new ArrayBuffer(12)
-            },
-            cryptoKey,
+            key.algorithm,
+            key,
             data
         )
 

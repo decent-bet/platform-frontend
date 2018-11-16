@@ -501,6 +501,7 @@ function getChannelDetails(id, contractFactory) {
 function loadLastSpin(id, channelNonce, hashes, aesKey, wsApi, utils) {
     return new Promise(async (resolve, reject) => {
         try {
+            let cryptokey = await Utils.importKey(aesKey)
             let result
             try {
                 result = await wsApi.getLastSpin(id)
@@ -520,8 +521,8 @@ function loadLastSpin(id, channelNonce, hashes, aesKey, wsApi, utils) {
             if (encryptedSpin) {
                 try {
                     let rawSpinData = await Utils.decryptAES(
-                        encryptedSpin,
-                        aesKey
+                        cryptokey,
+                        encryptedSpin
                     )
                     userSpin = JSON.parse(rawSpinData.toString())
                 } catch (e) {
@@ -535,8 +536,8 @@ function loadLastSpin(id, channelNonce, hashes, aesKey, wsApi, utils) {
             }
 
             let initialUserNumber = await Utils.decryptAES(
-                hashes.initialUserNumber,
-                aesKey
+                cryptokey,
+                hashes.initialUserNumber
             ).toString()
             let userHashes = utils.getUserHashes(initialUserNumber)
             let index = userHashes.length - 1

@@ -206,9 +206,10 @@ class DecentWSAPI {
         return new Promise(async (resolve, reject) => {
             try {
                 console.log('Spin', id, spin, aesKey)
+                let cryptokey = await Utils.importKey(aesKey)
                 let encryptedSpin = await Utils.encryptAES(
-                    JSON.stringify(spin),
-                    aesKey
+                    aesKey,
+                    JSON.stringify(spin)
                 ).toString()
 
                 let address = await this.keyHandler.getPublicAddress()
@@ -284,9 +285,10 @@ class DecentWSAPI {
     finalizeChannel = (id, spin, aesKey) => {
         return new Promise(async (resolve, reject) => {
             try {
+                let cryptokey = await Utils.importKey(aesKey)
                 let encryptedSpin = await Utils.encryptAES(
-                    JSON.stringify(spin),
-                    aesKey
+                    aesKey,
+                    JSON.stringify(spin)
                 ).toString()
 
                 let address = await this.keyHandler.getPublicAddress()
