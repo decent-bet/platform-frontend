@@ -10,12 +10,15 @@ export const RejectionCatcherMiddleware: Middleware = (api: MiddlewareAPI) => (
     if (actionType.endsWith('/REJECTED')) {
         const { payload } = action as any
         if (payload) {
-            if (payload.error && payload.error.code) {
-                const { message } = payload.error
-                api.dispatch(actions.openAlert(message, payload.variant))
+            if (payload.code) {
+                api.dispatch(actions.showChannelsBackendError(payload))
             } else {
                 api.dispatch(
-                    actions.openAlert(payload.message, payload.variant)
+                    actions.openAlert(
+                        payload.message ||
+                            'Uncategorized error, please inform to support@decent.bet.',
+                        payload.variant
+                    )
                 )
             }
         }

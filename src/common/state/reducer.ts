@@ -4,6 +4,8 @@ import { FULFILLED } from 'redux-promise-middleware'
 const DefaultAppState = {
     alertIsOpen: false,
     alertType: 'error',
+    channelBackendError: null,
+    channelBackendErrorIsOpen: false,
     alertMessage: ''
 }
 
@@ -30,7 +32,26 @@ export default function reducer(
                 alertIsOpen: false,
                 alertMessage: ''
             }
-
+        case `${PREFIX}/${Actions.SHOW_CHANNELS_BACKEND_ERROR}/${FULFILLED}`:
+            if (
+                action.payload &&
+                state.channelBackendError === action.payload
+            ) {
+                return {
+                    ...state
+                }
+            }
+            return {
+                ...state,
+                channelBackendErrorIsOpen: true,
+                channelBackendError: action.payload
+            }
+        case `${PREFIX}/${Actions.HIDE_CHANNELS_BACKEND_ERROR}/${FULFILLED}`:
+            return {
+                ...state,
+                channelBackendErrorIsOpen: false,
+                channelBackendError: null
+            }
         case `${PREFIX}/${Actions.GET_AUTHENTICATION_SUBJECT}/${FULFILLED}`:
             return {
                 ...state

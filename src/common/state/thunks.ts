@@ -54,3 +54,15 @@ export function closeAlert() {
         await dispatch(actions.closeAlert())
     }
 }
+
+export function showChannelsBackendError(error) {
+    return async dispatch => {
+        await dispatch(actions.showChannelsBackendError(error))
+    }
+}
+
+export function hideChannelsBackendError() {
+    return async dispatch => {
+        await dispatch(actions.hideChannelsBackendError())
+    }
+}

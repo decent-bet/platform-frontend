@@ -21,19 +21,16 @@ import {
     VIEW_TERMS_AND_CONDITIONS,
     VIEW_LOGIN
 } from '../routes'
-import {
-    getAuthenticationSubject,
-    checkLogin,
-    logout,
-    closeAlert
-} from '../common/state/thunks'
+import * as thunks from '../common/state/thunks'
 import AppLoading from '../common/components/AppLoading'
 import TransparentPaper from '../common/components/TransparentPaper'
 import Alert from '../common/components/Alert'
 import ErrorBoundary from './ErrorBoundary'
 import IAppProps from './IAppProps'
-import { IAppState, AppState } from './AppState'
+import AppState from './AppState'
+import IAppState from './IAppState'
 import { ReplaySubject, Subscription } from 'rxjs'
+import ChannelsBackendErrorModal from './ChannelsBackendErrorModal'
 
 class App extends React.Component<IAppProps, IAppState> {
     private _authSubscription$: Subscription
@@ -174,6 +171,11 @@ class App extends React.Component<IAppProps, IAppState> {
                             open={this.props.alertIsOpen}
                             message={this.props.alertMessage}
                         />
+                        <ChannelsBackendErrorModal
+                            open={this.props.channelBackendErrorIsOpen}
+                            error={this.props.channelBackendError}
+                            handleClose={this.props.hideChannelsBackendError}
+                        />
                     </TransparentPaper>
                 </Grid>
             </Grid>
@@ -200,18 +202,7 @@ class App extends React.Component<IAppProps, IAppState> {
 
 const mapStateToProps = state => Object.assign({}, state.app)
 const mapDispatchToProps = dispatch =>
-    bindActionCreators(
-        Object.assign(
-            {},
-            {
-                getAuthenticationSubject,
-                checkLogin,
-                logout,
-                closeAlert
-            }
-        ),
-        dispatch
-    )
+    bindActionCreators(Object.assign({}, thunks), dispatch)
 
 const AppContainer = connect(
     mapStateToProps,

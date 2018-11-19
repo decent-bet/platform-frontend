@@ -4,7 +4,7 @@ import Actions, { PREFIX } from '../actionTypes'
 import BigNumber from 'bignumber.js'
 import { tap, map } from 'rxjs/operators'
 import { IContractFactory, IUtils } from 'src/common/types'
-import { Observable } from 'rxjs'
+import { Observable, forkJoin } from 'rxjs'
 
 // Get the allowance
 function fetchAllowance(contractFactory, defaultAccount): Promise<any> {
@@ -568,7 +568,7 @@ function loadLastSpin(id, channelNonce, hashes, aesKey, wsApi, utils) {
             })
         } catch (error) {
             console.error(error)
-            reject({ error, message: 'Error getting the loading spin' })
+            reject(error)
         }
     })
 }
@@ -597,7 +597,7 @@ function getLastSpin(channelId, channelNonce, contractFactory, wsApi, utils) {
             })
         } catch (error) {
             console.log(error)
-            reject({ error, message: 'Error getting the last spin.' })
+            reject(error)
         }
     })
 }
@@ -643,7 +643,7 @@ function getChannel(
             })
         } catch (error) {
             console.error(error)
-            reject({ error, message: 'Error getting the channel' })
+            reject(error)
         }
     })
 }
@@ -684,32 +684,39 @@ function getChannels(contractFactory, wsApi, utils) {
                 async items => {
                     if (items.length >= 1 || totalRequests >= topRequests) {
                         subs.unsubscribe() // stop making requests
-                        let resolved = await Promise.all(items) // get all channels info
-
-                        // convert into an object because all the components and reducers
-                        // are wating for this kind of structure
-                        const result = resolved.reduce((mem, channel: any) => {
-                            mem[channel.channelId] = channel
-                            return mem
-                        }, {})
-
-                        resolve(result)
+                        const fork = forkJoin(items)
+                            .pipe(
+                                map((channels: any[]) => {
+                                    const result = channels.reduce(
+                                        (mem, channel: any) => {
+                                            mem[channel.channelId] = channel
+                                            return mem
+                                        },
+                                        {}
+                                    )
+                                    return result
+                                })
+                            )
+                            .subscribe(
+                                result => {
+                                    fork.unsubscribe()
+                                    resolve(result)
+                                },
+                                error => {
+                                    console.error(error)
+                                    reject(error)
+                                }
+                            )
                     }
                 },
                 error => {
                     console.error(error)
-                    reject({
-                        error,
-                        message: 'Error getting the channels info'
-                    })
+                    reject(error)
                 }
             )
         } catch (error) {
             console.error(error)
-            return reject({
-                error,
-                message: 'Error getting the channels, please try later'
-            })
+            reject(error)
         }
     })
 }
@@ -781,7 +788,7 @@ function verifyHouseSpin(slotsChannelHandler, props, houseSpin, userSpin) {
             resolve()
         } catch (error) {
             console.log(error)
-            reject({ error, message: 'Error on verify house spin process.' })
+            reject(error)
         }
     })
 }
@@ -802,7 +809,7 @@ function makeSpin(
             resolve(spinResult)
         } catch (error) {
             console.log(error)
-            reject({ error, message: 'Error making spin action.' })
+            reject(error)
         }
     })
 }
@@ -844,10 +851,7 @@ function finalizeChannel(channelId, state, contractFactory, wsApi, utils) {
             resolve(txHash)
         } catch (error) {
             console.error(error)
-            reject({
-                error,
-                message: 'Error sending finalize channel transaction'
-            })
+            reject(error)
         }
     })
 }

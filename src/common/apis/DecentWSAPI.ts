@@ -1,4 +1,4 @@
-import { IUtils, IKeyHandler } from 'src/common/types'
+import { IUtils, IKeyHandler } from '../types'
 import io from 'socket.io-client'
 import { WS_API_URL } from '../../config'
 

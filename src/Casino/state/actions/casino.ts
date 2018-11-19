@@ -43,8 +43,16 @@ function authWallet(data: string, account: any, keyHandler: IKeyHandler) {
 
             let acccountVetAddress =
                 account.verification.addressRegistration.vetAddress
+
+            // remove all white spaces and newlines, trim() doesnt work in some cases
+            data = data
+                .toString()
+                .replace(/(\r\n\t|\n|\r\t)/gm, '')
+                .trim()
+
             if (data.includes(' ')) {
                 // Passphrase Mnemonic mode
+
                 const wallet = Wallet.fromMnemonic(data, MNEMONIC_DPATH)
                 comparePublicAddress(wallet.address, acccountVetAddress)
                 await keyHandler.setupWallet(
