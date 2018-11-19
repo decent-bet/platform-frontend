@@ -35,7 +35,7 @@ import IAppProps from './IAppProps'
 import { IAppState, AppState } from './AppState'
 import { ReplaySubject, Subscription } from 'rxjs'
 
-class App extends React.PureComponent<IAppProps, IAppState> {
+class App extends React.Component<IAppProps, IAppState> {
     private _authSubscription$: Subscription
     private _authTimer: NodeJS.Timer // to store the timeout
 
@@ -78,6 +78,23 @@ class App extends React.PureComponent<IAppProps, IAppState> {
         })
 
         await this.props.checkLogin()
+    }
+
+    public shouldComponentUpdate(
+        nextProps: IAppProps,
+        nextState: IAppState
+    ): boolean {
+        if (
+            this.state.userIsAuthenticated !== nextState.userIsAuthenticated ||
+            this.state.appLoaded !== nextState.appLoaded ||
+            this.props.alertIsOpen !== nextProps.alertIsOpen ||
+            this.props.alertMessage !== nextProps.alertMessage ||
+            this.props.alertType !== nextProps.alertType
+        ) {
+            return true
+        }
+
+        return false
     }
 
     public componentWillUnmount() {

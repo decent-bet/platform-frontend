@@ -30,3 +30,7 @@
 	path = public/slots-egyptian-treasures
 	url = git@github.com:decent-bet/slots-games-egyptian-treasures.git
 	branch = develop
+[submodule "public/slots-emoji-land"]
+	path = public/slots-emoji-land
+	url = git@github.com:decent-bet/slots-games-emoji-land.git
+	branch = develop
