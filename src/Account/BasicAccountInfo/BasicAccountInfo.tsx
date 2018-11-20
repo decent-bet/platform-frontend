@@ -43,6 +43,49 @@ class BasicAccountInfo extends React.Component<
         this.onCountryValueChange = this.onCountryValueChange.bind(this)
     }
 
+    public componentDidMount() {
+        if (!this.props.accountIsVerified) {
+            this.setState({ isEditing: true })
+        }
+    }
+
+    public static getDerivedStateFromProps(
+        props: IBasicAccountInfoProps,
+        _state: IBasicAccountInfoState
+    ) {
+        const { account, accountIsVerified } = props
+        if (
+            accountIsVerified &&
+            account &&
+            account.verification &&
+            account.verification.basicVerification
+        ) {
+            const { basicVerification } = props.account.verification
+            return {
+                isEditing: false,
+                selectedDob: moment(
+                    basicVerification.dob,
+                    'YYYY-MM-dd'
+                ).toDate(),
+                formData: {
+                    firstName: basicVerification.firstName,
+                    middleName: basicVerification.middleName,
+                    lastName: basicVerification.lastName,
+                    sex: basicVerification.sex,
+                    dob: basicVerification.dob,
+                    country: basicVerification.country,
+                    state: basicVerification.state,
+                    streetAddress: basicVerification.streetAddress,
+                    phoneNumber: basicVerification.phoneNumber,
+                    postCode: basicVerification.postCode,
+                    town: basicVerification.town
+                }
+            }
+        }
+
+        return null
+    }
+
     private get formHasError(): boolean {
         const {
             firstName,
@@ -69,18 +112,28 @@ class BasicAccountInfo extends React.Component<
     }
 
     private handleDateInputChange(e: React.FormEvent<HTMLInputElement>): void {}
-
     private handleDateOfBirthChange(date: moment.Moment | null = null) {
-        let { formData, errors, errorMessages } = this.state
+        const updatedState = BasicAccountInfo.onDateOfBirthChange(
+            date,
+            this.state
+        )
+        this.setState({ ...updatedState })
+    }
+
+    private static onDateOfBirthChange(
+        date: moment.Moment | null = null,
+        state
+    ) {
+        let { formData, errors, errorMessages } = state
         if (!date) {
             errors.dob = true
             errorMessages.dob = ''
-            this.setState({
+            return {
                 selectedDob: null,
                 formData,
                 errors,
                 errorMessages
-            })
+            }
         } else {
             formData.dob = moment(date, moment.ISO_8601).format()
             if (!validator.isISO8601(formData.dob)) {
@@ -91,12 +144,12 @@ class BasicAccountInfo extends React.Component<
                 errorMessages.dob = ''
             }
 
-            this.setState({
+            return {
                 selectedDob: date.toDate(),
                 formData,
                 errors,
                 errorMessages
-            })
+            }
         }
     }
 
@@ -153,38 +206,6 @@ class BasicAccountInfo extends React.Component<
         }
 
         this.setState({ formData, errorMessages, errors })
-    }
-
-    public componentDidMount() {
-        if (!this.props.accountIsVerified) {
-            this.setState({ isEditing: true })
-            const selectedDate = this.state.selectedDob
-                ? moment(this.state.selectedDob)
-                : null
-            this.handleDateOfBirthChange(selectedDate)
-        } else {
-            const { basicVerification } = this.props.account.verification
-
-            this.setState({
-                selectedDob: moment(
-                    basicVerification.dob,
-                    'YYYY-MM-dd'
-                ).toDate(),
-                formData: {
-                    firstName: basicVerification.firstName,
-                    middleName: basicVerification.middleName,
-                    lastName: basicVerification.lastName,
-                    sex: basicVerification.sex,
-                    dob: basicVerification.dob,
-                    country: basicVerification.country,
-                    state: basicVerification.state,
-                    streetAddress: basicVerification.streetAddress,
-                    phoneNumber: basicVerification.phoneNumber,
-                    postCode: basicVerification.postCode,
-                    town: basicVerification.town
-                }
-            })
-        }
     }
 
     private handleSubmit = async (event: React.FormEvent) => {
