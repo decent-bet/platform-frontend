@@ -12,7 +12,8 @@ const styles = () =>
             paddingBottom: '0.5em'
         },
         contentText: {
-            paddingBottom: '1.2em'
+            paddingBottom: '1.2em',
+            textAlign: 'justify'
         }
     })
 export default styles

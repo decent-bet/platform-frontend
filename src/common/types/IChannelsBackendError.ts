@@ -1,4 +1,4 @@
 export default interface IChannelBackendError {
-    code: number
+    statusCode: number
     message: string
 }

@@ -86,7 +86,9 @@ class App extends React.Component<IAppProps, IAppState> {
             this.state.appLoaded !== nextState.appLoaded ||
             this.props.alertIsOpen !== nextProps.alertIsOpen ||
             this.props.alertMessage !== nextProps.alertMessage ||
-            this.props.alertType !== nextProps.alertType
+            this.props.alertType !== nextProps.alertType ||
+            this.props.channelBackendErrorIsOpen !==
+                nextProps.channelBackendErrorIsOpen
         ) {
             return true
         }
