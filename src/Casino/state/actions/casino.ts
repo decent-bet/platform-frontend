@@ -43,8 +43,16 @@ function authWallet(data: string, account: any, keyHandler: IKeyHandler) {
 
             let acccountVetAddress =
                 account.verification.addressRegistration.vetAddress
+
+            // remove all white spaces and newlines, trim() doesnt work in some cases
+            data = data
+                .toString()
+                .replace(/(\r\n\t|\n|\r\t)/gm, '')
+                .trim()
+
             if (data.includes(' ')) {
                 // Passphrase Mnemonic mode
+
                 const wallet = Wallet.fromMnemonic(data, MNEMONIC_DPATH)
                 comparePublicAddress(wallet.address, acccountVetAddress)
                 await keyHandler.setupWallet(
@@ -67,6 +75,7 @@ function authWallet(data: string, account: any, keyHandler: IKeyHandler) {
         } catch (error) {
             console.error(error)
             reject({
+                error,
                 message: error.message
             })
         }
@@ -83,7 +92,7 @@ function fetchBalance(contractFactory, vetAddress): Promise<any> {
             resolve(balance)
         } catch (error) {
             console.error(error)
-            reject({ message: 'Error retrieving the user balance' })
+            reject({ error, message: 'Error retrieving the balance' })
         }
     })
 }
@@ -98,7 +107,7 @@ export function fetchVTHOBalance(contractFactory, vetAddress): Promise<any> {
             resolve(balance)
         } catch (error) {
             console.error(error)
-            reject({ message: error.message })
+            reject({ error, message: 'Error fetching the VTHO balance' })
         }
     })
 }
@@ -114,7 +123,7 @@ export function fetchTokens(contractFactory, vetAddress) {
             resolve(tokens)
         } catch (error) {
             console.error(error)
-            reject({ message: 'Error retrieving token balance' })
+            reject({ error, message: 'Error retrieving token balance' })
         }
     })
 }
@@ -127,7 +136,7 @@ function faucet(contractFactory, accountAddress): Promise<any> {
             resolve(tx)
         } catch (error) {
             console.error(error)
-            reject({ message: 'Error processing the Faucet' })
+            reject({ error, message: 'Error processing the Faucet' })
         }
     })
 }

@@ -123,7 +123,9 @@ class Game extends React.Component<any, any> {
             userSpin,
             lines
         ) => {
-            if (!err) {
+            if (err) {
+                alert(msg)
+            } else {
                 console.log('onSpinResponseListener', this.props.houseSpins)
                 let isValidHouseSpin = dispatch(
                     Thunks.verifyHouseSpin(this.props, houseSpin, userSpin)
@@ -182,8 +184,10 @@ class Game extends React.Component<any, any> {
     private subscribeToFinalizeResponses() {
         const { dispatch } = this.props
 
-        const onFinalizeResponseListener = (err, msg) => {
-            if (!err) {
+        const onFinalizeResponseListener = (error, msg) => {
+            if (error) {
+                alert(msg)
+            } else {
                 this.back()
             }
         }

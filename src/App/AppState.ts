@@ -1,9 +1,6 @@
-export interface IAppState {
-    userIsAuthenticated: boolean
-    appLoaded: boolean
-}
+import IAppState from './IAppState'
 
-export class AppState implements IAppState {
+export default class AppState implements IAppState {
     public userIsAuthenticated = false
     public appLoaded = false
 }

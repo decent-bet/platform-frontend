@@ -21,21 +21,18 @@ import {
     VIEW_TERMS_AND_CONDITIONS,
     VIEW_LOGIN
 } from '../routes'
-import {
-    getAuthenticationSubject,
-    checkLogin,
-    logout,
-    closeAlert
-} from '../common/state/thunks'
+import * as thunks from '../common/state/thunks'
 import AppLoading from '../common/components/AppLoading'
 import TransparentPaper from '../common/components/TransparentPaper'
 import Alert from '../common/components/Alert'
 import ErrorBoundary from './ErrorBoundary'
 import IAppProps from './IAppProps'
-import { IAppState, AppState } from './AppState'
+import AppState from './AppState'
+import IAppState from './IAppState'
 import { ReplaySubject, Subscription } from 'rxjs'
+import ChannelsBackendErrorModal from './ChannelsBackendErrorModal'
 
-class App extends React.PureComponent<IAppProps, IAppState> {
+class App extends React.Component<IAppProps, IAppState> {
     private _authSubscription$: Subscription
     private _authTimer: NodeJS.Timer // to store the timeout
 
@@ -78,6 +75,25 @@ class App extends React.PureComponent<IAppProps, IAppState> {
         })
 
         await this.props.checkLogin()
+    }
+
+    public shouldComponentUpdate(
+        nextProps: IAppProps,
+        nextState: IAppState
+    ): boolean {
+        if (
+            this.state.userIsAuthenticated !== nextState.userIsAuthenticated ||
+            this.state.appLoaded !== nextState.appLoaded ||
+            this.props.alertIsOpen !== nextProps.alertIsOpen ||
+            this.props.alertMessage !== nextProps.alertMessage ||
+            this.props.alertType !== nextProps.alertType ||
+            this.props.channelBackendErrorIsOpen !==
+                nextProps.channelBackendErrorIsOpen
+        ) {
+            return true
+        }
+
+        return false
     }
 
     public componentWillUnmount() {
@@ -157,6 +173,11 @@ class App extends React.PureComponent<IAppProps, IAppState> {
                             open={this.props.alertIsOpen}
                             message={this.props.alertMessage}
                         />
+                        <ChannelsBackendErrorModal
+                            open={this.props.channelBackendErrorIsOpen}
+                            error={this.props.channelBackendError}
+                            handleClose={this.props.hideChannelsBackendError}
+                        />
                     </TransparentPaper>
                 </Grid>
             </Grid>
@@ -183,18 +204,7 @@ class App extends React.PureComponent<IAppProps, IAppState> {
 
 const mapStateToProps = state => Object.assign({}, state.app)
 const mapDispatchToProps = dispatch =>
-    bindActionCreators(
-        Object.assign(
-            {},
-            {
-                getAuthenticationSubject,
-                checkLogin,
-                logout,
-                closeAlert
-            }
-        ),
-        dispatch
-    )
+    bindActionCreators(Object.assign({}, thunks), dispatch)
 
 const AppContainer = connect(
     mapStateToProps,

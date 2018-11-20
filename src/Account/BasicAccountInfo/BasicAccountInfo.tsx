@@ -9,100 +9,81 @@ import {
     FormHelperText,
     Typography
 } from '@material-ui/core'
-import Select from 'react-select'
+import { withStyles } from '@material-ui/core'
 import { InlineDatePicker } from 'material-ui-pickers'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import EventIcon from '@material-ui/icons/Event'
-import * as moment from 'moment'
+import moment from 'moment'
 import * as validator from 'validator'
-import countries from 'iso-3166-1/src/iso-3166'
-import { WithStyles, withStyles, createStyles, Theme } from '@material-ui/core'
 import AccountSectionHeader from '../AccountSectionHeader'
 import AccountSectionActions from '../AccountSectionActions'
-import CountryComponents from './CountryComponents'
-import {
-    BasicAccountInfoState,
-    IBasicAccountInfoState
-} from './BasicAccountInfoState'
-
-const COUNTRY_LIST: [{ label: string; value: string }] = countries.map(
-    (item, _index) => {
-        return { label: item.country, value: item.alpha3 }
-    }
-)
-
-const styles = (theme: Theme) =>
-    createStyles({
-        datePickerDisabled: {
-            '& > div:before': {
-                borderBottom: 'none !important',
-                content: ''
-            }
-        },
-        disableInputUnderline: {
-            '& div div:before': {
-                borderBottom: 'none !important',
-                content: ''
-            }
-        },
-        input: {
-            display: 'flex',
-            padding: '0px 0 7px !important'
-        },
-        valueContainer: {
-            display: 'flex',
-            flexWrap: 'wrap',
-            flex: 1,
-            alignItems: 'center'
-        },
-        noOptionsMessage: {
-            padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`
-        },
-        singleValue: {
-            fontSize: 16
-        },
-        placeholder: {
-            position: 'absolute',
-            left: 2,
-            fontSize: 16
-        },
-        paper: {
-            position: 'absolute',
-            zIndex: 1,
-            marginTop: theme.spacing.unit,
-            left: 0,
-            right: 0
-        },
-        divider: {
-            height: theme.spacing.unit * 2
-        }
-    })
-
-export interface IBasicAccountInfoProps
-    extends WithStyles<typeof styles, true> {
-    accountIsVerified: boolean
-    account: any
-    isSaving: boolean
-    saveAccountInfo(data: any): void
-}
+import BasicAccountInfoState from './BasicAccountInfoState'
+import IBasicAccountInfoState from './IBasicAccountInfoState'
+import IBasicAccountInfoProps from './IBasicAccountInfoProps'
+import styles from './styles'
+import SelectCountry from './SelectCountry'
 
 class BasicAccountInfo extends React.Component<
     IBasicAccountInfoProps,
     IBasicAccountInfoState
 > {
-    private maxDateOfBirth = moment()
-        .subtract(18, 'years')
-        .toDate()
+    private maxDateOfBirth: Date
 
     constructor(props: IBasicAccountInfoProps) {
         super(props)
-
+        this.maxDateOfBirth = moment()
+            .subtract(18, 'years')
+            .toDate()
         this.state = new BasicAccountInfoState()
-
         this.onFormValueChange = this.onFormValueChange.bind(this)
         this.isValidDataInput = this.isValidDataInput.bind(this)
-        this.makeDateOfBirthMask = this.makeDateOfBirthMask.bind(this)
+        this.handleDateOfBirthChange = this.handleDateOfBirthChange.bind(this)
+        this.handleDateInputChange = this.handleDateInputChange.bind(this)
+        this.onCountryValueChange = this.onCountryValueChange.bind(this)
+    }
+
+    public componentDidMount() {
+        if (!this.props.accountIsVerified) {
+            this.setState({ isEditing: true })
+        }
+    }
+
+    public static getDerivedStateFromProps(
+        props: IBasicAccountInfoProps,
+        _state: IBasicAccountInfoState
+    ) {
+        const { account, accountIsVerified } = props
+        if (
+            accountIsVerified &&
+            account &&
+            account.verification &&
+            account.verification.basicVerification
+        ) {
+            const { basicVerification } = props.account.verification
+            return {
+                isEditing: false,
+                selectedDob: moment(
+                    basicVerification.dob,
+                    'YYYY-MM-dd'
+                ).toDate(),
+                formData: {
+                    firstName: basicVerification.firstName,
+                    middleName: basicVerification.middleName,
+                    lastName: basicVerification.lastName,
+                    sex: basicVerification.sex,
+                    dob: basicVerification.dob,
+                    country: basicVerification.country,
+                    state: basicVerification.state,
+                    streetAddress: basicVerification.streetAddress,
+                    phoneNumber: basicVerification.phoneNumber,
+                    postCode: basicVerification.postCode,
+                    town: basicVerification.town
+                }
+            }
+        }
+
+        return null
     }
 
     private get formHasError(): boolean {
@@ -130,59 +111,53 @@ class BasicAccountInfo extends React.Component<
         this.setState({ isEditing: !isEditing })
     }
 
-    private handleDateOfBirthChange = date => {
-        let { formData, errors, errorMessages } = this.state
+    private handleDateInputChange(e: React.FormEvent<HTMLInputElement>): void {}
+    private handleDateOfBirthChange(date: moment.Moment | null = null) {
+        const updatedState = BasicAccountInfo.onDateOfBirthChange(
+            date,
+            this.state
+        )
+        this.setState({ ...updatedState })
+    }
 
+    private static onDateOfBirthChange(
+        date: moment.Moment | null = null,
+        state
+    ) {
+        let { formData, errors, errorMessages } = state
         if (!date) {
             errors.dob = true
             errorMessages.dob = ''
-            this.setState({
+            return {
                 selectedDob: null,
                 formData,
                 errors,
                 errorMessages
-            })
-            return
-        }
-
-        formData.dob = moment(date, moment.ISO_8601).format()
-        if (!validator.isISO8601(formData.dob)) {
-            errors.dob = true
-            errorMessages.dob = 'Invalid date'
+            }
         } else {
-            errors.dob = false
-            errorMessages.dob = ''
-        }
+            formData.dob = moment(date, moment.ISO_8601).format()
+            if (!validator.isISO8601(formData.dob)) {
+                errors.dob = true
+                errorMessages.dob = 'Invalid date'
+            } else {
+                errors.dob = false
+                errorMessages.dob = ''
+            }
 
-        this.setState({
-            selectedDob: date,
-            formData,
-            errors,
-            errorMessages
-        })
+            return {
+                selectedDob: date.toDate(),
+                formData,
+                errors,
+                errorMessages
+            }
+        }
     }
 
-    private onCountryValueChange = (item: { value: string; label: string }) => {
-        let { selectedCountry, formData, errorMessages, errors } = this.state
-        if (formData.country === item.value) {
-            return
-        }
+    private onCountryValueChange(country: string) {
+        let { formData } = this.state
+        formData.country = country
 
-        formData.country = item.value || ''
-        selectedCountry = item
-
-        if (formData.country.length <= 0) {
-            errors.country = true
-            errorMessages.country = 'The country is required'
-        } else if (!(validator as any).isISO31661Alpha3(item.value)) {
-            errors.country = true
-            errorMessages.country = 'Invalid country'
-        } else {
-            errors.country = false
-            errorMessages.country = ''
-        }
-
-        this.setState({ selectedCountry, formData, errorMessages, errors })
+        this.setState({ formData })
     }
 
     private isValidDataInput(inputName: string, value: any): boolean {
@@ -233,61 +208,12 @@ class BasicAccountInfo extends React.Component<
         this.setState({ formData, errorMessages, errors })
     }
 
-    public componentDidMount() {
-        if (!this.props.accountIsVerified) {
-            this.setState({ isEditing: true })
-            this.handleDateOfBirthChange(this.state.selectedDob)
-        } else {
-            const { basicVerification } = this.props.account.verification
-
-            this.setState({
-                selectedDob: moment(
-                    basicVerification.dob,
-                    'YYYY-MM-dd'
-                ).toDate(),
-                selectedCountry: COUNTRY_LIST.find(
-                    item => item.value === basicVerification.country
-                ),
-                formData: {
-                    firstName: basicVerification.firstName,
-                    middleName: basicVerification.middleName,
-                    lastName: basicVerification.lastName,
-                    sex: basicVerification.sex,
-                    dob: basicVerification.dob,
-                    country: basicVerification.country,
-                    state: basicVerification.state,
-                    streetAddress: basicVerification.streetAddress,
-                    phoneNumber: basicVerification.phoneNumber,
-                    postCode: basicVerification.postCode,
-                    town: basicVerification.town
-                }
-            })
-        }
-    }
-
-    private makeDateOfBirthMask(value) {
-        return value
-            ? [/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/]
-            : []
-    }
-
     private handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()
         await this.props.saveAccountInfo(this.state.formData)
     }
 
     public render() {
-        const { classes, theme } = this.props
-
-        const selectStyles = {
-            input: base => ({
-                ...base,
-                color: theme.palette.text.primary,
-                '& input': {
-                    font: 'inherit'
-                }
-            })
-        }
         return (
             <Card>
                 <form onSubmit={this.handleSubmit}>
@@ -391,7 +317,8 @@ class BasicAccountInfo extends React.Component<
                                         keyboard={true}
                                         className={
                                             !this.state.isEditing
-                                                ? classes.datePickerDisabled
+                                                ? this.props.classes
+                                                      .datePickerDisabled
                                                 : ''
                                         }
                                         name="selectedDob"
@@ -409,10 +336,19 @@ class BasicAccountInfo extends React.Component<
                                         maxDate={this.maxDateOfBirth}
                                         required={true}
                                         format="MM/DD/YYYY"
-                                        mask={this.makeDateOfBirthMask}
-                                        placeholder={moment(
-                                            this.maxDateOfBirth
-                                        ).format('MM/DD/YYYY')}
+                                        mask={[
+                                            /\d/,
+                                            /\d/,
+                                            '/',
+                                            /\d/,
+                                            /\d/,
+                                            '/',
+                                            /\d/,
+                                            /\d/,
+                                            /\d/,
+                                            /\d/
+                                        ]}
+                                        placeholder="MM/DD/YYYY"
                                         autoOk={true}
                                         value={this.state.selectedDob}
                                         onChange={this.handleDateOfBirthChange}
@@ -425,32 +361,12 @@ class BasicAccountInfo extends React.Component<
                         </Grid>
                         <Grid container={true} spacing={32}>
                             <Grid item={true} xs={12} sm={6}>
-                                <Select
-                                    name="country"
-                                    styles={selectStyles}
-                                    isDisabled={!this.state.isEditing}
-                                    className={
-                                        !this.state.isEditing
-                                            ? classes.disableInputUnderline
-                                            : ''
+                                <SelectCountry
+                                    currentCountry={this.state.formData.country}
+                                    isEditing={this.state.isEditing}
+                                    onCountryValueChange={
+                                        this.onCountryValueChange
                                     }
-                                    textFieldProps={{
-                                        autoComplete: 'off',
-                                        required: true,
-                                        fullWidth: true,
-                                        helperText: this.state.errorMessages
-                                            .country,
-                                        label: 'Country',
-                                        placeholder: 'Country',
-                                        error: this.state.errors.country
-                                    }}
-                                    defaultOptions={true}
-                                    classes={classes}
-                                    options={COUNTRY_LIST}
-                                    components={CountryComponents}
-                                    value={this.state.selectedCountry}
-                                    onChange={this.onCountryValueChange}
-                                    cacheOptions={true}
                                 />
                             </Grid>
                             <Grid item={true} xs={12} sm={6}>
@@ -594,4 +510,4 @@ class BasicAccountInfo extends React.Component<
     }
 }
 
-export default withStyles(styles, { withTheme: true })(BasicAccountInfo)
+export default withStyles(styles)(BasicAccountInfo)

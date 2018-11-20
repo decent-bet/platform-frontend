@@ -122,21 +122,19 @@ function login(
             resolve(result)
         } catch (error) {
             let errorMessage
-
-            if (error && error.message) {
-                errorMessage = error.message
-            } else if (
+            if (
                 error.response &&
                 error.response.data &&
                 error.response.data.message
             ) {
                 errorMessage = error.response.data.message
+            } else if (error && error.message) {
+                errorMessage = error.message
             } else {
                 errorMessage = 'Error trying to login, please check later.'
             }
             reject({
-                error: true,
-                activated: false,
+                error,
                 message: errorMessage
             })
         }

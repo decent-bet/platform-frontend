@@ -3,7 +3,7 @@ import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from './actionTypes'
 import { IKeyHandler } from '../../common/types'
 
-function saveAccountInfo(keyHandler: IKeyHandler, formData: any): Promise<any> {
+function saveAccountInfo(formData: any): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
             const response = await axios.post('/verification/basic', formData)

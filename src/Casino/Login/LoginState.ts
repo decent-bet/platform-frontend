@@ -1,11 +1,6 @@
-export interface ILoginState {
-    open: boolean
-    processing: boolean
-    loginValue: string
-    hasError: boolean
-}
+import ILoginState from './ILoginState'
 
-export class LoginState implements ILoginState {
+export default class LoginState implements ILoginState {
     public open = true
     public processing = false
     public loginValue = ''
