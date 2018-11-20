@@ -23,6 +23,7 @@ import {
     VIEW_TERMS_AND_CONDITIONS,
     VIEW_PRIVACY_POLICY
 } from '../../routes'
+import { PASSWORD_VALIDATION_PATTERN } from '../../constants'
 import AuthResult from '../AuthResult'
 import ISignUpProps from './ISignUpProps'
 import * as validator from 'validator'
@@ -132,12 +133,7 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
                     }
                 }
             case 'password':
-                if (
-                    validator.matches(
-                        value,
-                        /^(?=.*[\_\&$\·\#\@\?\¿\{\}\[\]])(?=\S*\d)(?=\S*[a-z])(?=\S*[A-Z]).{6,24}$/
-                    )
-                ) {
+                if (validator.matches(value, PASSWORD_VALIDATION_PATTERN)) {
                     return successResult
                 } else {
                     return {
