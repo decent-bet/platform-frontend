@@ -1,0 +1,2 @@
+import ChannelsBackendErrorModal from './ChannelsBackendErrorModal'
+export default ChannelsBackendErrorModal

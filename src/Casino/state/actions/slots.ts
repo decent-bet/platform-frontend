@@ -3,7 +3,9 @@ import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from '../actionTypes'
 import BigNumber from 'bignumber.js'
 import { tap, map } from 'rxjs/operators'
-import { IContractFactory, IUtils } from '../../../common/types'
+import { IContractFactory, IUtils } from 'src/common/types'
+import { Observable, forkJoin } from 'rxjs'
+
 // Get the allowance
 function fetchAllowance(contractFactory, defaultAccount): Promise<any> {
     return new Promise(async (resolve, reject) => {
@@ -17,8 +19,10 @@ function fetchAllowance(contractFactory, defaultAccount): Promise<any> {
                 slotsAddress
             )
             resolve(Number(allowance).toFixed())
-        } catch (err) {
+        } catch (error) {
+            console.error(error)
             reject({
+                error,
                 message: 'Error retrieving slots channel manager allowance'
             })
         }
@@ -47,6 +51,7 @@ function waitForChannelActivation(
         } catch (error) {
             console.error(error)
             reject({
+                error,
                 message:
                     'Error waiting for channel activation, please try later.'
             })
@@ -148,6 +153,7 @@ function initChannel(
         } catch (error) {
             console.error(error)
             reject({
+                error,
                 message: 'Error initializing the channel, please try later.'
             })
         }
@@ -164,7 +170,8 @@ function createChannel(deposit, contractFactory): Promise<any> {
             const result = await slotsContract.logNewChannel(transaction)
             resolve(result)
         } catch (error) {
-            reject({ message: 'Error creating a channel' })
+            console.error(error)
+            reject({ error, message: 'Error creating a channel' })
         }
     })
 }
@@ -184,8 +191,9 @@ function depositToChannel(id, contractFactory, utils): Promise<any> {
                 finalUserHash
             )
             resolve(tx)
-        } catch (err) {
-            reject({ message: 'Error sending deposit to channel' })
+        } catch (error) {
+            console.error(error)
+            reject({ error, message: 'Error sending deposit to channel' })
         }
     })
 }
@@ -229,6 +237,7 @@ function approve(amount, contractFactory, defaultAccount) {
         } catch (error) {
             console.error(error)
             reject({
+                error,
                 message: 'Error approving the deposit, please try later.'
             })
         }
@@ -259,7 +268,10 @@ function depositChips(amount, contractFactory, defaultAccount) {
             )
         } catch (error) {
             console.error(error)
-            reject({ message: 'Error in desposit chips, please try later.' })
+            reject({
+                error,
+                message: 'Error in desposit chips, please try later.'
+            })
         }
     })
 }
@@ -298,9 +310,13 @@ async function claimChannel(channelId: number, slotsContract: any) {
                         })
                     }
                 })
-                .on('error', err => {
+                .on('error', error => {
                     eventEmiter.unsubscribe()
-                    reject(err)
+                    console.error(error)
+                    reject({
+                        error,
+                        message: 'Error claiming the channel, please try later.'
+                    })
                 })
 
             await slotsContract.claim(channelId)
@@ -318,7 +334,7 @@ async function fetchAesKey(channelId, channelNonce, utils) {
             resolve({ channelId, channelNonce, key })
         } catch (error) {
             console.error(error)
-            reject({ message: 'Error fetching Aes key' })
+            reject({ error, message: 'Error fetching Aes key' })
         }
     })
 }
@@ -329,9 +345,9 @@ function getChannelNonce(channelId, contractFactory) {
             let slotsContract = await contractFactory.slotsChannelManagerContract()
             let channelNonce = await slotsContract.getChannelNonce(channelId)
             resolve(channelNonce)
-        } catch (e) {
-            console.error('Error channel ', e)
-            reject({ message: 'Error retrieving channel nonce' })
+        } catch (error) {
+            console.error(error)
+            reject({ error, message: 'Error retrieving channel nonce' })
         }
     })
 }
@@ -358,7 +374,8 @@ function getChannelInfo(channelId, contract) {
             }
             resolve(result)
         } catch (error) {
-            reject({ message: 'Error retrieving channel details' })
+            console.error(error)
+            reject({ error, message: 'Error retrieving channel details' })
         }
     })
 }
@@ -389,8 +406,9 @@ function isChannelClosed(channelId, contract) {
         try {
             const isClosed = await contract.isChannelClosed(channelId)
             resolve(isClosed)
-        } catch (err) {
-            reject({ message: 'Error retrieving is channel closed' })
+        } catch (error) {
+            console.error(error)
+            reject({ error, message: 'Error retrieving is channel closed' })
         }
     })
 }
@@ -411,8 +429,9 @@ function getChannelHashes(id, contract) {
                 finalSeedHash: hashes[3]
             }
             resolve(result)
-        } catch (err) {
-            reject({ message: 'Error retrieving channel hashes' })
+        } catch (error) {
+            console.error(error)
+            reject({ error, message: 'Error retrieving channel hashes' })
         }
     })
 }
@@ -428,7 +447,7 @@ function getDeposited(channelId, isHouse = false, contract) {
             resolve(deposited)
         } catch (error) {
             console.error(error)
-            reject({ message: 'Error in deposit, please try later.' })
+            reject({ error, message: 'Error in deposit, please try later.' })
         }
     })
 }
@@ -441,7 +460,7 @@ function getFinalBalances(channelId, isHouse = false, contract) {
             resolve(finalbalance)
         } catch (error) {
             console.error(error)
-            reject({ message: 'Error getting the final balances' })
+            reject({ error, message: 'Error getting the final balances' })
         }
     })
 }
@@ -484,7 +503,8 @@ function getChannelDetails(id, contractFactory) {
 
             resolve(result)
         } catch (error) {
-            reject({ message: 'Error getting channel details' })
+            console.error(error)
+            reject({ error, message: 'Error getting channel details' })
         }
     })
 }
@@ -501,22 +521,14 @@ function getChannelDetails(id, contractFactory) {
 function loadLastSpin(id, channelNonce, hashes, aesKey, wsApi, utils) {
     return new Promise(async (resolve, reject) => {
         try {
-            let result
-            try {
-                result = await wsApi.getLastSpin(id)
-                result = result.res
-            } catch (e) {
-                result = {
-                    userSpin: null,
-                    houseSpin: null,
-                    nonce: 0
-                }
-            }
+            const lastSpin: any = await wsApi.getLastSpin(id)
+            const result = lastSpin.res
 
             let encryptedSpin = result.userSpin
             let houseSpin = result.houseSpin
             let nonce = result.nonce ? result.nonce + 1 : 1
             let userSpin, houseSpins
+
             if (encryptedSpin) {
                 try {
                     let rawSpinData = AES.decrypt(encryptedSpin, aesKey)
@@ -555,7 +567,8 @@ function loadLastSpin(id, channelNonce, hashes, aesKey, wsApi, utils) {
                 userSpin
             })
         } catch (error) {
-            reject({ message: 'Error getting the loading spin' })
+            console.error(error)
+            reject(error)
         }
     })
 }
@@ -583,7 +596,8 @@ function getLastSpin(channelId, channelNonce, contractFactory, wsApi, utils) {
                 lastSpinLoaded: true
             })
         } catch (error) {
-            reject({ message: 'Error getting the last spin.' })
+            console.log(error)
+            reject(error)
         }
     })
 }
@@ -628,7 +642,8 @@ function getChannel(
                 ...lastSpin
             })
         } catch (error) {
-            reject({ message: 'Error getting the channel' })
+            console.error(error)
+            reject(error)
         }
     })
 }
@@ -648,7 +663,7 @@ function getChannels(contractFactory, wsApi, utils) {
                 contract.getChannels()
             )
 
-            const channels$ = getChannels$.pipe(
+            const channels$: Observable<any> = getChannels$.pipe(
                 tap(() => {
                     totalRequests++
                 }),
@@ -669,25 +684,39 @@ function getChannels(contractFactory, wsApi, utils) {
                 async items => {
                     if (items.length >= 1 || totalRequests >= topRequests) {
                         subs.unsubscribe() // stop making requests
-                        let resolved = await Promise.all(items) // get all channels info
-
-                        // convert into an object because all the components and reducers
-                        // are wating for this kind of structure
-                        const result = resolved.reduce((mem, channel: any) => {
-                            mem[channel.channelId] = channel
-                            return mem
-                        }, {})
-
-                        resolve(result)
+                        const fork = forkJoin(items)
+                            .pipe(
+                                map((channels: any[]) => {
+                                    const result = channels.reduce(
+                                        (mem, channel: any) => {
+                                            mem[channel.channelId] = channel
+                                            return mem
+                                        },
+                                        {}
+                                    )
+                                    return result
+                                })
+                            )
+                            .subscribe(
+                                result => {
+                                    fork.unsubscribe()
+                                    resolve(result)
+                                },
+                                error => {
+                                    console.error(error)
+                                    reject(error)
+                                }
+                            )
                     }
                 },
-                reason => reject({ message: reason.message })
+                error => {
+                    console.error(error)
+                    reject(error)
+                }
             )
         } catch (error) {
             console.error(error)
-            return reject({
-                message: 'Error getting the channels, please try later'
-            })
+            reject(error)
         }
     })
 }
@@ -748,7 +777,23 @@ async function subscribeToFinalizeResponses(listener, wsApi) {
     )
 }
 
-async function makeSpin(
+function verifyHouseSpin(slotsChannelHandler, props, houseSpin, userSpin) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await slotsChannelHandler.verifyHouseSpin(
+                props,
+                houseSpin,
+                userSpin
+            )
+            resolve()
+        } catch (error) {
+            console.log(error)
+            reject(error)
+        }
+    })
+}
+
+function makeSpin(
     totalBetSize,
     props,
     listener,
@@ -764,7 +809,7 @@ async function makeSpin(
             resolve(spinResult)
         } catch (error) {
             console.log(error)
-            reject({ message: 'Error making spin action.' })
+            reject(error)
         }
     })
 }
@@ -804,9 +849,9 @@ function finalizeChannel(channelId, state, contractFactory, wsApi, utils) {
 
             await wsApi.finalizeChannel(channelId, userSpin, aesKey)
             resolve(txHash)
-        } catch (err) {
-            console.error(err)
-            reject({ message: 'Error sending finalize channel transaction' })
+        } catch (error) {
+            console.error(error)
+            reject(error)
         }
     })
 }
@@ -842,6 +887,7 @@ export default createActions({
         [Actions.FINALIZE_CHANNEL]: finalizeChannel,
         [Actions.NONCE_INCREASE]: channelId => ({ channelId }),
         [Actions.POST_SPIN]: (channelId, spin) => ({ ...spin, channelId }),
-        [Actions.MAKE_SPIN]: makeSpin
+        [Actions.MAKE_SPIN]: makeSpin,
+        [Actions.VERIFY_HOUSE_SPIN]: verifyHouseSpin
     }
 })

@@ -16,7 +16,8 @@ import {
 import { authWallet } from '../state/thunks'
 import logo from '../../assets/img/ic_coin.png'
 import LoadingButton from 'src/common/components/LoadingButton'
-import { ILoginState, LoginState } from './LoginState'
+import ILoginState from './ILoginState'
+import LoginState from './LoginState'
 import ILoginProps from './ILoginProps'
 import styles from './styles'
 
@@ -59,7 +60,9 @@ class Login extends React.Component<ILoginProps, ILoginState> {
     }
 
     private onLoginTextChangedListener(event): void {
-        this.setState({ loginValue: event.target.value })
+        const { value } = event.target
+
+        this.setState({ loginValue: value })
     }
 
     public render() {

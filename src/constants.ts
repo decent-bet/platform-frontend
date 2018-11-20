@@ -11,6 +11,19 @@ export const WALLET_WEBSITE_URL: string = 'http://decent.bet/wallet.php'
 export const RECAPTCHA_URL: string = 'https://www.google.com/recaptcha/api.js'
 export const MIN_VTHO_AMOUNT: number = 2000
 export const CURRENT_ENV: string = process.env.REACT_APP_ENV || ENV_LOCAL
+export const CHANNEL_BACKEND_ERRORS = {
+    STATUS_CODE_OK: 100,
+    ERROR_CODE_DB: 101, // DB/Cache Error
+    ERROR_CODE_VALIDATION: 102, // Request param validation error
+    ERROR_CODE_VERIFICATION: 103,
+    ERROR_CODE_REVERTED: 104, // Txs reverted
+    ERROR_CODE_MIDDLEWARE: 105,
+    ERROR_CODE_PROCESSING: 106,
+    ERROR_CODE_USER_ALREADY_CONNECTED: 107,
+    ERROR_CODE_CHANNEL_EXPIRED: 108,
+    ERROR_CODE_CHANNEL_FINALIZED: 109,
+    ERROR_CODE_CHANNEL_CLOSED: 110
+}
 
 export const symbolA = 1
 export const symbolB = 2

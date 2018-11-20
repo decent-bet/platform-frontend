@@ -1,7 +1,5 @@
 import * as React from 'react'
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { openAlert } from '../common/state/thunks'
 import {
     Typography,
     Dialog,
@@ -24,7 +22,7 @@ class ErrorBoundary extends React.Component<any, any> {
         this.setState({ open: true, hasError: true, error, info })
     }
 
-    public shouldComponentUpdate(_nextProps, nextState) {
+    public shouldComponentUpdate(_nextProps, _nextState) {
         return !this.state.open
     }
 
@@ -81,11 +79,6 @@ class ErrorBoundary extends React.Component<any, any> {
 }
 
 const mapStateToProps = state => Object.assign({}, {})
-const mapDispatchToProps = dispatch =>
-    bindActionCreators(Object.assign({}, { openAlert }), dispatch)
 
-const ErrorBoundaryContainer = connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(ErrorBoundary)
+const ErrorBoundaryContainer = connect(mapStateToProps)(ErrorBoundary)
 export default ErrorBoundaryContainer

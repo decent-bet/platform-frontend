@@ -16,6 +16,13 @@ async function setAppLoaded() {
     return true
 }
 
+async function showChannelsBackendError(error) {
+    return error
+}
+
+async function hideChannelsBackendError() {
+    return false
+}
 /**
  * Get the {ReplaceSubject<bool>} to subscribe for the authentication status
  * See {@link IAuthProvider} and [AuthProvider's authUser property] {@link IAuthProvider#authUser}
@@ -39,6 +46,8 @@ export default createActions({
         [Actions.APP_LOADED]: setAppLoaded,
         [Actions.OPEN_ALERT]: openAlert,
         [Actions.CLOSE_ALERT]: closeAlert,
+        [Actions.SHOW_CHANNELS_BACKEND_ERROR]: showChannelsBackendError,
+        [Actions.HIDE_CHANNELS_BACKEND_ERROR]: hideChannelsBackendError,
         [Actions.LOGOUT]: logout,
         [Actions.GET_AUTHENTICATION_SUBJECT]: getAuthenticationSubject,
         [Actions.CHECK_LOGIN]: checkLogin
