@@ -169,25 +169,22 @@ export default class SlotsChannelHandler {
                 break
             }
         }
-        console.log('calculateReelPayout isValid: ' + isValid)
-        if (!isValid) return 0
+        if (!isValid)
+            return 0
         let lines = this.getLines(reel)
         let totalReward = 0
-        console.log(
-            'calculateReelPayout lines: ' +
-                JSON.stringify(lines) +
-                ', ' +
-                adjustedBetSize +
-                ', ' +
-                typeof adjustedBetSize
-        )
         for (let i = 0; i < adjustedBetSize; i++)
             totalReward += this.getLineRewardMultiplier(lines[i])
-        console.log('calculateReelPayout totalReward: ' + totalReward)
-        return totalReward
+        return (totalReward * this.getBetDivisor(betSize))
     }
 
-    getAdjustedBetSize = betSize => {
+    getAdjustedBetSize = betSize =>
+        new BigNumber(betSize)
+            .dividedBy(this.utils.getEtherInWei())
+            .dividedBy(this.getBetDivisor(betSize))
+            .toNumber()
+
+    getBetDivisor = betSize => {
         let ethBetSize = new BigNumber(betSize)
             .dividedBy(this.utils.getEtherInWei())
             .toNumber()
@@ -200,12 +197,14 @@ export default class SlotsChannelHandler {
             .multipliedBy(100)
             .toNumber()
 
-        if (ethBetSize <= 5 && ethBetSize >= 1) return ethBetSize
+        if (ethBetSize <= 5 && ethBetSize >= 1)
+            return 1
         else if (tenthEthBetSize <= 5 && tenthEthBetSize >= 1)
-            return tenthEthBetSize
+            return 0.1
         else if (hundredthEthBetSize <= 5 && hundredthEthBetSize >= 1)
-            return hundredthEthBetSize
-        else return 0
+            return 0.01
+        else
+            return 0
     }
 
     validateBetSize = betSize => {
