@@ -15,25 +15,19 @@ const {
 
 export default class DecentWSAPI {
     private subscriptions: any
-    private _socket: SocketIOClient.Socket
+    private socket: SocketIOClient.Socket
 
     constructor(
         private readonly keyHandler: IKeyHandler,
         private readonly utils: IUtils
     ) {
         this.subscriptions = {}
+        this._initSocket()
     }
 
     private _initSocket() {
-        this._socket = io(WS_API_URL)
+        this.socket = io(WS_API_URL)
         this._initSocketListeners()
-    }
-
-    private get socket() {
-        if (!this._socket) {
-            this._initSocket()
-        }
-        return this._socket
     }
 
     private _initSocketEmitListener(_path) {

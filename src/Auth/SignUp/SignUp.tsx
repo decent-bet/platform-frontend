@@ -23,8 +23,10 @@ import {
     VIEW_TERMS_AND_CONDITIONS,
     VIEW_PRIVACY_POLICY
 } from '../../routes'
+import { PASSWORD_VALIDATION_PATTERN } from '../../constants'
 import AuthResult from '../AuthResult'
 import ISignUpProps from './ISignUpProps'
+import * as validator from 'validator'
 
 class SignUp extends React.Component<ISignUpProps, ISignUpState> {
     private recaptchaRef: any
@@ -37,6 +39,7 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
         this.onValueChange = this.onValueChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.renderForm = this.renderForm.bind(this)
+        this.isValidDataInput = this.isValidDataInput.bind(this)
     }
 
     private onSetRecaptchaRef(recaptchaRef: any): void {
@@ -44,9 +47,9 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
     }
 
     private onCaptchaKeyChange(key: string) {
-        const { formData } = this.state
-        formData.recaptchaKey = key
-        this.setState({ formData })
+        let { recaptchaKey } = this.state
+        recaptchaKey = key
+        this.setState({ recaptchaKey })
     }
 
     private get isValidCredentials() {
@@ -56,58 +59,120 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
             acceptedTerms,
             passwordConfirmation,
             recaptchaKey
-        } = this.state.formData
+        } = this.state
 
+        const emailValid = this.isValidDataInput('email', email)
+        const acceptedTermsValid = this.isValidDataInput(
+            'acceptedTerms',
+            acceptedTerms
+        )
+        const passwordValid = this.isValidDataInput('password', password)
+        const recaptchaKeyValid = this.isValidDataInput(
+            'recaptchaKey',
+            recaptchaKey
+        )
+        const passwordConfirmationValid = this.isValidDataInput(
+            'passwordConfirmation',
+            passwordConfirmation
+        )
         return (
-            email.length > 3 &&
-            acceptedTerms &&
-            password.length > 4 &&
-            recaptchaKey.length > 0 &&
-            passwordConfirmation === password
+            emailValid.valid &&
+            acceptedTermsValid.valid &&
+            passwordValid.valid &&
+            recaptchaKeyValid.valid &&
+            passwordConfirmationValid.valid
         )
     }
 
     private handleAcceptedTerms(event: React.ChangeEvent<HTMLInputElement>) {
         event.persist()
-        let { formData, errorMessages, errors } = this.state
-        formData.acceptedTerms = event.target.checked
-        if (formData.acceptedTerms) {
-            errorMessages.acceptedTerms = ''
-            errors.acceptedTerms = false
-        } else {
-            errorMessages.acceptedTerms =
-                'You must accept the Terms and Conditions and Privacy Policy.'
-            errors.acceptedTerms = true
+        let { acceptedTerms, errorMessages, errors } = this.state
+        acceptedTerms = event.target.checked
+
+        const validation = this.isValidDataInput('acceptedTerms', acceptedTerms)
+        errorMessages.acceptedTerms = validation.message
+        errors.acceptedTerms = !validation.valid
+        this.setState({ acceptedTerms, errorMessages, errors })
+    }
+
+    private isValidDataInput(
+        inputName: string,
+        value: any
+    ): { valid: boolean; message: string } {
+        const successResult = { valid: true, message: '' }
+        switch (inputName) {
+            case 'email':
+                if (validator.isEmail(value)) {
+                    return successResult
+                } else {
+                    return {
+                        valid: false,
+                        message: 'The email format is not valid.'
+                    }
+                }
+            case 'acceptedTerms':
+                if (value === true) {
+                    return successResult
+                } else {
+                    return {
+                        valid: false,
+                        message:
+                            'You must accept the Terms and Conditions and Privacy Policy.'
+                    }
+                }
+            case 'recaptchaKey':
+                if (validator.isLength(value, { min: 20, max: 500 })) {
+                    return successResult
+                } else {
+                    return {
+                        valid: false,
+                        message: 'You must check the recaptcha.'
+                    }
+                }
+            case 'password':
+                if (validator.matches(value, PASSWORD_VALIDATION_PATTERN)) {
+                    return successResult
+                } else {
+                    return {
+                        valid: false,
+                        message:
+                            'The password must contains an Uppercase letter, a lowercase letter, a digit and a special character. The length must be between 6 and 24 characters.'
+                    }
+                }
+            case 'passwordConfirmation':
+                if (value !== this.state.password) {
+                    return {
+                        valid: false,
+                        message:
+                            'The password confirmation should be equals to the password'
+                    }
+                } else {
+                    return { valid: true, message: '' }
+                }
+            default:
+                return { valid: true, message: '' }
         }
-        this.setState({ formData, errorMessages, errors })
     }
 
     private onValueChange(event: React.ChangeEvent<HTMLInputElement>) {
-        let { formData, errorMessages, errors } = this.state
-        const value = event.target.value
-        const name = event.target.name
+        let { errorMessages, errors } = this.state
+        const { name, value } = event.target
 
-        formData[name] = value
-        if (name === 'passwordConfirmation') {
-            if (value !== this.state.formData.password) {
-                errorMessages.passwordConfirmation =
-                    'The password confirmation should be equals to the password'
-                errors.passwordConfirmation = true
-            } else {
-                errorMessages.passwordConfirmation = ''
-                errors.passwordConfirmation = false
-            }
+        if (!event.target.validity.valid || !value || value.length < 4) {
+            errorMessages[name] = event.target.validationMessage
+            errors[name] = true
         } else {
-            if (!event.target.validity.valid || !value || value.length < 4) {
-                errorMessages[name] = event.target.validationMessage
-                errors[name] = true
-            } else {
-                errorMessages[name] = ''
-                errors[name] = false
-            }
+            errorMessages[name] = ''
+            errors[name] = false
         }
 
-        this.setState({ formData, errorMessages, errors })
+        const validation = this.isValidDataInput(name, value)
+        errorMessages[name] = validation.message
+        errors[name] = validation.valid ? false : true
+
+        let newState = { errorMessages, errors }
+        newState[name] = value
+        this.setState(newState)
     }
 
     public componentWillUnmount() {
@@ -122,20 +187,22 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
             password,
             passwordConfirmation,
             recaptchaKey
-        } = this.state.formData
+        } = this.state
 
         if (this.recaptchaRef) {
             this.recaptchaRef.reset()
-            let { formData } = this.state
-            formData.recaptchaKey = ''
-            this.setState({ formData })
+            this.setState({
+                recaptchaKey: ''
+            })
         }
+
         await this.props.signUp(
             email,
             password,
             passwordConfirmation,
             recaptchaKey
         )
+
         this.setState({ formSubmited: true })
     }
 
@@ -148,7 +215,7 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
                     name="email"
                     autoComplete="off"
                     error={this.state.errors.email}
-                    value={this.state.formData.email}
+                    value={this.state.email}
                     required={true}
                     fullWidth={true}
                     onChange={this.onValueChange}
@@ -161,7 +228,7 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
                     name="password"
                     autoComplete="off"
                     error={this.state.errors.password}
-                    value={this.state.formData.password}
+                    value={this.state.password}
                     onChange={this.onValueChange}
                     required={true}
                     fullWidth={true}
@@ -173,7 +240,7 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
                     autoComplete="none"
                     name="passwordConfirmation"
                     error={this.state.errors.passwordConfirmation}
-                    value={this.state.formData.passwordConfirmation}
+                    value={this.state.passwordConfirmation}
                     onChange={this.onValueChange}
                     required={true}
                     fullWidth={true}
@@ -195,7 +262,7 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
                                     <CheckBoxOutlineBlankIcon fontSize="large" />
                                 }
                                 checkedIcon={<CheckBoxIcon fontSize="large" />}
-                                checked={this.state.formData.acceptedTerms}
+                                checked={this.state.acceptedTerms}
                                 onChange={this.handleAcceptedTerms}
                                 value="accepted"
                                 color="primary"
