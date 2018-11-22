@@ -1,7 +1,7 @@
 import { IUtils, IKeyHandler } from '../types'
 import io from 'socket.io-client'
 import { WS_API_URL } from '../../config'
-import Utils from '../helpers/Utils'
+import { WebcryptoUtils } from '../EvpKDF/WebcryptoUtils'
 
 const ethUtil = require('ethereumjs-util')
 const {
@@ -230,9 +230,9 @@ export default class DecentWSAPI {
         return new Promise(async (resolve, reject) => {
             try {
                 console.log('Spin', id, spin, aesKey)
-                let cryptokey = await Utils.importKey(aesKey)
-                let encryptedSpin = await Utils.encryptAES(
-                    aesKey,
+                let cryptokey = await WebcryptoUtils.importKey_AESCBC(aesKey)
+                let encryptedSpin = await WebcryptoUtils.encryptAES(
+                    cryptokey,
                     JSON.stringify(spin)
                 ).toString()
 
@@ -313,9 +313,9 @@ export default class DecentWSAPI {
     public finalizeChannel(id, spin, aesKey): Promise<any> {
         return new Promise(async (resolve, reject) => {
             try {
-                let cryptokey = await Utils.importKey(aesKey)
-                let encryptedSpin = await Utils.encryptAES(
-                    aesKey,
+                let cryptokey = await WebcryptoUtils.importKey_AESCBC(aesKey)
+                let encryptedSpin = await WebcryptoUtils.encryptAES(
+                    cryptokey,
                     JSON.stringify(spin)
                 ).toString()
 

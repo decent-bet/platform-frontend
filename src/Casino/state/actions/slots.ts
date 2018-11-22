@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import { tap, map } from 'rxjs/operators'
 import { IContractFactory, IUtils } from 'src/common/types'
 import { Observable, forkJoin } from 'rxjs'
-import Utils from 'src/common/helpers/Utils'
+import { WebcryptoUtils } from 'src/common/EvpKDF/WebcryptoUtils'
 
 // Get the allowance
 function fetchAllowance(contractFactory, defaultAccount): Promise<any> {
@@ -529,10 +529,10 @@ function loadLastSpin(id, channelNonce, hashes, aesKey, wsApi, utils) {
             let nonce = result.nonce ? result.nonce + 1 : 1
             let userSpin, houseSpins
 
-            let cryptokey = await Utils.importKey(aesKey)
+            let cryptokey = await WebcryptoUtils.importKey_AESCBC(aesKey)
             if (encryptedSpin) {
                 try {
-                    let rawSpinData = await Utils.decryptAES(
+                    let rawSpinData = await WebcryptoUtils.decryptAES(
                         cryptokey,
                         encryptedSpin
                     )
@@ -547,7 +547,7 @@ function loadLastSpin(id, channelNonce, hashes, aesKey, wsApi, utils) {
                 houseSpins = []
             }
 
-            let initialUserNumber = await Utils.decryptAES(
+            let initialUserNumber = await WebcryptoUtils.decryptAES(
                 cryptokey,
                 hashes.initialUserNumber
             ).toString()

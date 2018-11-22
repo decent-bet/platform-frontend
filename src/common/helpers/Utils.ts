@@ -3,6 +3,7 @@ import { IKeyHandler, IUtils, IThorifyFactory } from '../types'
 import ethUtil from 'ethereumjs-util'
 import BigNumber from 'bignumber.js'
 import * as moment from 'moment'
+import { WebcryptoUtils } from '../EvpKDF/WebcryptoUtils'
 
 const { cry, Transaction } = require('thor-devkit')
 
@@ -81,8 +82,8 @@ export default class Utils implements IUtils {
         let randomNumber = this.random(18)
 
         const key = await this.getAesKey(channelNonce)
-        let cryptokey = await Utils.importKey(key)
-        let initialUserNumber = await Utils.encryptAES(
+        let cryptokey = await WebcryptoUtils.importKey_AESCBC(key)
+        let initialUserNumber = await WebcryptoUtils.encryptAES(
             cryptokey,
             randomNumber
         ).toString()
@@ -309,55 +310,6 @@ export default class Utils implements IUtils {
 
     // References
     // https://github.com/diafygi/webcrypto-examples/#aes-gcm
-
-    /**
-     * Import passphrase key using AES-CBC 256
-     * @param randomIV
-     * @param passphraseKey
-     */
-    public static async importKey(passphraseKey: string) {
-        const passphrase = new TextEncoder().encode(passphraseKey)
-        const pwHash = await crypto.subtle.digest('SHA-256', passphrase)
-
-        // TODO: IV needs to be random and shared
-        const alg = { name: 'AES-CBC', iv: passphrase.slice(0, 8), length: 256 }
-        return await crypto.subtle.importKey('raw', pwHash, alg, false, [
-            'decrypt',
-            'encrypt'
-        ])
-    }
-
-    /**
-     * Encrypts with AES-GCM
-     * @param key Key as string
-     * @param buffer Data buffer as string
-     */
-    public static async encryptAES(key: CryptoKey, buffer: string) {
-        const data: Uint8Array = new TextEncoder().encode(buffer)
-        let encrypted = await window.crypto.subtle.encrypt(
-            key.algorithm,
-            key,
-            data
-        )
-
-        return encrypted
-    }
-
-    /**
-     * Decrypts with AES-GCM
-     * @param key Key as string
-     * @param buffer Data buffer as string
-     */
-    public static async decryptAES(key: CryptoKey, buffer: string) {
-        const data: Uint8Array = new TextEncoder().encode(buffer)
-        let result = await window.crypto.subtle.decrypt(
-            key.algorithm,
-            key,
-            data
-        )
-
-        return result
-    }
 
     // References
     // https://gist.github.com/GaspardP/fffdd54f563f67be8944
