@@ -47,9 +47,9 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
     }
 
     private onCaptchaKeyChange(key: string) {
-        const { formData } = this.state
-        formData.recaptchaKey = key
-        this.setState({ formData })
+        let { recaptchaKey } = this.state
+        recaptchaKey = key
+        this.setState({ recaptchaKey })
     }
 
     private get isValidCredentials() {
@@ -59,7 +59,7 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
             acceptedTerms,
             passwordConfirmation,
             recaptchaKey
-        } = this.state.formData
+        } = this.state
 
         const emailValid = this.isValidDataInput('email', email)
         const acceptedTermsValid = this.isValidDataInput(
@@ -86,16 +86,13 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
 
     private handleAcceptedTerms(event: React.ChangeEvent<HTMLInputElement>) {
         event.persist()
-        let { formData, errorMessages, errors } = this.state
-        formData.acceptedTerms = event.target.checked
+        let { acceptedTerms, errorMessages, errors } = this.state
+        acceptedTerms = event.target.checked
 
-        const validation = this.isValidDataInput(
-            'acceptedTerms',
-            formData.acceptedTerms
-        )
+        const validation = this.isValidDataInput('acceptedTerms', acceptedTerms)
         errorMessages.acceptedTerms = validation.message
         errors.acceptedTerms = !validation.valid
-        this.setState({ formData, errorMessages, errors })
+        this.setState({ acceptedTerms, errorMessages, errors })
     }
 
     private isValidDataInput(
@@ -143,7 +140,7 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
                     }
                 }
             case 'passwordConfirmation':
-                if (value !== this.state.formData.password) {
+                if (value !== this.state.password) {
                     return {
                         valid: false,
                         message:
@@ -158,10 +155,8 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
     }
 
     private onValueChange(event: React.ChangeEvent<HTMLInputElement>) {
-        let { formData, errorMessages, errors } = this.state
+        let { errorMessages, errors } = this.state
         const { name, value } = event.target
-
-        formData[name] = value
 
         if (!event.target.validity.valid || !value || value.length < 4) {
             errorMessages[name] = event.target.validationMessage
@@ -175,7 +170,9 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
         errorMessages[name] = validation.message
         errors[name] = validation.valid ? false : true
 
-        this.setState({ formData, errorMessages, errors })
+        let newState = { errorMessages, errors }
+        newState[name] = value
+        this.setState(newState)
     }
 
     public componentWillUnmount() {
@@ -190,20 +187,22 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
             password,
             passwordConfirmation,
             recaptchaKey
-        } = this.state.formData
+        } = this.state
 
         if (this.recaptchaRef) {
             this.recaptchaRef.reset()
-            let { formData } = this.state
-            formData.recaptchaKey = ''
-            this.setState({ formData })
+            this.setState({
+                recaptchaKey: ''
+            })
         }
+
         await this.props.signUp(
             email,
             password,
             passwordConfirmation,
             recaptchaKey
         )
+
         this.setState({ formSubmited: true })
     }
 
@@ -216,7 +215,7 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
                     name="email"
                     autoComplete="off"
                     error={this.state.errors.email}
-                    value={this.state.formData.email}
+                    value={this.state.email}
                     required={true}
                     fullWidth={true}
                     onChange={this.onValueChange}
@@ -229,7 +228,7 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
                     name="password"
                     autoComplete="off"
                     error={this.state.errors.password}
-                    value={this.state.formData.password}
+                    value={this.state.password}
                     onChange={this.onValueChange}
                     required={true}
                     fullWidth={true}
@@ -241,7 +240,7 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
                     autoComplete="none"
                     name="passwordConfirmation"
                     error={this.state.errors.passwordConfirmation}
-                    value={this.state.formData.passwordConfirmation}
+                    value={this.state.passwordConfirmation}
                     onChange={this.onValueChange}
                     required={true}
                     fullWidth={true}
@@ -263,7 +262,7 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
                                     <CheckBoxOutlineBlankIcon fontSize="large" />
                                 }
                                 checkedIcon={<CheckBoxIcon fontSize="large" />}
-                                checked={this.state.formData.acceptedTerms}
+                                checked={this.state.acceptedTerms}
                                 onChange={this.handleAcceptedTerms}
                                 value="accepted"
                                 color="primary"
