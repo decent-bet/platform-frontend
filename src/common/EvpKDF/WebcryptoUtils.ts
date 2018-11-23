@@ -1,7 +1,5 @@
 import { WordArray } from './WordArray'
 import { deriveKeyIVFromPassword } from './EvpKDF'
-import { TextEncoder } from 'util'
-const crypto: Crypto = require('@trust/webcrypto')
 
 export class WebcryptoUtils {
     public static getIV(password) {
@@ -23,6 +21,7 @@ export class WebcryptoUtils {
 
         return wordArray.iv
     }
+
     /**
      * Import passphrase key using AES-CBC 256
      * @param passphraseKey
@@ -60,7 +59,6 @@ export class WebcryptoUtils {
             key,
             data
         )
-
         return encrypted
     }
 
@@ -71,8 +69,9 @@ export class WebcryptoUtils {
      */
     public static async decryptAES(
         { key, iv }: { key: CryptoKey; iv: Uint8Array },
-        buffer: ArrayBuffer
+        data: string
     ): Promise<ArrayBuffer> {
+        const buffer: Uint8Array = new TextEncoder().encode(data)
         let result = await crypto.subtle.decrypt(
             { ...key.algorithm, iv },
             key,
