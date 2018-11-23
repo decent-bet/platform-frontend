@@ -136,7 +136,7 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
                     return {
                         valid: false,
                         message:
-                            'The password must contains an Uppercase letter, a lowercase letter, a digit and a special character. The length must be between 6 and 24 characters.'
+                            'The password must contains an Uppercase character, a lowercase character, a digit and a special character. The length must be between 6 and 24 characters.'
                     }
                 }
             case 'passwordConfirmation':

@@ -25,7 +25,7 @@ export const CHANNEL_BACKEND_ERRORS = {
     ERROR_CODE_CHANNEL_CLOSED: 110
 }
 
-export const PASSWORD_VALIDATION_PATTERN = /^(?=.*[/\W/])(?=\S*\d)(?=\S*[a-z])(?=\S*[A-Z]).{6,24}$/
+export const PASSWORD_VALIDATION_PATTERN = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[`\~\!\@\#\$\%\^\&\*\(\)\+\_\-\=\[\{\]\}\|\\\'\<\,\.\>\?\/\""\;\:]).{6,24}$/
 
 export const symbolA = 1
 export const symbolB = 2
