@@ -34,3 +34,6 @@
 	path = public/slots-emoji-land
 	url = git@github.com:decent-bet/slots-games-emoji-land.git
 	branch = develop
+[submodule "public/slots-defcon"]
+	path = public/slots-defcon
+	url = git@github.com:decent-bet/slots-games-defcon.git
