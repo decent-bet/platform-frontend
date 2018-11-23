@@ -550,8 +550,9 @@ function loadLastSpin(id, channelNonce, hashes, aesKey, wsApi, utils) {
             let initialUserNumber = await WebcryptoUtils.decryptAES(
                 cryptokey,
                 hashes.initialUserNumber
-            ).toString()
-            let userHashes = utils.getUserHashes(initialUserNumber)
+            )
+
+            let userHashes = utils.getUserHashes(initialUserNumber.toString())
             let index = userHashes.length - 1
             if (userHashes[index] !== hashes.finalUserHash) {
                 console.warn(
