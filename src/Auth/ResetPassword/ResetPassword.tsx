@@ -11,6 +11,8 @@ import { IResetPasswordState, ResetPasswordState } from './ResetPasswordState'
 import Recaptcha from '../../common/components/Recaptcha'
 import LoadingButton from '../../common/components/LoadingButton'
 import AppLoading from '../../common/components/AppLoading'
+import { PASSWORD_VALIDATION_PATTERN } from '../../constants'
+import * as validator from 'validator'
 
 class ResetPassword extends React.Component<
     IResetPasswordProps,
@@ -39,8 +41,11 @@ class ResetPassword extends React.Component<
 
     private get formHasError() {
         if (
-            this.state.password.length < 4 ||
             this.state.recaptchaKey.length < 4 ||
+            !validator.matches(
+                this.state.password,
+                PASSWORD_VALIDATION_PATTERN
+            ) ||
             this.state.error
         ) {
             return true
@@ -51,9 +56,10 @@ class ResetPassword extends React.Component<
     private onPasswordChange(event: React.ChangeEvent<HTMLInputElement>) {
         const value = event.target.value
 
-        if (!event.target.validity.valid || !value || value.length < 4) {
+        if (!validator.matches(value, PASSWORD_VALIDATION_PATTERN)) {
             this.setState({
-                errorMessage: event.target.validationMessage,
+                errorMessage:
+                    'The password must contains an Uppercase character, a lowercase character, a digit and a special character. The length must be between 6 and 24 characters.',
                 error: true,
                 password: value
             })
