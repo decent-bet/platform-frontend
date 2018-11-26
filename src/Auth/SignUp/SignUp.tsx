@@ -23,7 +23,10 @@ import {
     VIEW_TERMS_AND_CONDITIONS,
     VIEW_PRIVACY_POLICY
 } from '../../routes'
-import { PASSWORD_VALIDATION_PATTERN } from '../../constants'
+import {
+    PASSWORD_VALIDATION_PATTERN,
+    INVALID_PASSWORD_MESSAGE
+} from '../../constants'
 import AuthResult from '../AuthResult'
 import ISignUpProps from './ISignUpProps'
 import * as validator from 'validator'
@@ -135,8 +138,7 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
                 } else {
                     return {
                         valid: false,
-                        message:
-                            'The password must contains an Uppercase character, a lowercase character, a digit and a special character. The length must be between 6 and 24 characters.'
+                        message: INVALID_PASSWORD_MESSAGE
                     }
                 }
             case 'passwordConfirmation':

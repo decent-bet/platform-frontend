@@ -26,8 +26,9 @@ export const CHANNEL_BACKEND_ERRORS = {
     ERROR_CODE_CHANNEL_CLOSED: 110
 }
 
-export const PASSWORD_VALIDATION_PATTERN = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[`\~\!\@\#\$\%\^\&\*\(\)\+\_\-\=\[\{\]\}\|\\\'\<\,\.\>\?\/\""\;\:]).{6,24}$/
-
+export const PASSWORD_VALIDATION_PATTERN = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[`\~\!\@\#\$\%\^\&\*\(\)\+\_\-\=\[\{\]\}\|\\\'\<\,\.\>\?\/\""\;\:]).{8,24}$/
+export const INVALID_PASSWORD_MESSAGE =
+    'Password must be between 8 and 24 characters in length and contain a lower case, upper case, number and special character.'
 export const symbolA = 1
 export const symbolB = 2
 export const symbolC = 3
