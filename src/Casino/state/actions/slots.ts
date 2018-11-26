@@ -652,10 +652,11 @@ function getChannel(
  * Get all channels for a user
  */
 function getChannels(contractFactory, wsApi, utils) {
+    const topRequests = 3
+    let totalRequests = 0
+
     return new Promise(async (resolve, reject) => {
         try {
-            const topRequests = 1
-            let totalRequests = 0
             const contract = await contractFactory.slotsChannelManagerContract()
 
             // get the subscription
@@ -682,10 +683,10 @@ function getChannels(contractFactory, wsApi, utils) {
 
             const subs = channels$.subscribe(
                 async items => {
-                    if (items.length >= 1 || totalRequests >= topRequests) {
+                    if (items.length > 0 || totalRequests >= topRequests) {
                         subs.unsubscribe() // stop making requests
-                        const fork = forkJoin(items)
-                            .pipe(
+                        if (items.length > 0) {
+                            const fork$ = forkJoin(items).pipe(
                                 map((channels: any[]) => {
                                     const result = channels.reduce(
                                         (mem, channel: any) => {
@@ -697,9 +698,10 @@ function getChannels(contractFactory, wsApi, utils) {
                                     return result
                                 })
                             )
-                            .subscribe(
+
+                            const forkSubs = fork$.subscribe(
                                 result => {
-                                    fork.unsubscribe()
+                                    forkSubs.unsubscribe()
                                     resolve(result)
                                 },
                                 error => {
@@ -707,6 +709,9 @@ function getChannels(contractFactory, wsApi, utils) {
                                     reject(error)
                                 }
                             )
+                        } else {
+                            resolve({})
+                        }
                     }
                 },
                 error => {
