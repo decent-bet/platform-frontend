@@ -1,6 +1,6 @@
 {
     "name": "decent-bet-frontend",
-    "version": "1.0.42-develop",
+    "version": "1.0.62-develop",
     "homepage": "https://decent.bet",
     "private": false,
     "author": "Decent.bet",
@@ -64,12 +64,12 @@
         "web3": "1.0.0-beta.36"
     },
     "scripts": {
-        "start": "export BROWSER=none && react-scripts-ts start",
-        "start:develop": "export BROWSER=none && export REACT_APP_ENV=development && react-scripts-ts start",
-        "start:prod": "export BROWSER=none && export REACT_APP_ENV=production && react-scripts-ts start",
-        "build:local": "export REACT_APP_ENV=local && react-scripts-ts build",
-        "build:develop": "export REACT_APP_ENV=development && react-scripts-ts build",
-        "build:master": "export REACT_APP_ENV=production && react-scripts-ts build",
+        "start": "export BROWSER=none && export REACT_APP_VERSION=$npm_package_version && react-scripts-ts start",
+        "start:develop": "export BROWSER=none && export REACT_APP_ENV=development && export REACT_APP_VERSION=$npm_package_version && react-scripts-ts start",
+        "start:prod": "export BROWSER=none && export REACT_APP_ENV=production && export REACT_APP_VERSION=$npm_package_version && react-scripts-ts start",
+        "build:local": "export REACT_APP_ENV=local && export REACT_APP_VERSION=$npm_package_version && react-scripts-ts build",
+        "build:develop": "export REACT_APP_ENV=development && export REACT_APP_VERSION=$npm_package_version && react-scripts-ts build",
+        "build:master": "export REACT_APP_ENV=production && export REACT_APP_VERSION=$npm_package_version && react-scripts-ts build",
         "deploy": "docker build --build-arg APP_ENV=$APP_ENV -t us.gcr.io/dbet-platform/platform-frontend:$npm_package_version . && docker tag us.gcr.io/dbet-platform/platform-frontend:$npm_package_version us.gcr.io/dbet-platform/platform-frontend:$npm_package_version && docker push us.gcr.io/dbet-platform/platform-frontend:$npm_package_version",
         "deploy:develop": "export APP_ENV=develop && npm run deploy",
         "deploy:prod": "export APP_ENV=prod && npm run deploy",

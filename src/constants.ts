@@ -10,6 +10,7 @@ export const ACCOUNT_TEMP_LOGIN_VALUE: string = 'acc_tmp_log'
 export const WALLET_WEBSITE_URL: string = 'http://decent.bet/wallet.php'
 export const RECAPTCHA_URL: string = 'https://www.google.com/recaptcha/api.js'
 export const MIN_VTHO_AMOUNT: number = 2000
+export const APP_VERSION = process.env.REACT_APP_VERSION || ''
 export const CURRENT_ENV: string = process.env.REACT_APP_ENV || ENV_LOCAL
 export const CHANNEL_BACKEND_ERRORS = {
     STATUS_CODE_OK: 100,
