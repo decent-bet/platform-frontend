@@ -20,7 +20,7 @@ import {
     VIEW_ACCOUNT,
     VIEW_ACCOUNT_NOTACTIVATED
 } from '../../routes'
-import { CURRENT_ENV, ENV_LOCAL } from '../../constants'
+import { CURRENT_ENV, ENV_LOCAL, APP_VERSION } from '../../constants'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
 import VideogameAssetIcon from '@material-ui/icons/VideogameAsset'
@@ -209,6 +209,26 @@ class AppDrawer extends React.Component<IAppDrawerProps, IAppDrawerState> {
 
                     <Divider />
                     {this.renderToolbarItems()}
+
+                    {APP_VERSION && APP_VERSION.length > 0 ? (
+                        <React.Fragment>
+                            <Divider />
+                            <ListItem button={false}>
+                                <ListItemText
+                                    primary={
+                                        <Typography color="primary">
+                                            Version:
+                                        </Typography>
+                                    }
+                                    secondary={
+                                        <Typography variant="caption">
+                                            {APP_VERSION}
+                                        </Typography>
+                                    }
+                                />
+                            </ListItem>
+                        </React.Fragment>
+                    ) : null}
                 </List>
             </Drawer>
         )
