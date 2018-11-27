@@ -59,95 +59,108 @@ export default class SlotsChannelHandler {
                 houseSpin.sign,
                 state.houseAuthorizedAddress
             )
-            if (!valid) reject(new Error('Invalid signature'))
 
-            /**
-             * Verify spin balances
-             */
-            let reel = houseSpin.reel
-
-            if (houseSpin.nonce < 1 || houseSpin.nonce >= 1000)
-                reject(new Error('Invalid nonce'))
-
-            if (userSpin.betSize !== houseSpin.betSize)
-                reject(new Error('Invalid betSize'))
-
-            let betSize = parseInt(houseSpin.betSize, 10)
-            let payout = this.utils.convertToEther(
-                this.calculateReelPayout(reel, betSize)
-            )
-
-            let userBalance =
-                payout === 0
-                    ? new BigNumber(userSpin.userBalance).minus(betSize)
-                    : new BigNumber(userSpin.userBalance)
-                          .plus(payout)
-                          .minus(betSize)
-            let houseBalance =
-                payout === 0
-                    ? new BigNumber(userSpin.houseBalance).plus(betSize)
-                    : new BigNumber(userSpin.houseBalance)
-                          .minus(payout)
-                          .plus(betSize)
-
-            // Balances below 0 should be corrected to 0 to ensure no party receives more tokens than
-            // what is available in the created channel.
-            if (userBalance.isLessThanOrEqualTo(0)) {
-                houseBalance = houseBalance.plus(userBalance)
-                userBalance = new BigNumber(0)
-            } else if (houseBalance.isLessThanOrEqualTo(0)) {
-                userBalance = userBalance.plus(houseBalance)
-                houseBalance = new BigNumber(0)
-            }
-
-            userBalance = userBalance.toFixed()
-            houseBalance = houseBalance.toFixed()
-
-            if (!this.validateBetSize(houseSpin.betSize))
-                reject(new Error('Invalid betSize'))
-            else if (
-                houseSpin.userBalance !== userBalance ||
-                houseSpin.houseBalance !== houseBalance
-            ) {
-                console.log(
-                    'Invalid balances',
-                    houseSpin.userBalance,
-                    userBalance,
-                    houseSpin.houseBalance,
-                    houseBalance
-                )
-                reject(new Error('Invalid balances'))
-            }
-            /**
-             * Verify spin hashes
-             */
-            if (userSpin.nonce > 1) {
-                let prevHouseSpin =
-                    state.houseSpins[state.houseSpins.length - 1]
-                if (houseSpin.reelSeedHash !== prevHouseSpin.prevReelSeedHash)
-                    reject(new Error('Invalid reel seed hash'))
-                else if (
-                    SHA256(houseSpin.prevReelSeedHash).toString() !==
-                    houseSpin.reelSeedHash
-                )
-                    reject(new Error('Invalid reel seed hash'))
-                else if (houseSpin.userHash !== userSpin.userHash)
-                    reject(new Error('Invalid user hash'))
-                else if (houseSpin.prevUserHash !== userSpin.prevUserHash)
-                    reject(new Error('Invalid user hash'))
-                else if (
-                    SHA256(
-                        houseSpin.reelSeedHash + houseSpin.reel.toString()
-                    ).toString() !== houseSpin.reelHash
-                )
-                    reject(new Error('Invalid reel hash'))
-                else resolve()
+            if (!valid) {
+                reject(new Error('Invalid signature'))
             } else {
-                if (houseSpin.userHash !== userSpin.userHash)
-                    reject(new Error('Invalid user hash'))
-                else if (houseSpin.prevUserHash !== userSpin.prevUserHash)
-                    reject(new Error('Invalid user hash'))
-                else resolve()
+                /**
+                 * Verify spin balances
+                 */
+                let reel = houseSpin.reel
+
+                if (houseSpin.nonce < 1 || houseSpin.nonce >= 1000) {
+                    reject(new Error('Invalid nonce'))
+                } else if (userSpin.betSize !== houseSpin.betSize) {
+                    reject(new Error('Invalid betSize'))
+                } else {
+                    let betSize = BigNumber(houseSpin.betSize)
+                    let payout = this.utils.convertToEther(
+                        this.calculateReelPayout(reel, betSize)
+                    )
+
+                    let userBalance =
+                        payout === 0
+                            ? new BigNumber(userSpin.userBalance).minus(betSize)
+                            : new BigNumber(userSpin.userBalance)
+                                  .plus(payout)
+                                  .minus(betSize)
+                    let houseBalance =
+                        payout === 0
+                            ? new BigNumber(userSpin.houseBalance).plus(betSize)
+                            : new BigNumber(userSpin.houseBalance)
+                                  .minus(payout)
+                                  .plus(betSize)
+
+                    // Balances below 0 should be corrected to 0 to ensure no party receives more tokens than
+                    // what is available in the created channel.
+                    if (userBalance.isLessThanOrEqualTo(0)) {
+                        houseBalance = houseBalance.plus(userBalance)
+                        userBalance = new BigNumber(0)
+                    } else if (houseBalance.isLessThanOrEqualTo(0)) {
+                        userBalance = userBalance.plus(houseBalance)
+                        houseBalance = new BigNumber(0)
+                    }
+
+                    userBalance = userBalance.toFixed()
+                    houseBalance = houseBalance.toFixed()
+
+                    if (!this.validateBetSize(houseSpin.betSize))
+                        reject(new Error('Invalid betSize'))
+                    else if (
+                        houseSpin.userBalance !== userBalance ||
+                        houseSpin.houseBalance !== houseBalance
+                    ) {
+                        console.log(
+                            'Invalid balances',
+                            houseSpin.userBalance,
+                            userBalance,
+                            houseSpin.houseBalance,
+                            houseBalance
+                        )
+                        reject(new Error('Invalid balances'))
+                    } else {
+                        /**
+                         * Verify spin hashes
+                         */
+                        if (userSpin.nonce > 1) {
+                            let prevHouseSpin =
+                                state.houseSpins[state.houseSpins.length - 1]
+                            if (
+                                houseSpin.reelSeedHash !==
+                                prevHouseSpin.prevReelSeedHash
+                            )
+                                reject(new Error('Invalid reel seed hash'))
+                            else if (
+                                SHA256(
+                                    houseSpin.prevReelSeedHash
+                                ).toString() !== houseSpin.reelSeedHash
+                            )
+                                reject(new Error('Invalid reel seed hash'))
+                            else if (houseSpin.userHash !== userSpin.userHash)
+                                reject(new Error('Invalid user hash'))
+                            else if (
+                                houseSpin.prevUserHash !== userSpin.prevUserHash
+                            )
+                                reject(new Error('Invalid user hash'))
+                            else if (
+                                SHA256(
+                                    houseSpin.reelSeedHash +
+                                        houseSpin.reel.toString()
+                                ).toString() !== houseSpin.reelHash
+                            )
+                                reject(new Error('Invalid reel hash'))
+                            else resolve()
+                        } else {
+                            if (houseSpin.userHash !== userSpin.userHash)
+                                reject(new Error('Invalid user hash'))
+                            else if (
+                                houseSpin.prevUserHash !== userSpin.prevUserHash
+                            )
+                                reject(new Error('Invalid user hash'))
+                            else resolve()
+                        }
+                    }
+                }
             }
         })
     }
@@ -169,13 +182,12 @@ export default class SlotsChannelHandler {
                 break
             }
         }
-        if (!isValid)
-            return 0
+        if (!isValid) return 0
         let lines = this.getLines(reel)
         let totalReward = 0
         for (let i = 0; i < adjustedBetSize; i++)
             totalReward += this.getLineRewardMultiplier(lines[i])
-        return (totalReward * this.getBetDivisor(betSize))
+        return totalReward * this.getBetDivisor(betSize)
     }
 
     getAdjustedBetSize = betSize =>
@@ -197,14 +209,11 @@ export default class SlotsChannelHandler {
             .multipliedBy(100)
             .toNumber()
 
-        if (ethBetSize <= 5 && ethBetSize >= 1)
-            return 1
-        else if (tenthEthBetSize <= 5 && tenthEthBetSize >= 1)
-            return 0.1
+        if (ethBetSize <= 5 && ethBetSize >= 1) return 1
+        else if (tenthEthBetSize <= 5 && tenthEthBetSize >= 1) return 0.1
         else if (hundredthEthBetSize <= 5 && hundredthEthBetSize >= 1)
             return 0.01
-        else
-            return 0
+        else return 0
     }
 
     validateBetSize = betSize => {
