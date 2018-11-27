@@ -1,6 +1,4 @@
-import { WordArray } from './WordArray'
-import { deriveKeyIVFromPassword } from './EvpKDF'
-
+import { WordArray, deriveKeyIVFromPassword } from '@decent-bet/crypto-evpkdf'
 export class WebcryptoUtils {
     public static getIV(password) {
         const keySize = 256 / 32

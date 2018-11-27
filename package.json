@@ -26,6 +26,7 @@
     "dependencies": {
         "@decent-bet/contract-migration": "^1.0.1",
         "@decent-bet/contract-slots": "1.0.0-rc.3",
+        "@decent-bet/crypto-evpkdf": "^1.0.0",
         "@material-ui/core": "^3.5.1",
         "@material-ui/icons": "^3.0.1",
         "axios": "^0.18.0",
