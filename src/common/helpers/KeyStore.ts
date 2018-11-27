@@ -85,9 +85,7 @@ export default class KeyStore implements IKeyStore {
     }
 
     public async clear(): Promise<void> {
-        if (this.db.isOpen) {
-            await this.db.delete()
-        }
+        await this.db.table('keys').clear()
     }
 
     public ab2str(uint8array): string {
