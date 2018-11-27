@@ -33,15 +33,6 @@ export default function reducer(
                 alertMessage: ''
             }
         case `${PREFIX}/${Actions.SHOW_CHANNELS_BACKEND_ERROR}/${FULFILLED}`:
-            if (
-                action.payload &&
-                state.channelBackendError !== null &&
-                state.channelBackendError === action.payload
-            ) {
-                return {
-                    ...state
-                }
-            }
             return {
                 ...state,
                 channelBackendErrorIsOpen: true,
