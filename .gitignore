@@ -6,6 +6,8 @@
 
 # production
 /build
+/build_webpack
+/out
 .idea/
 
 # testing

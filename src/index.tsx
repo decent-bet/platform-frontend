@@ -1,13 +1,15 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import App from './Components/Dapp'
-import './css/bootstrap.min.css'
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { fas } from '@fortawesome/free-solid-svg-icons'
-import { faEthereum } from '@fortawesome/free-brands-svg-icons'
-library.add(fas, faEthereum)
+import { Provider } from 'react-redux'
+import App from './App'
+import store from './store'
+import axios from 'axios'
+import { AUTH_API_URL } from './config'
+axios.defaults.baseURL = AUTH_API_URL
 
 ReactDOM.render(
-    <App />,
+    <Provider store={store}>
+        <App />
+    </Provider>,
     document.getElementById('root') as HTMLElement
-);
+)

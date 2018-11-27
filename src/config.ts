@@ -1,77 +1,96 @@
-const STAGE_LOCAL = 'local'
-const STAGE_TESTNET = 'testnet'
-const STAGE_MAIN = 'main'
-
-interface IStage {key: string, name: string}
-
-const STAGES: IStage[] = [
-    { key: STAGE_MAIN, name: 'DBET Node' },
-    { key: STAGE_TESTNET, name: 'Infura' },
-    { key: STAGE_LOCAL, name: 'Local Node' }
-]
-
-interface IStageConfig {channelsApiUrl: string, thorNode: string}
-
-const DEFAULT_STAGE: string = process.env.REACT_APP_STAGE || STAGE_LOCAL
-
-const STAGE_CONFIGS = {
-    local: {
-        channelsApiUrl: 'http://localhost:3010/api',
-        thorNode: 'http://localhost:8669'
-    },
-    testnet: {
-        channelsApiUrl: 'https://channels-api-alpha.decent.bet/api',
-        thorNode: 'https://thor-staging.decent.bet'
-    },
-    main: {
-        channelsApiUrl: 'https://channels-api-alpha.decent.bet/api',
-        thorNode: 'https://thor-staging.decent.bet'
-    }
-}
-
-function getStageConfig(stage: string): IStageConfig {
-    switch (stage) {
-        case STAGE_LOCAL:
-            return STAGE_CONFIGS.local
-        case STAGE_TESTNET:
-            return STAGE_CONFIGS.testnet
-        case STAGE_MAIN:
-            return STAGE_CONFIGS.main
-        default:
-            return STAGE_CONFIGS.local
-    }
-}
-
-const ENV_DEVELOPMENT = 'development'
-const ENV_STAGING = 'staging'
-const ENV_PRODUCTION = 'production'
-const CURRENT_ENV = process.env.NODE_ENV || ENV_DEVELOPMENT
-
-function getAuthUrl(): string {
-    switch (CURRENT_ENV) {
-        case ENV_DEVELOPMENT:
-            return 'http://localhost:3200'
-        case ENV_STAGING:
-            return 'https://kyc-staging.decent.bet'
-        case ENV_PRODUCTION:
-            return 'https://kyc-staging.decent.bet'
-        default:
-            return 'http://localhost:3200'
-    }
-}
-
-export {
-    IStage,
-    IStageConfig,
-    getAuthUrl,
+import {
     CURRENT_ENV,
+    ENV_LOCAL,
     ENV_DEVELOPMENT,
-    ENV_STAGING,
-    ENV_PRODUCTION,
-    STAGES,
-    getStageConfig,
-    DEFAULT_STAGE,
-    STAGE_LOCAL,
-    STAGE_TESTNET,
-    STAGE_MAIN
+    ENV_PRODUCTION
+} from './constants'
+
+function getAuthApiUrl(): string {
+    switch (CURRENT_ENV) {
+        case ENV_LOCAL:
+            return 'http://localhost:3200/api'
+        case ENV_DEVELOPMENT:
+            return 'https://kyc-api-development.decent.bet/api'
+        case ENV_PRODUCTION:
+            return 'https://kyc.decent.bet/api'
+        default:
+            return 'http://localhost:3200/api'
+    }
 }
+
+function getWsApiUrl() {
+    switch (CURRENT_ENV) {
+        case ENV_LOCAL:
+            return 'ws://localhost:3010'
+        case ENV_DEVELOPMENT:
+            return 'wss://channels-api-development.decent.bet'
+        case ENV_PRODUCTION:
+            return 'wss://channels-api.decent.bet'
+        default:
+            return 'ws://localhost:3010'
+    }
+}
+
+function getThorNodeUrl() {
+    switch (CURRENT_ENV) {
+        case ENV_LOCAL:
+            return 'https://thor-staging.decent.bet' // 'http://localhost:8669'
+        case ENV_DEVELOPMENT:
+            return 'https://thor-staging.decent.bet'
+        case ENV_PRODUCTION:
+            return 'https://thor.decent.bet'
+        default:
+            return 'https://thor-staging.decent.bet'
+    }
+}
+
+function getRecaptchaKey() {
+    switch (CURRENT_ENV) {
+        case ENV_LOCAL:
+            return '6LfAVnYUAAAAAO9j5Y5T_4qzRwx1R6DOLUXru0s4'
+        case ENV_DEVELOPMENT:
+            return '6LepTnYUAAAAAF4Jtoh2Hwk3f_AKijaT7owk6eTU'
+        case ENV_PRODUCTION:
+            return '6LepTnYUAAAAAF4Jtoh2Hwk3f_AKijaT7owk6eTU'
+        default:
+            return '6LepTnYUAAAAAF4Jtoh2Hwk3f_AKijaT7owk6eTU'
+    }
+}
+
+function getChannelSettings() {
+    switch (CURRENT_ENV) {
+        case ENV_LOCAL:
+            return {
+                CHANNEL_EXPIRATION: 32,
+                CHANNEL_GAS_PRICE_COEF: 0,
+                CHANNEL_GAS_DEFAULT_VALUE: 500000,
+                CHANNEL_NONCE: 11111111
+            }
+        case ENV_DEVELOPMENT:
+            return {
+                CHANNEL_EXPIRATION: 32,
+                CHANNEL_GAS_PRICE_COEF: 0,
+                CHANNEL_GAS_DEFAULT_VALUE: 500000,
+                CHANNEL_NONCE: 11111111
+            }
+        case ENV_PRODUCTION:
+            return {
+                CHANNEL_EXPIRATION: 32,
+                CHANNEL_GAS_PRICE_COEF: 0,
+                CHANNEL_GAS_DEFAULT_VALUE: 500000,
+                CHANNEL_NONCE: 11111111
+            }
+        default:
+            return {
+                CHANNEL_EXPIRATION: 32,
+                CHANNEL_GAS_PRICE_COEF: 0,
+                CHANNEL_GAS_DEFAULT_VALUE: 400000,
+                CHANNEL_NONCE: 11111111
+            }
+    }
+}
+export const CHANNEL_SETTINGS = getChannelSettings()
+export const AUTH_API_URL: string = getAuthApiUrl()
+export const RECAPTCHA_SITE_KEY: string = getRecaptchaKey()
+export const THOR_NODE_URL: string = getThorNodeUrl()
+export const WS_API_URL: string = getWsApiUrl()

@@ -1,33 +1,16 @@
 html,
 body {
     overflow-x: hidden;
-    font-family: 'Roboto';
+    height: 100%;
+    font-family: 'Roboto', sans-serif;
 }
 
 body {
-    background-repeat: repeat-y;
+    background-repeat: repeat;
     background-position: top center;
-    background-image: url('../img/backgrounds/bg_patterns.png');
-    background-size: cover;
+    background-image: url('../img/app-bg.png');
+    background-size: contain;
     background-color: #2a324e !important;
-}
-
-.logo-text {
-    font-weight: bold;
-    color: #e8b863;
-}
-
-.clickable {
-    cursor: pointer;
-}
-
-.hvr-underline-from-left::before {
-    background-color: #a40c1a;
-}
-
-.btn {
-    cursor: pointer;
-    font-family: 'Roboto';
 }
 
 /* Scrollbars */
@@ -38,19 +21,21 @@ input::-webkit-inner-spin-button {
     margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
 }
 
-::-webkit-scrollbar {
-    width: 8px; /* for vertical scrollbars */
-    height: 8px; /* for horizontal scrollbars */
+::-webkit-scrollbar,
+::-mox-scrollbar,
+::scrollbar {
+    width: 8px;
+    height: 8px;
 }
 
-::-webkit-scrollbar-track {
-    background: rgb(47, 49, 62);
+::-webkit-scrollbar-track,
+::-moz-scrollbar-track,
+::scrollbar-track {
+    background-color: rgb(47, 49, 62);
 }
 
-::-webkit-scrollbar-thumb {
-    background: #f2b45c;
-}
-
-.color-gold {
-    color: #f2b45c !important;
+::-webkit-scrollbar-thumb,
+::-moz-scrollbar-thumb,
+::scrollbar-thumb {
+    background-color: #ffcb79;
 }

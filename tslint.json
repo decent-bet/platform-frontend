@@ -38,6 +38,7 @@
         "no-bitwise": false
     },
     "globals": {
+        "process": true,
         "setTimeout": true,
         "clearTimeout": true,
         "setInterval": true,
@@ -51,7 +52,6 @@
         "expect": true,
         "it": true,
         "beforeEach": true,
-        "process": true,
         "describe": true,
         "console": true,
         "location": true
