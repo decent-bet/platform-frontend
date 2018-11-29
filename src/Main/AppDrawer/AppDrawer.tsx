@@ -12,28 +12,33 @@ import {
 import AppDrawerItem from './AppDrawerItem'
 import FaucetMenuItem from './FaucetMenuItem'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import InfoIcon from '@material-ui/icons/Info'
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 import {
     VIEW_CASINO,
     VIEW_LOGOUT,
     VIEW_ACCOUNT,
-    VIEW_ACCOUNT_NOTACTIVATED
+    VIEW_ACCOUNT_NOTACTIVATED,
+    Routes
 } from '../../routes'
 import { CURRENT_ENV, ENV_LOCAL, APP_VERSION } from '../../constants'
-import AccountCircleIcon from '@material-ui/icons/AccountCircle'
-import ExitToAppIcon from '@material-ui/icons/ExitToApp'
-import VideogameAssetIcon from '@material-ui/icons/VideogameAsset'
+import {
+    AccountCircle,
+    ExitToApp,
+    VideogameAsset,
+    Info,
+    ChevronLeft,
+    AccountBalance
+} from '@material-ui/icons'
 import dbetLogo from '../../assets/img/dbet-white.svg'
 import withWidth, { isWidthDown, isWidthUp } from '@material-ui/core/withWidth'
 import IAppDrawerProps from './IAppDrawerProps'
 import MinVTHODialog from '../MinVTHODialog'
-import { IAppDrawerState, AppDrawerState } from './AppDrawerState'
+import IAppDrawerState from './IAppDrawerState'
 
 class AppDrawer extends React.Component<IAppDrawerProps, IAppDrawerState> {
+    public state = { dialogIsOpen: false }
+
     constructor(props: IAppDrawerProps) {
         super(props)
-        this.state = new AppDrawerState()
         this.onClickOpenDialog = this.onClickOpenDialog.bind(this)
         this.onClickOk = this.onClickOk.bind(this)
         this.onCloseDialog = this.onCloseDialog.bind(this)
@@ -108,7 +113,7 @@ class AppDrawer extends React.Component<IAppDrawerProps, IAppDrawerState> {
                                     primary={
                                         <React.Fragment>
                                             <Typography color="primary">
-                                                <InfoIcon
+                                                <Info
                                                     style={{
                                                         marginRight: 3,
                                                         marginBottom: -5
@@ -165,7 +170,7 @@ class AppDrawer extends React.Component<IAppDrawerProps, IAppDrawerState> {
                     </Grid>
                     <Grid item={true} xs={2}>
                         <IconButton onClick={this.props.onDrawerCloseListener}>
-                            <ChevronLeftIcon />
+                            <ChevronLeft />
                         </IconButton>
                     </Grid>
                 </Grid>
@@ -177,7 +182,7 @@ class AppDrawer extends React.Component<IAppDrawerProps, IAppDrawerState> {
                         )}
                         onViewChangeListener={this.props.onViewChangeListener}
                         title="Casino"
-                        icon={<VideogameAssetIcon />}
+                        icon={<VideogameAsset />}
                     />
 
                     <AppDrawerItem
@@ -189,7 +194,7 @@ class AppDrawer extends React.Component<IAppDrawerProps, IAppDrawerState> {
                         }
                         onViewChangeListener={this.props.onViewChangeListener}
                         title="Account"
-                        icon={<AccountCircleIcon />}
+                        icon={<AccountCircle />}
                     />
                     {CURRENT_ENV === ENV_LOCAL ? (
                         <FaucetMenuItem
@@ -200,11 +205,19 @@ class AppDrawer extends React.Component<IAppDrawerProps, IAppDrawerState> {
                     ) : null}
 
                     <AppDrawerItem
+                        viewToSelect={Routes.House}
+                        isSelected={this.props.selectedView === Routes.House}
+                        onViewChangeListener={this.props.onViewChangeListener}
+                        title="House"
+                        icon={<AccountBalance />}
+                    />
+
+                    <AppDrawerItem
                         viewToSelect={VIEW_LOGOUT}
                         isSelected={false}
                         onViewChangeListener={this.props.onViewChangeListener}
                         title="Logout"
-                        icon={<ExitToAppIcon />}
+                        icon={<ExitToApp />}
                     />
 
                     <Divider />

@@ -13,3 +13,7 @@ export const VIEW_ACCOUNT = '/account/'
 export const VIEW_ACCOUNT_NOTACTIVATED = '/account-not-activated/'
 export const VIEW_PRIVACY_POLICY = '/privacy-policy/'
 export const VIEW_TERMS_AND_CONDITIONS = '/terms-and-conditions/'
+
+export enum Routes {
+    House = '/house/'
+}
