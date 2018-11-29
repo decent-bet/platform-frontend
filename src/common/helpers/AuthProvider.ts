@@ -121,6 +121,6 @@ export default class AuthProvider implements IAuthProvider {
      * @returns {Promise<void>}
      */
     public async logout(): Promise<void> {
-        this.keyHandler.clearStorage()
+        await this.keyHandler.clearStorage()
     }
 }
