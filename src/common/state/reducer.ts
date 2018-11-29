@@ -39,6 +39,15 @@ export default function reducer(
                 channelBackendError: action.payload
             }
         case `${PREFIX}/${Actions.HIDE_CHANNELS_BACKEND_ERROR}/${FULFILLED}`:
+            if (	
+                action.payload &&	
+                state.channelBackendError !== null &&	
+                state.channelBackendError === action.payload	
+            ) {	
+                return {	
+                    ...state	
+                }	
+            }
             return {
                 ...state,
                 channelBackendErrorIsOpen: false,
