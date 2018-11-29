@@ -19,7 +19,6 @@ WORKDIR $HOME
 # Install app dependencies
 COPY . $HOME/
 RUN npm i --silent
-RUN git submodule foreach git checkout master && git submodule foreach git pull origin master
 RUN npm run build:${APP_ENV}
 
 
