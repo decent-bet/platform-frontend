@@ -22,3 +22,9 @@
 [submodule "public/slots-egyptian-treasures"]
 	path = public/slots-egyptian-treasures
 	url = git@github.com:decent-bet/slots-games-egyptian-treasures.git
+[submodule "public/slots-emoji-land"]
+	path = public/slots-emoji-land
+	url = git@github.com:decent-bet/slots-games-emoji-land.git
+[submodule "public/slots-defcon"]
+	path = public/slots-defcon
+	url = git@github.com:decent-bet/slots-games-defcon.git
