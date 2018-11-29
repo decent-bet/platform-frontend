@@ -11,7 +11,7 @@ import StateChannelTable from './StateChannelTable'
 import StateChannelToolbar from './StateChannelToolbar'
 import TransparentPaper from '../../common/components/TransparentPaper'
 import './slots.css'
-import { VIEW_SLOTS } from '../../routes'
+import Routes from '../../routes'
 import ConfirmationDialog from '../../common/components/ConfirmationDialog'
 import { ISlotsState, SlotsState } from './SlotsState'
 import AppLoading from '../../common/components/AppLoading'
@@ -206,7 +206,9 @@ class Slots extends React.Component<any, ISlotsState> {
     }
 
     private onGoToGameroomListener(gameName): void {
-        location.href = `${VIEW_SLOTS}${this.state.currentChannel}/${gameName}`
+        location.href = `${Routes.Slots}${
+            this.state.currentChannel
+        }/${gameName}`
     }
 
     /**

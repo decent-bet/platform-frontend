@@ -12,13 +12,7 @@ import {
 import AppDrawerItem from './AppDrawerItem'
 import FaucetMenuItem from './FaucetMenuItem'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import {
-    VIEW_CASINO,
-    VIEW_LOGOUT,
-    VIEW_ACCOUNT,
-    VIEW_ACCOUNT_NOTACTIVATED,
-    Routes
-} from '../../routes'
+import Routes from '../../routes'
 import { CURRENT_ENV, ENV_LOCAL, APP_VERSION } from '../../constants'
 import {
     AccountCircle,
@@ -176,9 +170,9 @@ class AppDrawer extends React.Component<IAppDrawerProps, IAppDrawerState> {
                 </Grid>
                 <List>
                     <AppDrawerItem
-                        viewToSelect={VIEW_CASINO}
+                        viewToSelect={Routes.Casino}
                         isSelected={this.props.selectedView.startsWith(
-                            VIEW_CASINO
+                            Routes.Casino
                         )}
                         onViewChangeListener={this.props.onViewChangeListener}
                         title="Casino"
@@ -186,11 +180,11 @@ class AppDrawer extends React.Component<IAppDrawerProps, IAppDrawerState> {
                     />
 
                     <AppDrawerItem
-                        viewToSelect={VIEW_ACCOUNT}
+                        viewToSelect={Routes.Account}
                         isSelected={
-                            this.props.selectedView === VIEW_ACCOUNT ||
+                            this.props.selectedView === Routes.Account ||
                             this.props.selectedView ===
-                                VIEW_ACCOUNT_NOTACTIVATED
+                                Routes.AccountNotActivated
                         }
                         onViewChangeListener={this.props.onViewChangeListener}
                         title="Account"
@@ -213,7 +207,7 @@ class AppDrawer extends React.Component<IAppDrawerProps, IAppDrawerState> {
                     />
 
                     <AppDrawerItem
-                        viewToSelect={VIEW_LOGOUT}
+                        viewToSelect={Routes.Logout}
                         isSelected={false}
                         onViewChangeListener={this.props.onViewChangeListener}
                         title="Logout"

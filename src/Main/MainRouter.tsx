@@ -1,29 +1,23 @@
-import * as React from 'react'
+import React, { FunctionComponent } from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom'
 import Casino from '../Casino'
 import Account from '../Account'
 import AccountNotActivated from '../Account/AccountNotActivated'
 import House from '../House'
-import {
-    VIEW_CASINO,
-    VIEW_ACCOUNT,
-    VIEW_MAIN,
-    VIEW_ACCOUNT_NOTACTIVATED,
-    Routes
-} from '../routes'
+import Routes from '../routes'
 
-const MainRouter = () => {
+const MainRouter: FunctionComponent<{}> = () => {
     return (
         <Switch>
-            <Redirect exact={true} from={VIEW_MAIN} to={VIEW_CASINO} />
+            <Redirect exact={true} from={Routes.Main} to={Routes.Casino} />
             <Route path={Routes.House} component={House} />
-            <Route path={VIEW_CASINO} component={Casino} />
+            <Route path={Routes.Casino} component={Casino} />
             <Route
-                path={VIEW_ACCOUNT_NOTACTIVATED}
+                path={Routes.AccountNotActivated}
                 component={AccountNotActivated}
             />
-            <Route path={VIEW_ACCOUNT} component={Account} />
-            <Redirect exact={true} from="*" to={VIEW_MAIN} />
+            <Route path={Routes.Account} component={Account} />
+            <Redirect exact={true} from="*" to={Routes.Main} />
         </Switch>
     )
 }

@@ -13,7 +13,7 @@ import './main.css'
 import { Grid, Fade, Typography } from '@material-ui/core'
 import withWidth, { isWidthDown } from '@material-ui/core/withWidth'
 import AppLoading from '../common/components/AppLoading'
-import { VIEW_ACCOUNT, VIEW_ACCOUNT_NOTACTIVATED } from '../routes'
+import Routes from '../routes'
 
 class Main extends React.Component<any, any> {
     private _activationTimer: any
@@ -105,12 +105,12 @@ class Main extends React.Component<any, any> {
         } = this.props
 
         if (!accountIsActivated) {
-            if (this.props.location.pathname !== VIEW_ACCOUNT_NOTACTIVATED) {
-                return <Redirect to={VIEW_ACCOUNT_NOTACTIVATED} />
+            if (this.props.location.pathname !== Routes.AccountNotActivated) {
+                return <Redirect to={Routes.AccountNotActivated} />
             }
         } else if (!accountIsVerified || !accountHasAddress) {
-            if (this.props.location.pathname !== VIEW_ACCOUNT) {
-                return <Redirect to={VIEW_ACCOUNT} />
+            if (this.props.location.pathname !== Routes.Account) {
+                return <Redirect to={Routes.Account} />
             }
         }
 
@@ -119,8 +119,8 @@ class Main extends React.Component<any, any> {
                 clearInterval(this._activationTimer)
             }
 
-            if (this.props.location.pathname === VIEW_ACCOUNT_NOTACTIVATED) {
-                return <Redirect to={VIEW_ACCOUNT} />
+            if (this.props.location.pathname === Routes.AccountNotActivated) {
+                return <Redirect to={Routes.Account} />
             }
         }
 

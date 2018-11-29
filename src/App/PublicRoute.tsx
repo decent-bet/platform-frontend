@@ -1,23 +1,31 @@
-import * as React from 'react'
+import React, { FunctionComponent } from 'react'
 import { Route, Redirect } from 'react-router-dom'
-import { VIEW_LOGIN, VIEW_MAIN, VIEW_CASINO } from '../routes'
+import Routes from '../routes'
 
-export default function PublicRoute({ component: Component, ...rest }) {
+const PublicRoute: FunctionComponent<any> = ({
+    component: Component,
+    ...rest
+}) => {
     let { userIsAuthenticated } = rest
 
     const toRender = props => {
         if (userIsAuthenticated) {
-            const pathname = props.location.pathname !== VIEW_MAIN ? VIEW_MAIN : VIEW_CASINO
-                return <Redirect
+            const pathname =
+                props.location.pathname !== Routes.Main
+                    ? Routes.Main
+                    : Routes.Casino
+            return (
+                <Redirect
                     to={{
                         pathname,
                         state: { from: props.location }
                     }}
-                /> 
-
+                />
+            )
         } else {
-            const view = props.location.pathname !== VIEW_LOGIN
-                    ? VIEW_LOGIN
+            const view =
+                props.location.pathname !== Routes.Login
+                    ? Routes.Login
                     : props.location.pathname
             return <Component view={view} {...props} />
         }
@@ -25,3 +33,5 @@ export default function PublicRoute({ component: Component, ...rest }) {
 
     return <Route {...rest} render={toRender} />
 }
+
+export default PublicRoute
