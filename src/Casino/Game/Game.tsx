@@ -11,6 +11,7 @@ import {
 import ethUnits from 'ethereum-units'
 import { connect } from 'react-redux'
 import * as Thunks from '../state/thunks'
+import { openAlert } from '../../common/state/thunks'
 import { CHANNEL_STATUS_FINALIZED, MIN_VTHO_AMOUNT } from '../../constants'
 import ChannelDetail from './ChannelDetail'
 import IFrame from './IFrame'
@@ -123,14 +124,17 @@ class Game extends React.Component<any, any> {
             userSpin,
             lines
         ) => {
-            if (err) {
-                alert(msg)
-            } else {
+            if (!err) {
                 console.log('onSpinResponseListener', this.props.houseSpins)
                 let isValidHouseSpin = dispatch(
                     Thunks.verifyHouseSpin(this.props, houseSpin, userSpin)
                 )
-                if (isValidHouseSpin) listener(err, msg, lines)
+                if (isValidHouseSpin) {
+                    listener(err, msg, lines)
+                }
+            } else {
+                this.props.dispatch(openAlert(msg, 'error'))
+                this.back()
             }
         }
 
@@ -186,10 +190,10 @@ class Game extends React.Component<any, any> {
 
         const onFinalizeResponseListener = (error, msg) => {
             if (error) {
-                alert(msg)
-            } else {
-                this.back()
+                this.props.dispatch(openAlert(msg, 'error'))
             }
+
+            this.back()
         }
 
         dispatch(

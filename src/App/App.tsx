@@ -18,8 +18,7 @@ import {
     VIEW_AUTH,
     VIEW_ACTIVATE_ACCOUNT,
     VIEW_PRIVACY_POLICY,
-    VIEW_TERMS_AND_CONDITIONS,
-    VIEW_LOGIN
+    VIEW_TERMS_AND_CONDITIONS
 } from '../routes'
 import * as thunks from '../common/state/thunks'
 import AppLoading from '../common/components/AppLoading'
@@ -58,15 +57,16 @@ class App extends React.Component<IAppProps, IAppState> {
                     this.setAuthTimer()
                 }
             } else {
-                this.setState({ userIsAuthenticated: false })
                 if (this._authTimer) {
                     clearInterval(this._authTimer)
                     this.setState({ appLoaded: false })
                     await this.props.logout()
-                    if (window.location.href !== VIEW_LOGIN) {
-                        window.location.href = VIEW_LOGIN
+                    if (window.location.href !== VIEW_LOGOUT) {
+                        window.location.href = VIEW_LOGOUT
                     }
                 }
+
+                this.setState({ userIsAuthenticated: false })
             }
 
             if (!this.state.appLoaded) {

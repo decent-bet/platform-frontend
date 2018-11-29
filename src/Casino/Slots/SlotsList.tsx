@@ -29,9 +29,11 @@ const gameList: IGameItem[] = [
     {
         name: 'egyptian-treasures',
         imageUrl: 'backgrounds/slots-egyptian-treasures.jpg'
-    },
+    }
+    /**,
     { name: 'defcon', imageUrl: 'backgrounds/slots-defcon.jpg' },
     { name: 'emoji-land', imageUrl: 'backgrounds/slots-emoji-land.jpg' }
+     */
 ]
 
 export default function SlotsList({
