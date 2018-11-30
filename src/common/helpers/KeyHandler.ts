@@ -104,6 +104,7 @@ class KeyHandler implements IKeyHandler {
         token: string,
         refreshToken: string
     ): Promise<void> {
+        await this.keyStore.clean()
         await this.keyStore.addVariable(AUTH_TOKEN_NAME, token)
         await this.keyStore.addVariable(
             `${AUTH_TOKEN_NAME}_REFRESH`,
