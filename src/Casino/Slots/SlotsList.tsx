@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React, { FunctionComponent } from 'react'
 import SlotsGameCard from './SlotsGameCard'
 import { Grid, Card, Slide, CardContent, Typography } from '@material-ui/core'
 import TransparentPaper from '../../common/components/TransparentPaper'
@@ -34,11 +34,11 @@ const gameList: IGameItem[] = [
     { name: 'emoji-land', imageUrl: 'backgrounds/slots-emoji-land.jpg' }
 ]
 
-export default function SlotsList({
+const SlotsList: FunctionComponent<ISlotsListProps> = function({
     balance,
     onGameSelectedListener,
     allowSelect
-}: ISlotsListProps) {
+}) {
     return (
         <Slide in={true} timeout={1000} direction="up">
             <TransparentPaper>
@@ -93,3 +93,5 @@ export default function SlotsList({
         </Slide>
     )
 }
+
+export default SlotsList
