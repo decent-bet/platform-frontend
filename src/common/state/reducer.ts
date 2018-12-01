@@ -33,10 +33,13 @@ export default function reducer(
                 alertMessage: ''
             }
         case `${PREFIX}/${Actions.SHOW_CHANNELS_BACKEND_ERROR}/${FULFILLED}`:
+            const { payload } = action
+            const { channelBackendError } = state
+
             if (
-                action.payload &&
-                state.channelBackendError !== null &&
-                state.channelBackendError === action.payload
+                payload &&
+                channelBackendError &&
+                (channelBackendError as any).statusCode === payload.statusCode
             ) {
                 return {
                     ...state
@@ -45,7 +48,7 @@ export default function reducer(
             return {
                 ...state,
                 channelBackendErrorIsOpen: true,
-                channelBackendError: action.payload
+                channelBackendError: payload
             }
         case `${PREFIX}/${Actions.HIDE_CHANNELS_BACKEND_ERROR}/${FULFILLED}`:
             return {

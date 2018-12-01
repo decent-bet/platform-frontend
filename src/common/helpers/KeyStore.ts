@@ -2,11 +2,13 @@ import { IKeyStore } from '../types'
 import Dexie from 'dexie'
 // Based partially from https://gist.github.com/saulshanabrook/b74984677bccd08b028b30d9968623f5
 
+const DB_NAME = 'DbetKeystore'
+
 export default class KeyStore implements IKeyStore {
     private db: Dexie
 
     constructor() {
-        this.db = new Dexie('DbetKeystore')
+        this.db = new Dexie(DB_NAME)
         this.db.version(1).stores({
             keys: 'id, value'
         })
@@ -84,8 +86,18 @@ export default class KeyStore implements IKeyStore {
         return this.ab2str(new Uint8Array(decrypted))
     }
 
+    public async clean(): Promise<void> {
+        const exists = await Dexie.exists(DB_NAME)
+        if (exists) {
+            await this.db.table('keys').clear()
+        }
+    }
+
     public async clear(): Promise<void> {
-        await this.db.table('keys').clear()
+        const exists = await Dexie.exists(DB_NAME)
+        if (exists) {
+            await this.db.delete()
+        }
     }
 
     public ab2str(uint8array): string {

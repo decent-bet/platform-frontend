@@ -105,7 +105,6 @@ export default class AuthProvider implements IAuthProvider {
         const data = { email, password, captchaKey }
         const response = await axios.post('/login', data)
         const { accessToken, refreshToken, activated, message } = response.data
-
         await this.keyHandler.setAuthToken(accessToken, refreshToken)
         this.authUser.next(true)
 
@@ -120,7 +119,7 @@ export default class AuthProvider implements IAuthProvider {
      * Performs a logout and clear all session data for the current user
      * @returns {Promise<void>}
      */
-    public async logout(): Promise<void> {
-        this.keyHandler.clearStorage()
+    public logout(): Promise<void> {
+        return this.keyHandler.clearStorage()
     }
 }
