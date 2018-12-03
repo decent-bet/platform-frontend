@@ -1,0 +1,3 @@
+[submodule "games/slots"]
+	path = games/slots
+	url = git@github.com:decent-bet/slots-games.git
