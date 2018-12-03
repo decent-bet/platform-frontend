@@ -61,7 +61,6 @@
         "redux-thunk-actions": "^1.2.1",
         "request": "^2.86.0",
         "rxjs": "^6.2.2",
-        "slots-games": "git+ssh://git@github.com/decent-bet/slots-games.git#master",
         "socket.io-client": "^2.1.1",
         "thor-devkit": "0.2.4",
         "thorify": "^1.0.4",

@@ -1,7 +1,7 @@
 const fse = require('fs-extra')
 const rimraf = require('rimraf')
 
-const SRC_PATH = 'node_modules/slots-games/src'
+const SRC_PATH = 'games/slots/src'
 const OUTPUT_PATH = 'public/slots'
 
 const GAME_LIST = [
