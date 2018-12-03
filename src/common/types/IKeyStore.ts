@@ -11,7 +11,7 @@ export default interface IKeyStore {
 
     decrypt(data: ArrayBuffer, keys: CryptoKeyPair): PromiseLike<any>
 
-    clean(): Promise<void>
+    clearRecords(): Promise<void>
 
     clear(): Promise<void>
 
