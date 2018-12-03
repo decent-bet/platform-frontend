@@ -105,7 +105,7 @@ export default class AuthProvider implements IAuthProvider {
         const data = { email, password, captchaKey }
         const response = await axios.post('/login', data)
         const { accessToken, refreshToken, activated, message } = response.data
-
+        await this.keyHandler.clearStorage(true)
         await this.keyHandler.setAuthToken(accessToken, refreshToken)
         this.authUser.next(true)
 

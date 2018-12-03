@@ -56,6 +56,7 @@ Consists of the platform pages - Slots betting casino and more.
 
     Just run `npm run [NPM_SCRIPT]`
 
+    -   `games`: Copy all the games from our private package to the `public/slots` folder,
     -   `start`: Starts the dev server with `local` environtment,
     -   `start:develop`: Starts the dev server with `development` environtment,
     -   `start:staging`: Starts the dev server with `staging` environtment,
