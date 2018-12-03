@@ -86,7 +86,7 @@ export default class KeyStore implements IKeyStore {
         return this.ab2str(new Uint8Array(decrypted))
     }
 
-    public async clean(): Promise<void> {
+    public async clearRecords(): Promise<void> {
         const exists = await Dexie.exists(DB_NAME)
         if (exists) {
             await this.db.table('keys').clear()

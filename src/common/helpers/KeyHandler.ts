@@ -104,7 +104,6 @@ class KeyHandler implements IKeyHandler {
         token: string,
         refreshToken: string
     ): Promise<void> {
-        await this.keyStore.clean()
         await this.keyStore.addVariable(AUTH_TOKEN_NAME, token)
         await this.keyStore.addVariable(
             `${AUTH_TOKEN_NAME}_REFRESH`,
@@ -128,9 +127,15 @@ class KeyHandler implements IKeyHandler {
         return await this.keyStore.getVariable(`${AUTH_TOKEN_NAME}_REFRESH`)
     }
 
-    public async clearStorage(): Promise<void> {
-        await this.keyStore.clear()
+    public async clearStorage(soft?: boolean): Promise<void> {
+        if (soft) {
+            await this.keyStore.clearRecords() // remove all records but not the databae
+        } else {
+            await this.keyStore.clear() // remove all database
+        }
     }
+
+    public async
 }
 
 export default KeyHandler

@@ -31,5 +31,5 @@ export default interface IKeyHandler {
 
     setAuthToken(token: string, refreshToken: string): Promise<void>
 
-    clearStorage(): Promise<void>
+    clearStorage(soft?: boolean): Promise<void>
 }
