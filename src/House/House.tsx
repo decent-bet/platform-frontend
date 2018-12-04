@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import { Grid, Paper, CircularProgress } from '@material-ui/core'
+import { Grid, CircularProgress } from '@material-ui/core'
 import HouseBalanceCard from './HouseBalanceCard'
+import HouseDepositList from './HouseDepositList'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import * as thunks from './state/thunks'
@@ -25,7 +26,17 @@ class House extends Component<IHouseProps, IHouseState> {
     public renderLoadingScreen = () => <CircularProgress />
 
     public renderReadyContent = () => (
-        <HouseBalanceCard balance={this.props.houseBalance} />
+        <>
+            <Grid item={true} xs={12} md={6} lg={4}>
+                <HouseBalanceCard balance={this.props.houseBalance} />
+            </Grid>
+
+            <Grid item={true} xs={12} md={6} lg={8}>
+                <HouseDepositList
+                    houseDepositList={this.props.houseDepositList}
+                />
+            </Grid>
+        </>
     )
 
     public renderStateMachine = (): JSX.Element | null => {
@@ -41,10 +52,8 @@ class House extends Component<IHouseProps, IHouseState> {
 
     public render() {
         return (
-            <Grid container={true} justify="center" direction="row">
-                <Grid item={true} xs={12} md={8} lg={6}>
-                    <Paper>{this.renderStateMachine()}</Paper>
-                </Grid>
+            <Grid container={true} spacing={16}>
+                {this.renderStateMachine()}
             </Grid>
         )
     }
