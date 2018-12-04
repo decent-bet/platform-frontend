@@ -7,6 +7,9 @@ import * as thunks from './state/thunks'
 import { IHouseProps } from './IHouseProps'
 import { IHouseState, StateMachine, DefaultHouseState } from './IHouseState'
 
+/**
+ * House Page Landing Component
+ */
 class House extends Component<IHouseProps, IHouseState> {
     public state = DefaultHouseState
 

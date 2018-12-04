@@ -4,6 +4,9 @@ import { IPayloadGetHouseBalance } from './Payload'
 import ActionTypes, { PREFIX } from './ActionTypes'
 import BigNumber from 'bignumber.js'
 
+/**
+ * Thunk that will retrieve the Balance for the house from Vechain blockchain
+ */
 export function getHouseBalance() {
     return async (
         dispatch,

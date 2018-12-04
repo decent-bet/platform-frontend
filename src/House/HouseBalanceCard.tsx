@@ -8,6 +8,10 @@ function houseBalance(balance: BigNumber): string {
     return ethUnits.convert(balance.toString(), 'wei', 'ether')
 }
 
+/**
+ * The card that shows the balance of the House Account
+ * @param balance The amount to show in the card.
+ */
 const HouseBalanceCard: FunctionComponent<IHouseBalanceCardProps> = ({
     balance
 }) => (
