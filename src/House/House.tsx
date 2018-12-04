@@ -14,7 +14,11 @@ class House extends Component<IHouseProps, IHouseState> {
     public state = DefaultHouseState
 
     public async componentDidMount() {
-        await this.props.getHouseBalance()
+        // Execute all requests in parallel
+        await Promise.all([
+            this.props.getHouseBalance(),
+            this.props.getHouseDeposits()
+        ])
         this.setState({ stateMachine: StateMachine.Ready })
     }
 

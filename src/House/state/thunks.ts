@@ -1,29 +1,68 @@
 import { IThunkDependencies } from '../../common/types'
 import { Action } from 'redux-actions'
-import { IPayloadGetHouseBalance } from './Payload'
+import { Dispatch } from 'redux'
+import { IPayloadGetHouseBalance, IPayloadGetHouseDeposits } from './Payload'
 import ActionTypes, { PREFIX } from './ActionTypes'
 import BigNumber from 'bignumber.js'
+import { IDepositItem } from './IDepositItem'
 
 /**
  * Thunk that will retrieve the Balance for the house from Vechain blockchain
  */
 export function getHouseBalance() {
     return async (
-        dispatch,
+        dispatch: Dispatch,
         _getState,
         { contractFactory }: IThunkDependencies
     ) => {
+        // Get contract and address
         const contract = await contractFactory.slotsChannelManagerContract()
         const contractAddress = contract.instance._address
+
+        // Execute
         const balance = (await contract.instance.methods
             .balanceOf(contractAddress)
             .call()) as BigNumber
-        const action: Action<IPayloadGetHouseBalance> = {
+
+        // Build Action and dispatch
+        return dispatch({
             type: `${PREFIX}/${ActionTypes.GET_HOUSE_BALANCE}`,
             payload: {
                 balance
             }
-        }
-        return dispatch(action)
+        } as Action<IPayloadGetHouseBalance>)
+    }
+}
+
+/**
+ * Thunk that will list all the deposits done to the House Address
+ */
+export function getHouseDeposits() {
+    return async function(
+        dispatch: Dispatch,
+        _getState,
+        dependencies: IThunkDependencies
+    ) {
+        // Get all the `LogDeposit` events from the contract
+        const contract = (await dependencies.contractFactory.slotsChannelManagerContract())
+            .instance
+        const depositList = await contract.getPastEvents('LogDeposit', {
+            fromBlock: 0,
+            toBlock: 'latest'
+        })
+
+        // Filter events. Only return events that came from this contract address
+        const cachedAddress = (contract._address as string).toLowerCase() // Execute this only once
+        const filteredEvents: IDepositItem[] = depositList
+            .map(item => item.returnValues as IDepositItem) // Get the return values
+            .filter(item => item._address.toLowerCase() === cachedAddress)
+
+        // Build Action and dispatch
+        return dispatch({
+            type: `${PREFIX}/${ActionTypes.GET_HOUSE_DEPOSITS}`,
+            payload: {
+                depositItemList: filteredEvents
+            }
+        } as Action<IPayloadGetHouseDeposits>)
     }
 }
