@@ -10,12 +10,7 @@ import {
 } from '@material-ui/core'
 import { Check } from '@material-ui/icons'
 import { IDepositItem } from './state/IDepositItem'
-import BigNumber from 'bignumber.js'
-import ethUnits from 'ethereum-units'
-
-function parseDepositAmount(amount: BigNumber): string {
-    return ethUnits.convert(amount.toString(), 'wei', 'ether')
-}
+import { displayWeiToETH } from './common/functions'
 
 /**
  * Represents a single deposit in the `HouseDepositList`
@@ -30,7 +25,7 @@ const HouseDepositListItem: FunctionComponent<{
         </ListItemIcon>
         <ListItemText
             primary={deposit._address}
-            secondary={`${parseDepositAmount(deposit.amount)} DBETs`}
+            secondary={`${displayWeiToETH(deposit.amount)} DBETs`}
         />
     </ListItem>
 )
