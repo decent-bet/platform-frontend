@@ -9,6 +9,7 @@ import SlotsList from './SlotsList'
 import StateChannelBuilder from './StateChannelBuilder'
 import StateChannelTable from './StateChannelTable'
 import StateChannelToolbar from './StateChannelToolbar'
+import HouseStatus from './HouseStatus'
 import TransparentPaper from '../../common/components/TransparentPaper'
 import './slots.css'
 import Routes from '../../routes'
@@ -243,16 +244,24 @@ class Slots extends Component<any, ISlotsState> {
 
     private renderSelectChannelsState() {
         return (
-            <Grid container={true} direction="row" spacing={24}>
+            <Grid
+                container={true}
+                direction="row"
+                spacing={16}
+                justify="center"
+            >
                 <Grid item={true} xs={12}>
                     {this.renderChannelTable()}
                 </Grid>
-                <Grid item={true} xs={12}>
+                <Grid item={true} xs={12} md={6} lg={8}>
                     <StateChannelBuilder
                         onBuildChannelListener={this.onBuildChannelListener}
                         tokenBalance={this.props.tokenBalance}
                         vthoBalance={this.props.vthoBalance}
                     />
+                </Grid>
+                <Grid item={true} xs={12} md={6} lg={4}>
+                    <HouseStatus balance={new BigNumber(1000000)} />
                 </Grid>
             </Grid>
         )
