@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { Grid } from '@material-ui/core'
 import HouseBalanceCard from './HouseBalanceCard'
-import HouseDepositList from './HouseDepositList'
 import Loading from './Loading'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -19,7 +18,6 @@ class House extends Component<IHouseProps, IHouseState> {
         // Execute all requests in parallel
         await Promise.all([
             this.props.getHouseBalance(),
-            this.props.getHouseDeposits(),
             this.props.getHouseAddress()
         ])
         this.setState({ stateMachine: StateMachine.Ready })
@@ -28,18 +26,12 @@ class House extends Component<IHouseProps, IHouseState> {
     public renderLoadingScreen = () => <Loading />
 
     public renderReadyContent = () => (
-        <>
-            <Grid item={true} xs={12} md={6} lg={4}>
-                <HouseBalanceCard balance={this.props.houseBalance} />
-            </Grid>
-
-            <Grid item={true} xs={12} md={6} lg={8}>
-                <HouseDepositList
-                    houseAddress={this.props.houseAddress}
-                    houseDepositList={this.props.houseDepositList}
-                />
-            </Grid>
-        </>
+        <Grid item={true} xs={12} lg={6} xl={4}>
+            <HouseBalanceCard
+                balance={this.props.houseBalance}
+                houseAddress={this.props.houseAddress}
+            />
+        </Grid>
     )
 
     public renderStateMachine = (): JSX.Element | null => {

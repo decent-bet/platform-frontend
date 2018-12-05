@@ -43,7 +43,7 @@ const HouseDepositList: FunctionComponent<{
 }> = ({ houseDepositList, houseAddress }) => (
     <Card>
         <CardHeader
-            title="Deposits to the House Address"
+            title="Direct deposits to the House Address"
             subheader={`Contract Address: ${houseAddress}`}
         />
         <CardContent>

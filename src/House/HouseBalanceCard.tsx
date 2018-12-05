@@ -7,8 +7,12 @@ import {
     withStyles,
     WithStyles,
     Theme,
-    Typography
+    List,
+    ListItem,
+    ListItemText,
+    ListItemIcon
 } from '@material-ui/core'
+import { Inbox, AccountBalanceWallet } from '@material-ui/icons'
 import { IHouseBalanceCardProps } from './IHouseBalanceCardProps'
 import { displayWeiToETH } from './common/functions'
 
@@ -18,8 +22,9 @@ const styles = (theme: Theme) => {
     return createStyles({
         accentContainer: {
             backgroundColor: primaryColor,
-            '& span': {
-                color: textColor
+            '& span,p,svg': {
+                color: textColor,
+                wordBreak: 'break-word'
             }
         },
         accentText: {
@@ -34,14 +39,30 @@ const styles = (theme: Theme) => {
  */
 const HouseBalanceCard: FunctionComponent<
     IHouseBalanceCardProps & WithStyles<typeof styles>
-> = ({ balance, classes }) => (
+> = ({ balance, houseAddress, classes }) => (
     <Card className={classes.accentContainer}>
-        <CardHeader title="House Balance" />
+        <CardHeader title="House Status" />
         <CardContent>
-            <Typography
-                variant="h4"
-                className={classes.accentText}
-            >{`${displayWeiToETH(balance)} DBETs`}</Typography>
+            <List>
+                <ListItem>
+                    <ListItemIcon>
+                        <Inbox />
+                    </ListItemIcon>
+                    <ListItemText
+                        primary="Total Balance"
+                        secondary={`${displayWeiToETH(balance)} DBETs`}
+                    />
+                </ListItem>
+                <ListItem>
+                    <ListItemIcon>
+                        <AccountBalanceWallet />
+                    </ListItemIcon>
+                    <ListItemText
+                        primary="House Address"
+                        secondary={houseAddress}
+                    />
+                </ListItem>
+            </List>
         </CardContent>
     </Card>
 )
