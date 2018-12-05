@@ -174,15 +174,13 @@ class Slots extends Component<any, ISlotsState> {
     }
 
     // Builds the entire State Channel in one Step
-    private async onBuildChannelListener(amount) {
-        const parsedAmount = new BigNumber(amount)
-
+    private async onBuildChannelListener(amount: BigNumber) {
         // Update UI. Tell the user we are building the channel
         this.setState({ stateMachine: SlotsStateMachine.BuildingGame })
 
         // Create the channel
         const currentChannel = await this.props.initChannel(
-            parsedAmount,
+            amount,
             this.onUpdateBuildStatusListener
         )
 
