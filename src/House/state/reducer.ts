@@ -3,7 +3,6 @@ import { Action } from 'redux-actions'
 import {
     Payload,
     IPayloadGetHouseBalance,
-    IPayloadGetHouseDeposits,
     IPayloadGetContractAddress
 } from './Payload'
 import { IState, DefaultState } from './IState'
@@ -22,12 +21,6 @@ export default function houseReducer(
                 ...state,
                 houseBalance: (action.payload as IPayloadGetHouseBalance)
                     .balance
-            }
-        case `${PREFIX}/${ActionTypes.GET_HOUSE_DEPOSITS}`:
-            return {
-                ...state,
-                houseDepositList: (action.payload as IPayloadGetHouseDeposits)
-                    .depositItemList
             }
         case `${PREFIX}/${ActionTypes.GET_CONTRACT_ADDRESS}`:
             return {

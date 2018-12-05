@@ -1,5 +1,4 @@
 import BigNumber from 'bignumber.js'
-import { IDepositItem } from './IDepositItem'
 
 /**
  * Redux State for the House Component
@@ -7,7 +6,6 @@ import { IDepositItem } from './IDepositItem'
 export interface IState {
     readonly houseAddress: string
     readonly houseBalance: BigNumber
-    readonly houseDepositList: IDepositItem[]
 }
 
 /**
@@ -15,6 +13,5 @@ export interface IState {
  */
 export const DefaultState: IState = {
     houseAddress: '0x',
-    houseBalance: new BigNumber(0),
-    houseDepositList: []
+    houseBalance: new BigNumber(0)
 }

@@ -3,10 +3,6 @@ import {
     Card,
     CardContent,
     CardHeader,
-    createStyles,
-    withStyles,
-    WithStyles,
-    Theme,
     List,
     ListItem,
     ListItemText,
@@ -16,31 +12,15 @@ import { Inbox, AccountBalanceWallet } from '@material-ui/icons'
 import { IHouseBalanceCardProps } from './IHouseBalanceCardProps'
 import { displayWeiToETH } from './common/functions'
 
-const styles = (theme: Theme) => {
-    const primaryColor = theme.palette.primary.main
-    const textColor = theme.palette.getContrastText(primaryColor)
-    return createStyles({
-        accentContainer: {
-            backgroundColor: primaryColor,
-            '& span,p,svg': {
-                color: textColor,
-                wordBreak: 'break-word'
-            }
-        },
-        accentText: {
-            color: textColor
-        }
-    })
-}
-
 /**
  * The card that shows the balance of the House Account
  * @param balance The amount to show in the card.
  */
-const HouseBalanceCard: FunctionComponent<
-    IHouseBalanceCardProps & WithStyles<typeof styles>
-> = ({ balance, houseAddress, classes }) => (
-    <Card className={classes.accentContainer}>
+const HouseBalanceCard: FunctionComponent<IHouseBalanceCardProps> = ({
+    balance,
+    houseAddress
+}) => (
+    <Card>
         <CardHeader title="House Status" />
         <CardContent>
             <List>
@@ -66,4 +46,4 @@ const HouseBalanceCard: FunctionComponent<
         </CardContent>
     </Card>
 )
-export default withStyles(styles)(HouseBalanceCard)
+export default HouseBalanceCard
