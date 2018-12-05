@@ -1,6 +1,6 @@
 import { BigNumber } from 'bignumber.js'
 import { units } from 'ethereum-units'
-import * as React from 'react'
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import * as thunks from '../state/thunks'
@@ -13,14 +13,15 @@ import TransparentPaper from '../../common/components/TransparentPaper'
 import './slots.css'
 import Routes from '../../routes'
 import ConfirmationDialog from '../../common/components/ConfirmationDialog'
-import { ISlotsState, SlotsState } from './SlotsState'
+import { ISlotsState, SlotsState, SlotsStateMachine } from './ISlotsState'
 import AppLoading from '../../common/components/AppLoading'
 import { MIN_VTHO_AMOUNT } from '../../constants'
 
-class Slots extends React.Component<any, ISlotsState> {
+class Slots extends Component<any, ISlotsState> {
+    public state = SlotsState
+
     constructor(props: any) {
         super(props)
-        this.state = new SlotsState()
 
         this.isChannelClaimed = this.isChannelClaimed.bind(this)
         this.onCloseMinVTHODialog = this.onCloseMinVTHODialog.bind(this)
@@ -51,21 +52,21 @@ class Slots extends React.Component<any, ISlotsState> {
 
     public async componentDidMount() {
         if (this.props.slotsInitialized) {
-            this.setState({ stateMachine: 'loading' })
+            this.setState({ stateMachine: SlotsStateMachine.Loading })
             await this.props.initializeSlots()
             await this.refreshChannels()
         } else {
-            this.setState({ stateMachine: 'list_games' })
+            this.setState({ stateMachine: SlotsStateMachine.ListGames })
         }
     }
 
     public componentWillUnmount() {
-        this.setState(new SlotsState())
+        this.setState(SlotsState)
     }
 
     public async componentDidUpdate(prevProps, prevState) {
         if (this.props.slotsInitialized !== prevProps.slotsInitialized) {
-            this.setState({ stateMachine: 'loading' })
+            this.setState({ stateMachine: SlotsStateMachine.Loading })
             await this.props.initializeSlots()
             await this.refreshChannels()
         }
@@ -90,7 +91,7 @@ class Slots extends React.Component<any, ISlotsState> {
     private async refreshChannels(): Promise<void> {
         // Get channels and wait
         this.setState({
-            stateMachine: 'loading',
+            stateMachine: SlotsStateMachine.Loading,
             buildStatus: 'Fetching channels...'
         })
 
@@ -138,7 +139,7 @@ class Slots extends React.Component<any, ISlotsState> {
         // If there is exactly one usable channel active, switch to it.
         if (activeChannels.length === 1) {
             this.setState({
-                stateMachine: 'select_game',
+                stateMachine: SlotsStateMachine.SelectGame,
                 currentChannel: activeChannels[0]
             })
         } else if (nonDepositedChannels.length >= 1) {
@@ -147,13 +148,13 @@ class Slots extends React.Component<any, ISlotsState> {
 
             // Update UI. Tell the user we are building the channel
             this.setState({
-                stateMachine: 'building_game',
+                stateMachine: SlotsStateMachine.BuildingGame,
                 buildStatus: 'Building the game...'
             })
 
             // Create the channel
             this.setState({
-                stateMachine: 'loading',
+                stateMachine: SlotsStateMachine.Loading,
                 buildStatus: 'Making deposit into created channel...'
             })
             const currentChannel = this.props.depositIntoCreatedChannel(
@@ -162,10 +163,13 @@ class Slots extends React.Component<any, ISlotsState> {
             )
 
             // Update UI
-            this.setState({ stateMachine: 'select_game', currentChannel })
+            this.setState({
+                stateMachine: SlotsStateMachine.SelectGame,
+                currentChannel
+            })
         } else {
             // Ask the user to either select a channel or create a new one
-            this.setState({ stateMachine: 'select_channels' })
+            this.setState({ stateMachine: SlotsStateMachine.SelectChannels })
         }
     }
 
@@ -174,7 +178,7 @@ class Slots extends React.Component<any, ISlotsState> {
         const parsedAmount = new BigNumber(amount)
 
         // Update UI. Tell the user we are building the channel
-        this.setState({ stateMachine: 'building_game' })
+        this.setState({ stateMachine: SlotsStateMachine.BuildingGame })
 
         // Create the channel
         const currentChannel = await this.props.initChannel(
@@ -183,7 +187,10 @@ class Slots extends React.Component<any, ISlotsState> {
         )
 
         // Update UI
-        this.setState({ stateMachine: 'select_game', currentChannel })
+        this.setState({
+            stateMachine: SlotsStateMachine.SelectGame,
+            currentChannel
+        })
     }
 
     private onUpdateBuildStatusListener(buildStatus) {
@@ -191,12 +198,12 @@ class Slots extends React.Component<any, ISlotsState> {
     }
 
     // Claims the tokens from a Channel
-    private async onClaimChannelListener(channelId): Promise<void> {
+    private async onClaimChannelListener(channelId: string): Promise<void> {
         if (this.props.vthoBalance < MIN_VTHO_AMOUNT) {
             this.setState({ minVTHOdialogIsOpen: true })
         } else {
             this.setState({
-                stateMachine: 'claiming',
+                stateMachine: SlotsStateMachine.Claiming,
                 claimingChannel: channelId
             })
             await this.props.claimAndWithdrawFromChannel(channelId)
@@ -258,7 +265,7 @@ class Slots extends React.Component<any, ISlotsState> {
             this.setState({ minVTHOdialogIsOpen: true })
         } else {
             this.setState({
-                stateMachine: 'claiming_from_contract'
+                stateMachine: SlotsStateMachine.ClaimingFromContract
             })
             await this.props.claimDbetsFromContract()
 
@@ -371,17 +378,17 @@ class Slots extends React.Component<any, ISlotsState> {
 
     private renderStateMachine() {
         switch (this.state.stateMachine) {
-            case 'loading':
+            case SlotsStateMachine.Loading:
                 return this.renderLoadingState('Loading slots...')
-            case 'select_channels':
+            case SlotsStateMachine.SelectChannels:
                 return this.renderSelectChannelsState()
-            case 'building_game':
+            case SlotsStateMachine.BuildingGame:
                 return this.renderLoadingState()
-            case 'list_games':
+            case SlotsStateMachine.ListGames:
                 return this.renderListGamesState()
-            case 'select_game':
+            case SlotsStateMachine.SelectGame:
                 return this.renderSelectGameState()
-            case 'claiming_from_contract':
+            case SlotsStateMachine.ClaimingFromContract:
                 const userBalance = new BigNumber(this.props.balance)
                     .dividedBy(units.ether)
                     .toFixed(2)
@@ -389,7 +396,7 @@ class Slots extends React.Component<any, ISlotsState> {
                     `Withdrawing ${userBalance} DBETs from Smart Contract...`,
                     this.renderCurrentBalanceNode()
                 )
-            case 'claiming':
+            case SlotsStateMachine.Claiming:
                 return this.renderClaimingStatus()
             default:
                 return this.renderLoadingState()
@@ -422,9 +429,12 @@ class Slots extends React.Component<any, ISlotsState> {
     }
 }
 
-const mapStateToProps = state => Object.assign({}, state.casino, state.main)
-const mapDispatchToProps = dispatch =>
-    bindActionCreators(Object.assign({}, thunks), dispatch)
+function mapStateToProps(state) {
+    return { ...state.casino, ...state.main }
+}
+function mapDispatchToProps(dispatch) {
+    return bindActionCreators({ ...thunks }, dispatch)
+}
 
 const SlotsContainer = connect(
     mapStateToProps,
