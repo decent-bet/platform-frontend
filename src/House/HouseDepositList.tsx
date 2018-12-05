@@ -24,8 +24,10 @@ const HouseDepositListItem: FunctionComponent<{
             <Check />
         </ListItemIcon>
         <ListItemText
-            primary={deposit._address}
-            secondary={`${displayWeiToETH(deposit.amount)} DBETs`}
+            primary={`${displayWeiToETH(
+                deposit.amount
+            )} DBETs @ ${deposit.date.toISOString()}`}
+            secondary={`Transaction Hash: ${deposit.txHash}`}
         />
     </ListItem>
 )
