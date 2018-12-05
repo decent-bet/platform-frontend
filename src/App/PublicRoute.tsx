@@ -2,7 +2,13 @@ import React, { FunctionComponent } from 'react'
 import { Route, Redirect } from 'react-router-dom'
 import Routes from '../routes'
 
-const PublicRoute: FunctionComponent<any> = ({
+interface IPublicRouteProps {
+    component: any
+    path: Routes
+    userIsAuthenticated: boolean
+}
+
+const PublicRoute: FunctionComponent<IPublicRouteProps> = ({
     component: Component,
     ...rest
 }) => {

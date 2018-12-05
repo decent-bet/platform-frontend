@@ -2,7 +2,13 @@ import React, { FunctionComponent } from 'react'
 import { Route, Redirect } from 'react-router-dom'
 import Routes from '../routes'
 
-const PrivateRoute: FunctionComponent<any> = ({
+interface IPrivateRouteProps {
+    component: any
+    userIsAuthenticated: boolean
+    path: Routes
+}
+
+const PrivateRoute: FunctionComponent<IPrivateRouteProps> = ({
     component: Component,
     ...rest
 }) => {
