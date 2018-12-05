@@ -35,12 +35,17 @@ const HouseDepositListItem: FunctionComponent<{
 /**
  * A Card with a list of `IDeposit`s
  * @param houseDepositList List of deposits to render in a list
+ * @param houseAddress The address to display in the widget
  */
 const HouseDepositList: FunctionComponent<{
     houseDepositList: IDepositItem[]
-}> = ({ houseDepositList }) => (
+    houseAddress: string
+}> = ({ houseDepositList, houseAddress }) => (
     <Card>
-        <CardHeader title="Deposits to the House Address" />
+        <CardHeader
+            title="Deposits to the House Address"
+            subheader={`Contract Address: ${houseAddress}`}
+        />
         <CardContent>
             <List>
                 {houseDepositList.map((item, index) => (

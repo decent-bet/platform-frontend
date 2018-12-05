@@ -1,7 +1,11 @@
 import { IThunkDependencies } from '../../common/types'
 import { Action } from 'redux-actions'
 import { Dispatch } from 'redux'
-import { IPayloadGetHouseBalance, IPayloadGetHouseDeposits } from './Payload'
+import {
+    IPayloadGetHouseBalance,
+    IPayloadGetHouseDeposits,
+    IPayloadGetContractAddress
+} from './Payload'
 import ActionTypes, { PREFIX } from './ActionTypes'
 import BigNumber from 'bignumber.js'
 import { IDepositItem } from './IDepositItem'
@@ -79,5 +83,26 @@ export function getHouseDeposits() {
                 depositItemList: filteredEvents
             }
         } as Action<IPayloadGetHouseDeposits>)
+    }
+}
+
+/**
+ * Thunk that exports the contract's address
+ */
+export function getHouseAddress() {
+    return async function(
+        dispatch: Dispatch,
+        _getState,
+        dependencies: IThunkDependencies
+    ) {
+        const contract = await dependencies.contractFactory.slotsChannelManagerContract()
+        const instance = contract.instance
+
+        return dispatch({
+            type: `${PREFIX}/${ActionTypes.GET_CONTRACT_ADDRESS}`,
+            payload: {
+                contractAddress: instance._address
+            }
+        } as Action<IPayloadGetContractAddress>)
     }
 }

@@ -19,7 +19,8 @@ class House extends Component<IHouseProps, IHouseState> {
         // Execute all requests in parallel
         await Promise.all([
             this.props.getHouseBalance(),
-            this.props.getHouseDeposits()
+            this.props.getHouseDeposits(),
+            this.props.getHouseAddress()
         ])
         this.setState({ stateMachine: StateMachine.Ready })
     }
@@ -34,6 +35,7 @@ class House extends Component<IHouseProps, IHouseState> {
 
             <Grid item={true} xs={12} md={6} lg={8}>
                 <HouseDepositList
+                    houseAddress={this.props.houseAddress}
                     houseDepositList={this.props.houseDepositList}
                 />
             </Grid>
