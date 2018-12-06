@@ -74,10 +74,25 @@ function requestActivationEmail(): Promise<void> {
     })
 }
 
+function getTransactionHistory(address: string) {
+    return new Promise(async (resolve, reject) => {
+        resolve()
+        try {
+        } catch (error) {
+            let errorMessage =
+                error.response && error.response.data
+                    ? error.response.data.message
+                    : error.message
+            reject({ message: errorMessage })
+        }
+    })
+}
+
 export default createActions({
     [PREFIX]: {
         [Actions.SAVE_ACCOUNT_INFO]: saveAccountInfo,
         [Actions.SAVE_ACCOUNT_ADDRESS]: saveAccountAddress,
-        [Actions.REQUEST_ACTIVATION_EMAIL]: requestActivationEmail
+        [Actions.REQUEST_ACTIVATION_EMAIL]: requestActivationEmail,
+        [Actions.GET_TRANSACTION_HISTORY]: getTransactionHistory
     }
 })
