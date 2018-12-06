@@ -19,8 +19,7 @@ import {
     ExitToApp,
     VideogameAsset,
     Info,
-    ChevronLeft,
-    AccountBalance
+    ChevronLeft
 } from '@material-ui/icons'
 import dbetLogo from '../../assets/img/dbet-white.svg'
 import withWidth, { isWidthDown, isWidthUp } from '@material-ui/core/withWidth'
@@ -197,14 +196,6 @@ class AppDrawer extends React.Component<IAppDrawerProps, IAppDrawerState> {
                             }
                         />
                     ) : null}
-
-                    <AppDrawerItem
-                        viewToSelect={Routes.House}
-                        isSelected={this.props.selectedView === Routes.House}
-                        onViewChangeListener={this.props.onViewChangeListener}
-                        title="House"
-                        icon={<AccountBalance />}
-                    />
 
                     <AppDrawerItem
                         viewToSelect={Routes.Logout}

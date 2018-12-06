@@ -1,6 +1,5 @@
 enum Routes {
     Main = '/',
-    House = '/house/',
     ActivateAccount = '/activate/:id/:key',
     Logout = '/logout/',
     Casino = '/casino/',

@@ -8,7 +8,6 @@ import authReducer from './Auth/state'
 import activateAccountReducer from './ActivateAccount/state'
 import accountReducer from './Account/state'
 import casinoReducer from './Casino/state'
-import houseReducer from './House/state'
 import ContractFactory from './common/ContractFactory'
 import ThorifyFactory from './common/helpers/ThorifyFactory'
 import KeyStore from './common/helpers/KeyStore'
@@ -27,7 +26,6 @@ const CombinedReducers = combineReducers({
     auth: authReducer,
     account: accountReducer,
     activate: activateAccountReducer,
-    house: houseReducer,
     casino: casinoReducer
 })
 

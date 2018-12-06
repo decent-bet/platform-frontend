@@ -228,7 +228,7 @@ class Slots extends Component<ISlotProps, ISlotsState> {
                 />
             </Grid>
             <Grid item={true} xs={12} md={6} lg={4}>
-                <HouseStatus balance={new BigNumber(1000000)} />
+                <HouseStatus balance={this.props.houseBalance} />
             </Grid>
         </Grid>
     )

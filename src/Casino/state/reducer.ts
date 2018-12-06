@@ -7,12 +7,14 @@ import {
 } from '../../constants'
 import { Action } from 'redux-actions'
 import { IChannel, ChannelDefaultState } from './IChannel'
+import BigNumber from 'bignumber.js'
 
 interface IChannelMap {
     readonly [id: string]: IChannel
 }
 
 const casinoDefaultState = {
+    houseBalance: new BigNumber(0),
     isCasinoLogedIn: false,
     slotsInitialized: false,
     channels: {} as IChannelMap,
@@ -117,6 +119,9 @@ export default function slotsManagerReducer(
     switch (action.type) {
         case `${PREFIX}/${Actions.GET_BALANCE}/${FULFILLED}`:
             return { ...casinoState, balance: action.payload }
+
+        case `${PREFIX}/${Actions.GET_HOUSE_BALANCE}/${FULFILLED}`:
+            return { ...casinoState, houseBalance: action.payload }
 
         case `${PREFIX}/${Actions.SET_CHANNEL}`:
             let newChannel = action.payload

@@ -13,6 +13,7 @@ import {
 } from '@material-ui/core'
 import { AccountBalanceWallet } from '@material-ui/icons'
 import BigNumber from 'bignumber.js'
+import { displayWeiToETH } from './common/functions'
 
 const styles = createStyles({
     accentCard: {
@@ -37,7 +38,7 @@ const HouseStatus: FunctionComponent<
                     </ListItemIcon>
                     <ListItemText
                         primary="Balance"
-                        secondary={`${balance.toString()} DBETs`}
+                        secondary={`${displayWeiToETH(balance)} DBETs`}
                     />
                 </ListItem>
             </List>
