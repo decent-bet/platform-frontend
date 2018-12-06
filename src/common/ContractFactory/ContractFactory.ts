@@ -13,7 +13,6 @@ export default class ContractFactory {
         SlotsChannelFinalizer
     }
     private _contracts: Map<string, any>
-    private _thorify: any
     /**
      *
      * @param {ThorifyFactory} thorifyFactory
@@ -29,29 +28,30 @@ export default class ContractFactory {
      * @param {string} contractName
      * @returns {Promise<any>}
      */
-    public async makeContract(contractName: string): Promise<any> {
+    public async makeContract(
+        contractName: string,
+        publicAddress?: string
+    ): Promise<any> {
         if (!Contracts.hasOwnProperty(`${contractName}Contract`)) {
             throw new Error(
                 `Contract class doesn't exists for the name given: ${contractName}`
             )
         }
 
-        if (!this._thorify) {
-            this._thorify = await this._thorifyFactory.configured()
-        }
+        const thorify = await this._thorifyFactory.make(publicAddress)
 
         // get the contract if exists in the map
         let contractItem = this._contracts.get(contractName)
 
         if (typeof contractItem === 'undefined') {
             const contract = this._jsonContracts[contractName]
-            const instance = new this._thorify.eth.Contract(contract.raw.abi)
-            const chainTag = await this._thorify.eth.getChainTag()
+            const instance = new thorify.eth.Contract(contract.raw.abi)
+            const chainTag = await thorify.eth.getChainTag()
             let contractAddress = contract.address[chainTag]
 
             instance.options.address = contractAddress
             contractItem = new Contracts[`${contractName}Contract`](
-                this._thorify,
+                thorify,
                 instance,
                 this._keyHandler
             )
@@ -64,21 +64,25 @@ export default class ContractFactory {
     /**
      * @returns {SlotsChannelFinalizerContract}
      */
-    public async slotsChannelFinalizerContract(): Promise<any> {
-        return await this.makeContract('SlotsChannelFinalizer')
+    public async slotsChannelFinalizerContract(
+        publicAddress?: string
+    ): Promise<any> {
+        return await this.makeContract('SlotsChannelFinalizer', publicAddress)
     }
 
     /**
      * @returns {SlotsChannelManagerContract}
      */
-    public async slotsChannelManagerContract(): Promise<any> {
-        return await this.makeContract('SlotsChannelManager')
+    public async slotsChannelManagerContract(
+        publicAddress?: string
+    ): Promise<any> {
+        return await this.makeContract('SlotsChannelManager', publicAddress)
     }
 
     /**
      * @returns {DBETVETTokenContract}
      */
-    public async decentBetTokenContract(): Promise<any> {
-        return await this.makeContract('DBETVETToken')
+    public async decentBetTokenContract(publicAddress?: string): Promise<any> {
+        return await this.makeContract('DBETVETToken', publicAddress)
     }
 }

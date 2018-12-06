@@ -1,32 +1,29 @@
 import * as React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import * as thunks from './state/thunks'
+import * as thunks from '../state/thunks'
 import MomentUtils from 'material-ui-pickers/utils/moment-utils'
 import { MuiPickersUtilsProvider } from 'material-ui-pickers'
 import { Grid, Paper, Stepper, StepButton, Step } from '@material-ui/core'
-import AccountAddress from './Address'
-import BasicAccountInfo from './BasicAccountInfo'
-import TransparentPaper from '../common/components/TransparentPaper'
-import { VIEW_CASINO } from '../routes'
+import AccountAddress from '../Address'
+import BasicAccountInfo from '../BasicAccountInfo'
+import TransparentPaper from '../../common/components/TransparentPaper'
+import { VIEW_CASINO } from '../../routes'
+import TransactionHistory from '../TransactionHistory'
+import ListAltIcon from '@material-ui/icons/ListAlt'
+import IAccountProps from './IAccountProps'
+import AccountState from './AccountState'
+import IAccountState from './IAccountState'
 
-export interface IAccountState {
-    activeStep: number
-    isSaving: boolean
-}
-
-class Account extends React.Component<any, IAccountState> {
-    constructor(props) {
+class Account extends React.Component<IAccountProps, IAccountState> {
+    constructor(props: IAccountProps) {
         super(props)
-        this.state = {
-            isSaving: false,
-            activeStep: this.defaultStep
-        }
+        this.state = new AccountState()
+    }
 
-        this.handleStep = this.handleStep.bind(this)
-        this.saveAccountAddress = this.saveAccountAddress.bind(this)
-        this.saveAccountInfo = this.saveAccountInfo.bind(this)
-        this.onSuccess = this.onSuccess.bind(this)
+    public componentDidMount() {
+        const activeStep = this.defaultStep
+        this.setState({ activeStep })
     }
 
     private get defaultStep(): number {
@@ -42,7 +39,7 @@ class Account extends React.Component<any, IAccountState> {
         }
     }
 
-    private onSuccess(step: number): void {
+    private onSuccess = (step: number): void => {
         if (step === 0) {
             this.setState({
                 activeStep: 1
@@ -52,7 +49,7 @@ class Account extends React.Component<any, IAccountState> {
         }
     }
 
-    private handleStep(stepstep: number) {
+    private handleStep = (stepstep: number) => {
         return () => {
             this.setState({
                 activeStep: stepstep
@@ -60,10 +57,10 @@ class Account extends React.Component<any, IAccountState> {
         }
     }
 
-    private async saveAccountAddress(
+    private saveAccountAddress = async (
         publicAddress: string,
         privateKey: string
-    ): Promise<void> {
+    ): Promise<void> => {
         try {
             this.setState({
                 isSaving: true
@@ -84,7 +81,7 @@ class Account extends React.Component<any, IAccountState> {
         }
     }
 
-    private async saveAccountInfo(data: any): Promise<void> {
+    private saveAccountInfo = async (data: any): Promise<void> => {
         try {
             await this.props.saveAccountInfo(data)
             this.setState({
@@ -95,6 +92,43 @@ class Account extends React.Component<any, IAccountState> {
             this.setState({
                 isSaving: false
             })
+        }
+    }
+
+    private loadTransactions = async () => {
+        return await this.props.getTransactionHistory(
+            this.props.account.verification.addressRegistration.vetAddress
+        )
+    }
+
+    private getActiveStepComponent = (step: number) => {
+        switch (step) {
+            case 0:
+                return (
+                    <AccountAddress
+                        isSaving={this.state.isSaving}
+                        account={this.props.account}
+                        accountHasAddress={this.props.accountHasAddress}
+                        saveAccountAddress={this.saveAccountAddress}
+                    />
+                )
+            case 1:
+                return (
+                    <BasicAccountInfo
+                        isSaving={this.state.isSaving}
+                        account={this.props.account}
+                        accountIsVerified={this.props.accountIsVerified}
+                        saveAccountInfo={this.saveAccountInfo}
+                    />
+                )
+            default:
+                return (
+                    <TransactionHistory
+                        loading={this.props.loading}
+                        transactions={this.props.transactions}
+                        loadTransactions={this.loadTransactions}
+                    />
+                )
         }
     }
 
@@ -131,6 +165,24 @@ class Account extends React.Component<any, IAccountState> {
                                         Account info
                                     </StepButton>
                                 </Step>
+                                {this.props.accountIsVerified &&
+                                this.props.accountHasAddress ? (
+                                    <Step
+                                        completed={
+                                            this.props.accountHasAddress &&
+                                            this.props.accountIsVerified
+                                        }
+                                    >
+                                        <StepButton
+                                            onClick={this.handleStep(2)}
+                                            icon={
+                                                <ListAltIcon color="primary" />
+                                            }
+                                        >
+                                            Transaction History
+                                        </StepButton>
+                                    </Step>
+                                ) : null}
                             </Stepper>
                         </TransparentPaper>
                     </Grid>
@@ -143,25 +195,7 @@ class Account extends React.Component<any, IAccountState> {
                         }}
                     >
                         <Paper>
-                            {this.state.activeStep === 0 ? (
-                                <AccountAddress
-                                    isSaving={this.state.isSaving}
-                                    account={this.props.account}
-                                    accountHasAddress={
-                                        this.props.accountHasAddress
-                                    }
-                                    saveAccountAddress={this.saveAccountAddress}
-                                />
-                            ) : (
-                                <BasicAccountInfo
-                                    isSaving={this.state.isSaving}
-                                    account={this.props.account}
-                                    accountIsVerified={
-                                        this.props.accountIsVerified
-                                    }
-                                    saveAccountInfo={this.saveAccountInfo}
-                                />
-                            )}
+                            {this.getActiveStepComponent(this.state.activeStep)}
                         </Paper>
                     </Grid>
                 </Grid>

@@ -56,7 +56,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
     async getChannels() {
         let config = {
             filter: {
-                user: await this._keyHandler.getPublicAddress()
+                user: this._thorify.eth.defaultAccount
             },
             toBlock: 'latest',
             order: 'DESC'
@@ -133,7 +133,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
      * Events
      */
     async logNewChannel(transaction) {
-        const userAddress = await this._keyHandler.getPublicAddress()
+        const userAddress = await this._thorify.eth.defaultAccount
         let listenerSettings = {
             config: {
                 filter: {
@@ -192,33 +192,46 @@ export default class SlotsChannelManagerContract extends BaseContract {
     }
 
     async logChannelFinalized(id, fromBlock, toBlock) {
-        const userAddress = await this._keyHandler.getPublicAddress()
+        const userAddress = this._thorify.eth.defaultAccount
+        const filter = {
+            user: userAddress
+        }
+
+        if (id) {
+            filter.id = id
+        }
+
         return this.instance.events.LogChannelFinalized({
-            filter: {
-                user: userAddress,
-                id
-            },
+            filter,
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
-    logClaimChannelTokens(id, fromBlock, toBlock) {
+    logClaimChannelTokens(id, fromBlock, toBlock, isHouse) {
+        const filter = {}
+        if (id) {
+            filter.id = id
+        }
+        if (isHouse) {
+            filter.isHouse = isHouse
+        } else {
+            filter.isHouse = false
+        }
+
         return this.instance.events.LogClaimChannelTokens({
-            filter: {
-                id
-            },
+            filter,
             fromBlock: fromBlock ? fromBlock : 0,
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
     logDeposit(fromBlock, toBlock) {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             this.instance.events
                 .LogDeposit({
                     filter: {
-                        _address: await this._keyHandler.getPublicAddress()
+                        _address: this._thorify.eth.defaultAccount
                     },
                     fromBlock: fromBlock ? fromBlock : 0,
                     toBlock: toBlock ? toBlock : 'latest'
@@ -237,7 +250,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
             let listenerSettings = {
                 config: {
                     filter: {
-                        _address: await this._keyHandler.getPublicAddress()
+                        _address: this._thorify.eth.defaultAccount
                     },
                     fromBlock: fromBlock ? fromBlock : 0,
                     toBlock: toBlock ? toBlock : 'latest',

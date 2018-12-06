@@ -4,19 +4,19 @@ export default interface IContractFactory {
      * @param {string} contractName
      * @returns {Promise<any>}
      */
-    makeContract(contractName: string): Promise<any>
+    makeContract(contractName: string, publicAddress?: string): Promise<any>
 
     /**
      * @returns {SlotsChannelFinalizerContract}
      */
-    slotsChannelFinalizerContract(): Promise<any>
+    slotsChannelFinalizerContract(publicAddress?: string): Promise<any>
     /**
      * @returns {SlotsChannelManagerContract}
      */
-    slotsChannelManagerContract(): Promise<any>
+    slotsChannelManagerContract(publicAddress?: string): Promise<any>
 
     /**
      * @returns {DecentBetTokenContract}
      */
-    decentBetTokenContract(): Promise<any>
+    decentBetTokenContract(publicAddress?: string): Promise<any>
 }

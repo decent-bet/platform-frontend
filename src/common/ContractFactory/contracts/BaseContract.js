@@ -5,12 +5,12 @@ import { flatMap, switchMap, tap } from 'rxjs/operators'
 
 export default class BaseContract {
     /**
-     * @param {Web3} web3
+     * @param {thorify} thorify
      * @param {Object} instance
      * @param {KeyHandler} keyHandler
      */
-    constructor(web3, instance, keyHandler) {
-        this._web3 = web3
+    constructor(thorify, instance, keyHandler) {
+        this._thorify = thorify
         this.instance = instance
         this._eventSubscription = null
         this._keyHandler = keyHandler
@@ -110,7 +110,7 @@ export default class BaseContract {
      * @param {string} address
      */
     async getBalance(address) {
-        return await this._web3.eth.getEnergy(address)
+        return await this._thorify.eth.getEnergy(address)
     }
 
     /**
@@ -127,7 +127,7 @@ export default class BaseContract {
         if (!gas) gas = 1000000
 
         let txBody = {
-            from: await this._keyHandler.getPublicAddress(),
+            from: this._thorify.eth.defaultAccount,
             to,
             gas,
             data,
@@ -135,22 +135,24 @@ export default class BaseContract {
         }
 
         let { privateKey } = await this._keyHandler.getWalletValues()
-        let signed = await this._web3.eth.accounts.signTransaction(
+        let signed = await this._thorify.eth.accounts.signTransaction(
             txBody,
             privateKey
         )
-        return await this._web3.eth.sendSignedTransaction(signed.rawTransaction)
+        return await this._thorify.eth.sendSignedTransaction(
+            signed.rawTransaction
+        )
     }
 
     async getSignedRawTx(to, value, data, gas, dependsOn) {
-        let blockRef = await this._web3.eth.getBlockRef()
+        let blockRef = await this._thorify.eth.getBlockRef()
         let { privateKey } = await this._keyHandler.getWalletValues()
-        let signedTx = await this._web3.eth.accounts.signTransaction(
+        let signedTx = await this._thorify.eth.accounts.signTransaction(
             {
                 to,
                 value,
                 data,
-                chainTag: await this._web3.eth.getChainTag(),
+                chainTag: await this._thorify.eth.getChainTag(),
                 blockRef,
                 expiration: 32,
                 gasPriceCoef: 0,
@@ -166,7 +168,7 @@ export default class BaseContract {
             cry
                 .blake2b256(
                     signedTx.messageHash,
-                    await this._keyHandler.getPublicAddress()
+                    this._thorify.eth.defaultAccount
                 )
                 .toString('hex')
 
@@ -181,10 +183,10 @@ export default class BaseContract {
      */
     async signAndSendRawTransactionWithClauses(clauses) {
         const gas = Transaction.intrinsicGas(clauses)
-        const blockRef = await this._web3.eth.getBlockRef()
+        const blockRef = await this._thorify.eth.getBlockRef()
 
         const body = {
-            chainTag: await this._web3.eth.getChainTag(),
+            chainTag: await this._thorify.eth.getChainTag(),
             blockRef,
             expiration: 32,
             clauses: clauses,
@@ -205,7 +207,7 @@ export default class BaseContract {
                 privateKeyBuffer
             )
             const raw = tx.encode()
-            return this._web3.eth.sendSignedTransaction(
+            return this._thorify.eth.sendSignedTransaction(
                 '0x' + raw.toString('hex')
             )
         } catch (error) {

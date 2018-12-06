@@ -1,7 +1,9 @@
 import axios from 'axios'
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from './actionTypes'
-import { IKeyHandler } from '../../common/types'
+import { IKeyHandler, IContractFactory } from '../../common/types'
+import { Observable } from 'rxjs'
+import { tap, map } from 'rxjs/operators'
 
 function saveAccountInfo(formData: any): Promise<any> {
     return new Promise(async (resolve, reject) => {
@@ -74,10 +76,67 @@ function requestActivationEmail(): Promise<void> {
     })
 }
 
-function getTransactionHistory(address: string) {
+function getTransactionHistory(
+    contractFactory: IContractFactory,
+    address: string
+) {
     return new Promise(async (resolve, reject) => {
-        resolve()
+        const topRequests = 3
+        let totalRequests = 0
+
         try {
+            const slotsChannelManagerContract = await contractFactory.slotsChannelManagerContract(
+                address
+            )
+
+            // start session => LogNewChannel
+            const LogNewChannel$ = slotsChannelManagerContract.getEventSubscription(
+                slotsChannelManagerContract.getChannels()
+            )
+
+            // end session => LogChannelFinalized
+            const logChannelFinalized$ = slotsChannelManagerContract.getEventSubscription(
+                slotsChannelManagerContract.logChannelFinalized()
+            )
+
+            // claim => LogClaimChannelTokens
+
+            const LogClaimChannelTokens$ = slotsChannelManagerContract.getEventSubscription(
+                slotsChannelManagerContract.getChannels()
+            )
+
+            // ----> get finalBalances after claim
+
+            const channels$: Observable<any> = LogNewChannel$.pipe(
+                tap(() => {
+                    totalRequests++
+                }),
+                map((i: any) => {
+                    return i.map(event => {
+                        const { returnValues } = event
+                        const {
+                            id,
+                            channelNonce,
+                            initialDeposit,
+                            timestamp
+                        } = returnValues
+                        return { id, channelNonce, initialDeposit, timestamp }
+                    })
+                })
+            )
+
+            const subs = channels$.subscribe(
+                async items => {
+                    if (items.length > 0 || totalRequests >= topRequests) {
+                        subs.unsubscribe() // stop making requests
+                        resolve(items)
+                    }
+                },
+                error => {
+                    console.error(error)
+                    reject(error)
+                }
+            )
         } catch (error) {
             let errorMessage =
                 error.response && error.response.data

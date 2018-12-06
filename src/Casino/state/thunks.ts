@@ -226,7 +226,7 @@ export function initChannel(amount, statusUpdateListener) {
             )} DBETs`
         )
 
-        const thorify = thorifyFactory.make()
+        const thorify = await thorifyFactory.make()
         const initChannelRes = await dispatch(
             actions.initChannel(
                 amount.toFixed(),
