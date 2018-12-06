@@ -7,7 +7,7 @@ import { COLOR_PRIMARY, DARK_TEXT_COLOR } from 'src/common/themes/dark'
 interface ISlotsListProps {
     onGameSelectedListener: (name: string) => void
     allowSelect: boolean
-    balance: number
+    balance: string
 }
 
 interface IGameItem {

@@ -8,14 +8,17 @@ export enum SlotsStateMachine {
     SelectChannels
 }
 
+// We still have no typings for the Channels.
+export type Channel = any
+
 export interface ISlotsState {
     stateMachine: SlotsStateMachine
     minVTHOdialogIsOpen: boolean
     buildStatus: string
-    claimableChannels: any[]
-    activeChannels: any[]
+    claimableChannels: Channel[]
+    activeChannels: Channel[]
     claimingChannel?: string
-    currentChannel: string
+    currentChannel: Channel
 }
 
 export const SlotsState: ISlotsState = {
