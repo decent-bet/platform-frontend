@@ -226,9 +226,7 @@ class Game extends React.Component<any, any> {
             )
         } else if (this.props.lastSpinLoaded) {
             const game = this.props.match.params.gameName || 'game'
-            const path = `${
-                process.env.PUBLIC_URL
-            }/slots-${game}/game/index.html`
+            const path = `${process.env.PUBLIC_URL}/slots/${game}/index.html`
 
             return (
                 <React.Fragment>
