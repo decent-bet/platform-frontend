@@ -56,10 +56,10 @@ class Slots extends Component<ISlotProps, ISlotsState> {
 
     /**
      * Has the channel been claimed?
-     * @param {any} channel
+     * @param {Channel} channel
      * @returns {boolean}
      */
-    private isChannelClaimed = (channel: any): boolean => {
+    private isChannelClaimed = (channel: Channel): boolean => {
         if (!channel.info) return false
         return (
             channel.info.finalized && channel.deposited.isLessThanOrEqualTo(0)
