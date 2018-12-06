@@ -3,19 +3,20 @@ import {
     Card,
     CardHeader,
     createStyles,
-    Typography,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
     WithStyles,
     withStyles,
     CardContent
 } from '@material-ui/core'
+import { AccountBalanceWallet } from '@material-ui/icons'
 import BigNumber from 'bignumber.js'
 
 const styles = createStyles({
     accentCard: {
-        height: '100%',
-        display: 'flex',
-        flexFlow: 'column',
-        justifyContent: 'space-between'
+        height: '100%'
     }
 })
 
@@ -27,9 +28,19 @@ const HouseStatus: FunctionComponent<
     IHouseStatusProps & WithStyles<typeof styles>
 > = ({ classes, balance }) => (
     <Card className={classes.accentCard}>
-        <CardHeader title="House Balance" />
+        <CardHeader title="House Status" />
         <CardContent>
-            <Typography variant="h6">{`${balance.toString()} DBETs`}</Typography>
+            <List>
+                <ListItem>
+                    <ListItemIcon>
+                        <AccountBalanceWallet />
+                    </ListItemIcon>
+                    <ListItemText
+                        primary="Balance"
+                        secondary={`${balance.toString()} DBETs`}
+                    />
+                </ListItem>
+            </List>
         </CardContent>
     </Card>
 )
