@@ -1,8 +1,11 @@
 import ethUtil from 'ethereumjs-util'
 import BaseContract from './BaseContract'
+import { SlotsChannelFinalizer } from '../../../../typings/SlotsChannelFinalizer'
 
-export default class SlotsChannelFinalizerContract extends BaseContract {
-    async finalize(id, userSpin, houseSpin) {
+export default class SlotsChannelFinalizerContract extends BaseContract<
+    SlotsChannelFinalizer
+> {
+    public async finalize(id, userSpin, houseSpin) {
         userSpin = await this.getSpinParts(userSpin)
         houseSpin = await this.getSpinParts(houseSpin)
         const data = this.instance.methods
@@ -25,7 +28,7 @@ export default class SlotsChannelFinalizerContract extends BaseContract {
         )
     }
 
-    async finalizeZeroNonce(id, userSpin) {
+    public async finalizeZeroNonce(id, userSpin) {
         userSpin = await this.getSpinParts(userSpin)
 
         let logKeys = spin => {
@@ -59,7 +62,7 @@ export default class SlotsChannelFinalizerContract extends BaseContract {
         )
     }
 
-    async getSpinParts(spin) {
+    public async getSpinParts(spin) {
         let sign = spin.sign
 
         let sigParams = ethUtil.fromRpcSig(sign)
@@ -97,8 +100,8 @@ export default class SlotsChannelFinalizerContract extends BaseContract {
                 spin.betSize +
                 '/' +
                 v,
-            r: r,
-            s: s
+            r,
+            s
         }
     }
 }

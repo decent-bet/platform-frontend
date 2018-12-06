@@ -10,6 +10,9 @@
 /out
 .idea/
 
+# Typechain
+typings
+
 # testing
 coverage
 
