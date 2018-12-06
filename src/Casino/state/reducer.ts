@@ -5,51 +5,38 @@ import {
     CHANNEL_STATUS_FINALIZED,
     CHANNEL_STATUS_DEPOSITED
 } from '../../constants'
+import { Action } from 'redux-actions'
+import { IChannel, ChannelDefaultState } from './IChannel'
+
+interface IChannelMap {
+    readonly [id: string]: IChannel
+}
 
 const casinoDefaultState = {
     isCasinoLogedIn: false,
     slotsInitialized: false,
-    channels: {},
+    channels: {} as IChannelMap,
     allowance: 0,
     balance: 0, // channel balance
     tokenBalance: 0,
     vthoBalance: 0
 }
 
-const ChannelDefaultState = {
-    aesKey: '0x',
-    info: { initialDeposit: 0 },
-    houseAuthorizedAddress: '0x',
-    houseBalance: 0,
-    playerBalance: 0,
-    hashes: {},
-    nonce: 0,
-    houseSpins: [],
-    lastSpinLoaded: false,
-    finalized: false,
-    closed: false,
-    deposited: 0,
-    claimed: {
-        // [true]: false,
-        // [false]: false
-    }
-}
-
 function stateChannelSubreducer(
-    channelState = ChannelDefaultState,
-    action: any = { type: null, payload: null }
-) {
-    if (!action.payload) return { ...channelState }
+    channelMap: IChannelMap = {},
+    action: Action<any> = { type: '', payload: undefined }
+): IChannelMap {
+    if (!action.payload) return { ...channelMap }
     let { channelId } = action.payload
 
-    if (!channelId) return { ...channelState }
-    let channel = { ...channelState[channelId] }
+    if (!channelId) return { ...channelMap }
+    let channel: IChannel = { ...channelMap[channelId] }
 
-    if (!channel) channel = {}
+    if (!channel) channel = ChannelDefaultState
 
     switch (action.type) {
         case `${PREFIX}/${Actions.GET_CHANNEL}/${FULFILLED}`:
-            channel = action.payload
+            channel = { ...action.payload }
             break
 
         case `${PREFIX}/${Actions.SET_CHANNEL_DEPOSITED}`:
@@ -57,27 +44,37 @@ function stateChannelSubreducer(
                 channel.status !== CHANNEL_STATUS_ACTIVATED &&
                 channel.status !== CHANNEL_STATUS_FINALIZED
             ) {
-                channel.status = CHANNEL_STATUS_DEPOSITED
+                channel = { ...channel, status: CHANNEL_STATUS_DEPOSITED }
             }
             break
 
         case `${PREFIX}/${Actions.SET_CHANNEL_ACTIVATED}`:
             if (channel.status !== CHANNEL_STATUS_FINALIZED) {
-                channel.status = CHANNEL_STATUS_ACTIVATED
+                channel = { ...channel, status: CHANNEL_STATUS_ACTIVATED }
             }
             break
 
         case `${PREFIX}/${Actions.SET_CHANNEL_FINALIZED}`:
-            channel.status = CHANNEL_STATUS_FINALIZED
+            channel = { ...channel, status: CHANNEL_STATUS_FINALIZED }
             break
 
         case `${PREFIX}/${Actions.SET_CHANNEL_CLAIMED}`:
             let { isHouse } = action.payload
-            channel.claimed = { ...channel.claimed, [isHouse]: true }
+            if (isHouse) {
+                channel = {
+                    ...channel,
+                    claimed: { ...channel.claimed, house: true }
+                }
+            } else {
+                channel = {
+                    ...channel,
+                    claimed: { ...channel.claimed, user: true }
+                }
+            }
             break
 
         case `${PREFIX}/${Actions.GET_AES_KEY}/${FULFILLED}`:
-            channel.aesKey = action.payload.key
+            channel = { ...channel, aesKey: action.payload.key }
             break
 
         case `${PREFIX}/${Actions.GET_CHANNEL_DETAILS}/${FULFILLED}`:
@@ -88,28 +85,34 @@ function stateChannelSubreducer(
             break
 
         case `${PREFIX}/${Actions.NONCE_INCREASE}`:
-            channel.nonce++
+            channel = { ...channel, nonce: channel.nonce + 1 }
             break
 
         case `${PREFIX}/${Actions.POST_SPIN}`:
-            channel.houseSpins = [...channel.houseSpins, action.payload]
+            channel = {
+                ...channel,
+                houseSpins: [...channel.houseSpins, action.payload]
+            }
             break
 
         case `${PREFIX}/${Actions.GET_CHANNEL_DEPOSITS}/${FULFILLED}`:
-            channel.houseBalance = action.payload.house
-            channel.playerBalance = action.payload.player
+            channel = {
+                ...channel,
+                houseBalance: action.payload.house,
+                playerBalance: action.payload.player
+            }
             break
 
         default:
             break
     }
 
-    return { ...channelState, [channelId]: channel }
+    return { ...channelMap, [channelId]: channel }
 }
 
 export default function slotsManagerReducer(
     casinoState: any = casinoDefaultState,
-    action: any = { type: null }
+    action: Action<any> = { type: '' }
 ) {
     switch (action.type) {
         case `${PREFIX}/${Actions.GET_BALANCE}/${FULFILLED}`:

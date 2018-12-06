@@ -13,12 +13,8 @@ import HouseStatus from './HouseStatus'
 import TransparentPaper from '../../common/components/TransparentPaper'
 import Routes from '../../routes'
 import ConfirmationDialog from '../../common/components/ConfirmationDialog'
-import {
-    ISlotsState,
-    SlotsState,
-    SlotsStateMachine,
-    Channel
-} from './ISlotsState'
+import { ISlotsState, SlotsState, SlotsStateMachine } from './ISlotsState'
+import { IChannel } from '../state/IChannel'
 import AppLoading from '../../common/components/AppLoading'
 import { MIN_VTHO_AMOUNT } from '../../constants'
 
@@ -56,10 +52,10 @@ class Slots extends Component<ISlotProps, ISlotsState> {
 
     /**
      * Has the channel been claimed?
-     * @param {Channel} channel
+     * @param {IChannel} channel
      * @returns {boolean}
      */
-    private isChannelClaimed = (channel: Channel): boolean => {
+    private isChannelClaimed = (channel: IChannel): boolean => {
         if (!channel.info) return false
         return (
             channel.info.finalized && channel.deposited.isLessThanOrEqualTo(0)
@@ -78,12 +74,12 @@ class Slots extends Component<ISlotProps, ISlotsState> {
         })
 
         const result = await this.props.fetchChannels()
-        const channels: Channel[] = result.value
+        const channels: IChannel[] = result.value
 
         // Make a list of all usable channels for the user and publish it
-        const activeChannels: Channel[] = []
-        const nonDepositedChannels: Channel[] = []
-        const claimableChannels: Channel[] = []
+        const activeChannels: string[] = []
+        const nonDepositedChannels: string[] = []
+        const claimableChannels: string[] = []
 
         if (channels) {
             for (const channelId in channels) {
@@ -201,7 +197,7 @@ class Slots extends Component<ISlotProps, ISlotsState> {
     /**
      * Renders the buttons for each State Channel Row in the Table
      */
-    private renderStateChannelToolbar = (channel: Channel) => (
+    private renderStateChannelToolbar = (channel: IChannel) => (
         <Grid container={true} direction="row">
             <Grid item={true} xs={12}>
                 <StateChannelToolbar
@@ -255,7 +251,7 @@ class Slots extends Component<ISlotProps, ISlotsState> {
      * Parses the user's balance on a state channel
      * @param {any} channel
      */
-    private channelBalanceParser = (channel: Channel): string => {
+    private channelBalanceParser = (channel: IChannel): string => {
         let initialDeposit =
             channel && channel.info
                 ? new BigNumber(channel.info.initialDeposit)
@@ -334,15 +330,17 @@ class Slots extends Component<ISlotProps, ISlotsState> {
     )
 
     private renderClaimingStatus = () => {
-        let claimingChannel: Channel
-        if (this.state.claimingChannel) {
-            claimingChannel = this.props.channels[this.state.claimingChannel]
-        }
+        // Null Protection
+        if (!this.state.claimingChannel) return
+        const claimingChannel: IChannel = this.props.channels[
+            this.state.claimingChannel
+        ]
+        if (!claimingChannel) return
 
         const { finalBalances } = claimingChannel
         const claimingTokens = finalBalances
             ? finalBalances.dividedBy(units.ether).toFixed()
-            : 0
+            : '0'
 
         return this.renderLoadingState(
             `Claiming ${claimingTokens} DBETs...`,
