@@ -1,8 +1,17 @@
 import React, { FunctionComponent } from 'react'
 import SlotsGameCard from './SlotsGameCard'
-import { Grid, Card, Slide, CardContent, Typography } from '@material-ui/core'
+import {
+    createStyles,
+    Grid,
+    Card,
+    Slide,
+    CardContent,
+    Theme,
+    Typography,
+    WithStyles,
+    withStyles
+} from '@material-ui/core'
 import TransparentPaper from '../../common/components/TransparentPaper'
-import { COLOR_PRIMARY, DARK_TEXT_COLOR } from 'src/common/themes/dark'
 
 interface ISlotsListProps {
     onGameSelectedListener: (name: string) => void
@@ -34,24 +43,28 @@ const gameList: IGameItem[] = [
     { name: 'emoji-land', imageUrl: 'backgrounds/slots-emoji-land.jpg' }
 ]
 
-const SlotsList: FunctionComponent<ISlotsListProps> = function({
-    balance,
-    onGameSelectedListener,
-    allowSelect
-}) {
+const styles = (theme: Theme) =>
+    createStyles({
+        balanceCard: {
+            backgroundColor: theme.palette.primary.main,
+            '& h6': {
+                color: theme.palette.getContrastText(theme.palette.primary.main)
+            }
+        }
+    })
+
+const SlotsList: FunctionComponent<
+    ISlotsListProps & WithStyles<typeof styles>
+> = function({ balance, onGameSelectedListener, allowSelect, classes }) {
     return (
         <Slide in={true} timeout={1000} direction="up">
             <TransparentPaper>
                 <Grid container={true} spacing={40}>
                     {allowSelect ? (
                         <Grid item={true} xs={12}>
-                            <Card style={{ backgroundColor: COLOR_PRIMARY }}>
+                            <Card className={classes.balanceCard}>
                                 <CardContent>
-                                    <Typography
-                                        style={{ color: DARK_TEXT_COLOR }}
-                                        align="center"
-                                        variant="h6"
-                                    >
+                                    <Typography align="center" variant="h6">
                                         Session Balance: {balance} DBETs
                                     </Typography>
                                 </CardContent>
@@ -94,4 +107,4 @@ const SlotsList: FunctionComponent<ISlotsListProps> = function({
     )
 }
 
-export default SlotsList
+export default withStyles(styles)(SlotsList)
