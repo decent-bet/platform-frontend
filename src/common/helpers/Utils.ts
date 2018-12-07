@@ -6,7 +6,6 @@ import BigNumber from 'bignumber.js'
 import * as moment from 'moment'
 
 const { cry, Transaction } = require('thor-devkit')
-
 const initialChannelHouseBalance = new BigNumber(10).pow(18).times(10000)
 /**
  * Utils class for common use
@@ -64,10 +63,29 @@ export default class Utils implements IUtils {
     }
 
     public async getAesKey(channelNonce) {
+        // if (bail) return
         const thorify = await this.thorifyFactory.make()
         const channelNonceHash = thorify.utils.soliditySha3(channelNonce)
-        let { privateKey } = await this.keyHandler.getWalletValues()
-        let sign = thorify.eth.accounts.sign(channelNonceHash, privateKey)
+
+        let sign: any = {}
+
+        if (this.thorifyFactory.isExternalWallet) {
+            // bail = true
+            try {
+                const signature = await thorify.eth.personal.sign(
+                    channelNonceHash,
+                    thorify.eth.defaultAccount
+                )
+                sign = { signature }
+            } catch (e) {
+                console.log(e)
+            }
+        } else {
+            let { privateKey } = await this.keyHandler.getWalletValues()
+            sign = thorify.eth.accounts.sign(channelNonceHash, privateKey)
+        }
+        // tslint:disable-next-line:no-debugger
+        debugger
         return sign.signature
     }
 

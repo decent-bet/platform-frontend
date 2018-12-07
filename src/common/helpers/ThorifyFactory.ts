@@ -10,6 +10,10 @@ export default class ThorifyFactory implements IThorifyFactory {
         this._thorify = thor
     }
 
+    get isExternalWallet() {
+        return this._keyHandler !== null
+    }
+
     public getThor() {
         return this._thorify
     }

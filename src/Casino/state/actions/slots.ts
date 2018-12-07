@@ -2,7 +2,7 @@ import CryptoJs, { AES } from 'crypto-js'
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from '../actionTypes'
 import BigNumber from 'bignumber.js'
-import { tap, map } from 'rxjs/operators'
+import { tap, map, switchMap, mergeMap } from 'rxjs/operators'
 import { IContractFactory, IUtils } from 'src/common/types'
 import { Observable, forkJoin } from 'rxjs'
 
@@ -573,11 +573,17 @@ function loadLastSpin(id, channelNonce, hashes, aesKey, wsApi, utils) {
     })
 }
 
-function getLastSpin(channelId, channelNonce, contractFactory, wsApi, utils) {
+function getLastSpin(
+    channelId,
+    channelNonce,
+    aesKey,
+    contractFactory,
+    wsApi,
+    utils
+) {
     return new Promise(async (resolve, reject) => {
         try {
             let contract = await contractFactory.slotsChannelManagerContract()
-            let aesKey = await utils.getAesKey(channelNonce)
             let hashes = await getChannelHashes(channelId, contract)
             let data: any = await loadLastSpin(
                 channelId,
@@ -613,6 +619,7 @@ function getLastSpin(channelId, channelNonce, contractFactory, wsApi, utils) {
 function getChannel(
     channelId: string,
     channelNonce,
+    aesKey,
     contractFactory,
     wsApi,
     utils
@@ -632,6 +639,7 @@ function getChannel(
                 lastSpin = await getLastSpin(
                     channelId,
                     channelNonce,
+                    aesKey,
                     contractFactory,
                     wsApi,
                     utils
@@ -664,20 +672,39 @@ function getChannels(contractFactory, wsApi, utils) {
                 contract.getChannels()
             )
 
-            const channels$: Observable<any> = getChannels$.pipe(
+            let c = getChannels$.pipe(
+                map((obj: any) => {
+                    return obj.map(event => event)
+                }),
+                mergeMap((j: any) => j),
+                take(1),
+                switchMap(async (i: any) => {
+                    console.log(i)
+                    let aesKey = await utils.getAesKey(
+                        i.returnValues.channelNonce
+                    )
+                    return {
+                        id: i.returnValues.id,
+                        channelNonce: i.returnValues.channelNonce,
+                        aesKey
+                    }
+                })
+            )
+            const channels$: Observable<any> = c.pipe(
                 tap(() => {
                     totalRequests++
                 }),
                 map((i: any) => {
-                    return i.map(event =>
-                        getChannel(
-                            event.returnValues.id,
-                            event.returnValues.channelNonce,
-                            contractFactory,
-                            wsApi,
-                            utils
-                        )
+                    // return i.map(event =>
+                    return getChannel(
+                        i.id,
+                        i.channelNonce,
+                        i.aesKey,
+                        contractFactory,
+                        wsApi,
+                        utils
                     )
+                    // )
                 })
             )
 
