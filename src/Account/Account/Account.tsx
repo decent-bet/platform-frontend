@@ -1,21 +1,23 @@
-import * as React from 'react'
+import React, { Component, ChangeEvent } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as thunks from '../state/thunks'
 import MomentUtils from 'material-ui-pickers/utils/moment-utils'
 import { MuiPickersUtilsProvider } from 'material-ui-pickers'
-import { Grid, Paper, Stepper, StepButton, Step } from '@material-ui/core'
+import { Grid, Paper, Tabs, Tab } from '@material-ui/core'
 import AccountAddress from '../Address'
 import BasicAccountInfo from '../BasicAccountInfo'
 import TransparentPaper from '../../common/components/TransparentPaper'
 import Routes from '../../routes'
 import TransactionHistory from '../TransactionHistory'
 import ListAltIcon from '@material-ui/icons/ListAlt'
+import VpnKeyIcon from '@material-ui/icons/VpnKey'
+import AssignmentIndIcon from '@material-ui/icons/AssignmentInd'
 import IAccountProps from './IAccountProps'
-import { IAccountState, DefaultState } from './IAccountState'
+import { IAccountState, DefaultState } from './AccountState'
 
-class Account extends React.Component<IAccountProps, IAccountState> {
-    public state = DefaultState
+class Account extends Component<IAccountProps, IAccountState> {
+    public state: Readonly<IAccountState> = DefaultState
 
     public componentDidMount() {
         const activeStep = this.defaultStep
@@ -45,12 +47,10 @@ class Account extends React.Component<IAccountProps, IAccountState> {
         }
     }
 
-    private handleStep = (stepstep: number) => {
-        return () => {
-            this.setState({
-                activeStep: stepstep
-            })
-        }
+    private handleChangeTab = (_event: ChangeEvent<{}>, value: any): void => {
+        this.setState({
+            activeStep: value
+        })
     }
 
     private saveAccountAddress = async (
@@ -139,47 +139,37 @@ class Account extends React.Component<IAccountProps, IAccountState> {
                 >
                     <Grid
                         item={true}
-                        xs={10}
+                        xs={12}
+                        md={9}
                         style={{
                             maxWidth: 1300
                         }}
                     >
                         <TransparentPaper>
-                            <Stepper
-                                nonLinear={this.props.accountHasAddress}
-                                alternativeLabel={true}
-                                style={{ backgroundColor: 'transparent' }}
-                                activeStep={this.state.activeStep}
+                            <Tabs
+                                value={this.state.activeStep}
+                                onChange={this.handleChangeTab}
+                                centered={true}
+                                fullWidth={true}
+                                indicatorColor="secondary"
+                                textColor="primary"
                             >
-                                <Step completed={this.props.accountHasAddress}>
-                                    <StepButton onClick={this.handleStep(0)}>
-                                        VET address
-                                    </StepButton>
-                                </Step>
-                                <Step completed={this.props.accountIsVerified}>
-                                    <StepButton onClick={this.handleStep(1)}>
-                                        Account info
-                                    </StepButton>
-                                </Step>
+                                <Tab
+                                    label="VET address"
+                                    icon={<VpnKeyIcon />}
+                                />
+                                <Tab
+                                    label="Account info"
+                                    icon={<AssignmentIndIcon />}
+                                />
                                 {this.props.accountIsVerified &&
                                 this.props.accountHasAddress ? (
-                                    <Step
-                                        completed={
-                                            this.props.accountHasAddress &&
-                                            this.props.accountIsVerified
-                                        }
-                                    >
-                                        <StepButton
-                                            onClick={this.handleStep(2)}
-                                            icon={
-                                                <ListAltIcon color="primary" />
-                                            }
-                                        >
-                                            Transaction History
-                                        </StepButton>
-                                    </Step>
+                                    <Tab
+                                        label="Transaction History"
+                                        icon={<ListAltIcon />}
+                                    />
                                 ) : null}
-                            </Stepper>
+                            </Tabs>
                         </TransparentPaper>
                     </Grid>
                     <Grid

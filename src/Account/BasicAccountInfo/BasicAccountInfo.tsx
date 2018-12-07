@@ -7,7 +7,8 @@ import {
     InputLabel,
     FormControl,
     FormHelperText,
-    Typography
+    Typography,
+    CardHeader
 } from '@material-ui/core'
 import { withStyles } from '@material-ui/core'
 import { InlineDatePicker } from 'material-ui-pickers'
@@ -16,7 +17,6 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import EventIcon from '@material-ui/icons/Event'
 import moment from 'moment'
 import * as validator from 'validator'
-import AccountSectionHeader from '../AccountSectionHeader'
 import AccountSectionActions from '../AccountSectionActions'
 import BasicAccountInfoState from './BasicAccountInfoState'
 import IBasicAccountInfoState from './IBasicAccountInfoState'
@@ -104,11 +104,6 @@ class BasicAccountInfo extends React.Component<
             !this.isValidDataInput('state', state) ||
             !this.isValidDataInput('town', town)
         )
-    }
-
-    private didToogleEdit = (event: React.MouseEvent) => {
-        let { isEditing } = this.state
-        this.setState({ isEditing: !isEditing })
     }
 
     private handleDateInputChange(e: React.FormEvent<HTMLInputElement>): void {}
@@ -217,18 +212,13 @@ class BasicAccountInfo extends React.Component<
         return (
             <Card>
                 <form onSubmit={this.handleSubmit}>
-                    <AccountSectionHeader
-                        enableEdit={!this.props.accountIsVerified}
+                    <CardHeader
                         title="Account Info"
                         subheader={
                             <Typography color="primary">
                                 * required fields
                             </Typography>
                         }
-                        isEditing={this.state.isEditing}
-                        isSaving={this.props.isSaving}
-                        didClickOnCancel={this.didToogleEdit}
-                        didClickOnEdit={this.didToogleEdit}
                     />
                     <CardContent>
                         <Grid container={true} spacing={32}>

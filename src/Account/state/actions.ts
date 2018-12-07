@@ -81,7 +81,6 @@ function requestActivationEmail(): Promise<void> {
 function getClaimedChannels(
     claimedChannelPromises: Array<Promise<any>>
 ): Promise<any[]> {
-    console.warn('getClaimedChannels', getClaimedChannels)
     return new Promise((resolve, reject) => {
         const claimedFork$ = forkJoin(claimedChannelPromises).pipe(
             filter((channels: any[]) => {

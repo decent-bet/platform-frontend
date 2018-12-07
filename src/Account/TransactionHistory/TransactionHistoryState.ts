@@ -1,8 +1,11 @@
-import ITransactionHistoryState from './ITransactionHistoryState'
-export default class TransactionHistoryState
-    implements ITransactionHistoryState {
-    constructor() {}
-    public isLoading = false
-    public error = false
-    public errorMessage = ''
+export interface ITransactionHistoryState {
+    isLoading: boolean
+    error: boolean
+    errorMessage: string
+}
+
+export const DefaultState: ITransactionHistoryState = {
+    isLoading: false,
+    error: false,
+    errorMessage: ''
 }
