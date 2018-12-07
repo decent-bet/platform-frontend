@@ -12,14 +12,10 @@ import Routes from '../../routes'
 import TransactionHistory from '../TransactionHistory'
 import ListAltIcon from '@material-ui/icons/ListAlt'
 import IAccountProps from './IAccountProps'
-import AccountState from './AccountState'
-import IAccountState from './IAccountState'
+import { IAccountState, DefaultState } from './IAccountState'
 
 class Account extends React.Component<IAccountProps, IAccountState> {
-    constructor(props: IAccountProps) {
-        super(props)
-        this.state = new AccountState()
-    }
+    public state = DefaultState
 
     public componentDidMount() {
         const activeStep = this.defaultStep
@@ -81,7 +77,7 @@ class Account extends React.Component<IAccountProps, IAccountState> {
         }
     }
 
-    private saveAccountInfo = async (data: any): Promise<void> => {
+    private saveAccountInfo = async (data: any) => {
         try {
             await this.props.saveAccountInfo(data)
             this.setState({
@@ -204,9 +200,12 @@ class Account extends React.Component<IAccountProps, IAccountState> {
     }
 }
 
-const mapStateToProps = state => Object.assign({}, state.account, state.main)
-const mapDispatchToProps = dispatch =>
-    bindActionCreators(Object.assign({}, thunks), dispatch)
+const mapStateToProps = function(state) {
+    return { ...state, ...state.account, ...state.main }
+}
+const mapDispatchToProps = function(dispatch) {
+    return bindActionCreators({ ...thunks }, dispatch)
+}
 
 const AccountContainer = connect(
     mapStateToProps,
