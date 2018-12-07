@@ -8,8 +8,7 @@ import SlotsChannelManagerContract from './contracts/SlotsChannelManagerContract
 import DBETVETTokenContract from './contracts/DBETVETTokenContract'
 import { IThorifyFactory, IKeyHandler, IContractFactory } from '../types'
 
-export default class ContractFactory
-    implements IContractFactory<BaseContract<Contract>> {
+export default class ContractFactory implements IContractFactory {
     private _jsonContracts = {
         DBETVETToken: migrationContracts.DBETVETToken,
         SlotsChannelManager: contracts.SlotsChannelManager,
@@ -34,7 +33,7 @@ export default class ContractFactory
      * @returns {Promise<BaseContract>}
      */
 
-    public async makeContract<T>(
+    public async makeContract<T extends BaseContract<Contract>>(
         contractName: string,
         publicAddress?: string
     ): Promise<T> {

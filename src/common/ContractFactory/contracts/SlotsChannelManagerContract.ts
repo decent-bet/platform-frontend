@@ -224,7 +224,7 @@ export default class SlotsChannelManagerContract extends BaseContract<
         })
     }
 
-    public logChannelFinalized(id, fromBlock, toBlock) {
+    public logChannelFinalized(id, fromBlock?: any, toBlock?: any) {
         const userAddress = this._thorify.eth.defaultAccount
         const filter: any = {
             user: userAddress
@@ -242,7 +242,12 @@ export default class SlotsChannelManagerContract extends BaseContract<
         })
     }
 
-    public logClaimChannelTokens(id, fromBlock, toBlock, isHouse) {
+    public logClaimChannelTokens(
+        id,
+        fromBlock?: any,
+        toBlock?: any,
+        isHouse?: any
+    ) {
         const filter: any = {}
         if (id) {
             filter.id = id
