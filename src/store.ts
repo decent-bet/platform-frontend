@@ -18,48 +18,56 @@ import Utils from './common/helpers/Utils'
 import DecentWSAPI from './common/apis/DecentWSAPI'
 import SlotsChannelHandler from './common/apis/SlotsChannelHandler'
 import AuthProvider from './common/helpers/AuthProvider'
+import { CometWallet } from './common/helpers/CometWallet'
+import { IExternalWallet } from './common/types/IExternalWallet'
 
-// Combine all Reducers
-const CombinedReducers = combineReducers({
-    app: appReducer,
-    main: mainReducer,
-    auth: authReducer,
-    account: accountReducer,
-    activate: activateAccountReducer,
-    casino: casinoReducer
-})
+const bootstrapper = (externalWallet, thor) => {
+    // Combine all Reducers
+    const CombinedReducers = combineReducers({
+        app: appReducer,
+        main: mainReducer,
+        auth: authReducer,
+        account: accountReducer,
+        activate: activateAccountReducer,
+        casino: casinoReducer
+    })
 
-const keyStore = new KeyStore()
-const keyHandler = new KeyHandler(keyStore)
-const authProvider = new AuthProvider(keyHandler)
-const thorifyFactory = new ThorifyFactory(keyHandler)
-const contractFactory = new ContractFactory(thorifyFactory, keyHandler)
-const utils = new Utils(keyHandler, thorifyFactory)
-const wsApi = new DecentWSAPI(keyHandler, utils)
-const slotsChannelHandler = new SlotsChannelHandler(wsApi, utils)
+    const keyStore = new KeyStore()
+    const keyHandler = new KeyHandler(keyStore)
+    const thorifyFactory = new ThorifyFactory(thor, keyHandler)
 
-// Setup middlewares
-const middlewares = [
-    ReduxThunk.withExtraArgument({
-        contractFactory,
-        keyHandler,
-        thorifyFactory,
-        utils,
-        wsApi,
-        slotsChannelHandler,
-        authProvider
-    }), // inject dependencies
-    promiseMiddleware({ promiseTypeDelimiter: '/' }),
-    RejectionCatcherMiddleware
-]
+    let comet: IExternalWallet | null = null
+    if (externalWallet) {
+        comet = new CometWallet(externalWallet)
+    }
 
-// Only log redux on development
-if (CURRENT_ENV === ENV_LOCAL) {
-    middlewares.push(logger)
+    const authProvider = new AuthProvider(keyHandler)
+    const contractFactory = new ContractFactory(thorifyFactory, keyHandler)
+    const utils = new Utils(keyHandler, thorifyFactory)
+    const wsApi = new DecentWSAPI(keyHandler, utils)
+    const slotsChannelHandler = new SlotsChannelHandler(wsApi, utils)
+
+    // Setup middlewares
+    const middlewares = [
+        ReduxThunk.withExtraArgument({
+            contractFactory,
+            keyHandler,
+            thorifyFactory,
+            utils,
+            wsApi,
+            slotsChannelHandler,
+            authProvider,
+            externalWallet: comet
+        }), // inject dependencies
+        promiseMiddleware({ promiseTypeDelimiter: '/' }),
+        RejectionCatcherMiddleware
+    ]
+
+    // Only log redux on development
+    if (CURRENT_ENV === ENV_LOCAL) {
+        middlewares.push(logger)
+    }
+
+    return createStore(CombinedReducers, {}, applyMiddleware(...middlewares))
 }
-
-export default createStore(
-    CombinedReducers,
-    {},
-    applyMiddleware(...middlewares)
-)
+export default bootstrapper

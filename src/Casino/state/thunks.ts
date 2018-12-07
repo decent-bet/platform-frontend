@@ -23,10 +23,27 @@ export function getCasinoLoginStatus(account: any) {
 
 export function authWallet(data: string, account: any) {
     return async (dispatch, __getState, { keyHandler }: IThunkDependencies) => {
-        await dispatch(actions.authWallet(data, account, keyHandler))
+        await dispatch(actions.validateKeyhandler(data, account, keyHandler))
+
         await dispatch(
             openAlert('You are enabled to play on the casino!', 'info')
         )
+    }
+}
+
+export function selectWallet(account: any) {
+    return async (
+        dispatch,
+        __getState,
+        { externalWallet }: IThunkDependencies
+    ) => {
+        if (externalWallet) {
+            await dispatch(
+                actions.validateExternalWallet(account, externalWallet)
+            )
+        } else {
+            await dispatch(actions.setShowKeyhandlerLogin())
+        }
     }
 }
 

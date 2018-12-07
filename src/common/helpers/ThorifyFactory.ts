@@ -6,7 +6,9 @@ import { IKeyHandler, IThorifyFactory } from '../types'
 export default class ThorifyFactory implements IThorifyFactory {
     private _thorify: any = null
 
-    constructor(private _keyHandler: IKeyHandler) {}
+    constructor(thor: any, private _keyHandler: IKeyHandler) {
+        this._thorify = thor
+    }
 
     public make(): any {
         if (!this._thorify) {

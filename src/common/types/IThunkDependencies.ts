@@ -3,6 +3,7 @@ import IContractFactory from './IContractFactory'
 import IThorifyFactory from './IThorifyFactory'
 import IUtils from './IUtils'
 import IAuthProvider from './IAuthProvider'
+import { IExternalWallet } from './IExternalWallet'
 
 export default interface IThunkDependencies {
     keyHandler: IKeyHandler
@@ -12,4 +13,5 @@ export default interface IThunkDependencies {
     authProvider: IAuthProvider
     wsApi: any
     slotsChannelHandler: any
+    externalWallet: IExternalWallet
 }

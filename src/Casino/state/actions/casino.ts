@@ -6,6 +6,7 @@ import { MNEMONIC_DPATH } from '../../../constants'
 import BigNumber from 'bignumber.js'
 import { units } from 'ethereum-units'
 import ContractFactory from '../../../common/ContractFactory/ContractFactory'
+import { IExternalWallet } from 'src/common/types/IExternalWallet'
 
 async function getCasinoLoginStatus(keyHandler: IKeyHandler): Promise<boolean> {
     let address = await keyHandler.getPublicAddress()
@@ -20,6 +21,11 @@ async function setSlotsInitialized(): Promise<boolean> {
     return true
 }
 
+async function setShowKeyhandlerLogin(): Promise<any> {
+    return {
+        loginDialogOpen: true
+    }
+}
 function comparePublicAddress(walletAddress: string, vetAddress: string) {
     if (walletAddress !== vetAddress) {
         throw new Error(
@@ -28,59 +34,90 @@ function comparePublicAddress(walletAddress: string, vetAddress: string) {
     }
 }
 
-function authWallet(data: string, account: any, keyHandler: IKeyHandler) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            if (
-                !account ||
-                !account.verification ||
-                !account.verification.addressRegistration ||
-                !account.verification.addressRegistration.vetAddress
-            ) {
-                throw new Error(
-                    `You don't have a VET address registered, please go to the account section.`
-                )
+const validateKeyhandler = async (
+    data: string,
+    account: any,
+    keyHandler: IKeyHandler
+) => {
+    try {
+        if (
+            !account ||
+            !account.verification ||
+            !account.verification.addressRegistration ||
+            !account.verification.addressRegistration.vetAddress
+        ) {
+            throw new Error(
+                `You don't have a VET address registered, please go to the account section.`
+            )
+        }
+
+        let acccountVetAddress =
+            account.verification.addressRegistration.vetAddress
+
+        // remove all white spaces and newlines, trim() doesnt work in some cases
+        data = data
+            .toString()
+            .replace(/(\r\n\t|\n|\r\t)/gm, '')
+            .trim()
+
+        if (data.includes(' ')) {
+            // Passphrase Mnemonic mode
+
+            const wallet = Wallet.fromMnemonic(data, MNEMONIC_DPATH)
+            comparePublicAddress(wallet.address, acccountVetAddress)
+            await keyHandler.setupWallet(
+                wallet.privateKey,
+                wallet.address,
+                data
+            )
+        } else {
+            // Private Key Mode
+            // Adds '0x' to the beginning of the key if it is not there.
+            if (data.substring(0, 2) !== '0x') {
+                data = '0x' + data
             }
+            const wallet = new Wallet(data)
+            comparePublicAddress(wallet.address, acccountVetAddress)
+            await keyHandler.setupWallet(wallet.privateKey, wallet.address)
+        }
 
-            let acccountVetAddress =
-                account.verification.addressRegistration.vetAddress
+        return true
+    } catch (error) {
+        console.error(error)
+        throw error
+    }
+}
 
-            // remove all white spaces and newlines, trim() doesnt work in some cases
-            data = data
-                .toString()
-                .replace(/(\r\n\t|\n|\r\t)/gm, '')
-                .trim()
-
-            if (data.includes(' ')) {
-                // Passphrase Mnemonic mode
-
-                const wallet = Wallet.fromMnemonic(data, MNEMONIC_DPATH)
-                comparePublicAddress(wallet.address, acccountVetAddress)
-                await keyHandler.setupWallet(
-                    wallet.privateKey,
-                    wallet.address,
-                    data
-                )
-            } else {
-                // Private Key Mode
-                // Adds '0x' to the beginning of the key if it is not there.
-                if (data.substring(0, 2) !== '0x') {
-                    data = '0x' + data
-                }
-                const wallet = new Wallet(data)
-                comparePublicAddress(wallet.address, acccountVetAddress)
-                await keyHandler.setupWallet(wallet.privateKey, wallet.address)
-            }
-
-            resolve(true)
-        } catch (error) {
-            console.error(error)
-            reject({
-                error,
-                message: error.message
+const validateExternalWallet = async (
+    account: any,
+    externalWallet: IExternalWallet
+) => {
+    try {
+        if (
+            !account ||
+            !account.verification ||
+            !account.verification.addressRegistration ||
+            !account.verification.addressRegistration.vetAddress
+        ) {
+            return Promise.reject({
+                message: `You don't have a VET address registered, please go to the account section.`
             })
         }
-    })
+
+        let acccountVetAddress =
+            account.verification.addressRegistration.vetAddress
+
+        const address: string = await externalWallet.enable()
+
+        if (address.toLowerCase() !== acccountVetAddress.toLowerCase()) {
+            return Promise.reject({ message: 'Invalid wallet account' })
+        }
+
+        return true
+    } catch (error) {
+        console.error(error)
+        throw error
+    }
 }
 
 // Get the current session balance
@@ -152,10 +189,12 @@ async function fetchHouseBalance(contractFactory: ContractFactory) {
 
 export default createActions({
     [PREFIX]: {
-        [Actions.AUTH_WALLET]: authWallet,
+        [Actions.VALIDATE_EXTERNAL_WALLET]: validateExternalWallet,
+        [Actions.VALIDATE_KEYHANDLER]: validateKeyhandler,
         [Actions.GET_CASINO_LOGIN_STATUS]: getCasinoLoginStatus,
         [Actions.FAUCET]: faucet,
         [Actions.SET_SLOTS_INITIALIZED]: setSlotsInitialized,
+        [Actions.SET_SHOW_KEYHANDLER_LOGIN]: setShowKeyhandlerLogin,
         [Actions.GET_TOKENS]: fetchTokens,
         [Actions.GET_VTHO_BALANCE]: fetchVTHOBalance,
         [Actions.GET_BALANCE]: fetchBalance,

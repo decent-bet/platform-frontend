@@ -13,7 +13,7 @@ import {
     withStyles,
     Typography
 } from '@material-ui/core'
-import { authWallet } from '../state/thunks'
+import { authWallet, selectWallet } from '../state/thunks'
 import logo from '../../assets/img/ic_coin.png'
 import LoadingButton from 'src/common/components/LoadingButton'
 import ILoginState from './ILoginState'
@@ -36,6 +36,12 @@ class Login extends React.Component<ILoginProps, ILoginState> {
         )
     }
 
+    public componentDidMount = async () => {
+        const { dispatch } = this.props as any
+        await dispatch(selectWallet(this.props.account))
+        this.props.onLoginSuccess()
+    }
+
     private async handleSubmit(event: React.FormEvent) {
         event.preventDefault()
         this.setState({ processing: true })
@@ -56,7 +62,7 @@ class Login extends React.Component<ILoginProps, ILoginState> {
     }
 
     private handleClose = () => {
-        this.setState({ open: false })
+        this.setState({ loginDialogOpen: false })
     }
 
     private onLoginTextChangedListener(event): void {
@@ -69,7 +75,7 @@ class Login extends React.Component<ILoginProps, ILoginState> {
         return (
             <Dialog
                 className={this.props.classes.root}
-                open={this.state.open}
+                open={this.props.loginDialogOpen}
                 disableBackdropClick={true}
                 disableEscapeKeyDown={true}
                 onClose={this.handleClose}
