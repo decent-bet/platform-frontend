@@ -18,7 +18,7 @@ import IFrame from './IFrame'
 import BigNumber from 'bignumber.js'
 import AppLoading from '../../common/components/AppLoading'
 import './game.css'
-import { VIEW_SLOTS } from 'src/routes'
+import Routes from 'src/routes'
 import ConfirmationDialog from '../../common/components/ConfirmationDialog'
 
 declare global {
@@ -205,7 +205,7 @@ class Game extends React.Component<any, any> {
      * Go to the previous page
      */
     private back() {
-        this.props.history.push(VIEW_SLOTS)
+        this.props.history.push(Routes.Slots)
     }
 
     private renderGame() {

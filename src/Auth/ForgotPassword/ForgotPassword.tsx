@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux'
 import actions from '../state/actions'
 import { Button, Grid, Typography, TextField } from '@material-ui/core'
 import { Link } from 'react-router-dom'
-import { VIEW_LOGIN } from '../../routes'
+import Routes from '../../routes'
 import AuthResult from '../AuthResult'
 import IForgotPasswordProps from './IForgotPasswordProps'
 import {
@@ -111,7 +111,7 @@ class ForgotPassword extends React.Component<
         )
     }
     public render() {
-        const loginLink = props => <Link to={VIEW_LOGIN} {...props} />
+        const loginLink = props => <Link to={Routes.Login} {...props} />
 
         return (
             <React.Fragment>

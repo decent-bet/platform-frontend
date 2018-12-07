@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React, { Component } from 'react'
 import ethUnits from 'ethereum-units'
 import {
     Card,
@@ -11,43 +11,32 @@ import {
 } from '@material-ui/core'
 import { MIN_VTHO_AMOUNT } from '../../constants'
 import ConfirmationDialog from '../../common/components/ConfirmationDialog'
+import {
+    IStateChannelBuilderState,
+    StateChannelBuilderDefaultState
+} from './IStateChannelBuilderState'
+import { BigNumber } from 'bignumber.js'
+import { IStateChannelBuilderProps } from './IStateChannelBuilderProps'
 
-export interface IStateChannelBuilderState {
-    dialogIsOpen: boolean
-    value: string
-}
-
-export default class StateChannelBuilder extends React.Component<
-    any,
+export default class StateChannelBuilder extends Component<
+    IStateChannelBuilderProps,
     IStateChannelBuilderState
 > {
-    constructor(props) {
-        super(props)
-        this.state = {
-            dialogIsOpen: false,
-            value: '100'
-        }
-        this.onClickOk = this.onClickOk.bind(this)
-        this.onCloseDialog = this.onCloseDialog.bind(this)
-        this.onValueChanged = this.onValueChanged.bind(this)
-        this.onClicPlay = this.onClicPlay.bind(this)
-        this.isBalanceValid = this.isBalanceValid.bind(this)
-        this.isValueValid = this.isValueValid.bind(this)
-    }
+    public state = StateChannelBuilderDefaultState
 
-    private onClickOk() {
+    private onClickOk = () => {
         this.onCloseDialog()
     }
 
-    private onCloseDialog() {
+    private onCloseDialog = () => {
         this.setState({ dialogIsOpen: false })
     }
 
-    private onValueChanged(event) {
+    private onValueChanged = event => {
         this.setState({ value: event.target.value })
     }
 
-    private onClicPlay() {
+    private onClicPlay = () => {
         // Do not Commit if value is invalid
         if (!this.isValueValid()) return
 
@@ -57,16 +46,20 @@ export default class StateChannelBuilder extends React.Component<
         }
 
         const { onBuildChannelListener } = this.props
-        const finalValue = ethUnits.convert(this.state.value, 'ether', 'wei')
-        onBuildChannelListener(finalValue)
+        const finalValue: string = ethUnits.convert(
+            this.state.value,
+            'ether',
+            'wei'
+        )
+        onBuildChannelListener(new BigNumber(finalValue))
     }
 
-    private isValueValid() {
+    private isValueValid = () => {
         const parsedValue = parseInt(this.state.value, 10)
         return parsedValue >= 100 && parsedValue <= 1000
     }
 
-    private isBalanceValid() {
+    private isBalanceValid = () => {
         return (
             this.props.tokenBalance > 0 &&
             this.props.vthoBalance > MIN_VTHO_AMOUNT
@@ -78,7 +71,7 @@ export default class StateChannelBuilder extends React.Component<
         const isValid = this.isValueValid() || currentValue === ''
         const errorText = isValid ? null : 'Between [100 and 1000]'
         return (
-            <React.Fragment>
+            <>
                 <Card>
                     <CardHeader
                         title="Let's play Slots"
@@ -123,7 +116,7 @@ export default class StateChannelBuilder extends React.Component<
                     onClickOk={this.onClickOk}
                     onClose={this.onCloseDialog}
                 />
-            </React.Fragment>
+            </>
         )
     }
 }

@@ -1,15 +1,15 @@
-import * as React from 'react'
+import React, { FunctionComponent } from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom'
 import Game from './Game'
 import Slots from './Slots'
-import { VIEW_CASINO, VIEW_SLOTS, VIEW_SLOTS_GAME } from '../routes'
+import Routes from '../routes'
 
-const CasinoRouter = () => {
+const CasinoRouter: FunctionComponent<{}> = () => {
     return (
         <Switch>
-            <Redirect exact={true} from={VIEW_CASINO} to={VIEW_SLOTS} />
-            <Route path={VIEW_SLOTS_GAME} component={Game} />
-            <Route path={VIEW_SLOTS} component={Slots} />
+            <Redirect exact={true} from={Routes.Casino} to={Routes.Slots} />
+            <Route path={Routes.SlotsGame} component={Game} />
+            <Route path={Routes.Slots} component={Slots} />
         </Switch>
     )
 }

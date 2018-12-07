@@ -68,10 +68,15 @@ export function initializeSlots() {
         { contractFactory, keyHandler }: IThunkDependencies
     ) => {
         const vetAddress = await keyHandler.getPublicAddress()
-        await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
-        await dispatch(actions.getBalance(contractFactory, vetAddress))
-        await dispatch(actions.getAllowance(contractFactory, vetAddress))
-        await dispatch(actions.getBalance(contractFactory, vetAddress))
+
+        // Execute all actions in parallel
+        return Promise.all([
+            dispatch(actions.getVthoBalance(contractFactory, vetAddress)),
+            dispatch(actions.getBalance(contractFactory, vetAddress)),
+            dispatch(actions.getAllowance(contractFactory, vetAddress)),
+            dispatch(actions.getBalance(contractFactory, vetAddress)),
+            dispatch(actions.getHouseBalance(contractFactory))
+        ])
     }
 }
 

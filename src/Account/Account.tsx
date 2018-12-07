@@ -8,7 +8,7 @@ import { Grid, Paper, Stepper, StepButton, Step } from '@material-ui/core'
 import AccountAddress from './Address'
 import BasicAccountInfo from './BasicAccountInfo'
 import TransparentPaper from '../common/components/TransparentPaper'
-import { VIEW_CASINO } from '../routes'
+import Routes from '../routes'
 
 export interface IAccountState {
     activeStep: number
@@ -48,7 +48,7 @@ class Account extends React.Component<any, IAccountState> {
                 activeStep: 1
             })
         } else if (step === 1) {
-            this.props.history.push(VIEW_CASINO)
+            this.props.history.push(Routes.Casino)
         }
     }
 

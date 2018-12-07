@@ -1,17 +1,18 @@
 import BaseContract from './BaseContract'
+import { DBETVETToken } from '../../../../typings/DBETVETToken'
 
-export default class DBETVETTokenContract extends BaseContract {
+export default class DBETVETTokenContract extends BaseContract<DBETVETToken> {
     /** Getters */
-    async allowance(owner, spender) {
+    public async allowance(owner: string, spender: string) {
         return await this.instance.methods.allowance(owner, spender).call()
     }
 
-    async balanceOf(address) {
+    public async balanceOf(address) {
         return await this.instance.methods.balanceOf(address).call()
     }
 
     /** Setters */
-    async approve(address, value) {
+    public async approve(address, value) {
         const encodedFunctionCall = this.instance.methods
             .approve(address, value)
             .encodeABI()
@@ -23,9 +24,10 @@ export default class DBETVETTokenContract extends BaseContract {
         )
     }
 
-    async faucet() {
+    public async faucet() {
         try {
-            const encodedFunctionCall = this.instance.methods
+            const encodedFunctionCall: string = this.instance.methods
+                // @ts-ignore
                 .faucet()
                 .encodeABI()
 
@@ -47,12 +49,12 @@ export default class DBETVETTokenContract extends BaseContract {
     /**
      * Events
      * */
-    async logTransfer(address, isFrom) {
+    public async logTransfer(address, isFrom) {
         let filter = {}
         filter[isFrom ? 'from' : 'to'] = address
 
         let settings = {
-            filter: filter,
+            filter,
             fromBlock: 'latest',
             toBlock: 'latest',
             order: 'DESC',
@@ -62,13 +64,16 @@ export default class DBETVETTokenContract extends BaseContract {
         return await this.getPastEvents('Transfer', settings)
     }
 
-    async logApproval(spender, value, fromBlock, toBlock) {
+    public async logApproval(spender, value, fromBlock, toBlock) {
         let filter = {
-            owner: await this._keyHandler.getPublicAddress()
+            owner: await this._keyHandler.getPublicAddress(),
+            spender: undefined,
+            value: undefined
         }
         if (spender) filter.spender = spender
         if (value) filter.value = value
 
+        // @ts-ignore
         return this.getEvents(
             'Approval',
             filter,

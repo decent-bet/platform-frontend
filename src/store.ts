@@ -18,6 +18,7 @@ import Utils from './common/helpers/Utils'
 import DecentWSAPI from './common/apis/DecentWSAPI'
 import SlotsChannelHandler from './common/apis/SlotsChannelHandler'
 import AuthProvider from './common/helpers/AuthProvider'
+
 // Combine all Reducers
 const CombinedReducers = combineReducers({
     app: appReducer,
