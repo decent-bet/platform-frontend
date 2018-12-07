@@ -1,4 +1,4 @@
-import * as H from 'history'
+import { History } from 'history'
 
 export default interface IAccountProps {
     account: any
@@ -9,5 +9,5 @@ export default interface IAccountProps {
     getTransactionHistory(publicAddress: string)
     transactions: any[]
     loading: boolean
-    history: H.History
+    history: History
 }
