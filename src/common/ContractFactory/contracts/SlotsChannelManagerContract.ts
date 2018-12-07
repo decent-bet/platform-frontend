@@ -1,49 +1,52 @@
 import BaseContract from './BaseContract'
+import { SlotsChannelManager } from '../../../../typings/SlotsChannelManager'
 
-export default class SlotsChannelManagerContract extends BaseContract {
+export default class SlotsChannelManagerContract extends BaseContract<
+    SlotsChannelManager
+> {
     /**
      * Getters
      */
-    async getChannelInfo(id) {
+    public async getChannelInfo(id) {
         const info = await this.instance.methods.getChannelInfo(id).call()
         return info
     }
 
-    async getChannelHashes(id) {
+    public async getChannelHashes(id) {
         return await this.instance.methods.getChannelHashes(id).call()
     }
 
-    async getChannelNonce(id) {
+    public async getChannelNonce(id) {
         return await this.instance.methods.getChannelNonce(id).call()
     }
 
-    async checkSig(id, msgHash, sign, turn) {
+    public async checkSig(id, msgHash, sign, turn) {
         return await this.instance.methods
             .checkSig(id, msgHash, sign, turn)
             .call()
     }
 
-    async balanceOf(address) {
+    public async balanceOf(address) {
         return await this.instance.methods.balanceOf(address).call()
     }
 
-    async getPlayer(id, isHouse) {
+    public async getPlayer(id, isHouse) {
         return await this.instance.methods.getPlayer(id, isHouse).call()
     }
 
-    async isChannelClosed(id) {
+    public async isChannelClosed(id) {
         return await this.instance.methods.isChannelClosed(id).call()
     }
 
-    async finalBalances(id, isHouse) {
+    public async finalBalances(id, isHouse) {
         return await this.instance.methods.finalBalances(id, isHouse).call()
     }
 
-    async channelDeposits(id, isHouse) {
+    public async channelDeposits(id, isHouse) {
         return await this.instance.methods.channelDeposits(id, isHouse).call()
     }
 
-    async getChannelCount() {
+    public async getChannelCount() {
         let count = await this.instance.methods.channelCount().call()
         try {
             return Number(count)
@@ -53,7 +56,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
         }
     }
 
-    async getChannels() {
+    public async getChannels() {
         let config = {
             filter: {
                 user: this._thorify.eth.defaultAccount
@@ -65,7 +68,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
         return await this.instance.getPastEvents('LogNewChannel', config)
     }
 
-    async getFinalizedChannels() {
+    public async getFinalizedChannels() {
         let config = {
             filter: {
                 user: this._thorify.eth.defaultAccount
@@ -77,7 +80,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
         return await this.instance.getPastEvents('LogChannelFinalized', config)
     }
 
-    async getClaimedChannels(id) {
+    public async getClaimedChannels(id) {
         let config = {
             filter: {
                 id
@@ -95,7 +98,8 @@ export default class SlotsChannelManagerContract extends BaseContract {
     /**
      * Setters
      */
-    async createChannel(deposit) {
+    public async createChannel(deposit) {
+        // @ts-ignore
         const encodedFunctionCall = this.instance.methods
             .createChannel(deposit)
             .encodeABI()
@@ -107,7 +111,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
         )
     }
 
-    async deposit(amount) {
+    public async deposit(amount) {
         const encodedFunctionCall = this.instance.methods
             .deposit(amount)
             .encodeABI()
@@ -120,7 +124,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
         )
     }
 
-    async withdraw(amount) {
+    public async withdraw(amount) {
         const encodedFunctionCall = this.instance.methods
             .withdraw(amount)
             .encodeABI()
@@ -133,7 +137,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
         )
     }
 
-    async depositToChannel(id, initialUserNumber, finalUserHash) {
+    public async depositToChannel(id, initialUserNumber, finalUserHash) {
         const encodedFunctionCall = this.instance.methods
             .depositChannel(id, initialUserNumber, finalUserHash)
             .encodeABI()
@@ -146,7 +150,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
         )
     }
 
-    async claim(id) {
+    public async claim(id) {
         const encodedFunctionCall = this.instance.methods.claim(id).encodeABI()
         return await this.signAndSendRawTransaction(
             this.instance.options.address,
@@ -159,8 +163,8 @@ export default class SlotsChannelManagerContract extends BaseContract {
     /**
      * Events
      */
-    async logNewChannel(transaction) {
-        const userAddress = await this._thorify.eth.defaultAccount
+    public async logNewChannel(transaction) {
+        const userAddress = this._thorify.eth.defaultAccount
         let listenerSettings = {
             config: {
                 filter: {
@@ -177,6 +181,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
 
         let events = await this.listenForEvent(
             'LogNewChannel',
+            // @ts-ignore
             listenerSettings,
             events => events && events.length > 0
         )
@@ -187,11 +192,11 @@ export default class SlotsChannelManagerContract extends BaseContract {
             )
         }
 
-        //return the channel id
+        // return the channel id
         return event.returnValues.id
     }
 
-    logChannelActivate(channelId) {
+    public logChannelActivate(channelId) {
         return new Promise(async (resolve, reject) => {
             let listenerSettings = {
                 config: {
@@ -205,6 +210,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
 
             let events = await this.listenForEvent(
                 'LogChannelActivate',
+                // @ts-ignore
                 listenerSettings,
                 events => events && events.length > 0
             )
@@ -218,9 +224,9 @@ export default class SlotsChannelManagerContract extends BaseContract {
         })
     }
 
-    logChannelFinalized(id, fromBlock, toBlock) {
+    public logChannelFinalized(id, fromBlock, toBlock) {
         const userAddress = this._thorify.eth.defaultAccount
-        const filter = {
+        const filter: any = {
             user: userAddress
         }
 
@@ -231,12 +237,13 @@ export default class SlotsChannelManagerContract extends BaseContract {
         return this.instance.events.LogChannelFinalized({
             filter,
             fromBlock: fromBlock ? fromBlock : 0,
+            // @ts-ignore
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
-    logClaimChannelTokens(id, fromBlock, toBlock, isHouse) {
-        const filter = {}
+    public logClaimChannelTokens(id, fromBlock, toBlock, isHouse) {
+        const filter: any = {}
         if (id) {
             filter.id = id
         }
@@ -249,18 +256,20 @@ export default class SlotsChannelManagerContract extends BaseContract {
         return this.instance.events.LogClaimChannelTokens({
             filter,
             fromBlock: fromBlock ? fromBlock : 0,
+            // @ts-ignore
             toBlock: toBlock ? toBlock : 'latest'
         })
     }
 
-    logDeposit(fromBlock, toBlock) {
-        return new Promise((resolve, reject) => {
+    public logDeposit(fromBlock, toBlock) {
+        return new Promise(async (resolve, reject) => {
             this.instance.events
                 .LogDeposit({
                     filter: {
                         _address: this._thorify.eth.defaultAccount
                     },
                     fromBlock: fromBlock ? fromBlock : 0,
+                    // @ts-ignore
                     toBlock: toBlock ? toBlock : 'latest'
                 })
                 .on('data', data => {
@@ -272,7 +281,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
         })
     }
 
-    logWithdraw(fromBlock, toBlock) {
+    public logWithdraw(fromBlock, toBlock) {
         return new Promise(async (resolve, reject) => {
             let listenerSettings = {
                 config: {
@@ -290,6 +299,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
 
             let events = await this.listenForEvent(
                 'LogWithdraw',
+                // @ts-ignore
                 listenerSettings,
                 events => events && events.length > 0
             )

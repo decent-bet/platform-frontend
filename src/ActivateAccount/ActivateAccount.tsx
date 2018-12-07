@@ -10,7 +10,7 @@ import {
     CardActions,
     CardContent
 } from '@material-ui/core'
-import { VIEW_LOGIN } from '../routes'
+import Routes from '../routes'
 import PublicRouteContainer from '../common/components/PublicRouteContainer'
 import AppLoading from 'src/common/components/AppLoading'
 import AuthResult from '../Auth/AuthResult'
@@ -32,7 +32,7 @@ class ActivateAccount extends React.Component<any, any> {
     }
 
     private renderResult = () => {
-        const loginLink = props => <Link to={VIEW_LOGIN} {...props} />
+        const loginLink = props => <Link to={Routes} {...props} />
 
         return (
             <PublicRouteContainer>

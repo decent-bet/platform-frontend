@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 import { Button, Grid, Typography, TextField } from '@material-ui/core'
 import { makeLogin } from '../state/thunks'
 import * as validator from 'validator'
-import { VIEW_FORGOT_PASSWORD, VIEW_SIGNUP, VIEW_MAIN } from '../../routes'
+import Routes from '../../routes'
 import LoadingButton from '../../common/components/LoadingButton'
 import Recaptcha from '../../common/components/Recaptcha'
 import { ILoginState, LoginState } from './LoginState'
@@ -107,7 +107,7 @@ class Login extends React.Component<any, ILoginState> {
         }
         const result = await this.props.makeLogin(email, password, recaptchaKey)
         if (result && result.value && result.value.error === true) {
-            this.props.history.push(VIEW_MAIN)
+            this.props.history.push(Routes.Main)
         }
     }
 
@@ -123,9 +123,9 @@ class Login extends React.Component<any, ILoginState> {
     }
 
     public render() {
-        const signUpLink = props => <Link to={VIEW_SIGNUP} {...props} />
+        const signUpLink = props => <Link to={Routes.Signup} {...props} />
         const forgotPasswordLink = props => (
-            <Link to={VIEW_FORGOT_PASSWORD} {...props} />
+            <Link to={Routes.ForgotPassword} {...props} />
         )
 
         return (
