@@ -1,9 +1,14 @@
 import axios from 'axios'
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from './actionTypes'
-import { IKeyHandler, IContractFactory } from '../../common/types'
+import {
+    IKeyHandler,
+    IContractFactory,
+    IThorifyFactory
+} from '../../common/types'
 import { Observable, forkJoin, from } from 'rxjs'
 import { tap, map, filter } from 'rxjs/operators'
+import SlotsChannelManagerContract from '../../common/ContractFactory/contracts/SlotsChannelManagerContract'
 
 function saveAccountInfo(formData: any): Promise<any> {
     return new Promise(async (resolve, reject) => {
@@ -125,28 +130,34 @@ function getClaimedChannels(
     })
 }
 
-function getFinalbalances(
-    finalBalancePromises: Array<Promise<any>>
-): Promise<number[]> {
-    return new Promise((resolve, reject) => {
-        // get finalBalances after claim
-        const finalBalanceFork$ = forkJoin(finalBalancePromises).pipe(
-            map((balances: string[]) => {
-                return balances.map(balance => Number(balance))
-            })
-        )
+async function getChannels(
+    thorify: any,
+    contract: SlotsChannelManagerContract
+): Promise<any[]> {
+    const channelsSource = await getEventData(
+        'LogNewChannel',
+        thorify,
+        contract,
+        {
+            user: thorify.eth.defaultAccount
+        }
+    )
 
-        const finalBalanceSub = finalBalanceFork$.subscribe(
-            result => {
-                finalBalanceSub.unsubscribe()
-                resolve(result)
-            },
-            error => {
-                console.error(error)
-                reject(error)
+    if (channelsSource) {
+        return channelsSource.map(event => {
+            const { transactionHash, returnValues } = event
+            const { id, channelNonce, initialDeposit, timestamp } = returnValues
+            return {
+                id,
+                channelNonce,
+                initialDeposit,
+                timestamp,
+                transactionHash
             }
-        )
-    })
+        })
+    } else {
+        return []
+    }
 }
 
 function getFinalizedChannels(
@@ -197,119 +208,93 @@ function getFinalizedChannels(
     })
 }
 
+async function getEventData(
+    eventName: string,
+    thorify: any,
+    contract: SlotsChannelManagerContract,
+    filter: any,
+    interval: number = 1000,
+    top: number = 3
+): Promise<any[]> {
+    const events: any[] = await contract.listenForEvent(
+        eventName,
+        {
+            config: {
+                filter,
+                toBlock: 'latest',
+                order: 'DESC'
+            },
+            interval,
+            top
+        },
+        (events: any[]) => events.length > 0
+    )
+
+    return events
+}
+
 function getTransactionHistory(
     contractFactory: IContractFactory,
+    thorifyFactory: IThorifyFactory,
     address: string
 ) {
     return new Promise(async (resolve, reject) => {
-        const topRequests = 3
-        let totalRequests = 0
-
         try {
             const slotsChannelManagerContract = await contractFactory.slotsChannelManagerContract(
                 address
             )
-
-            // start session => LogNewChannel
-            const LogNewChannel$ = slotsChannelManagerContract.getEventSubscription(
-                slotsChannelManagerContract.getChannels()
+            const thorify = await thorifyFactory.make(address)
+            const channels = await getChannels(
+                thorify,
+                slotsChannelManagerContract
             )
 
-            const channels$: Observable<any> = LogNewChannel$.pipe(
-                tap(() => {
-                    totalRequests++
-                }),
-                map((i: any) => {
-                    return i.map(event => {
-                        const { transactionHash } = event
-                        const { returnValues } = event
-                        const {
-                            id,
-                            channelNonce,
-                            initialDeposit,
-                            timestamp
-                        } = returnValues
-                        return {
-                            id,
-                            channelNonce,
-                            initialDeposit,
-                            timestamp,
-                            transactionHash
-                        }
+            if (channels.length > 0) {
+                // end session => LogChannelFinalized
+                const finalizedChannels = await getFinalizedChannels(
+                    slotsChannelManagerContract.getFinalizedChannels(),
+                    channels
+                )
+
+                // claim => LogClaimChannelTokens
+                const claimedPromises = channels.map(channel =>
+                    slotsChannelManagerContract.getClaimedChannels(channel.id)
+                )
+
+                const finalBalancePromises = channels.map(channel =>
+                    slotsChannelManagerContract.finalBalances(channel.id, false)
+                )
+
+                const claimedChannels = await getClaimedChannels(
+                    claimedPromises
+                )
+
+                const finalBalances = await getFinalbalances(
+                    finalBalancePromises
+                )
+
+                const transactionHistory = channels.map((channel, index) => {
+                    const finalized = finalizedChannels.find(value => {
+                        return value.id === channel.id
                     })
-                })
-            )
-
-            const subs = channels$.subscribe(
-                async (channels: any[]) => {
-                    if (channels.length > 0 || totalRequests >= topRequests) {
-                        subs.unsubscribe() // stop making requests
-                        if (channels.length > 0) {
-                            // end session => LogChannelFinalized
-                            const finalizedChannels = await getFinalizedChannels(
-                                slotsChannelManagerContract.getFinalizedChannels(),
-                                channels
-                            )
-
-                            // claim => LogClaimChannelTokens
-                            const claimedPromises = channels.map(channel =>
-                                slotsChannelManagerContract.getClaimedChannels(
-                                    channel.id
-                                )
-                            )
-
-                            const finalBalancePromises = channels.map(channel =>
-                                slotsChannelManagerContract.finalBalances(
-                                    channel.id,
-                                    false
-                                )
-                            )
-
-                            const claimedChannels = await getClaimedChannels(
-                                claimedPromises
-                            )
-
-                            const finalBalances = await getFinalbalances(
-                                finalBalancePromises
-                            )
-
-                            const transactionHistory = channels.map(
-                                (channel, index) => {
-                                    const finalized = finalizedChannels.find(
-                                        value => {
-                                            return value.id === channel.id
-                                        }
-                                    )
-                                    const claimed = claimedChannels.find(
-                                        value => {
-                                            return value.id === channel.id
-                                        }
-                                    )
-                                    const finalBalance = finalBalances.find(
-                                        (_value, i) => {
-                                            return i === index
-                                        }
-                                    )
-                                    return {
-                                        ...channel,
-                                        finalized,
-                                        claimed,
-                                        finalBalance
-                                    }
-                                }
-                            )
-
-                            resolve(transactionHistory)
-                        } else {
-                            resolve([])
-                        }
+                    const claimed = claimedChannels.find(value => {
+                        return value.id === channel.id
+                    })
+                    const finalBalance = finalBalances.find((_value, i) => {
+                        return i === index
+                    })
+                    return {
+                        ...channel,
+                        finalized,
+                        claimed,
+                        finalBalance
                     }
-                },
-                error => {
-                    console.error(error)
-                    reject(error)
-                }
-            )
+                })
+
+                resolve(transactionHistory)
+            } else {
+                resolve([])
+            }
         } catch (error) {
             let errorMessage =
                 error.response && error.response.data

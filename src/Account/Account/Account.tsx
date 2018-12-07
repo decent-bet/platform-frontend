@@ -159,6 +159,7 @@ class Account extends Component<IAccountProps, IAccountState> {
                                     icon={<VpnKeyIcon />}
                                 />
                                 <Tab
+                                    disabled={!this.props.accountHasAddress}
                                     label="Account info"
                                     icon={<AssignmentIndIcon />}
                                 />
