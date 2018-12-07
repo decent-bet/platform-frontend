@@ -10,6 +10,10 @@ export default class ThorifyFactory implements IThorifyFactory {
         this._thorify = thor
     }
 
+    public getThor() {
+        return this._thorify
+    }
+
     public async make(
         publicAddress?: string,
         privateKey?: string

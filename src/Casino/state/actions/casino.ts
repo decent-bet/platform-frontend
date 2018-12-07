@@ -90,7 +90,8 @@ const validateKeyhandler = async (
 
 const validateExternalWallet = async (
     account: any,
-    externalWallet: IExternalWallet
+    externalWallet: IExternalWallet,
+    thorifyProvider: any
 ) => {
     try {
         if (
@@ -108,6 +109,9 @@ const validateExternalWallet = async (
             account.verification.addressRegistration.vetAddress
 
         const address: string = await externalWallet.enable()
+
+        // set default account
+        thorifyProvider.eth.defaultAccount = address
 
         if (address.toLowerCase() !== acccountVetAddress.toLowerCase()) {
             return Promise.reject({ message: 'Invalid wallet account' })
