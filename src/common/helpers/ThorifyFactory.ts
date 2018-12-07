@@ -8,18 +8,13 @@ export default class ThorifyFactory implements IThorifyFactory {
 
     constructor(private _keyHandler: IKeyHandler) {}
 
-    public make(): any {
-        if (!this._thorify) {
-            this._thorify = thorify(new Web3(), THOR_NODE_URL)
-        }
-        return this._thorify
-    }
-
-    public async configured(
+    public async make(
         publicAddress?: string,
         privateKey?: string
     ): Promise<any> {
-        this.make()
+        if (!this._thorify) {
+            this._thorify = thorify(new Web3(), THOR_NODE_URL)
+        }
 
         if (!publicAddress) {
             const address = await this._keyHandler.getPublicAddress()
@@ -30,10 +25,14 @@ export default class ThorifyFactory implements IThorifyFactory {
 
         if (!privateKey) {
             const wallet = await this._keyHandler.getWalletValues()
-            privateKey = wallet.privateKey
+            if (wallet && wallet.privateKey) {
+                privateKey = wallet.privateKey
+                this._thorify.eth.accounts.wallet.add(privateKey)
+            }
+        } else {
+            this._thorify.eth.accounts.wallet.add(privateKey)
         }
 
-        this._thorify.eth.accounts.wallet.add(privateKey)
         this._thorify.eth.defaultAccount = publicAddress
         return this._thorify
     }
