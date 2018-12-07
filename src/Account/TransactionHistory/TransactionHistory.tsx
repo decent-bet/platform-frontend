@@ -33,11 +33,16 @@ class TransactionHistory extends React.Component<
                     <Grid container={true} spacing={32}>
                         <Grid item={true} xs={12} sm={6}>
                             <Typography>Transaction History</Typography>
-                            <p style={{ overflow: 'auto' }}>
-                                <code>
-                                    {JSON.stringify(this.props.transactions)}
-                                </code>
-                            </p>
+
+                            <code style={{ overflow: 'auto', width: '100%' }}>
+                                {JSON.stringify(
+                                    this.props.transactions.find(
+                                        (value, index) => index === 0
+                                    ),
+                                    null,
+                                    1
+                                )}
+                            </code>
                         </Grid>
                     </Grid>
                 </CardContent>

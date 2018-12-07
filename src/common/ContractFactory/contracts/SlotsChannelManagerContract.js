@@ -65,6 +65,33 @@ export default class SlotsChannelManagerContract extends BaseContract {
         return await this.instance.getPastEvents('LogNewChannel', config)
     }
 
+    async getFinalizedChannels() {
+        let config = {
+            filter: {
+                user: this._thorify.eth.defaultAccount
+            },
+            toBlock: 'latest',
+            order: 'DESC'
+        }
+
+        return await this.instance.getPastEvents('LogChannelFinalized', config)
+    }
+
+    async getClaimedChannels(id) {
+        let config = {
+            filter: {
+                id
+            },
+            toBlock: 'latest',
+            order: 'DESC'
+        }
+
+        return await this.instance.getPastEvents(
+            'LogClaimChannelTokens',
+            config
+        )
+    }
+
     /**
      * Setters
      */
@@ -191,7 +218,7 @@ export default class SlotsChannelManagerContract extends BaseContract {
         })
     }
 
-    async logChannelFinalized(id, fromBlock, toBlock) {
+    logChannelFinalized(id, fromBlock, toBlock) {
         const userAddress = this._thorify.eth.defaultAccount
         const filter = {
             user: userAddress
