@@ -1,5 +1,5 @@
 export default interface ILoginState {
-    open: boolean
+    loginDialogOpen?: boolean
     processing: boolean
     loginValue: string
     hasError: boolean

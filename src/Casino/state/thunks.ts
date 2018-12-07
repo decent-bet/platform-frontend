@@ -23,16 +23,37 @@ export function getCasinoLoginStatus(account: any) {
 
 export function authWallet(data: string, account: any) {
     return async (dispatch, __getState, { keyHandler }: IThunkDependencies) => {
-        await dispatch(actions.authWallet(data, account, keyHandler))
+        await dispatch(actions.validateKeyhandler(data, account, keyHandler))
+
         await dispatch(
             openAlert('You are enabled to play on the casino!', 'info')
         )
     }
 }
 
+export function selectWallet(account: any) {
+    return async (
+        dispatch,
+        __getState,
+        { externalWallet, thorifyFactory }: IThunkDependencies
+    ) => {
+        if (externalWallet) {
+            await dispatch(
+                actions.validateExternalWallet(
+                    account,
+                    externalWallet,
+                    thorifyFactory.getThor()
+                )
+            )
+        } else {
+            await dispatch(actions.setShowKeyhandlerLogin())
+        }
+    }
+}
+
 export function initializeCasino() {
-    return async (dispatch, _getState, { contractFactory, keyHandler }) => {
-        const vetAddress = (await keyHandler.getPublicAddress()) || ''
+    return async (dispatch, _getState, { contractFactory, thorifyFactory }) => {
+        const vetAddress = thorifyFactory.getThor().eth.defaultAccount
 
         await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
         await dispatch(actions.getTokens(contractFactory, vetAddress))
@@ -51,10 +72,9 @@ export function setSlotsInitialized() {
 }
 
 export function faucet() {
-    return async (dispatch, _getState, { contractFactory, keyHandler }) => {
+    return async (dispatch, _getState, { contractFactory, thorifyFactory }) => {
         await dispatch(actions.faucet(contractFactory))
-
-        const vetAddress = (await keyHandler.getPublicAddress()) || ''
+        const vetAddress = thorifyFactory.getThor().eth.defaultAccount
 
         await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
         await dispatch(actions.getTokens(contractFactory, vetAddress))
@@ -65,10 +85,9 @@ export function initializeSlots() {
     return async (
         dispatch,
         _getState,
-        { contractFactory, keyHandler }: IThunkDependencies
+        { contractFactory, thorifyFactory }: IThunkDependencies
     ) => {
-        const vetAddress = await keyHandler.getPublicAddress()
-
+        const vetAddress = thorifyFactory.getThor().eth.defaultAccount
         // Execute all actions in parallel
         return Promise.all([
             dispatch(actions.getVthoBalance(contractFactory, vetAddress)),
@@ -153,9 +172,9 @@ export function claimDbetsFromContract() {
     return async (
         dispatch,
         _getState,
-        { keyHandler, contractFactory }: IThunkDependencies
+        { contractFactory, thorifyFactory }: IThunkDependencies
     ) => {
-        const vetAddress = await keyHandler.getPublicAddress()
+        const vetAddress = thorifyFactory.getThor().eth.defaultAccount
         const tokensInContract = await dispatch(
             actions.getBalance(contractFactory, vetAddress)
         )
@@ -190,12 +209,12 @@ export function claimAndWithdrawFromChannel(
     return async (
         dispatch,
         _getState,
-        { contractFactory, keyHandler }: IThunkDependencies
+        { contractFactory, thorifyFactory }: IThunkDependencies
     ): Promise<void> => {
         let contract = await contractFactory.slotsChannelManagerContract()
         // Claim the channel, check token total in the contract, and withdraw tokens
 
-        const vetAddress = await keyHandler.getPublicAddress()
+        const vetAddress = thorifyFactory.getThor().eth.defaultAccount
         await dispatch(actions.claimChannel(channelId, contract))
         const tokensInContract = await dispatch(
             actions.getBalance(contractFactory, vetAddress)
@@ -217,13 +236,7 @@ export function initChannel(amount, statusUpdateListener) {
     return async (
         dispatch,
         _getState,
-        {
-            contractFactory,
-            thorifyFactory,
-            wsApi,
-            utils,
-            keyHandler
-        }: IThunkDependencies
+        { contractFactory, thorifyFactory, wsApi, utils }: IThunkDependencies
     ) => {
         statusUpdateListener(
             `Initializing channel with ${utils.formatEther(
@@ -255,7 +268,7 @@ export function initChannel(amount, statusUpdateListener) {
         statusUpdateListener(`Getting the channel`)
 
         // Update the ether balance
-        const vetAddress = await keyHandler.getPublicAddress()
+        const vetAddress = thorify.getThor().eth.defaultAccount
         await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
 
         return id
@@ -266,7 +279,7 @@ export function depositIntoCreatedChannel(id, statusUpdateListener) {
     return async (
         dispatch,
         getState,
-        { contractFactory, wsApi, utils, keyHandler }: IThunkDependencies
+        { contractFactory, wsApi, utils, thorifyFactory }: IThunkDependencies
     ) => {
         // Deposit Tokens to channel
         statusUpdateListener(`Depositing DBETs into created channel`)
@@ -286,7 +299,7 @@ export function depositIntoCreatedChannel(id, statusUpdateListener) {
         // Query the channel's data and add it to the redux state
         await dispatch(actions.getChannel(id, contractFactory, wsApi, utils))
 
-        const vetAddress = await keyHandler.getPublicAddress()
+        const vetAddress = thorifyFactory.getThor().eth.defaultAccount
         // Update the ether balance
         await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
         return id
@@ -309,7 +322,7 @@ export function initializeGame(channelId) {
     return async (
         dispatch,
         _getState,
-        { contractFactory, keyHandler, wsApi, utils }: IThunkDependencies
+        { contractFactory, wsApi, utils, thorifyFactory }: IThunkDependencies
     ) => {
         const result = await dispatch(
             actions.getChannelNonce(channelId, contractFactory)
@@ -327,7 +340,7 @@ export function initializeGame(channelId) {
                 utils
             )
         )
-        const vetAddress = (await keyHandler.getPublicAddress()) || ''
+        const vetAddress = thorifyFactory.getThor().eth.defaultAccount
         await dispatch(actions.getVthoBalance(contractFactory, vetAddress))
         await dispatch(actions.getTokens(contractFactory, vetAddress))
     }

@@ -44,6 +44,7 @@ class Casino extends React.Component<any, any> {
             <React.Fragment>
                 {!this.props.isCasinoLogedIn ? (
                     <Login
+                        loginDialogOpen={false}
                         onLoginSuccess={this.onLoginSuccess}
                         account={this.props.account}
                     />

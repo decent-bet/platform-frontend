@@ -14,6 +14,7 @@ interface IChannelMap {
 }
 
 const casinoDefaultState = {
+    loginDialogOpen: false,
     houseBalance: new BigNumber(0),
     isCasinoLogedIn: false,
     slotsInitialized: false,
@@ -139,7 +140,12 @@ export default function slotsManagerReducer(
                 channels: { ...action.payload }
             }
 
-        case `${PREFIX}/${Actions.AUTH_WALLET}/${FULFILLED}`:
+        case `${PREFIX}/${Actions.VALIDATE_KEYHANDLER}/${FULFILLED}`:
+            return {
+                ...casinoState,
+                isCasinoLogedIn: action.payload
+            }
+        case `${PREFIX}/${Actions.VALIDATE_EXTERNAL_WALLET}/${FULFILLED}`:
             return {
                 ...casinoState,
                 isCasinoLogedIn: action.payload
@@ -148,6 +154,11 @@ export default function slotsManagerReducer(
             return {
                 ...casinoState,
                 slotsInitialized: action.payload
+            }
+        case `${PREFIX}/${Actions.SET_SHOW_KEYHANDLER_LOGIN}/${FULFILLED}`:
+            return {
+                ...casinoState,
+                ...action.payload
             }
         case `${PREFIX}/${Actions.GET_CASINO_LOGIN_STATUS}/${FULFILLED}`:
             return {
