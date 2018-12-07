@@ -140,6 +140,7 @@ export function fetchVTHOBalance(contractFactory, vetAddress): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
             const contract = await contractFactory.decentBetTokenContract()
+
             const rawAmount = await contract.getBalance(vetAddress)
             const balance = new BigNumber(rawAmount).dividedBy(units.ether)
             resolve(balance)

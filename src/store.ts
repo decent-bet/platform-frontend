@@ -34,11 +34,12 @@ const bootstrapper = (externalWallet, thor) => {
 
     const keyStore = new KeyStore()
     const keyHandler = new KeyHandler(keyStore)
-    const thorifyFactory = new ThorifyFactory(thor, keyHandler)
+    let thorifyFactory = new ThorifyFactory(null, keyHandler)
 
     let comet: IExternalWallet | null = null
     if (externalWallet) {
         comet = new CometWallet(externalWallet)
+        thorifyFactory = new ThorifyFactory(thor)
     }
 
     const authProvider = new AuthProvider(keyHandler)

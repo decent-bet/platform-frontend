@@ -6,7 +6,7 @@ import { IKeyHandler, IThorifyFactory } from '../types'
 export default class ThorifyFactory implements IThorifyFactory {
     private _thorify: any = null
 
-    constructor(thor: any, private _keyHandler: IKeyHandler) {
+    constructor(thor: any, private _keyHandler?: IKeyHandler) {
         this._thorify = thor
     }
 
@@ -18,24 +18,26 @@ export default class ThorifyFactory implements IThorifyFactory {
             this._thorify = thorify(new Web3(), THOR_NODE_URL)
         }
 
-        if (!publicAddress) {
-            const address = await this._keyHandler.getPublicAddress()
-            if (address) {
-                publicAddress = address as string
+        if (this._keyHandler) {
+            if (!publicAddress) {
+                const address = await this._keyHandler.getPublicAddress()
+                if (address) {
+                    publicAddress = address as string
+                }
             }
-        }
 
-        if (!privateKey) {
-            const wallet = await this._keyHandler.getWalletValues()
-            if (wallet && wallet.privateKey) {
-                privateKey = wallet.privateKey
+            if (!privateKey) {
+                const wallet = await this._keyHandler.getWalletValues()
+                if (wallet && wallet.privateKey) {
+                    privateKey = wallet.privateKey
+                    this._thorify.eth.accounts.wallet.add(privateKey)
+                }
+            } else {
                 this._thorify.eth.accounts.wallet.add(privateKey)
             }
-        } else {
-            this._thorify.eth.accounts.wallet.add(privateKey)
-        }
 
-        this._thorify.eth.defaultAccount = publicAddress
+            this._thorify.eth.defaultAccount = publicAddress
+        }
         return this._thorify
     }
 }
