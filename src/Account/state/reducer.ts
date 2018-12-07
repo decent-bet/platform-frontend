@@ -22,11 +22,13 @@ export default function reducer(
         case `${PREFIX}/${Actions.SAVE_ACCOUNT_ADDRESS}/${FULFILLED}`:
             return {
                 ...state,
+                loading: false,
                 accountInfoSaved: true
             }
         case `${PREFIX}/${Actions.SAVE_ACCOUNT_INFO}/${FULFILLED}`:
             return {
                 ...state,
+                loading: false,
                 accountAddressSaved: true
             }
         case `${PREFIX}/${Actions.GET_TRANSACTION_HISTORY}/${PENDING}`:

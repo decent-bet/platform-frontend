@@ -2,7 +2,6 @@ import * as React from 'react'
 import {
     withStyles,
     Card,
-    Typography,
     CardContent,
     Grid,
     CardHeader
@@ -11,6 +10,7 @@ import styles from './styles'
 import ITransactionHistoryProps from './ITransactionHistoryProps'
 import ITransactionHistoryState from './ITransactionHistoryState'
 import TransactionHistoryState from './TransactionHistoryState'
+import AppLoading from 'src/common/components/AppLoading'
 
 class TransactionHistory extends React.Component<
     ITransactionHistoryProps,
@@ -32,17 +32,15 @@ class TransactionHistory extends React.Component<
                 <CardContent>
                     <Grid container={true} spacing={32}>
                         <Grid item={true} xs={12} sm={6}>
-                            <Typography>Transaction History</Typography>
-
-                            <code style={{ overflow: 'auto', width: '100%' }}>
-                                {JSON.stringify(
-                                    this.props.transactions.find(
-                                        (value, index) => index === 0
-                                    ),
-                                    null,
-                                    1
-                                )}
-                            </code>
+                            {this.props.loading ? (
+                                <AppLoading />
+                            ) : (
+                                <code
+                                    style={{ overflow: 'auto', width: '100%' }}
+                                >
+                                    {JSON.stringify(this.props.transactions)}
+                                </code>
+                            )}
                         </Grid>
                     </Grid>
                 </CardContent>
