@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React, { Component, MouseEvent } from 'react'
 import {
     withStyles,
     Card,
@@ -6,7 +6,9 @@ import {
     Grid,
     CardHeader,
     IconButton,
-    Tooltip
+    Tooltip,
+    Table,
+    TableBody
 } from '@material-ui/core'
 import RefreshIcon from '@material-ui/icons/RefreshRounded'
 import styles from './styles'
@@ -16,8 +18,9 @@ import {
     DefaultState
 } from './TransactionHistoryState'
 import AppLoading from '../../common/components/AppLoading'
+import ChannelHistoryItem from './ChannelHistoryItem'
 
-class TransactionHistory extends React.Component<
+class TransactionHistory extends Component<
     ITransactionHistoryProps,
     ITransactionHistoryState
 > {
@@ -27,11 +30,12 @@ class TransactionHistory extends React.Component<
         await this.props.loadTransactions()
     }
 
-    private didClickOnRefresh = async (_event: React.MouseEvent) => {
+    private didClickOnRefresh = async (_event: MouseEvent) => {
         await this.props.loadTransactions()
     }
 
     public render() {
+        const { classes, channels } = this.props
         return (
             <Card>
                 <CardHeader
@@ -42,22 +46,28 @@ class TransactionHistory extends React.Component<
                                 disabled={this.props.loading}
                                 onClick={this.didClickOnRefresh}
                             >
-                                <RefreshIcon color="secondary" />
+                                <RefreshIcon />
                             </IconButton>
                         </Tooltip>
                     }
                 />
                 <CardContent>
                     <Grid container={true} spacing={32}>
-                        <Grid item={true} xs={12} sm={6}>
+                        <Grid item={true} xs={12}>
                             {this.props.loading ? (
                                 <AppLoading />
                             ) : (
-                                <code
-                                    style={{ overflow: 'auto', width: '100%' }}
-                                >
-                                    {JSON.stringify(this.props.transactions)}
-                                </code>
+                                <div className={classes.tableWrapper}>
+                                    <Table className={classes.table}>
+                                        <TableBody>
+                                            {channels.map(channel => (
+                                                <ChannelHistoryItem
+                                                    channel={channel}
+                                                />
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
                             )}
                         </Grid>
                     </Grid>

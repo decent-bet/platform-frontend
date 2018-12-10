@@ -4,7 +4,7 @@ import { FULFILLED, PENDING } from 'redux-promise-middleware'
 const DefaultState = {
     accountInfoSaved: false,
     accountAddressSaved: false,
-    transactions: [],
+    channels: [],
     loading: false
 }
 
@@ -35,13 +35,13 @@ export default function reducer(
             return {
                 ...state,
                 loading: true,
-                transactions: []
+                channels: []
             }
         case `${PREFIX}/${Actions.GET_TRANSACTION_HISTORY}/${FULFILLED}`:
             return {
                 ...state,
                 loading: false,
-                transactions: action.payload
+                channels: action.payload
             }
         default:
             return { ...state }

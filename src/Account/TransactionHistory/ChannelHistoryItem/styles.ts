@@ -2,11 +2,6 @@ import { createStyles, Theme } from '@material-ui/core'
 
 const styles = (theme: Theme) =>
     createStyles({
-        table: { width: '100%' },
-        tableWrapper: {
-            overflowX: 'auto',
-            width: '100%'
-        },
         toolbar: {
             flex: '0 0 auto',
             display: 'flex',

@@ -9,6 +9,7 @@ export default class SlotsChannelManagerContract extends BaseContract<
      */
     public async getChannelInfo(id) {
         const info = await this.instance.methods.getChannelInfo(id).call()
+        info[7] = id
         return info
     }
 

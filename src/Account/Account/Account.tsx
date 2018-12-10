@@ -92,9 +92,10 @@ class Account extends Component<IAccountProps, IAccountState> {
     }
 
     private loadTransactions = async () => {
-        return await this.props.getTransactionHistory(
-            this.props.account.verification.addressRegistration.vetAddress
-        )
+        const {
+            vetAddress
+        } = this.props.account.verification.addressRegistration
+        return await this.props.getTransactionHistory(vetAddress)
     }
 
     private getActiveStepComponent = (step: number) => {
@@ -121,7 +122,7 @@ class Account extends Component<IAccountProps, IAccountState> {
                 return (
                     <TransactionHistory
                         loading={this.props.loading}
-                        transactions={this.props.transactions}
+                        channels={this.props.channels}
                         loadTransactions={this.loadTransactions}
                     />
                 )
@@ -172,15 +173,6 @@ class Account extends Component<IAccountProps, IAccountState> {
                                 ) : null}
                             </Tabs>
                         </TransparentPaper>
-                    </Grid>
-                    <Grid
-                        item={true}
-                        xs={12}
-                        md={9}
-                        style={{
-                            maxWidth: 1300
-                        }}
-                    >
                         <Paper>
                             {this.getActiveStepComponent(this.state.activeStep)}
                         </Paper>
