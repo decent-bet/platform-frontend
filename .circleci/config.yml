@@ -14,11 +14,6 @@ jobs:
                       git submodule init
                       git submodule update --remote
             - setup_remote_docker
-            - restore_cache:
-                  keys:
-                      - v2-{{ .Branch }}-{{ .Environment.CIRCLE_TAG }}
-                  paths:
-                      - /caches/app.tar
             - run:
                   name: Load Docker image layer cache
                   command: |
@@ -45,10 +40,6 @@ jobs:
                   command: |
                       mkdir -p /caches
                       docker save -o /caches/app.tar us.gcr.io/${PROJECT_ID}/platform-frontend
-            - save_cache:
-                  key: v2-{{ .Branch }}-{{ .Environment.CIRCLE_TAG }}-{{ epoch }}
-                  paths:
-                      - /caches/app.tar
             - save_cache:
                   key: v2-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}-{{ .Environment.CIRCLE_TAG }}-{{ epoch }}
                   paths:
