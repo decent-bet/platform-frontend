@@ -10,13 +10,21 @@ const styles = (theme: Theme) =>
         itemCell: {
             borderBottom: 'none',
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center',
+            padding: '1em'
         },
         itemCellCreated: {
-            float: 'left'
+            float: 'left',
+            display: 'flex',
+            paddingRight: '0.5em',
+            flexDirection: 'column',
+            alignItems: 'center'
         },
         itemCellArrow: {
-            float: 'right'
+            float: 'right',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
         },
         expand: {
             transform: 'rotate(0deg)',
