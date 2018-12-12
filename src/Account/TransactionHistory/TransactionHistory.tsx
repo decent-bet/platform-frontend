@@ -6,9 +6,7 @@ import {
     Grid,
     CardHeader,
     IconButton,
-    Tooltip,
-    Table,
-    TableBody
+    Tooltip
 } from '@material-ui/core'
 import RefreshIcon from '@material-ui/icons/RefreshRounded'
 import styles from './styles'
@@ -35,7 +33,7 @@ class TransactionHistory extends Component<
     }
 
     public render() {
-        const { classes, channels } = this.props
+        const { channels } = this.props
         return (
             <Card>
                 <CardHeader
@@ -52,22 +50,17 @@ class TransactionHistory extends Component<
                     }
                 />
                 <CardContent>
-                    <Grid container={true} spacing={32}>
+                    <Grid container={true} spacing={40}>
                         <Grid item={true} xs={12}>
                             {this.props.loading ? (
                                 <AppLoading />
                             ) : (
-                                <div className={classes.tableWrapper}>
-                                    <Table className={classes.table}>
-                                        <TableBody>
-                                            {channels.map(channel => (
-                                                <ChannelHistoryItem
-                                                    channel={channel}
-                                                />
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </div>
+                                channels.map(channel => (
+                                    <ChannelHistoryItem
+                                        channel={channel}
+                                        key={channel.id}
+                                    />
+                                ))
                             )}
                         </Grid>
                     </Grid>

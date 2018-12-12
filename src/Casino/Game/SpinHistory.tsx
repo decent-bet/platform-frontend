@@ -28,7 +28,11 @@ export default function spinHistory({ houseSpins, userHashes }) {
     return (
         <Grid container={true} direction="row" style={{ overflowX: 'auto' }}>
             <Table
-                style={{ width: '100%', fontSize: '0.4em' }}
+                style={{
+                    width: '100%',
+                    fontSize: '0.4em',
+                    position: 'relative'
+                }}
                 padding="checkbox"
             >
                 <TableHead>

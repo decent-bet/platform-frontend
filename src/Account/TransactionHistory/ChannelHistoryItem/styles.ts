@@ -2,29 +2,19 @@ import { createStyles, Theme } from '@material-ui/core'
 
 const styles = (theme: Theme) =>
     createStyles({
-        toolbar: {
-            flex: '0 0 auto',
-            display: 'flex',
-            alignItems: 'center'
+        linkButton: {
+            textTransform: 'none',
+            minHeight: 0,
+            paddingBottom: 0,
+            paddingTop: 0
         },
-        itemCell: {
-            borderBottom: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            padding: '1em'
-        },
-        itemCellCreated: {
-            float: 'left',
-            display: 'flex',
-            paddingRight: '0.5em',
-            flexDirection: 'column',
-            alignItems: 'center'
-        },
-        itemCellArrow: {
-            float: 'right',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center'
+        card: {
+            paddingRight: '1em',
+            border: 'none',
+            boxShadow: 'none',
+            borderBottom: 'solid 1px rgba(255,255,255,0.5)',
+            marginBottom: '0.5em',
+            borderRadius: 0
         },
         expand: {
             transform: 'rotate(0deg)',
@@ -34,7 +24,8 @@ const styles = (theme: Theme) =>
             marginLeft: 'auto',
             [theme.breakpoints.up('sm')]: {
                 marginRight: -8
-            }
+            },
+            float: 'right'
         },
         expandOpen: {
             transform: 'rotate(180deg)'

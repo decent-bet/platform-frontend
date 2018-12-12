@@ -1,11 +1,20 @@
 import axios from 'axios'
+import moment from 'moment'
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from './actionTypes'
-import { IKeyHandler, IContractFactory } from '../../common/types'
+import { IKeyHandler, IContractFactory, IUtils } from '../../common/types'
 import { Observable, forkJoin } from 'rxjs'
 import { map, filter } from 'rxjs/operators'
 import SlotsChannelManagerContract from '../../common/ContractFactory/contracts/SlotsChannelManagerContract'
 import IChannelHistoryItem from '../TransactionHistory/ChannelHistoryItem/IChannelHistoryItem'
+
+interface IChannelItem {
+    id: string
+    channelNonce: string
+    initialDeposit: string
+    createTime: string
+    txCreateHash: string
+}
 
 function saveAccountInfo(formData: any): Promise<any> {
     return new Promise(async (resolve, reject) => {
@@ -106,12 +115,13 @@ async function getEventData(
 
 async function getChannels(
     address: string,
-    contract: SlotsChannelManagerContract
-): Promise<any[]> {
+    contract: SlotsChannelManagerContract,
+    utils: IUtils
+): Promise<IChannelItem[]> {
     const channelsSource = await getEventData('LogNewChannel', contract, {
         user: address
     })
-
+    // .dividedBy(units.ether).toFormat(2, BigNumber.ROUND_DOWN, {groupSeparator: " "})
     if (channelsSource) {
         return channelsSource.map(event => {
             const { transactionHash, returnValues } = event
@@ -119,8 +129,8 @@ async function getChannels(
             return {
                 id,
                 channelNonce,
-                initialDeposit,
-                createTime: timestamp,
+                initialDeposit: utils.formatEther(initialDeposit),
+                createTime: moment.unix(timestamp).format(),
                 txCreateHash: transactionHash
             }
         })
@@ -129,43 +139,48 @@ async function getChannels(
     }
 }
 
-function getChannelsWithDetails(
+function getClaimedDbets(
     contract: SlotsChannelManagerContract,
-    channels: any[]
+    utils: IUtils,
+    channels: IChannelItem[]
 ): Promise<any[]> {
-    const detailsPromises = channels.map(channel => {
-        return contract.getChannelInfo(channel.id)
-    })
+    const houseDeposit = 10000 + Math.pow(10, 18)
+    const houseBalancesPromises = channels.map(
+        async (channel: IChannelItem) => {
+            const amount = await contract.instance.methods
+                .finalBalances(channel.id, true)
+                .call()
+            return {
+                amount,
+                channelId: channel.id,
+                initialDeposit: channel.initialDeposit
+            }
+        }
+    )
 
-    const detailsFork$: Observable<any[]> = forkJoin(detailsPromises)
+    const houseBalancesFork$: Observable<any[]> = forkJoin(
+        houseBalancesPromises
+    )
 
     return new Promise<any[]>((resolve, reject) => {
-        const detailsSub = detailsFork$.subscribe(
-            detailsList => {
-                detailsSub.unsubscribe()
+        const balanceSub = houseBalancesFork$.subscribe(
+            balanceList => {
+                balanceSub.unsubscribe()
 
-                const result = detailsList.map((channelInfo: any) => {
-                    const [
-                        userAddress,
-                        ready,
-                        activated,
-                        finalized,
-                        initialDeposit,
-                        finalNonce,
-                        endTime,
-                        id
-                    ] = channelInfo
-
+                const result = balanceList.map((balance: any) => {
+                    const finalHouseBalance = utils.convertToEther(
+                        balance.amount
+                    )
+                    const initialDeposit = utils.convertToEther(
+                        balance.initialDeposit
+                    )
+                    const finalUserBalance =
+                        Number(initialDeposit) +
+                        houseDeposit -
+                        Number(finalHouseBalance)
                     return {
-                        id,
-                        userAddress,
-                        ready,
-                        activated,
-                        finalized,
-                        initialDeposit,
-                        finalNonce,
-                        endTime,
-                        exists: userAddress === '0x0'
+                        channelId: balance.channelId,
+                        finalUserBalance: utils.formatEther(finalUserBalance)
                     }
                 })
                 resolve(result)
@@ -179,10 +194,10 @@ function getChannelsWithDetails(
 
 function getClaimedChannels(
     contract: SlotsChannelManagerContract,
-    channels: any[]
+    channels: IChannelItem[]
 ): Promise<any[]> {
     const claimedChannelPromises = channels.map(channel => {
-        return getEventData('LogChannelFinalized', contract, {
+        return getEventData('LogClaimChannelTokens', contract, {
             id: channel.id
         })
     })
@@ -207,13 +222,13 @@ function getClaimedChannels(
                 claimedSub.unsubscribe()
                 const result = claimedChannels.map((channel: any) => {
                     const { transactionHash, returnValues } = channel
-                    const { id, isHouse, channelNonce } = returnValues
+                    const { id, isHouse, timestamp } = returnValues
 
                     return {
-                        txtClaimHash: transactionHash,
+                        txClaimedHash: transactionHash,
                         id,
                         isHouse,
-                        channelNonce
+                        claimedTime: moment.unix(timestamp).format()
                     }
                 })
 
@@ -237,13 +252,12 @@ async function getFinalizedChannels(
 
     const finalizedChannels = events.map((event: any) => {
         const { transactionHash, returnValues } = event
-        const { id, isHouse, channelNonce, timestamp } = returnValues
+        const { id, isHouse, channelNonce } = returnValues
         return {
-            txFinalizeHash: transactionHash,
+            txEndHash: transactionHash,
             id,
             isHouse,
-            channelNonce,
-            timestamp
+            channelNonce
         }
     })
 
@@ -260,13 +274,14 @@ async function getFinalizedChannels(
 
 async function getTransactionHistory(
     contractFactory: IContractFactory,
+    utils: IUtils,
     address: string
 ): Promise<IChannelHistoryItem[]> {
     try {
         const contract = await contractFactory.slotsChannelManagerContract(
             address
         )
-        const channels = await getChannels(address, contract)
+        const channels = await getChannels(address, contract, utils)
 
         if (channels.length > 0) {
             const finalizedChannels = await getFinalizedChannels(
@@ -276,8 +291,9 @@ async function getTransactionHistory(
             )
 
             const claimedChannels = await getClaimedChannels(contract, channels)
-            const channelsDetails = await getChannelsWithDetails(
+            const claimedDbetBalances = await getClaimedDbets(
                 contract,
+                utils,
                 channels
             )
 
@@ -289,15 +305,19 @@ async function getTransactionHistory(
                 const claimed = claimedChannels.find(value => {
                     return value.id === channel.id
                 })
-                const details = channelsDetails.find(value => {
-                    return value.id === channel.id
+                const claimedDbets = claimedDbetBalances.find(value => {
+                    return value.channelId === channel.id
                 })
 
                 return {
                     ...channel,
-                    ...details,
-                    txFinalizeHash: finalized ? finalized.txFinalizeHash : null,
-                    txClaimHash: claimed ? claimed.txClaimHash : null
+                    claimedDbets: claimedDbets
+                        ? claimedDbets.finalUserBalance
+                        : 0,
+                    txEndHash: finalized ? finalized.txEndHash : null,
+                    txClaimedHash: claimed ? claimed.txClaimedHash : null,
+                    claimedTime: claimed ? claimed.claimedTime : null,
+                    endTime: ''
                 }
             })
 

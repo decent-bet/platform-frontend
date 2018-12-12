@@ -133,35 +133,41 @@ class AppDrawer extends React.Component<IAppDrawerProps, IAppDrawerState> {
     }
 
     public render() {
+        const isXl = isWidthUp('xl', this.props.width)
         return (
             <Drawer
                 open={this.props.isDrawerOpen}
                 onClose={this.props.onDrawerCloseListener}
+                variant={isXl ? 'permanent' : 'temporary'}
+                style={{
+                    width: this.props.drawerWidth
+                }}
             >
                 <Grid
                     style={{
-                        padding: '2em 1em 0 1em',
+                        padding: '1.5em 1em 0 1em',
                         paddingBottom: isWidthUp('sm', this.props.width)
                             ? '2em'
                             : '1em'
                     }}
                     container={true}
                     direction="row"
+                    justify="space-between"
                     alignItems="center"
                 >
-                    <Grid item={true} xs={10}>
+                    <Grid item={true}>
                         <img
                             className="logo"
                             src={dbetLogo}
                             style={{
-                                height: 26,
+                                height: 24,
                                 textAlign: 'left',
                                 objectFit: 'contain'
                             }}
                             alt="Decent Bet Logo"
                         />
                     </Grid>
-                    <Grid item={true} xs={2}>
+                    <Grid item={true}>
                         <IconButton onClick={this.props.onDrawerCloseListener}>
                             <ChevronLeft />
                         </IconButton>

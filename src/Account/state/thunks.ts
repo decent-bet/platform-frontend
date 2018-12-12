@@ -66,8 +66,8 @@ export function getTransactionHistory(address: string) {
     return async (
         dispatch,
         _getState,
-        { contractFactory }: IThunkDependencies
+        { contractFactory, utils }: IThunkDependencies
     ) => {
-        dispatch(actions.getTransactionHistory(contractFactory, address))
+        dispatch(actions.getTransactionHistory(contractFactory, utils, address))
     }
 }
