@@ -1,5 +1,4 @@
 import { History } from 'history'
-import IChannelHistoryItem from '../TransactionHistory/ChannelHistoryItem/IChannelHistoryItem'
 
 export default interface IAccountProps {
     account: any
@@ -7,8 +6,7 @@ export default interface IAccountProps {
     accountIsVerified: boolean
     saveAccountAddress(account: any, publicAddress: string, privateKey: string)
     saveAccountInfo(data: any)
-    getTransactionHistory(publicAddress: string)
-    channels: IChannelHistoryItem[]
+    getChannelsHistory(publicAddress: string, currnetIndex: number)
     loading: boolean
     history: History
 }

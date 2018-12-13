@@ -4,53 +4,24 @@ import { connect } from 'react-redux'
 import * as thunks from '../state/thunks'
 import MomentUtils from 'material-ui-pickers/utils/moment-utils'
 import { MuiPickersUtilsProvider } from 'material-ui-pickers'
-import { Grid, Paper, Tabs, Tab } from '@material-ui/core'
-import AccountAddress from '../Address'
-import BasicAccountInfo from '../BasicAccountInfo'
+import { Grid, Paper, Tabs } from '@material-ui/core'
+import TabLink from './TabLink'
 import TransparentPaper from '../../common/components/TransparentPaper'
 import Routes from '../../routes'
-import TransactionHistory from '../TransactionHistory'
 import ListAltIcon from '@material-ui/icons/ListAlt'
 import VpnKeyIcon from '@material-ui/icons/VpnKey'
 import AssignmentIndIcon from '@material-ui/icons/AssignmentInd'
 import IAccountProps from './IAccountProps'
 import { IAccountState, DefaultState } from './AccountState'
+import AccountRouter from '../AccountRouter'
 
 class Account extends Component<IAccountProps, IAccountState> {
     public state: Readonly<IAccountState> = DefaultState
 
-    public componentDidMount() {
-        const activeStep = this.defaultStep
-        this.setState({ activeStep })
-    }
-
-    private get defaultStep(): number {
-        if (this.props.accountHasAddress && !this.props.accountIsVerified) {
-            return 1
-        } else if (
-            this.props.accountHasAddress &&
-            this.props.accountIsVerified
-        ) {
-            return 0
-        } else {
-            return 0
-        }
-    }
-
-    private onSuccess = (step: number): void => {
-        if (step === 0) {
-            this.setState({
-                activeStep: 1
-            })
-        } else if (step === 1) {
-            this.props.history.push(Routes.Casino)
-        }
-    }
+    public componentDidMount() {}
 
     private handleChangeTab = (_event: ChangeEvent<{}>, value: any): void => {
-        this.setState({
-            activeStep: value
-        })
+        this.setState({ activeTap: value })
     }
 
     private saveAccountAddress = async (
@@ -69,7 +40,7 @@ class Account extends Component<IAccountProps, IAccountState> {
             this.setState({
                 isSaving: false
             })
-            this.onSuccess(0)
+            this.props.history.push(Routes.AccountInfo)
         } catch {
             this.setState({
                 isSaving: false
@@ -83,49 +54,11 @@ class Account extends Component<IAccountProps, IAccountState> {
             this.setState({
                 isSaving: false
             })
-            this.onSuccess(1)
+            this.props.history.push(Routes.Casino)
         } catch {
             this.setState({
                 isSaving: false
             })
-        }
-    }
-
-    private loadTransactions = async () => {
-        const {
-            vetAddress
-        } = this.props.account.verification.addressRegistration
-        return await this.props.getTransactionHistory(vetAddress)
-    }
-
-    private getActiveStepComponent = (step: number) => {
-        switch (step) {
-            case 0:
-                return (
-                    <AccountAddress
-                        isSaving={this.state.isSaving}
-                        account={this.props.account}
-                        accountHasAddress={this.props.accountHasAddress}
-                        saveAccountAddress={this.saveAccountAddress}
-                    />
-                )
-            case 1:
-                return (
-                    <BasicAccountInfo
-                        isSaving={this.state.isSaving}
-                        account={this.props.account}
-                        accountIsVerified={this.props.accountIsVerified}
-                        saveAccountInfo={this.saveAccountInfo}
-                    />
-                )
-            default:
-                return (
-                    <TransactionHistory
-                        loading={this.props.loading}
-                        channels={this.props.channels}
-                        loadTransactions={this.loadTransactions}
-                    />
-                )
         }
     }
 
@@ -148,25 +81,28 @@ class Account extends Component<IAccountProps, IAccountState> {
                     >
                         <TransparentPaper>
                             <Tabs
-                                value={this.state.activeStep}
+                                value={this.state.activeTap}
                                 onChange={this.handleChangeTab}
                                 centered={true}
                                 fullWidth={true}
                                 indicatorColor="secondary"
                                 textColor="primary"
                             >
-                                <Tab
+                                <TabLink
+                                    to={Routes.AccountAddress}
                                     label="VET address"
                                     icon={<VpnKeyIcon />}
                                 />
-                                <Tab
+                                <TabLink
+                                    to={Routes.AccountInfo}
                                     disabled={!this.props.accountHasAddress}
                                     label="Account info"
                                     icon={<AssignmentIndIcon />}
                                 />
                                 {this.props.accountIsVerified &&
                                 this.props.accountHasAddress ? (
-                                    <Tab
+                                    <TabLink
+                                        to={Routes.AccountTransactionHistory}
                                         label="Transaction History"
                                         icon={<ListAltIcon />}
                                     />
@@ -174,7 +110,14 @@ class Account extends Component<IAccountProps, IAccountState> {
                             </Tabs>
                         </TransparentPaper>
                         <Paper>
-                            {this.getActiveStepComponent(this.state.activeStep)}
+                            <AccountRouter
+                                isSaving={this.state.isSaving}
+                                account={this.props.account}
+                                accountIsVerified={this.props.accountIsVerified}
+                                saveAccountInfo={this.saveAccountInfo}
+                                accountHasAddress={this.props.accountHasAddress}
+                                saveAccountAddress={this.saveAccountAddress}
+                            />
                         </Paper>
                     </Grid>
                 </Grid>
@@ -183,9 +126,11 @@ class Account extends Component<IAccountProps, IAccountState> {
     }
 }
 
-const mapStateToProps = function(state) {
-    return { ...state, ...state.account, ...state.main }
+const mapStateToProps = state => {
+    const { account } = state.account
+    return { ...account, ...state.main }
 }
+
 const mapDispatchToProps = function(dispatch) {
     return bindActionCreators({ ...thunks }, dispatch)
 }

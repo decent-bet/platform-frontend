@@ -5,7 +5,7 @@ import { flatMap, switchMap, tap } from 'rxjs/operators'
 import { IKeyHandler } from 'src/common/types'
 
 interface IListenEventsSettings {
-    config: { filter?: any; toBlock?: string | number; order?: string | number }
+    config: IGetPastEventsSettings
     interval: number
     top?: number
 }
@@ -56,11 +56,7 @@ abstract class BaseContract<T extends Contract> {
      */
     public listenForEvent(
         eventName,
-        settings: IListenEventsSettings = {
-            config: {},
-            interval: 5000,
-            top: undefined
-        },
+        settings: IListenEventsSettings,
         unsubscribeCondition
     ): Promise<any> {
         return new Promise((resolve, reject) => {

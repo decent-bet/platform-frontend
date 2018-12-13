@@ -1,9 +1,9 @@
 export interface IAccountState {
-    activeStep: number
+    activeTap: number
     isSaving: boolean
 }
 
-export const DefaultState: IAccountState = {
+export let DefaultState: IAccountState = {
     isSaving: false,
-    activeStep: 0
+    activeTap: 0
 }

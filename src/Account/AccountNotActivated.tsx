@@ -67,7 +67,11 @@ class AccountNotActivated extends React.Component<any, any> {
     }
 }
 
-const mapStateToProps = state => Object.assign({}, state.account, state.main)
+const mapStateToProps = state => {
+    const { account } = state.account
+    return { ...account, ...state.main }
+}
+
 const mapDispatchToProps = dispatch =>
     bindActionCreators(Object.assign({}, thunks), dispatch)
 

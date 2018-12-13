@@ -187,7 +187,9 @@ class AppDrawer extends React.Component<IAppDrawerProps, IAppDrawerState> {
                     <AppDrawerItem
                         viewToSelect={Routes.Account}
                         isSelected={
-                            this.props.selectedView === Routes.Account ||
+                            this.props.selectedView.startsWith(
+                                Routes.Account
+                            ) ||
                             this.props.selectedView ===
                                 Routes.AccountNotActivated
                         }

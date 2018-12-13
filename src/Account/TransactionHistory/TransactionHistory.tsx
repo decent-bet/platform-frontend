@@ -1,4 +1,7 @@
 import React, { Component, MouseEvent } from 'react'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+import * as thunks from './state/thunks'
 import {
     withStyles,
     Card,
@@ -6,15 +9,17 @@ import {
     Grid,
     CardHeader,
     IconButton,
-    Tooltip
+    Tooltip,
+    Fab,
+    CircularProgress,
+    CardActions
 } from '@material-ui/core'
 import RefreshIcon from '@material-ui/icons/RefreshRounded'
+import MoreHorizRoundedIcon from '@material-ui/icons/MoreHorizRounded'
 import styles from './styles'
 import ITransactionHistoryProps from './ITransactionHistoryProps'
-import {
-    ITransactionHistoryState,
-    DefaultState
-} from './TransactionHistoryState'
+import ITransactionHistoryState from './ITransactionHistoryState'
+import TransactionHistoryState from './TransactionHistoryState'
 import AppLoading from '../../common/components/AppLoading'
 import ChannelHistoryItem from './ChannelHistoryItem'
 
@@ -22,18 +27,34 @@ class TransactionHistory extends Component<
     ITransactionHistoryProps,
     ITransactionHistoryState
 > {
-    public state: Readonly<ITransactionHistoryState> = DefaultState
+    public state: ITransactionHistoryState = new TransactionHistoryState()
 
     public async componentDidMount() {
-        await this.props.loadTransactions()
+        this.setState({ isLoading: true })
+        await this.loadTransactions()
+        this.setState({ isLoading: false })
+    }
+
+    private loadTransactions = async (currentIndex?: number) => {
+        currentIndex = currentIndex ? currentIndex : 0
+        await this.props.getChannelsHistory(this.props.vetAddress, currentIndex)
     }
 
     private didClickOnRefresh = async (_event: MouseEvent) => {
-        await this.props.loadTransactions()
+        this.setState({ isLoading: true })
+        await this.loadTransactions()
+        this.setState({ isLoading: false })
+    }
+
+    private didClickOnLoadMore = async (_event: MouseEvent) => {
+        this.setState({ isLoadingMore: true })
+        await this.loadTransactions(this.state.currentIndex)
+        this.setState({ isLoadingMore: false })
+        this.setState({ currentIndex: this.state.currentIndex + 10 })
     }
 
     public render() {
-        const { channels } = this.props
+        const { channels, classes } = this.props
         return (
             <Card>
                 <CardHeader
@@ -41,7 +62,7 @@ class TransactionHistory extends Component<
                     action={
                         <Tooltip title="Refresh">
                             <IconButton
-                                disabled={this.props.loading}
+                                disabled={this.state.isLoading}
                                 onClick={this.didClickOnRefresh}
                             >
                                 <RefreshIcon />
@@ -49,25 +70,58 @@ class TransactionHistory extends Component<
                         </Tooltip>
                     }
                 />
-                <CardContent>
+                <CardContent className={classes.root}>
                     <Grid container={true} spacing={40}>
                         <Grid item={true} xs={12}>
-                            {this.props.loading ? (
+                            {this.state.isLoading ? (
                                 <AppLoading />
                             ) : (
-                                channels.map(channel => (
+                                channels.map((channel, index) => (
                                     <ChannelHistoryItem
                                         channel={channel}
-                                        key={channel.id}
+                                        key={index}
                                     />
                                 ))
                             )}
                         </Grid>
                     </Grid>
                 </CardContent>
+                <CardActions className={classes.toolbar}>
+                    {this.state.isLoadingMore ? (
+                        <CircularProgress size={24} />
+                    ) : null}
+                    <Tooltip title="Load more">
+                        <Fab
+                            color="primary"
+                            disabled={
+                                this.state.isLoading || this.state.isLoadingMore
+                            }
+                            onClick={this.didClickOnLoadMore}
+                            className={classes.fab}
+                        >
+                            <MoreHorizRoundedIcon
+                                className={classes.extendedIcon}
+                            />
+                        </Fab>
+                    </Tooltip>
+                </CardActions>
             </Card>
         )
     }
 }
 
-export default withStyles(styles)(TransactionHistory)
+const styledComponent = withStyles(styles)(TransactionHistory)
+
+const mapStateToProps = state => {
+    const { transactionHistory } = state.account
+    return transactionHistory
+}
+
+const mapDispatchToProps = function(dispatch) {
+    return bindActionCreators({ ...thunks }, dispatch)
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(styledComponent)

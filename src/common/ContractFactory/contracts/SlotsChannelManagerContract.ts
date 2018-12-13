@@ -9,7 +9,6 @@ export default class SlotsChannelManagerContract extends BaseContract<
      */
     public async getChannelInfo(id) {
         const info = await this.instance.methods.getChannelInfo(id).call()
-        info[7] = id
         return info
     }
 
@@ -164,6 +163,35 @@ export default class SlotsChannelManagerContract extends BaseContract<
     /**
      * Events
      */
+
+    public async getEventData(
+        eventName: string,
+        filter: any,
+        offset: number = 0,
+        limit: number = 10,
+        interval: number = 1000,
+        top: number = 3
+    ): Promise<any[]> {
+        const events: any[] = await this.listenForEvent(
+            eventName,
+            {
+                config: {
+                    filter,
+                    options: { offset, limit },
+                    fromBlock: '0',
+                    toBlock: 'latest',
+                    order: 'DESC'
+                },
+
+                interval,
+                top
+            },
+            (events: any[]) => events.length > 0
+        )
+
+        return events
+    }
+
     public async logNewChannel(transaction) {
         const userAddress = this._thorify.eth.defaultAccount
         let listenerSettings = {

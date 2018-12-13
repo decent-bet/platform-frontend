@@ -24,8 +24,8 @@ import {
 import styles from './styles'
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown'
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded'
-import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppRounded'
-import SaveAltRoundedIcon from '@material-ui/icons/SaveAltRounded'
+// import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppRounded'
+// import SaveAltRoundedIcon from '@material-ui/icons/SaveAltRounded'
 import { VEFORGE_URL } from '../../../config'
 
 class ChannelHistoryItem extends Component<
@@ -49,9 +49,14 @@ class ChannelHistoryItem extends Component<
                         </Typography>
                     }
                     subheader={
-                        <Typography color="secondary" variant="body2">
-                            Created: {channel.createTime}
-                        </Typography>
+                        <>
+                            <Typography color="secondary" variant="body2">
+                                Created: {` ${channel.timestamp}`}
+                            </Typography>
+                            <Typography variant="body2">
+                                Nonce: {` ${channel.channelNonce}`}
+                            </Typography>
+                        </>
                     }
                     action={
                         <IconButton
@@ -70,18 +75,7 @@ class ChannelHistoryItem extends Component<
                     unmountOnExit={true}
                 >
                     <CardContent>
-                        <List
-                            disablePadding={true}
-                            component="nav"
-                            subheader={
-                                <>
-                                    <Typography>Nonce:</Typography>
-                                    <Typography color="secondary">
-                                        {channel.channelNonce}
-                                    </Typography>
-                                </>
-                            }
-                        >
+                        <List disablePadding={true} component="nav">
                             <ListItem>
                                 <ListItemIcon>
                                     <CheckCircleRoundedIcon color="primary" />
@@ -102,10 +96,10 @@ class ChannelHistoryItem extends Component<
                                                     color="secondary"
                                                     target="_blank"
                                                     href={`${VEFORGE_URL}/${
-                                                        channel.txCreateHash
+                                                        channel.transactionHash
                                                     }`}
                                                 >
-                                                    {channel.txCreateHash}
+                                                    {channel.transactionHash}
                                                 </Button>
                                             </>
                                         }
@@ -122,106 +116,13 @@ class ChannelHistoryItem extends Component<
                                 <ListItem>
                                     <ListItemText
                                         inset={true}
-                                        secondary={`Started at: ${
-                                            channel.createTime
+                                        secondary={`Created at: ${
+                                            channel.timestamp
                                         }`}
                                     />
                                 </ListItem>
                             </List>
                             <Divider />
-                            <ListItem>
-                                <ListItemIcon>
-                                    <ExitToAppRoundedIcon color="primary" />
-                                </ListItemIcon>
-                                <ListItemText
-                                    primary="End Session"
-                                    secondary={
-                                        channel.txEndHash ? '' : 'Not finalized'
-                                    }
-                                />
-                            </ListItem>
-                            {channel.txEndHash ? (
-                                <List disablePadding={true} dense={true}>
-                                    <ListItem>
-                                        <ListItemText
-                                            inset={true}
-                                            secondary={
-                                                <>
-                                                    Transaction Hash:{' '}
-                                                    <Button
-                                                        className={
-                                                            classes.linkButton
-                                                        }
-                                                        color="secondary"
-                                                        target="_blank"
-                                                        href={`${VEFORGE_URL}/${
-                                                            channel.txEndHash
-                                                        }`}
-                                                    >
-                                                        {channel.txEndHash}
-                                                    </Button>
-                                                </>
-                                            }
-                                        />
-                                    </ListItem>
-                                </List>
-                            ) : null}
-                            <Divider />
-                            <ListItem>
-                                <ListItemIcon>
-                                    <SaveAltRoundedIcon color="primary" />
-                                </ListItemIcon>
-                                <ListItemText
-                                    primary="Claim DBETs"
-                                    secondary={
-                                        channel.txClaimedHash
-                                            ? ''
-                                            : 'Not claimed'
-                                    }
-                                />
-                            </ListItem>
-                            {channel.txClaimedHash ? (
-                                <List disablePadding={true} dense={true}>
-                                    <ListItem>
-                                        <ListItemText
-                                            inset={true}
-                                            secondary={
-                                                <>
-                                                    Transaction Hash:{' '}
-                                                    <Button
-                                                        className={
-                                                            classes.linkButton
-                                                        }
-                                                        color="secondary"
-                                                        target="_blank"
-                                                        href={`${VEFORGE_URL}/${
-                                                            channel.txClaimedHash
-                                                        }`}
-                                                    >
-                                                        {channel.txClaimedHash}
-                                                    </Button>
-                                                </>
-                                            }
-                                        />
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItemText
-                                            inset={true}
-                                            secondary={`Claimed at: ${
-                                                channel.claimedTime
-                                            }`}
-                                        />
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItemText
-                                            inset={true}
-                                            secondary={`Claimed DBETs: ${
-                                                channel.claimedDbets
-                                            }`}
-                                        />
-                                    </ListItem>
-                                </List>
-                            ) : null}
                         </List>
                     </CardContent>
                 </Collapse>
