@@ -3,7 +3,7 @@ import { createStyles, Theme } from '@material-ui/core'
 const styles = (theme: Theme) =>
     createStyles({
         root: { paddingBottom: 50 },
-        fab: { margin: theme.spacing.unit },
+        moreAction: { margin: theme.spacing.unit },
         extendedIcon: { margin: theme.spacing.unit },
         toolbar: {
             position: 'relative',

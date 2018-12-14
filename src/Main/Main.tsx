@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router-dom'
 import { bindActionCreators } from 'redux'
@@ -15,15 +15,16 @@ import {
     Typography,
     AppBar,
     Toolbar,
-    IconButton
+    IconButton,
+    Hidden
 } from '@material-ui/core'
-import withWidth, { isWidthDown, isWidthUp } from '@material-ui/core/withWidth'
+import withWidth, { isWidthUp } from '@material-ui/core/withWidth'
 import AppLoading from '../common/components/AppLoading'
 import Routes from '../routes'
 import { Link } from 'react-router-dom'
 import MenuIcon from '@material-ui/icons/Menu'
 import dbetLogo from '../assets/img/dbet-white.svg'
-class Main extends React.Component<any, any> {
+class Main extends Component<any, any> {
     private _activationTimer: any
 
     constructor(props: any) {
@@ -46,7 +47,9 @@ class Main extends React.Component<any, any> {
             }, 5000)
         }
 
-        this.setState({ loaded: true })
+        if (!this.state.loaded) {
+            this.setState({ loaded: true })
+        }
     }
 
     public componentWillUnmount() {
@@ -59,7 +62,6 @@ class Main extends React.Component<any, any> {
         if (
             this.state.loaded !== nextState.loaded ||
             this.state.drawerOpen !== nextState.drawerOpen ||
-            this.props.accountIsActivated !== nextProps.accountIsActivated ||
             this.props.accountIsActivated !== nextProps.accountIsActivated ||
             this.props.accountIsVerified !== nextProps.accountIsVerified ||
             this.props.accountHasAddress !== nextProps.accountHasAddress ||
@@ -112,25 +114,39 @@ class Main extends React.Component<any, any> {
             accountHasAddress
         } = this.props
 
-        if (!accountIsActivated) {
-            if (this.props.location.pathname !== Routes.AccountNotActivated) {
-                return <Redirect to={Routes.AccountNotActivated} />
-            }
-        } else if (!accountIsVerified || !accountHasAddress) {
-            if (this.props.location.pathname !== Routes.Account) {
-                return <Redirect to={Routes.Account} />
-            }
-        }
-
+        // validate activation
         if (accountIsActivated) {
             if (this._activationTimer) {
                 clearInterval(this._activationTimer)
             }
 
             if (this.props.location.pathname === Routes.AccountNotActivated) {
-                return <Redirect to={Routes.Account} />
+                return <Redirect to={Routes.AccountAddress} />
+            }
+
+            // validate account verification
+            if (
+                !accountIsVerified &&
+                ![Routes.AccountAddress, Routes.AccountInfo].includes(
+                    this.props.location.pathname
+                )
+            ) {
+                return <Redirect to={Routes.AccountAddress} />
+            }
+
+            // validate account address
+            if (
+                !accountHasAddress &&
+                this.props.location.pathname !== Routes.AccountAddress
+            ) {
+                return <Redirect to={Routes.AccountAddress} />
+            }
+        } else {
+            if (this.props.location.pathname !== Routes.AccountNotActivated) {
+                return <Redirect to={Routes.AccountNotActivated} />
             }
         }
+
         const isXl = isWidthUp('xl', this.props.width)
         const drawerWidth = 240
         return (
@@ -142,7 +158,7 @@ class Main extends React.Component<any, any> {
                         style={{ zIndex: isXl ? 1201 : 1100 }}
                     >
                         <Toolbar>
-                            {isXl ? null : (
+                            <Hidden xlUp={true}>
                                 <IconButton
                                     aria-label="Menu"
                                     onClick={this.onToggleDrawerListener}
@@ -153,7 +169,7 @@ class Main extends React.Component<any, any> {
                                 >
                                     <MenuIcon />
                                 </IconButton>
-                            )}
+                            </Hidden>
 
                             <Link to="/" className="logo-container">
                                 <img
@@ -162,7 +178,7 @@ class Main extends React.Component<any, any> {
                                     alt="Decent.bet"
                                 />
                             </Link>
-                            {isWidthDown('sm', this.props.width) ? null : (
+                            <Hidden smDown={true}>
                                 <AppBarToolbar
                                     accountHasAddress={accountHasAddress}
                                     isCasinoLogedIn={this.props.isCasinoLogedIn}
@@ -177,7 +193,7 @@ class Main extends React.Component<any, any> {
                                     tokenBalance={this.props.tokenBalance}
                                     vthoBalance={this.props.vthoBalance}
                                 />
-                            )}
+                            </Hidden>
                         </Toolbar>
                     </AppBar>
                     <Grid

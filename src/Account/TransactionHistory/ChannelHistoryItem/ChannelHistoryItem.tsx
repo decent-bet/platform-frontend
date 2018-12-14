@@ -6,7 +6,6 @@ import {
     DefaultState
 } from './ChannelHistoryItemState'
 import {
-    // Grid,
     IconButton,
     Typography,
     Collapse,
@@ -19,27 +18,37 @@ import {
     ListItemIcon,
     ListItemText,
     Button,
-    Divider
+    Divider,
+    CircularProgress,
+    Grid
 } from '@material-ui/core'
 import styles from './styles'
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown'
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded'
-// import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppRounded'
-// import SaveAltRoundedIcon from '@material-ui/icons/SaveAltRounded'
 import { VEFORGE_URL } from '../../../config'
+import EndSession from './EndSession'
+import ClaimDbets from './ClaimDbets'
 
 class ChannelHistoryItem extends Component<
     IChannelHistoryItemProps,
     IChannelHistoryItemState
 > {
-    public state: Readonly<IChannelHistoryItemState> = DefaultState
+    public readonly state: IChannelHistoryItemState = DefaultState
 
-    private didClickOnToogleExpand = (_event: MouseEvent): void => {
-        this.setState(state => ({ expanded: !state.expanded }))
+    private didClickOnToogleExpand = async (_event: MouseEvent) => {
+        const { expanded } = this.state
+        this.setState({ expanded: !expanded })
+        if (!expanded && this.props.details === null) {
+            await this.props.getChannelDetails(
+                this.props.channel.id,
+                this.props.channel.initialDeposit,
+                this.props.vetAddress
+            )
+        }
     }
 
     public render() {
-        const { classes, channel } = this.props
+        const { classes, channel, details } = this.props
         return (
             <Card className={classes.card}>
                 <CardHeader
@@ -122,7 +131,31 @@ class ChannelHistoryItem extends Component<
                                     />
                                 </ListItem>
                             </List>
-                            <Divider />
+                            {details ? (
+                                <>
+                                    <Divider />
+                                    <EndSession
+                                        details={details.finalize}
+                                        url={VEFORGE_URL}
+                                        linkButtonClass={classes.linkButton}
+                                    />
+                                    <Divider />
+                                    <ClaimDbets
+                                        details={details.claim}
+                                        url={VEFORGE_URL}
+                                        linkButtonClass={classes.linkButton}
+                                    />
+                                </>
+                            ) : (
+                                <Grid
+                                    direction="row"
+                                    container={true}
+                                    alignItems="center"
+                                    justify="center"
+                                >
+                                    <CircularProgress size={24} />
+                                </Grid>
+                            )}
                         </List>
                     </CardContent>
                 </Collapse>

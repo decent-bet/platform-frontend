@@ -182,7 +182,6 @@ export default class SlotsChannelManagerContract extends BaseContract<
                     toBlock: 'latest',
                     order: 'DESC'
                 },
-
                 interval,
                 top
             },

@@ -1,9 +1,11 @@
+import Routes from 'src/routes'
+
 export interface IAccountState {
-    activeTap: number
+    activeTap: string
     isSaving: boolean
 }
 
-export let DefaultState: IAccountState = {
+export const DefaultState: IAccountState = {
     isSaving: false,
-    activeTap: 0
+    activeTap: Routes.AccountAddress
 }

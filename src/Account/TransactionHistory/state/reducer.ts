@@ -1,8 +1,12 @@
 import Actions, { PREFIX } from './actionTypes'
-import { FULFILLED } from 'redux-promise-middleware'
+import { FULFILLED, PENDING } from 'redux-promise-middleware'
 
 const DefaultState = {
-    channels: []
+    channels: [],
+    details: {},
+    currentIndex: 0,
+    isLoading: false,
+    itemsNotFound: false
 }
 
 export default function reducer(
@@ -10,18 +14,36 @@ export default function reducer(
     action: any = { type: null }
 ) {
     switch (action.type) {
-        case `${PREFIX}/${Actions.GET_CHANNELS_HISTORY}/${FULFILLED}`:
-            if (state.channels.length > 0) {
-                return {
-                    ...state,
-                    loading: false,
-                    channels: [...state.channels, ...action.payload]
-                }
-            }
+        case `${PREFIX}/${Actions.GET_CHANNELS_HISTORY}/${PENDING}`:
             return {
                 ...state,
-                loading: false,
-                channels: action.payload
+                isLoading: true
+            }
+        case `${PREFIX}/${Actions.GET_CHANNELS_HISTORY}/${FULFILLED}`:
+            if (action.payload.currentIndex <= 0) {
+                return {
+                    ...state,
+                    currentIndex: action.payload.currentIndex,
+                    channels: [...action.payload.items],
+                    isLoading: false,
+                    itemsNotFound: action.payload.items.length <= 0
+                }
+            } else {
+                return {
+                    ...state,
+                    currentIndex: action.payload.currentIndex,
+                    channels: [...state.channels, ...action.payload.items],
+                    isLoading: false,
+                    itemsNotFound: action.payload.items.length <= 0
+                }
+            }
+        case `${PREFIX}/${Actions.GET_CHANNEL_DETAILS}/${FULFILLED}`:
+            return {
+                ...state,
+                details: {
+                    ...state.details,
+                    [action.payload.id]: action.payload.details
+                }
             }
         default:
             return { ...state }

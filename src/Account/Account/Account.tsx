@@ -16,9 +16,12 @@ import { IAccountState, DefaultState } from './AccountState'
 import AccountRouter from '../AccountRouter'
 
 class Account extends Component<IAccountProps, IAccountState> {
-    public state: Readonly<IAccountState> = DefaultState
+    public readonly state: IAccountState = DefaultState
 
-    public componentDidMount() {}
+    public componentDidMount() {
+        const { pathname } = this.props.history.location
+        this.setState({ activeTap: pathname })
+    }
 
     private handleChangeTab = (_event: ChangeEvent<{}>, value: any): void => {
         this.setState({ activeTap: value })
@@ -40,6 +43,7 @@ class Account extends Component<IAccountProps, IAccountState> {
             this.setState({
                 isSaving: false
             })
+            this.setState({ activeTap: Routes.AccountInfo })
             this.props.history.push(Routes.AccountInfo)
         } catch {
             this.setState({
@@ -89,11 +93,13 @@ class Account extends Component<IAccountProps, IAccountState> {
                                 textColor="primary"
                             >
                                 <TabLink
+                                    value={Routes.AccountAddress}
                                     to={Routes.AccountAddress}
                                     label="VET address"
                                     icon={<VpnKeyIcon />}
                                 />
                                 <TabLink
+                                    value={Routes.AccountInfo}
                                     to={Routes.AccountInfo}
                                     disabled={!this.props.accountHasAddress}
                                     label="Account info"
@@ -102,6 +108,7 @@ class Account extends Component<IAccountProps, IAccountState> {
                                 {this.props.accountIsVerified &&
                                 this.props.accountHasAddress ? (
                                     <TabLink
+                                        value={Routes.AccountTransactionHistory}
                                         to={Routes.AccountTransactionHistory}
                                         label="Transaction History"
                                         icon={<ListAltIcon />}
@@ -127,8 +134,7 @@ class Account extends Component<IAccountProps, IAccountState> {
 }
 
 const mapStateToProps = state => {
-    const { account } = state.account
-    return { ...account, ...state.main }
+    return { ...state.account.account, ...state.main }
 }
 
 const mapDispatchToProps = function(dispatch) {

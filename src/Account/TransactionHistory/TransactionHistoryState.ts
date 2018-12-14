@@ -1,10 +1,11 @@
-import ITransactionHistoryState from './ITransactionHistoryState'
+export interface ITransactionHistoryState {
+    currentIndex: number
+    error: boolean
+    errorMessage: string
+}
 
-export default class TransactionHistoryState
-    implements ITransactionHistoryState {
-    public currentIndex = 0
-    public isLoading = false
-    public isLoadingMore = false
-    public error = false
-    public errorMessage = ''
+export const DefaultState: ITransactionHistoryState = {
+    currentIndex: 0,
+    error: false,
+    errorMessage: ''
 }

@@ -1,4 +1,0 @@
-export const PREFIX = 'CHANNEL_HISTORY_ITEM'
-export default {
-    GET_CHANNEL_DETAILS: 'GET_CHANNEL_DETAILS'
-}

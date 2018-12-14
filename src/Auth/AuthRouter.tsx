@@ -11,7 +11,7 @@ const AuthRouter: FunctionComponent<{}> = () => {
         <Switch>
             <Redirect exact={true} from={Routes.Auth} to={Routes.Login} />
             <Route path={Routes.Login} component={Login} />
-            <Route path={Routes.Login} component={SignUp} />
+            <Route path={Routes.Signup} component={SignUp} />
             <Route path={Routes.ResetPassword} component={ResetPassword} />
             <Route path={Routes.ForgotPassword} component={ForgotPassword} />
         </Switch>
