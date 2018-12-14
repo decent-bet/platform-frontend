@@ -24,11 +24,11 @@
         "node_modules/@types/*/*.d.ts",
         "src/**/*.ts",
         "src/**/*.js",
+        "typings/**/*.d.ts",
         "images.d.ts"
     ],
     "exclude": [
         "node_modules",
-        "typings/**/*.d.ts",
         "build",
         "scripts",
         "acceptance-tests",
