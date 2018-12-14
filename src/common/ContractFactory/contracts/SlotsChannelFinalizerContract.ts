@@ -1,10 +1,7 @@
 import ethUtil from 'ethereumjs-util'
 import BaseContract from './BaseContract'
-import { SlotsChannelFinalizer } from '../../../../typings/SlotsChannelFinalizer'
 
-export default class SlotsChannelFinalizerContract extends BaseContract<
-    SlotsChannelFinalizer
-> {
+export default class SlotsChannelFinalizerContract extends BaseContract<any> {
     public async finalize(id, userSpin, houseSpin) {
         userSpin = await this.getSpinParts(userSpin)
         houseSpin = await this.getSpinParts(houseSpin)
