@@ -3,9 +3,10 @@ import { FULFILLED, PENDING } from 'redux-promise-middleware'
 
 const DefaultState = {
     accountInfoSaved: false,
+    loading: false,
     accountAddressSaved: false,
-    transactions: [],
-    loading: false
+    channels: [],
+    channelsNotFound: false
 }
 
 export default function reducer(
@@ -22,26 +23,12 @@ export default function reducer(
         case `${PREFIX}/${Actions.SAVE_ACCOUNT_ADDRESS}/${FULFILLED}`:
             return {
                 ...state,
-                loading: false,
                 accountInfoSaved: true
             }
         case `${PREFIX}/${Actions.SAVE_ACCOUNT_INFO}/${FULFILLED}`:
             return {
                 ...state,
-                loading: false,
                 accountAddressSaved: true
-            }
-        case `${PREFIX}/${Actions.GET_TRANSACTION_HISTORY}/${PENDING}`:
-            return {
-                ...state,
-                loading: true,
-                transactions: []
-            }
-        case `${PREFIX}/${Actions.GET_TRANSACTION_HISTORY}/${FULFILLED}`:
-            return {
-                ...state,
-                loading: false,
-                transactions: action.payload
             }
         default:
             return { ...state }

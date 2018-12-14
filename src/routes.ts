@@ -11,6 +11,9 @@ enum Routes {
     ResetPassword = '/auth/resetPassword/:id/:key',
     Signup = '/auth/signup/',
     Account = '/account/',
+    AccountAddress = '/account/address',
+    AccountInfo = '/account/info',
+    AccountTransactionHistory = '/account/transaction-history',
     AccountNotActivated = '/account-not-activated/',
     PrivacyPolicy = '/privacy-policy/',
     TermsAndConditions = '/terms-and-conditions/'

@@ -1,9 +1,11 @@
+import Routes from '../../routes'
+
 export interface IAccountState {
-    activeStep: number
+    activeTap: Routes
     isSaving: boolean
 }
 
 export const DefaultState: IAccountState = {
     isSaving: false,
-    activeStep: 0
+    activeTap: Routes.AccountAddress
 }

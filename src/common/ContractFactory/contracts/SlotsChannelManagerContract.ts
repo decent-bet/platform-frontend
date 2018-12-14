@@ -1,9 +1,5 @@
 import BaseContract from './BaseContract'
-import { SlotsChannelManager } from '../../../../typings/SlotsChannelManager'
-
-export default class SlotsChannelManagerContract extends BaseContract<
-    SlotsChannelManager
-> {
+export default class SlotsChannelManagerContract extends BaseContract<any> {
     /**
      * Getters
      */
@@ -163,6 +159,34 @@ export default class SlotsChannelManagerContract extends BaseContract<
     /**
      * Events
      */
+
+    public async getEventData(
+        eventName: string,
+        filter: any,
+        offset: number = 0,
+        limit: number = 10,
+        interval: number = 1000,
+        top: number = 3
+    ): Promise<any[]> {
+        const events: any[] = await this.listenForEvent(
+            eventName,
+            {
+                config: {
+                    filter,
+                    options: { offset, limit },
+                    fromBlock: '0',
+                    toBlock: 'latest',
+                    order: 'DESC'
+                },
+                interval,
+                top
+            },
+            (events: any[]) => events.length > 0
+        )
+
+        return events
+    }
+
     public async logNewChannel(transaction) {
         const userAddress = this._thorify.eth.defaultAccount
         let listenerSettings = {

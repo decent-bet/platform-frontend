@@ -1,7 +1,5 @@
 import BaseContract from './BaseContract'
-import { DBETVETToken } from '../../../../typings/DBETVETToken'
-
-export default class DBETVETTokenContract extends BaseContract<DBETVETToken> {
+export default class DBETVETTokenContract extends BaseContract<any> {
     /** Getters */
     public async allowance(owner: string, spender: string) {
         return await this.instance.methods.allowance(owner, spender).call()

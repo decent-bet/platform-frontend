@@ -22,16 +22,13 @@
     },
     "include": [
         "node_modules/@types/*/*.d.ts",
-        "node_modules/electron/electron.d.ts",
-        "node_modules/electron-updater/out/*.d.ts",
-        "node_modules/electron-builder-http/out/*.d.ts",
         "src/**/*.ts",
         "src/**/*.js",
-        "typings/**/*.d.ts",
         "images.d.ts"
     ],
     "exclude": [
         "node_modules",
+        "typings",
         "build",
         "scripts",
         "acceptance-tests",
