@@ -1,5 +1,5 @@
 import BaseContract from './BaseContract'
-import { SlotsChannelManager } from 'typings/SlotsChannelManager'
+import { SlotsChannelManager } from '../../../../typings/SlotsChannelManager'
 
 export default class SlotsChannelManagerContract extends BaseContract<
     SlotsChannelManager
