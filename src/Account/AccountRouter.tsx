@@ -5,7 +5,16 @@ import BasicAccountInfo from './BasicAccountInfo'
 import TransactionHistory from './TransactionHistory'
 import Routes from '../routes'
 
-const AccountRouter: FunctionComponent<any> = ({
+export interface IAccountRouterProps {
+    isSaving: boolean
+    accountIsVerified: boolean
+    account: any
+    accountHasAddress: boolean
+    saveAccountAddress(account: any, publicAddress: string, privateKey: string)
+    saveAccountInfo(data: any)
+}
+
+const AccountRouter: FunctionComponent<IAccountRouterProps> = ({
     isSaving,
     account,
     accountIsVerified,

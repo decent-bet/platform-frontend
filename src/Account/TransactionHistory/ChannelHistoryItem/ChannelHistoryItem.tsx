@@ -74,7 +74,7 @@ class ChannelHistoryItem extends Component<
                             })}
                             onClick={this.didClickOnToogleExpand}
                         >
-                            {<KeyboardArrowDownIcon />}
+                            <KeyboardArrowDownIcon />
                         </IconButton>
                     }
                 />
