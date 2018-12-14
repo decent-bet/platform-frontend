@@ -27,7 +27,7 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown'
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded'
 import { VEFORGE_URL } from '../../../config'
 import EndSession from './EndSession'
-import ClaimDbets from './ClaimDbets'
+import ClaimDebts from './ClaimDbets'
 
 class ChannelHistoryItem extends Component<
     IChannelHistoryItemProps,
@@ -140,7 +140,7 @@ class ChannelHistoryItem extends Component<
                                         linkButtonClass={classes.linkButton}
                                     />
                                     <Divider />
-                                    <ClaimDbets
+                                    <ClaimDebts
                                         details={details.claim}
                                         url={VEFORGE_URL}
                                         linkButtonClass={classes.linkButton}

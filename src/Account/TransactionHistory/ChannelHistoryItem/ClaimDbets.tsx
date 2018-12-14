@@ -8,7 +8,13 @@ import {
 } from '@material-ui/core'
 import SaveAltRoundedIcon from '@material-ui/icons/SaveAltRounded'
 
-const ClaimDebets: FunctionComponent<any> = props => {
+export interface IClaimDbetsProps {
+    details: any
+    linkButtonClass: string
+    url: string
+}
+
+const ClaimDebts: FunctionComponent<IClaimDbetsProps> = props => {
     const { details, linkButtonClass, url } = props
 
     return (
@@ -66,4 +72,4 @@ const ClaimDebets: FunctionComponent<any> = props => {
     )
 }
 
-export default ClaimDebets
+export default ClaimDebts

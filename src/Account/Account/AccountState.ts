@@ -1,7 +1,7 @@
-import Routes from 'src/routes'
+import Routes from '../../routes'
 
 export interface IAccountState {
-    activeTap: string
+    activeTap: Routes
     isSaving: boolean
 }
 

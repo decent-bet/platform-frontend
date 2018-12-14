@@ -20,11 +20,28 @@ class Account extends Component<IAccountProps, IAccountState> {
 
     public componentDidMount() {
         const { pathname } = this.props.history.location
-        this.setState({ activeTap: pathname })
+        const route = this.getRouteFromPath(pathname)
+        this.setState({ activeTap: route })
     }
 
-    private handleChangeTab = (_event: ChangeEvent<{}>, value: any): void => {
+    private handleChangeTab = (
+        _event: ChangeEvent<{}>,
+        value: Routes
+    ): void => {
         this.setState({ activeTap: value })
+    }
+
+    private getRouteFromPath = (path: string): Routes => {
+        switch (path) {
+            case Routes.AccountAddress:
+                return Routes.AccountAddress
+            case Routes.AccountInfo:
+                return Routes.AccountInfo
+            case Routes.AccountTransactionHistory:
+                return Routes.AccountTransactionHistory
+            default:
+                return Routes.AccountAddress
+        }
     }
 
     private saveAccountAddress = async (
