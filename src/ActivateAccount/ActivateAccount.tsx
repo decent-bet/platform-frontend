@@ -32,7 +32,7 @@ class ActivateAccount extends React.Component<any, any> {
     }
 
     private renderResult = () => {
-        const loginLink = props => <Link to={Routes} {...props} />
+        const loginLink = props => <Link to={Routes.Login} {...props} />
 
         return (
             <PublicRouteContainer>
