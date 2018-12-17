@@ -8,6 +8,7 @@ import { IContractFactory, IUtils } from 'src/common/types'
 import IChannelsHistory from '../IChannelHistory'
 
 const HOUSE_DEPOSIT = new BigNumber(10000)
+const CLAIM_MINUTES = 15
 
 function getChannelDetails(
     channelId: string,
@@ -140,7 +141,10 @@ function getChannelDetails(
                     finalize: {
                         finalized: finalizeData ? true : false,
                         time: infoData
-                            ? moment.unix(infoData.endTime).format()
+                            ? moment
+                                  .unix(infoData.endTime)
+                                  .subtract(CLAIM_MINUTES, 'minutes')
+                                  .format()
                             : '',
                         transactionHash: finalizeData
                             ? finalizeData.transactionHash
