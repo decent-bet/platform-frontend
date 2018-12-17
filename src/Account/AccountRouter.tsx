@@ -48,13 +48,7 @@ const AccountRouter: FunctionComponent<IAccountRouterProps> = ({
     const transactionHistory = props => {
         if (accountIsVerified && accountHasAddress) {
             const address = account.verification.addressRegistration.vetAddress
-            return (
-                <TransactionHistory
-                    {...props}
-                    isSaving={isSaving}
-                    vetAddress={address}
-                />
-            )
+            return <TransactionHistory {...props} vetAddress={address} />
         } else {
             return <Redirect to={Routes.AccountAddress} />
         }
