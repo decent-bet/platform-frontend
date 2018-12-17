@@ -61,20 +61,3 @@ export function requestActivationEmail() {
         )
     }
 }
-
-export function getChannelsHistory(address: string, currentIndex: number = 0) {
-    return async (
-        dispatch,
-        _getState,
-        { contractFactory, utils }: IThunkDependencies
-    ) => {
-        dispatch(
-            actions.getChannelsHistory(
-                contractFactory,
-                utils,
-                address,
-                currentIndex
-            )
-        )
-    }
-}

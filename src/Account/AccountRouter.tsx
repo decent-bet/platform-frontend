@@ -31,6 +31,7 @@ const AccountRouter: FunctionComponent<IAccountRouterProps> = ({
             saveAccountAddress={saveAccountAddress}
         />
     )
+
     const basicAccountInfo = props =>
         accountHasAddress ? (
             <BasicAccountInfo
@@ -43,6 +44,21 @@ const AccountRouter: FunctionComponent<IAccountRouterProps> = ({
         ) : (
             <Redirect to={Routes.AccountAddress} />
         )
+
+    const transactionHistory = props => {
+        if (accountIsVerified && accountHasAddress) {
+            const address = account.verification.addressRegistration.vetAddress
+            return (
+                <TransactionHistory
+                    {...props}
+                    isSaving={isSaving}
+                    vetAddress={address}
+                />
+            )
+        } else {
+            return <Redirect to={Routes.AccountAddress} />
+        }
+    }
 
     return (
         <Switch>
@@ -57,7 +73,7 @@ const AccountRouter: FunctionComponent<IAccountRouterProps> = ({
             {accountIsVerified && accountHasAddress ? (
                 <Route
                     path={Routes.AccountTransactionHistory}
-                    component={TransactionHistory}
+                    render={transactionHistory}
                 />
             ) : null}
         </Switch>
