@@ -43,19 +43,14 @@ const EndSession: FunctionComponent<any> = props => {
                                 }
                             />
                         </ListItem>
-                        {details.finalBalance ? (
-                            <ListItem>
-                                <ListItemText
-                                    inset={true}
-                                    secondary={
-                                        <>
-                                            Final balance:{' '}
-                                            {details.finalBalance}
-                                        </>
-                                    }
-                                />
-                            </ListItem>
-                        ) : null}
+                        <ListItem>
+                            <ListItemText
+                                inset={true}
+                                secondary={
+                                    <>Final balance: {details.finalBalance}</>
+                                }
+                            />
+                        </ListItem>
                         <ListItem>
                             <ListItemText
                                 inset={true}

@@ -77,9 +77,6 @@ function getChannelDetails(
                     infoData = null
                 }
 
-                const finalBalanceAmount = new BigNumber(
-                    finalBalance ? finalBalance : 0
-                )
                 // finalize data
                 let finalizeData: any | null
                 if (finalizeEvents && (finalizeEvents as any[]).length > 0) {
@@ -88,9 +85,7 @@ function getChannelDetails(
                     finalizeData = {
                         transactionHash,
                         finalized: infoData ? infoData.finalized : false,
-                        finalBalance: finalBalanceAmount.isGreaterThan(0)
-                            ? finalBalanceAmount
-                            : null
+                        finalBalance: new BigNumber(finalBalance)
                     }
                 } else {
                     finalizeData = null
@@ -155,12 +150,9 @@ function getChannelDetails(
                         finalized: finalizeData
                             ? finalizeData.finalized
                             : false,
-                        finalBalance:
-                            finalizeData &&
-                            finalizeData.finalBalance &&
-                            finalizeData.finalBalance > 0
-                                ? utils.formatEther(finalizeData.finalBalance)
-                                : null,
+                        finalBalance: finalizeData
+                            ? utils.formatEther(finalizeData.finalBalance)
+                            : null,
                         time: infoData
                             ? moment
                                   .unix(infoData.endTime)
