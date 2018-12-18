@@ -9,12 +9,12 @@ import {
     FormControl,
     FormHelperText,
     Typography,
-    Button
+    Button,
+    CardHeader
 } from '@material-ui/core'
 import * as validator from 'validator'
 import { Wallet } from 'ethers'
 import { WALLET_WEBSITE_URL, MNEMONIC_DPATH } from '../../constants'
-import AccountSectionHeader from '../AccountSectionHeader'
 import AccountSectionActions from '../AccountSectionActions'
 import {
     IAccountAddressState,
@@ -45,11 +45,6 @@ class AccountAddress extends React.Component<
         }
 
         return true
-    }
-
-    private didToogleEdit = (_event: React.MouseEvent) => {
-        let { isEditing } = this.state
-        this.setState({ isEditing: !isEditing })
     }
 
     private onPrivateKeyOrMnemonicChange = (
@@ -128,14 +123,7 @@ class AccountAddress extends React.Component<
         return (
             <Card>
                 <form onSubmit={this.handleSubmit}>
-                    <AccountSectionHeader
-                        enableEdit={!this.props.accountHasAddress}
-                        title="VET Address"
-                        isEditing={this.state.isEditing}
-                        isSaving={this.props.isSaving}
-                        didClickOnCancel={this.didToogleEdit}
-                        didClickOnEdit={this.didToogleEdit}
-                    />
+                    <CardHeader title="VET Address" />
                     <CardContent>
                         <Grid container={true} spacing={32}>
                             <Grid item={true} xs={12} sm={12}>
@@ -244,14 +232,7 @@ class AccountAddress extends React.Component<
     private renderInfo() {
         return (
             <Card>
-                <AccountSectionHeader
-                    enableEdit={!this.props.accountHasAddress}
-                    title="VET Address"
-                    isEditing={this.state.isEditing}
-                    isSaving={this.props.isSaving}
-                    didClickOnCancel={this.didToogleEdit}
-                    didClickOnEdit={this.didToogleEdit}
-                />
+                <CardHeader title="VET Address" />
                 <CardContent>
                     <Grid container={true} spacing={40}>
                         <Grid item={true} xl={12}>

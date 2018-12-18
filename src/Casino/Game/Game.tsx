@@ -17,8 +17,7 @@ import ChannelDetail from './ChannelDetail'
 import IFrame from './IFrame'
 import BigNumber from 'bignumber.js'
 import AppLoading from '../../common/components/AppLoading'
-import './game.css'
-import { VIEW_SLOTS } from 'src/routes'
+import Routes from 'src/routes'
 import ConfirmationDialog from '../../common/components/ConfirmationDialog'
 
 declare global {
@@ -205,7 +204,7 @@ class Game extends React.Component<any, any> {
      * Go to the previous page
      */
     private back() {
-        this.props.history.push(VIEW_SLOTS)
+        this.props.history.push(Routes.Slots)
     }
 
     private renderGame() {
@@ -318,8 +317,6 @@ class Game extends React.Component<any, any> {
             // Show normal page
             return (
                 <React.Fragment>
-                    {this.renderHeader()}
-
                     <Grid
                         container={true}
                         direction="row"
@@ -331,9 +328,20 @@ class Game extends React.Component<any, any> {
                             item={true}
                             xs={12}
                             style={{
+                                maxWidth: 1600,
+                                paddingLeft: '2.5em',
+                                paddingRight: '2.5em'
+                            }}
+                        >
+                            {this.renderHeader()}
+                        </Grid>
+
+                        <Grid
+                            item={true}
+                            xs={12}
+                            style={{
                                 height: 600,
                                 maxWidth: 1300,
-                                width: '100%',
                                 marginBottom: '2em',
                                 paddingLeft: '2em',
                                 paddingRight: '2em'
@@ -345,9 +353,9 @@ class Game extends React.Component<any, any> {
                             item={true}
                             xs={12}
                             style={{
+                                maxWidth: 1600,
                                 paddingLeft: '2.5em',
-                                paddingRight: '2.5em',
-                                width: '100%'
+                                paddingRight: '2.5em'
                             }}
                         >
                             {this.renderChannelDetail()}

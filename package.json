@@ -1,7 +1,7 @@
 {
     "name": "decent-bet-frontend",
-    "version": "1.1.0",
-    "homepage": "https://decent.bet",
+    "version": "1.1.7",
+    "homepage": "https://platform.decent.bet",
     "private": false,
     "author": "Decent.bet",
     "license": "ISC",
@@ -25,6 +25,7 @@
         "fs-extra": "^7.0.1",
         "react-scripts-ts": "^4.0.8",
         "rimraf": "^2.6.2",
+        "typechain": "^0.3.9",
         "typescript": "^3.2.1"
     },
     "dependencies": {
@@ -68,20 +69,21 @@
         "web3": "1.0.0-beta.36"
     },
     "scripts": {
-        "games": "node ./scripts/copy-games",
-        "start": "npm run games && export BROWSER=none && export REACT_APP_VERSION=$npm_package_version && react-scripts-ts start",
-        "start:develop": "npm run games && export BROWSER=none && export REACT_APP_ENV=development && export REACT_APP_VERSION=$npm_package_version && react-scripts-ts start",
-        "start:prod": "npm run games && export BROWSER=none && export REACT_APP_ENV=production && export REACT_APP_VERSION=$npm_package_version && react-scripts-ts start",
-        "build:local": "npm run games && export REACT_APP_ENV=local && export REACT_APP_VERSION=$npm_package_version && react-scripts-ts build",
-        "build:develop": "npm run games && export REACT_APP_ENV=development && export REACT_APP_VERSION=$npm_package_version && react-scripts-ts build",
-        "build:master": "npm run games && export REACT_APP_ENV=production && export REACT_APP_VERSION=$npm_package_version && react-scripts-ts build",
+        "start": "npm run games && export BROWSER=none && export REACT_APP_VERSION=$npm_package_version && export NODE_OPTIONS=--max_old_space_size=2048 && react-scripts-ts start",
+        "start:develop": "npm run games && export BROWSER=none && export REACT_APP_ENV=development && export REACT_APP_VERSION=$npm_package_version && export NODE_OPTIONS=--max_old_space_size=2048 && react-scripts-ts start",
+        "start:prod": "npm run games && export BROWSER=none && export REACT_APP_ENV=production && export REACT_APP_VERSION=$npm_package_version && export NODE_OPTIONS=--max_old_space_size=2048 && react-scripts-ts start",
+        "build:local": "npm run games && export REACT_APP_ENV=local && export REACT_APP_VERSION=$npm_package_version && export NODE_OPTIONS=--max_old_space_size=2048 && react-scripts-ts build",
+        "build:develop": "npm run games && export REACT_APP_ENV=development && export REACT_APP_VERSION=$npm_package_version && export NODE_OPTIONS=--max_old_space_size=2048 && react-scripts-ts build",
+        "build:master": "npm run games && export REACT_APP_ENV=production && export REACT_APP_VERSION=$npm_package_version && export NODE_OPTIONS=--max_old_space_size=2048 && react-scripts-ts build",
         "deploy": "docker build --build-arg APP_ENV=$APP_ENV -t us.gcr.io/dbet-platform/platform-frontend:$npm_package_version . && docker tag us.gcr.io/dbet-platform/platform-frontend:$npm_package_version us.gcr.io/dbet-platform/platform-frontend:$npm_package_version && docker push us.gcr.io/dbet-platform/platform-frontend:$npm_package_version",
         "deploy:develop": "export APP_ENV=develop && npm run deploy",
         "deploy:prod": "export APP_ENV=prod && npm run deploy",
         "deploy:local": "docker build --build-arg APP_ENV=local -t dbet-platform/platform-frontend:latest . && docker tag dbet-platform/platform-frontend:latest dbet-platform/platform-frontend:latest && docker-compose up --force-recreate",
         "test": "react-scripts-ts test --env=jsdom",
-        "lint": "tslint src __tests__",
-        "lint:fix": "tslint --fix src __tests__"
+        "lint": "tslint  src __tests__",
+        "lint:fix": "tslint  --fix src __tests__",
+        "postinstall": "typechain  --target=web3-1.0.0 --outDir typings/ \"./node_modules/@decent-bet/contract-*/build/contracts/*.json\"",
+        "games": "node  ./scripts/copy-games"
     },
     "browserslist": [
         ">0.2%",

@@ -1,6 +1,6 @@
 import { BigNumber } from 'bignumber.js'
 import { units } from 'ethereum-units'
-import * as React from 'react'
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import * as thunks from '../state/thunks'
@@ -9,63 +9,42 @@ import SlotsList from './SlotsList'
 import StateChannelBuilder from './StateChannelBuilder'
 import StateChannelTable from './StateChannelTable'
 import StateChannelToolbar from './StateChannelToolbar'
+import HouseStatus from './HouseStatus'
 import TransparentPaper from '../../common/components/TransparentPaper'
-import './slots.css'
-import { VIEW_SLOTS } from '../../routes'
+import Routes from '../../routes'
 import ConfirmationDialog from '../../common/components/ConfirmationDialog'
-import { ISlotsState, SlotsState } from './SlotsState'
+import { ISlotsState, SlotsState, SlotsStateMachine } from './ISlotsState'
+import { IChannel } from '../state/IChannel'
 import AppLoading from '../../common/components/AppLoading'
 import { MIN_VTHO_AMOUNT } from '../../constants'
 
-class Slots extends React.Component<any, ISlotsState> {
-    constructor(props: any) {
-        super(props)
-        this.state = new SlotsState()
+import './slots.css'
 
-        this.isChannelClaimed = this.isChannelClaimed.bind(this)
-        this.onCloseMinVTHODialog = this.onCloseMinVTHODialog.bind(this)
-        this.refreshChannels = this.refreshChannels.bind(this)
-        this.onBuildChannelListener = this.onBuildChannelListener.bind(this)
-        this.onUpdateBuildStatusListener = this.onUpdateBuildStatusListener.bind(
-            this
-        )
-        this.onClaimChannelListener = this.onClaimChannelListener.bind(this)
-        this.onGoToGameroomListener = this.onGoToGameroomListener.bind(this)
-        this.renderStateChannelToolbar = this.renderStateChannelToolbar.bind(
-            this
-        )
-        this.onClaimFromContract = this.onClaimFromContract.bind(this)
-        this.renderLoadingState = this.renderLoadingState.bind(this)
-        this.renderSelectChannelsState = this.renderSelectChannelsState.bind(
-            this
-        )
-        this.renderCurrentBalanceNode = this.renderCurrentBalanceNode.bind(this)
-        this.channelBalanceParser = this.channelBalanceParser.bind(this)
-        this.renderSelectGameState = this.renderSelectGameState.bind(this)
-        this.renderChannelTable = this.renderChannelTable.bind(this)
-        this.renderStateMachine = this.renderStateMachine.bind(this)
-        this.renderSelectGameState = this.renderSelectGameState.bind(this)
-        this.renderListGamesState = this.renderListGamesState.bind(this)
-        this.renderClaimingStatus = this.renderClaimingStatus.bind(this)
-    }
+// This typings need to be inherited from the Redux State
+interface ISlotProps {
+    [id: string]: any
+}
+
+class Slots extends Component<ISlotProps, ISlotsState> {
+    public state = SlotsState
 
     public async componentDidMount() {
         if (this.props.slotsInitialized) {
-            this.setState({ stateMachine: 'loading' })
+            this.setState({ stateMachine: SlotsStateMachine.Loading })
             await this.props.initializeSlots()
             await this.refreshChannels()
         } else {
-            this.setState({ stateMachine: 'list_games' })
+            this.setState({ stateMachine: SlotsStateMachine.ListGames })
         }
     }
 
     public componentWillUnmount() {
-        this.setState(new SlotsState())
+        this.setState(SlotsState)
     }
 
     public async componentDidUpdate(prevProps, prevState) {
         if (this.props.slotsInitialized !== prevProps.slotsInitialized) {
-            this.setState({ stateMachine: 'loading' })
+            this.setState({ stateMachine: SlotsStateMachine.Loading })
             await this.props.initializeSlots()
             await this.refreshChannels()
         }
@@ -73,34 +52,34 @@ class Slots extends React.Component<any, ISlotsState> {
 
     /**
      * Has the channel been claimed?
-     * @param {any} channel
+     * @param {IChannel} channel
      * @returns {boolean}
      */
-    private isChannelClaimed(channel: any): boolean {
+    private isChannelClaimed = (channel: IChannel): boolean => {
         if (!channel.info) return false
         return (
             channel.info.finalized && channel.deposited.isLessThanOrEqualTo(0)
         )
     }
 
-    private onCloseMinVTHODialog() {
+    private onCloseMinVTHODialog = () => {
         this.setState({ minVTHOdialogIsOpen: false })
     }
 
-    private async refreshChannels(): Promise<void> {
+    private refreshChannels = async () => {
         // Get channels and wait
         this.setState({
-            stateMachine: 'loading',
+            stateMachine: SlotsStateMachine.Loading,
             buildStatus: 'Fetching channels...'
         })
 
         const result = await this.props.fetchChannels()
-        const channels: any[] = result.value
+        const channels: IChannel[] = result.value
 
         // Make a list of all usable channels for the user and publish it
-        const activeChannels: any[] = []
-        const nonDepositedChannels: any[] = []
-        const claimableChannels: any[] = []
+        const activeChannels: string[] = []
+        const nonDepositedChannels: string[] = []
+        const claimableChannels: string[] = []
 
         if (channels) {
             for (const channelId in channels) {
@@ -138,7 +117,7 @@ class Slots extends React.Component<any, ISlotsState> {
         // If there is exactly one usable channel active, switch to it.
         if (activeChannels.length === 1) {
             this.setState({
-                stateMachine: 'select_game',
+                stateMachine: SlotsStateMachine.SelectGame,
                 currentChannel: activeChannels[0]
             })
         } else if (nonDepositedChannels.length >= 1) {
@@ -147,13 +126,13 @@ class Slots extends React.Component<any, ISlotsState> {
 
             // Update UI. Tell the user we are building the channel
             this.setState({
-                stateMachine: 'building_game',
+                stateMachine: SlotsStateMachine.BuildingGame,
                 buildStatus: 'Building the game...'
             })
 
             // Create the channel
             this.setState({
-                stateMachine: 'loading',
+                stateMachine: SlotsStateMachine.Loading,
                 buildStatus: 'Making deposit into created channel...'
             })
             const currentChannel = this.props.depositIntoCreatedChannel(
@@ -162,41 +141,45 @@ class Slots extends React.Component<any, ISlotsState> {
             )
 
             // Update UI
-            this.setState({ stateMachine: 'select_game', currentChannel })
+            this.setState({
+                stateMachine: SlotsStateMachine.SelectGame,
+                currentChannel
+            })
         } else {
             // Ask the user to either select a channel or create a new one
-            this.setState({ stateMachine: 'select_channels' })
+            this.setState({ stateMachine: SlotsStateMachine.SelectChannels })
         }
     }
 
     // Builds the entire State Channel in one Step
-    private async onBuildChannelListener(amount) {
-        const parsedAmount = new BigNumber(amount)
-
+    private onBuildChannelListener = async (amount: BigNumber) => {
         // Update UI. Tell the user we are building the channel
-        this.setState({ stateMachine: 'building_game' })
+        this.setState({ stateMachine: SlotsStateMachine.BuildingGame })
 
         // Create the channel
         const currentChannel = await this.props.initChannel(
-            parsedAmount,
+            amount,
             this.onUpdateBuildStatusListener
         )
 
         // Update UI
-        this.setState({ stateMachine: 'select_game', currentChannel })
+        this.setState({
+            stateMachine: SlotsStateMachine.SelectGame,
+            currentChannel
+        })
     }
 
-    private onUpdateBuildStatusListener(buildStatus) {
+    private onUpdateBuildStatusListener = buildStatus => {
         this.setState({ buildStatus })
     }
 
     // Claims the tokens from a Channel
-    private async onClaimChannelListener(channelId): Promise<void> {
+    private onClaimChannelListener = async (channelId: string) => {
         if (this.props.vthoBalance < MIN_VTHO_AMOUNT) {
             this.setState({ minVTHOdialogIsOpen: true })
         } else {
             this.setState({
-                stateMachine: 'claiming',
+                stateMachine: SlotsStateMachine.Claiming,
                 claimingChannel: channelId
             })
             await this.props.claimAndWithdrawFromChannel(channelId)
@@ -205,58 +188,57 @@ class Slots extends React.Component<any, ISlotsState> {
         }
     }
 
-    private onGoToGameroomListener(gameName): void {
-        location.href = `${VIEW_SLOTS}${this.state.currentChannel}/${gameName}`
+    private onGoToGameroomListener = (gameName: string) => {
+        location.href = `${Routes.Slots}${
+            this.state.currentChannel
+        }/${gameName}`
     }
 
     /**
      * Renders the buttons for each State Channel Row in the Table
      */
-    private renderStateChannelToolbar(channel) {
-        return (
-            <Grid container={true} direction="row">
-                <Grid item={true} xs={12}>
-                    <StateChannelToolbar
-                        channel={channel}
-                        onClaimChannelListener={this.onClaimChannelListener}
-                    />
-                </Grid>
+    private renderStateChannelToolbar = (channel: IChannel) => (
+        <Grid container={true} direction="row">
+            <Grid item={true} xs={12}>
+                <StateChannelToolbar
+                    channel={channel}
+                    onClaimChannelListener={this.onClaimChannelListener}
+                />
             </Grid>
-        )
-    }
+        </Grid>
+    )
 
-    private renderLoadingState(message?: any, children?: any) {
-        return (
-            <AppLoading
-                message={message ? message : this.state.buildStatus}
-                children={children}
-            />
-        )
-    }
+    private renderLoadingState = (message?: string, children?: JSX.Element) => (
+        <AppLoading
+            message={message ? message : this.state.buildStatus}
+            children={children}
+        />
+    )
 
-    private renderSelectChannelsState() {
-        return (
-            <Grid container={true} direction="row" spacing={24}>
-                <Grid item={true} xs={12}>
-                    {this.renderChannelTable()}
-                </Grid>
-                <Grid item={true} xs={12}>
-                    <StateChannelBuilder
-                        onBuildChannelListener={this.onBuildChannelListener}
-                        tokenBalance={this.props.tokenBalance}
-                        vthoBalance={this.props.vthoBalance}
-                    />
-                </Grid>
+    private renderSelectChannelsState = () => (
+        <Grid container={true} direction="row" spacing={16} justify="center">
+            <Grid item={true} xs={12}>
+                {this.renderChannelTable()}
             </Grid>
-        )
-    }
+            <Grid item={true} xs={12} md={6} lg={8}>
+                <StateChannelBuilder
+                    onBuildChannelListener={this.onBuildChannelListener}
+                    tokenBalance={this.props.tokenBalance}
+                    vthoBalance={this.props.vthoBalance}
+                />
+            </Grid>
+            <Grid item={true} xs={12} md={6} lg={4}>
+                <HouseStatus balance={this.props.houseBalance} />
+            </Grid>
+        </Grid>
+    )
 
-    private async onClaimFromContract(): Promise<void> {
+    private onClaimFromContract = async () => {
         if (this.props.vthoBalance < MIN_VTHO_AMOUNT) {
             this.setState({ minVTHOdialogIsOpen: true })
         } else {
             this.setState({
-                stateMachine: 'claiming_from_contract'
+                stateMachine: SlotsStateMachine.ClaimingFromContract
             })
             await this.props.claimDbetsFromContract()
 
@@ -264,11 +246,12 @@ class Slots extends React.Component<any, ISlotsState> {
             await this.refreshChannels()
         }
     }
+
     /**
      * Parses the user's balance on a state channel
      * @param {any} channel
      */
-    private channelBalanceParser(channel: any): string {
+    private channelBalanceParser = (channel: IChannel): string => {
         let initialDeposit =
             channel && channel.info
                 ? new BigNumber(channel.info.initialDeposit)
@@ -285,33 +268,31 @@ class Slots extends React.Component<any, ISlotsState> {
         return balance
     }
 
-    private renderListGamesState() {
-        return (
-            <SlotsList
-                balance={0}
-                allowSelect={false}
-                onGameSelectedListener={this.onGoToGameroomListener}
-            />
-        )
-    }
+    private renderListGamesState = () => (
+        <SlotsList
+            balance={'0'}
+            allowSelect={false}
+            onGameSelectedListener={this.onGoToGameroomListener}
+        />
+    )
 
-    private renderSelectGameState() {
+    private renderSelectGameState = () => {
         const channel = this.props.channels[this.state.currentChannel]
-        const balance: any = this.channelBalanceParser(channel) || 0
+        const balance: string = this.channelBalanceParser(channel)
 
         return (
-            <React.Fragment>
+            <>
                 {this.renderChannelTable()}
                 <SlotsList
                     balance={balance}
                     allowSelect={true}
                     onGameSelectedListener={this.onGoToGameroomListener}
                 />
-            </React.Fragment>
+            </>
         )
     }
 
-    private renderChannelTable() {
+    private renderChannelTable = () => {
         const userBalance = new BigNumber(this.props.balance)
             .dividedBy(units.ether)
             .toFixed(2)
@@ -331,35 +312,35 @@ class Slots extends React.Component<any, ISlotsState> {
         )
     }
 
-    private renderCurrentBalanceNode() {
-        return (
-            <React.Fragment>
-                <Typography align="center" variant="subtitle2">
-                    <Typography component="span">
-                        Your current token balance is
-                    </Typography>
-                    <Typography
-                        component="span"
-                        color="primary"
-                        variant="subtitle2"
-                    >
-                        {this.props.tokenBalance.toFixed(2)}
-                    </Typography>
+    private renderCurrentBalanceNode = () => (
+        <>
+            <Typography align="center" variant="subtitle2">
+                <Typography component="span">
+                    Your current token balance is
                 </Typography>
-            </React.Fragment>
-        )
-    }
-    private renderClaimingStatus() {
-        let claimingTokens
-        let claimingChannel: any
-        if (this.state.claimingChannel) {
-            claimingChannel = this.props.channels[this.state.claimingChannel]
-        }
+                <Typography
+                    component="span"
+                    color="primary"
+                    variant="subtitle2"
+                >
+                    {this.props.tokenBalance.toFixed(2)}
+                </Typography>
+            </Typography>
+        </>
+    )
+
+    private renderClaimingStatus = () => {
+        // Null Protection
+        if (!this.state.claimingChannel) return
+        const claimingChannel: IChannel = this.props.channels[
+            this.state.claimingChannel
+        ]
+        if (!claimingChannel) return
 
         const { finalBalances } = claimingChannel
-        claimingTokens = finalBalances
+        const claimingTokens = finalBalances
             ? finalBalances.dividedBy(units.ether).toFixed()
-            : 0
+            : '0'
 
         return this.renderLoadingState(
             `Claiming ${claimingTokens} DBETs...`,
@@ -367,19 +348,19 @@ class Slots extends React.Component<any, ISlotsState> {
         )
     }
 
-    private renderStateMachine() {
+    private renderStateMachine = () => {
         switch (this.state.stateMachine) {
-            case 'loading':
+            case SlotsStateMachine.Loading:
                 return this.renderLoadingState('Loading slots...')
-            case 'select_channels':
+            case SlotsStateMachine.SelectChannels:
                 return this.renderSelectChannelsState()
-            case 'building_game':
+            case SlotsStateMachine.BuildingGame:
                 return this.renderLoadingState()
-            case 'list_games':
+            case SlotsStateMachine.ListGames:
                 return this.renderListGamesState()
-            case 'select_game':
+            case SlotsStateMachine.SelectGame:
                 return this.renderSelectGameState()
-            case 'claiming_from_contract':
+            case SlotsStateMachine.ClaimingFromContract:
                 const userBalance = new BigNumber(this.props.balance)
                     .dividedBy(units.ether)
                     .toFixed(2)
@@ -387,7 +368,7 @@ class Slots extends React.Component<any, ISlotsState> {
                     `Withdrawing ${userBalance} DBETs from Smart Contract...`,
                     this.renderCurrentBalanceNode()
                 )
-            case 'claiming':
+            case SlotsStateMachine.Claiming:
                 return this.renderClaimingStatus()
             default:
                 return this.renderLoadingState()
@@ -420,9 +401,12 @@ class Slots extends React.Component<any, ISlotsState> {
     }
 }
 
-const mapStateToProps = state => Object.assign({}, state.casino, state.main)
-const mapDispatchToProps = dispatch =>
-    bindActionCreators(Object.assign({}, thunks), dispatch)
+function mapStateToProps(state) {
+    return { ...state.casino, ...state.main }
+}
+function mapDispatchToProps(dispatch) {
+    return bindActionCreators({ ...thunks }, dispatch)
+}
 
 const SlotsContainer = connect(
     mapStateToProps,

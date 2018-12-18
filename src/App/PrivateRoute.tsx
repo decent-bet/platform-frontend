@@ -1,10 +1,19 @@
-import * as React from 'react'
+import React, { FunctionComponent } from 'react'
 import { Route, Redirect } from 'react-router-dom'
-import { VIEW_LOGIN } from '../routes'
+import Routes from '../routes'
 
-export default function PrivateRoute({ component: Component, ...rest }) {
+interface IPrivateRouteProps {
+    component: any
+    userIsAuthenticated: boolean
+    path: Routes
+}
+
+const PrivateRoute: FunctionComponent<IPrivateRouteProps> = ({
+    component: Component,
+    ...rest
+}) => {
     let { userIsAuthenticated } = rest
-    
+
     const toRender = props => {
         if (userIsAuthenticated) {
             return <Component view={props.location.pathname} {...props} />
@@ -13,7 +22,7 @@ export default function PrivateRoute({ component: Component, ...rest }) {
                 // Redirect to login screen
                 <Redirect
                     to={{
-                        pathname: VIEW_LOGIN,
+                        pathname: Routes.Login,
                         state: { from: props.location }
                     }}
                 />
@@ -23,3 +32,5 @@ export default function PrivateRoute({ component: Component, ...rest }) {
 
     return <Route {...rest} render={toRender} />
 }
+
+export default PrivateRoute

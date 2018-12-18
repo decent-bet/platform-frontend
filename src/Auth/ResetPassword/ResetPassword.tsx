@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux'
 import actions from '../state/actions'
 import { Button, Grid, TextField, Typography } from '@material-ui/core'
 import { Link } from 'react-router-dom'
-import { VIEW_LOGIN } from '../../routes'
+import Routes from '../../routes'
 import AuthResult from '../AuthResult'
 import IResetPasswordProps from './IResetPasswordProps'
 import { IResetPasswordState, ResetPasswordState } from './ResetPasswordState'
@@ -134,7 +134,7 @@ class ResetPassword extends React.Component<
             return <AppLoading message="Processing password reset request..." />
         }
 
-        const loginLink = props => <Link to={VIEW_LOGIN} {...props} />
+        const loginLink = props => <Link to={Routes.Login} {...props} />
         return (
             <React.Fragment>
                 {this.props.verified && !this.state.formSubmited ? (

@@ -12,14 +12,7 @@ import TermsAndConditions from '../TermsAndConditions'
 import PrivateRoute from './PrivateRoute'
 import PublicRoute from './PublicRoute'
 import DarkTheme from '../common/themes/dark'
-import {
-    VIEW_LOGOUT,
-    VIEW_MAIN,
-    VIEW_AUTH,
-    VIEW_ACTIVATE_ACCOUNT,
-    VIEW_PRIVACY_POLICY,
-    VIEW_TERMS_AND_CONDITIONS
-} from '../routes'
+import Routes from '../routes'
 import * as thunks from '../common/state/thunks'
 import AppLoading from '../common/components/AppLoading'
 import TransparentPaper from '../common/components/TransparentPaper'
@@ -61,8 +54,8 @@ class App extends React.Component<IAppProps, IAppState> {
                     clearInterval(this._authTimer)
                     this.setState({ appLoaded: false })
                     await this.props.logout()
-                    if (window.location.href !== VIEW_LOGOUT) {
-                        window.location.href = VIEW_LOGOUT
+                    if (window.location.href !== Routes.Logout) {
+                        window.location.href = Routes.Logout
                     }
                 }
 
@@ -127,34 +120,34 @@ class App extends React.Component<IAppProps, IAppState> {
                             <Switch>
                                 <Route
                                     exact={true}
-                                    path={VIEW_PRIVACY_POLICY}
+                                    path={Routes.PrivacyPolicy}
                                     component={PrivacyPolicy}
                                 />
                                 <Route
                                     exact={true}
-                                    path={VIEW_TERMS_AND_CONDITIONS}
+                                    path={Routes.TermsAndConditions}
                                     component={TermsAndConditions}
                                 />
                                 <Route
                                     exact={true}
-                                    path={VIEW_LOGOUT}
+                                    path={Routes.Logout}
                                     component={Logout}
                                 />
 
                                 <Route
                                     exact={true}
-                                    path={VIEW_ACTIVATE_ACCOUNT}
+                                    path={Routes.ActivateAccount}
                                     component={ActivateAccount}
                                 />
                                 <PublicRoute
-                                    path={VIEW_AUTH}
+                                    path={Routes.Auth}
                                     component={Auth}
                                     userIsAuthenticated={
                                         this.state.userIsAuthenticated
                                     }
                                 />
                                 <PrivateRoute
-                                    path={VIEW_MAIN}
+                                    path={Routes.Main}
                                     component={Main}
                                     userIsAuthenticated={
                                         this.state.userIsAuthenticated

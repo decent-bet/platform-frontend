@@ -13,19 +13,11 @@ const initialChannelHouseBalance = new BigNumber(10).pow(18).times(10000)
  */
 
 export default class Utils implements IUtils {
-    private _thorify = null
     constructor(
         private keyHandler: IKeyHandler,
         private thorifyFactory: IThorifyFactory
     ) {}
 
-    private get thorify(): any {
-        if (!this._thorify) {
-            this._thorify = this.thorifyFactory.make()
-        }
-
-        return this._thorify
-    }
     /** Solidity ecsign implementation */
     public async signString(text): Promise<any> {
         /*
@@ -72,9 +64,10 @@ export default class Utils implements IUtils {
     }
 
     public async getAesKey(channelNonce) {
-        const channelNonceHash = this.thorify.utils.soliditySha3(channelNonce)
+        const thorify = await this.thorifyFactory.make()
+        const channelNonceHash = thorify.utils.soliditySha3(channelNonce)
         let { privateKey } = await this.keyHandler.getWalletValues()
-        let sign = this.thorify.eth.accounts.sign(channelNonceHash, privateKey)
+        let sign = thorify.eth.accounts.sign(channelNonceHash, privateKey)
         return sign.signature
     }
 
@@ -272,7 +265,8 @@ export default class Utils implements IUtils {
     }
 
     public async getTx(clauses, blockRef): Promise<any> {
-        const chainTag = await this.thorify.eth.getChainTag()
+        const thorify = await this.thorifyFactory.make()
+        const chainTag = await thorify.eth.getChainTag()
         const expiration = 32
         const gasPriceCoef = 0
         const gas = 500000

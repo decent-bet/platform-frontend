@@ -5,8 +5,9 @@ import {
     setAccountIsVerified,
     setAccountHasAddress
 } from '../../Main/state/thunks'
-const actions: any = Actions.account
 import { IThunkDependencies } from '../../common/types'
+
+const actions: any = Actions.account
 
 export function saveAccountInfo(formData: any) {
     return async dispatch => {
@@ -26,7 +27,7 @@ export function saveAccountAddress(
         _getState,
         { keyHandler, thorifyFactory }: IThunkDependencies
     ) => {
-        let thorify = thorifyFactory.make()
+        let thorify = await thorifyFactory.make()
         const result = await dispatch(
             actions.saveAccountAddress(
                 account,

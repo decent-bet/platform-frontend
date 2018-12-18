@@ -18,11 +18,7 @@ import actions from '../state/actions'
 import Recaptcha from '../../common/components/Recaptcha'
 import LoadingButton from '../../common/components/LoadingButton'
 import { ISignUpState, SignUpState } from './SignUpState'
-import {
-    VIEW_LOGIN,
-    VIEW_TERMS_AND_CONDITIONS,
-    VIEW_PRIVACY_POLICY
-} from '../../routes'
+import Routes from '../../routes'
 import {
     PASSWORD_VALIDATION_PATTERN,
     INVALID_PASSWORD_MESSAGE
@@ -282,7 +278,7 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
                                     size="small"
                                     color="primary"
                                     target="_blank"
-                                    href={VIEW_TERMS_AND_CONDITIONS}
+                                    href={Routes.TermsAndConditions}
                                 >
                                     Terms and Conditions
                                 </Button>{' '}
@@ -291,7 +287,7 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
                                     size="small"
                                     color="primary"
                                     target="_blank"
-                                    href={VIEW_PRIVACY_POLICY}
+                                    href={Routes.PrivacyPolicy}
                                 >
                                     Privacy Policy
                                 </Button>
@@ -322,7 +318,7 @@ class SignUp extends React.Component<ISignUpProps, ISignUpState> {
     }
 
     public render() {
-        const loginLink = props => <Link to={VIEW_LOGIN} {...props} />
+        const loginLink = props => <Link to={Routes.Login} {...props} />
 
         return (
             <React.Fragment>

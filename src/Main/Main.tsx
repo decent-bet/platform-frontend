@@ -1,8 +1,7 @@
-import * as React from 'react'
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router-dom'
 import { bindActionCreators } from 'redux'
-import MainAppBar from './MainAppBar'
 import AppBarToolbar from './AppBarToolbar'
 import MainRouter from './MainRouter'
 import AppDrawer from './AppDrawer'
@@ -10,12 +9,22 @@ import * as thunks from './state/thunks'
 import { faucet } from '../Casino/state/thunks'
 import { openAlert } from '../common/state/thunks'
 import './main.css'
-import { Grid, Fade, Typography } from '@material-ui/core'
-import withWidth, { isWidthDown } from '@material-ui/core/withWidth'
+import {
+    Grid,
+    Fade,
+    Typography,
+    AppBar,
+    Toolbar,
+    IconButton,
+    Hidden
+} from '@material-ui/core'
+import withWidth, { isWidthUp } from '@material-ui/core/withWidth'
 import AppLoading from '../common/components/AppLoading'
-import { VIEW_ACCOUNT, VIEW_ACCOUNT_NOTACTIVATED } from '../routes'
-
-class Main extends React.Component<any, any> {
+import Routes from '../routes'
+import { Link } from 'react-router-dom'
+import MenuIcon from '@material-ui/icons/Menu'
+import dbetLogo from '../assets/img/dbet-white.svg'
+class Main extends Component<any, any> {
     private _activationTimer: any
 
     constructor(props: any) {
@@ -38,7 +47,9 @@ class Main extends React.Component<any, any> {
             }, 5000)
         }
 
-        this.setState({ loaded: true })
+        if (!this.state.loaded) {
+            this.setState({ loaded: true })
+        }
     }
 
     public componentWillUnmount() {
@@ -51,7 +62,6 @@ class Main extends React.Component<any, any> {
         if (
             this.state.loaded !== nextState.loaded ||
             this.state.drawerOpen !== nextState.drawerOpen ||
-            this.props.accountIsActivated !== nextProps.accountIsActivated ||
             this.props.accountIsActivated !== nextProps.accountIsActivated ||
             this.props.accountIsVerified !== nextProps.accountIsVerified ||
             this.props.accountHasAddress !== nextProps.accountHasAddress ||
@@ -104,48 +114,88 @@ class Main extends React.Component<any, any> {
             accountHasAddress
         } = this.props
 
-        if (!accountIsActivated) {
-            if (this.props.location.pathname !== VIEW_ACCOUNT_NOTACTIVATED) {
-                return <Redirect to={VIEW_ACCOUNT_NOTACTIVATED} />
-            }
-        } else if (!accountIsVerified || !accountHasAddress) {
-            if (this.props.location.pathname !== VIEW_ACCOUNT) {
-                return <Redirect to={VIEW_ACCOUNT} />
-            }
-        }
-
+        // validate activation
         if (accountIsActivated) {
             if (this._activationTimer) {
                 clearInterval(this._activationTimer)
             }
 
-            if (this.props.location.pathname === VIEW_ACCOUNT_NOTACTIVATED) {
-                return <Redirect to={VIEW_ACCOUNT} />
+            if (this.props.location.pathname === Routes.AccountNotActivated) {
+                return <Redirect to={Routes.AccountAddress} />
+            }
+
+            // validate account verification
+            if (
+                !accountIsVerified &&
+                ![Routes.AccountAddress, Routes.AccountInfo].includes(
+                    this.props.location.pathname
+                )
+            ) {
+                return <Redirect to={Routes.AccountAddress} />
+            }
+
+            // validate account address
+            if (
+                !accountHasAddress &&
+                this.props.location.pathname !== Routes.AccountAddress
+            ) {
+                return <Redirect to={Routes.AccountAddress} />
+            }
+        } else {
+            if (this.props.location.pathname !== Routes.AccountNotActivated) {
+                return <Redirect to={Routes.AccountNotActivated} />
             }
         }
 
+        const isXl = isWidthUp('xl', this.props.width)
+        const drawerWidth = 240
         return (
             <Fade in={this.state.loaded || this.props.error} timeout={500}>
                 <React.Fragment>
-                    <MainAppBar
-                        onToggleDrawerListener={this.onToggleDrawerListener}
+                    <AppBar
+                        className="appbar"
+                        position="fixed"
+                        style={{ zIndex: isXl ? 1201 : 1100 }}
                     >
-                        {isWidthDown('sm', this.props.width) ? null : (
-                            <AppBarToolbar
-                                accountHasAddress={accountHasAddress}
-                                isCasinoLogedIn={this.props.isCasinoLogedIn}
-                                onCopyAddress={this.onCopyAddress}
-                                address={
-                                    this.props.accountHasAddress
-                                        ? this.props.account.verification
-                                              .addressRegistration.vetAddress
-                                        : ''
-                                }
-                                tokenBalance={this.props.tokenBalance}
-                                vthoBalance={this.props.vthoBalance}
-                            />
-                        )}
-                    </MainAppBar>
+                        <Toolbar>
+                            <Hidden xlUp={true}>
+                                <IconButton
+                                    aria-label="Menu"
+                                    onClick={this.onToggleDrawerListener}
+                                    style={{
+                                        marginLeft: -12,
+                                        marginRight: 20
+                                    }}
+                                >
+                                    <MenuIcon />
+                                </IconButton>
+                            </Hidden>
+
+                            <Link to="/" className="logo-container">
+                                <img
+                                    src={dbetLogo}
+                                    className="logo"
+                                    alt="Decent.bet"
+                                />
+                            </Link>
+                            <Hidden smDown={true}>
+                                <AppBarToolbar
+                                    accountHasAddress={accountHasAddress}
+                                    isCasinoLogedIn={this.props.isCasinoLogedIn}
+                                    onCopyAddress={this.onCopyAddress}
+                                    address={
+                                        this.props.accountHasAddress
+                                            ? this.props.account.verification
+                                                  .addressRegistration
+                                                  .vetAddress
+                                            : ''
+                                    }
+                                    tokenBalance={this.props.tokenBalance}
+                                    vthoBalance={this.props.vthoBalance}
+                                />
+                            </Hidden>
+                        </Toolbar>
+                    </AppBar>
                     <Grid
                         style={{ marginTop: '80px', marginBottom: '80px' }}
                         container={true}
@@ -158,7 +208,8 @@ class Main extends React.Component<any, any> {
                             xs={12}
                             style={{
                                 paddingLeft: '1.5em',
-                                paddingRight: '1.5em'
+                                paddingRight: '1.5em',
+                                marginRight: isXl ? -drawerWidth : 0
                             }}
                         >
                             <MainRouter />
@@ -181,6 +232,7 @@ class Main extends React.Component<any, any> {
                         }
                         tokenBalance={this.props.tokenBalance}
                         vthoBalance={this.props.vthoBalance}
+                        drawerWidth={drawerWidth}
                     />
                 </React.Fragment>
             </Fade>

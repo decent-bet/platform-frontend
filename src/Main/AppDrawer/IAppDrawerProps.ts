@@ -13,4 +13,5 @@ export default interface IDrawerProps {
     onViewChangeListener: (selectedView: string) => void
     selectedView: string
     onFaucetClickedListener: () => void
+    drawerWidth: number
 }

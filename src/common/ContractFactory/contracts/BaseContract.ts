@@ -1,17 +1,47 @@
 import { cry, Transaction } from 'thor-devkit'
-
+import { Contract } from 'web3'
 import { interval, from, of } from 'rxjs'
 import { flatMap, switchMap, tap } from 'rxjs/operators'
+import { IKeyHandler } from 'src/common/types'
 
-export default class BaseContract {
+interface IListenEventsSettings {
+    config: IGetPastEventsSettings
+    interval: number
+    top?: number
+}
+
+interface IGetPastEventsSettings {
+    filter: any
+    fromBlock: string
+    toBlock: string
+    options: { offset: number; limit: number }
+    range?: any
+    order: string
+    topics?: string[]
+}
+
+abstract class BaseContract<T extends Contract> {
+    protected _thorify: any // thorify
+    protected _instance: T
+    protected _eventSubscription: any
+    protected _keyHandler: IKeyHandler
+
+    public get instance(): T {
+        return this._instance
+    }
+
+    public get eventSubscription() {
+        return this._eventSubscription
+    }
+
     /**
-     * @param {Web3} web3
-     * @param {Object} instance
-     * @param {KeyHandler} keyHandler
+     * @param {thorify} thorify
+     * @param {T} instance
+     * @param {IKeyHandler} keyHandler
      */
-    constructor(web3, instance, keyHandler) {
-        this._web3 = web3
-        this.instance = instance
+    constructor(thorify, instance: T, keyHandler: IKeyHandler) {
+        this._thorify = thorify
+        this._instance = instance
         this._eventSubscription = null
         this._keyHandler = keyHandler
     }
@@ -19,16 +49,16 @@ export default class BaseContract {
     /**
      *
      * @param {string} eventName
-     * @param {Object} settings
+     * @param {IListenEventsSettings} settings
      * @param {Function} unsubscribeCondition //receive the events array on each interation
      *
      * settings.config object example: config = {filter: {}, fromBlock: 'latest', toBlock: 'latest', options: {offset: 1, limit: 1}, range: {}, order:'DESC', topics: []}
      */
-    listenForEvent(
+    public listenForEvent(
         eventName,
-        settings = { config: {}, interval: 5000, top: null },
+        settings: IListenEventsSettings,
         unsubscribeCondition
-    ) {
+    ): Promise<any> {
         return new Promise((resolve, reject) => {
             try {
                 let totalRequests = 0
@@ -51,12 +81,10 @@ export default class BaseContract {
                     )
                     .subscribe(events => {
                         if (
-                            unsubscribeCondition(events) || //ask for the unsubscribeCondition function
-                            (settings.top &&
-                                settings.top != null &&
-                                totalRequests >= settings.top) //validate the top vs totalRequests if it's not null
+                            unsubscribeCondition(events) || // ask for the unsubscribeCondition function
+                            (settings.top && totalRequests >= settings.top) // validate the top vs totalRequests if it's not null
                         ) {
-                            subscription$.unsubscribe() //stop making requests
+                            subscription$.unsubscribe() // stop making requests
                             resolve(events)
                         }
                     })
@@ -72,9 +100,9 @@ export default class BaseContract {
      * @param {string} eventName
      * @param {Object} options
      */
-    async getPastEvents(
+    public async getPastEvents(
         eventName,
-        config = {
+        config: IGetPastEventsSettings = {
             filter: {},
             fromBlock: 'latest',
             toBlock: 'latest',
@@ -95,7 +123,7 @@ export default class BaseContract {
      *
      * @param {Object} eventPromise
      */
-    getEventSubscription(eventPromise, intervaleAmount = 10000) {
+    public getEventSubscription(eventPromise, intervaleAmount = 10000) {
         return interval(intervaleAmount).pipe(
             flatMap(() => {
                 return from(eventPromise)
@@ -109,8 +137,8 @@ export default class BaseContract {
      *
      * @param {string} address
      */
-    async getBalance(address) {
-        return await this._web3.eth.getEnergy(address)
+    public async getBalance(address) {
+        return await this._thorify.eth.getEnergy(address)
     }
 
     /**
@@ -122,12 +150,17 @@ export default class BaseContract {
      * @param {Number} gas
      * @param {String} data
      */
-    async signAndSendRawTransaction(to, gasPriceCoef, gas, data) {
+    public async signAndSendRawTransaction(
+        to: string,
+        gasPriceCoef: number | null,
+        gas: number | null,
+        data: string
+    ) {
         if (!gasPriceCoef) gasPriceCoef = 0
         if (!gas) gas = 1000000
 
         let txBody = {
-            from: await this._keyHandler.getPublicAddress(),
+            from: this._thorify.eth.defaultAccount,
             to,
             gas,
             data,
@@ -135,22 +168,24 @@ export default class BaseContract {
         }
 
         let { privateKey } = await this._keyHandler.getWalletValues()
-        let signed = await this._web3.eth.accounts.signTransaction(
+        let signed = await this._thorify.eth.accounts.signTransaction(
             txBody,
             privateKey
         )
-        return await this._web3.eth.sendSignedTransaction(signed.rawTransaction)
+        return await this._thorify.eth.sendSignedTransaction(
+            signed.rawTransaction
+        )
     }
 
-    async getSignedRawTx(to, value, data, gas, dependsOn) {
-        let blockRef = await this._web3.eth.getBlockRef()
+    public async getSignedRawTx(to, value, data, gas, dependsOn) {
+        let blockRef = await this._thorify.eth.getBlockRef()
         let { privateKey } = await this._keyHandler.getWalletValues()
-        let signedTx = await this._web3.eth.accounts.signTransaction(
+        let signedTx = await this._thorify.eth.accounts.signTransaction(
             {
                 to,
                 value,
                 data,
-                chainTag: await this._web3.eth.getChainTag(),
+                chainTag: await this._thorify.eth.getChainTag(),
                 blockRef,
                 expiration: 32,
                 gasPriceCoef: 0,
@@ -166,7 +201,7 @@ export default class BaseContract {
             cry
                 .blake2b256(
                     signedTx.messageHash,
-                    await this._keyHandler.getPublicAddress()
+                    this._thorify.eth.defaultAccount
                 )
                 .toString('hex')
 
@@ -179,15 +214,15 @@ export default class BaseContract {
      *
      * @param {Array} clauses
      */
-    async signAndSendRawTransactionWithClauses(clauses) {
-        const gas = Transaction.intrinsicGas(clauses)
-        const blockRef = await this._web3.eth.getBlockRef()
+    public async signAndSendRawTransactionWithClauses(clauses) {
+        // const gas = Transaction.intrinsicGas(clauses)
+        const blockRef = await this._thorify.eth.getBlockRef()
 
         const body = {
-            chainTag: await this._web3.eth.getChainTag(),
+            chainTag: await this._thorify.eth.getChainTag(),
             blockRef,
             expiration: 32,
-            clauses: clauses,
+            clauses,
             gasPriceCoef: 0,
             gas: 200000,
             dependsOn: null,
@@ -205,7 +240,7 @@ export default class BaseContract {
                 privateKeyBuffer
             )
             const raw = tx.encode()
-            return this._web3.eth.sendSignedTransaction(
+            return this._thorify.eth.sendSignedTransaction(
                 '0x' + raw.toString('hex')
             )
         } catch (error) {
@@ -214,3 +249,5 @@ export default class BaseContract {
         }
     }
 }
+
+export default BaseContract
