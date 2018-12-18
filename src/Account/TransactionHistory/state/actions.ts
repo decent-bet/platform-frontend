@@ -39,19 +39,24 @@ function getChannelDetails(
                 .call()
 
             const infoPromise = contract.getChannelInfo(channelId)
+            const finalBalancesPromise = contract.instance.methods
+                .finalBalances(channelId, false)
+                .call()
 
             const detailsSubscription = forkJoin([
                 finalizedPromise,
                 claimedPromise,
                 houseBalancePromise,
-                infoPromise
+                infoPromise,
+                finalBalancesPromise
             ]).subscribe((results: any[]) => {
                 detailsSubscription.unsubscribe()
                 const [
                     finalizeEvents,
                     claimedEvents,
                     houseBalance,
-                    info
+                    info,
+                    finalBalance
                 ] = results
 
                 // info data
@@ -71,13 +76,21 @@ function getChannelDetails(
                 } else {
                     infoData = null
                 }
+
+                const finalBalanceAmount = new BigNumber(
+                    finalBalance ? finalBalance : 0
+                )
                 // finalize data
                 let finalizeData: any | null
                 if (finalizeEvents && (finalizeEvents as any[]).length > 0) {
                     const [event] = finalizeEvents
                     const { transactionHash } = event
                     finalizeData = {
-                        transactionHash
+                        transactionHash,
+                        finalized: infoData ? infoData.finalized : false,
+                        finalBalance: finalBalanceAmount.isGreaterThan(0)
+                            ? finalBalanceAmount
+                            : null
                     }
                 } else {
                     finalizeData = null
@@ -139,7 +152,15 @@ function getChannelDetails(
 
                 const result = {
                     finalize: {
-                        finalized: finalizeData ? true : false,
+                        finalized: finalizeData
+                            ? finalizeData.finalized
+                            : false,
+                        finalBalance:
+                            finalizeData &&
+                            finalizeData.finalBalance &&
+                            finalizeData.finalBalance > 0
+                                ? utils.formatEther(finalizeData.finalBalance)
+                                : null,
                         time: infoData
                             ? moment
                                   .unix(infoData.endTime)
