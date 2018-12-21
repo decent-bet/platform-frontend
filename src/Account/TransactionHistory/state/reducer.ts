@@ -20,16 +20,19 @@ export default function reducer(
                 isLoading: true
             }
         case `${PREFIX}/${Actions.GET_CHANNELS_HISTORY}/${FULFILLED}`:
+            let result: any
+
             if (action.payload.currentIndex <= 0) {
-                return {
+                result = {
                     ...state,
+                    details: {},
                     currentIndex: action.payload.currentIndex,
                     channels: [...action.payload.items],
                     isLoading: false,
                     itemsNotFound: action.payload.items.length <= 0
                 }
             } else {
-                return {
+                result = {
                     ...state,
                     currentIndex: action.payload.currentIndex,
                     channels: [...state.channels, ...action.payload.items],
@@ -37,6 +40,8 @@ export default function reducer(
                     itemsNotFound: action.payload.items.length <= 0
                 }
             }
+
+            return result
         case `${PREFIX}/${Actions.GET_CHANNEL_DETAILS}/${FULFILLED}`:
             return {
                 ...state,
