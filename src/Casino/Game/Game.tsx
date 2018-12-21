@@ -339,7 +339,7 @@ class Game extends React.Component<any, any> {
                             style={{
                                 height: isWidthUp('md', this.props.width)
                                     ? 600
-                                    : 310,
+                                    : 320,
                                 maxWidth: 1300,
                                 marginBottom: '2em',
                                 paddingLeft: '2em',
