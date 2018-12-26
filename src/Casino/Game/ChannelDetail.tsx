@@ -72,10 +72,11 @@ export default class ChannelDetail extends React.Component<any, any> {
                         <CardContent>
                             <Grid
                                 container={true}
-                                direction="column"
+                                direction="row"
                                 spacing={24}
+                                style={{ overflowX: 'auto' }}
                             >
-                                <Grid item={true}>
+                                <Grid item={true} xs={12}>
                                     <List dense={true}>
                                         <ListItem>
                                             <ListItemText
@@ -140,12 +141,12 @@ export default class ChannelDetail extends React.Component<any, any> {
                                         </ListItem>
                                     </List>
                                 </Grid>
-                                <Grid item={true}>
+                                <Grid item={true} xs={12}>
                                     <Typography variant="h6">
                                         Spin History
                                     </Typography>
                                 </Grid>
-                                <Grid item={true}>
+                                <Grid item={true} xs={12}>
                                     <SpinHistory
                                         houseSpins={houseSpins}
                                         userHashes={userHashes}

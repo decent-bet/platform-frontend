@@ -19,6 +19,7 @@ import BigNumber from 'bignumber.js'
 import AppLoading from '../../common/components/AppLoading'
 import Routes from 'src/routes'
 import ConfirmationDialog from '../../common/components/ConfirmationDialog'
+import withWidth, { isWidthUp } from '@material-ui/core/withWidth'
 
 declare global {
     // tslint:disable-next-line:interface-name
@@ -281,7 +282,6 @@ class Game extends React.Component<any, any> {
             <Grid
                 container={true}
                 direction="row"
-                style={{ paddingLeft: '1.5em', paddingRight: '1.5em' }}
                 justify="space-between"
                 spacing={40}
             >
@@ -315,6 +315,7 @@ class Game extends React.Component<any, any> {
             return <AppLoading message={this.state.loadingMessage} />
         } else {
             // Show normal page
+            const isXl = isWidthUp('xl', this.props.width)
             return (
                 <React.Fragment>
                     <Grid
@@ -323,16 +324,12 @@ class Game extends React.Component<any, any> {
                         alignItems="center"
                         justify="center"
                         spacing={24}
+                        style={{
+                            paddingLeft: isXl ? '7em' : '2.5em',
+                            paddingRight: isXl ? '7em' : '2.5em'
+                        }}
                     >
-                        <Grid
-                            item={true}
-                            xs={12}
-                            style={{
-                                maxWidth: 1600,
-                                paddingLeft: '2.5em',
-                                paddingRight: '2.5em'
-                            }}
-                        >
+                        <Grid item={true} xs={12}>
                             {this.renderHeader()}
                         </Grid>
 
@@ -340,7 +337,9 @@ class Game extends React.Component<any, any> {
                             item={true}
                             xs={12}
                             style={{
-                                height: 600,
+                                height: isWidthUp('md', this.props.width)
+                                    ? 600
+                                    : 320,
                                 maxWidth: 1300,
                                 marginBottom: '2em',
                                 paddingLeft: '2em',
@@ -349,15 +348,7 @@ class Game extends React.Component<any, any> {
                         >
                             {this.renderGame()}
                         </Grid>
-                        <Grid
-                            item={true}
-                            xs={12}
-                            style={{
-                                maxWidth: 1600,
-                                paddingLeft: '2.5em',
-                                paddingRight: '2.5em'
-                            }}
-                        >
+                        <Grid item={true} xs={12}>
                             {this.renderChannelDetail()}
                         </Grid>
                     </Grid>
@@ -367,7 +358,7 @@ class Game extends React.Component<any, any> {
     }
 }
 
-export default connect((state: any, props: any) => {
+const gameComponent = connect((state: any, props: any) => {
     // This component's props is the data of a single State Channel,
     // whose ID is defined in `props.match.params.id`
     let channelId = props.match.params.id
@@ -401,3 +392,5 @@ export default connect((state: any, props: any) => {
 
     return channelData
 })(Game)
+
+export default withWidth()(gameComponent)
