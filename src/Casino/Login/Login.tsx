@@ -15,7 +15,7 @@ import {
 } from '@material-ui/core'
 import { authWallet } from '../state/thunks'
 import logo from '../../assets/img/ic_coin.png'
-import LoadingButton from 'src/common/components/LoadingButton'
+import LoadingButton from '../../common/components/LoadingButton'
 import ILoginState from './ILoginState'
 import LoginState from './LoginState'
 import ILoginProps from './ILoginProps'

@@ -1,4 +1,5 @@
 import ICountryItem from './ICountryItem'
 import CountryItem from './CountryItem'
 
-export { ICountryItem, CountryItem }
+export type ICountryItem = ICountryItem
+export { CountryItem }

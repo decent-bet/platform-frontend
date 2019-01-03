@@ -12,7 +12,7 @@ import {
 } from '@material-ui/core'
 import Routes from '../routes'
 import PublicRouteContainer from '../common/components/PublicRouteContainer'
-import AppLoading from 'src/common/components/AppLoading'
+import AppLoading from '../common/components/AppLoading'
 import AuthResult from '../Auth/AuthResult'
 
 class ActivateAccount extends React.Component<any, any> {

@@ -1,5 +1,5 @@
 import actions from './actions'
-import { IThunkDependencies } from 'src/common/types'
+import { IThunkDependencies } from '../../common/types'
 const _actions: any = actions.auth
 
 export function makeLogin(

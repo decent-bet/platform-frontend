@@ -1,5 +1,5 @@
 import { ReplaySubject } from 'rxjs'
-import { IAuthProvider } from 'src/common/types'
+import { IAuthProvider } from '../../common/types'
 import { AlertVariant } from './../components/Alert'
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from './actionTypes'

@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import CasinoRouter from './CasinoRouter'
 import * as thunks from './state/thunks'
 import Login from './Login'
-import AppLoading from 'src/common/components/AppLoading'
+import AppLoading from '../common/components/AppLoading'
 
 class Casino extends React.Component<any, any> {
     public state = {

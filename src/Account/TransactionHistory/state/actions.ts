@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import { forkJoin } from 'rxjs'
 import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from './actionTypes'
-import { IContractFactory, IUtils } from 'src/common/types'
+import { IContractFactory, IUtils } from '../../../common/types'
 import IChannelsHistory from '../IChannelHistory'
 
 const HOUSE_DEPOSIT = new BigNumber(10000)

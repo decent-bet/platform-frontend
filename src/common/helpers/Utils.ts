@@ -3,7 +3,7 @@ import { IKeyHandler, IUtils, IThorifyFactory } from '../types'
 import ethUtil from 'ethereumjs-util'
 import { SHA256, AES } from 'crypto-js'
 import BigNumber from 'bignumber.js'
-import * as moment from 'moment'
+import moment from 'moment'
 
 const { cry, Transaction } = require('thor-devkit')
 

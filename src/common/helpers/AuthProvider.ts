@@ -2,7 +2,7 @@ import { IAuthProvider, IKeyHandler } from '../types'
 import { ReplaySubject } from 'rxjs'
 import axios from 'axios'
 import jwtDecode from 'jwt-decode'
-import * as moment from 'moment'
+import moment from 'moment'
 
 const ACCESS_TOKEN_LIFETIME_MS: number = 5 * 60 * 1000
 
