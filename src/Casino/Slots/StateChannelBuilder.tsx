@@ -4,10 +4,13 @@ import {
     Card,
     CardActions,
     CardHeader,
+    createStyles,
     CardContent,
     Button,
     TextField,
-    Typography
+    Typography,
+    WithStyles,
+    withStyles
 } from '@material-ui/core'
 import { MIN_VTHO_AMOUNT } from '../../constants'
 import ConfirmationDialog from '../../common/components/ConfirmationDialog'
@@ -18,8 +21,20 @@ import {
 import { BigNumber } from 'bignumber.js'
 import { IStateChannelBuilderProps } from './IStateChannelBuilderProps'
 
-export default class StateChannelBuilder extends Component<
-    IStateChannelBuilderProps,
+const styles = createStyles({
+    channelCreator: {
+        height: '100%',
+        display: 'flex',
+        flexFlow: 'column'
+    },
+    channelCreatorHeader: {
+        alignItems: 'normal',
+        flex: '1'
+    }
+})
+
+class StateChannelBuilder extends Component<
+    IStateChannelBuilderProps & WithStyles<typeof styles>,
     IStateChannelBuilderState
 > {
     public state = StateChannelBuilderDefaultState
@@ -72,8 +87,9 @@ export default class StateChannelBuilder extends Component<
         const errorText = isValid ? null : 'Between [100 and 1000]'
         return (
             <>
-                <Card>
+                <Card className={this.props.classes.channelCreator}>
                     <CardHeader
+                        className={this.props.classes.channelCreatorHeader}
                         title="Let's play Slots"
                         subheader="How many DBETs would you like to play with?"
                     />
@@ -120,3 +136,5 @@ export default class StateChannelBuilder extends Component<
         )
     }
 }
+
+export default withStyles(styles)(StateChannelBuilder)
