@@ -1,6 +1,6 @@
 import BaseContract from './BaseContract'
 
-export default class SlotsChannelManagerContract extends BaseContract {
+export default class SlotsChannelManagerContract extends BaseContract<any> {
     /**
      * Getters
      */
