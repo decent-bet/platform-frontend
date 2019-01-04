@@ -20,7 +20,7 @@ async function fetchHouseMonthlyBalance() {
     let winnings = new BigNumber(0) // Default Value
     try {
         const result = await axiosInstance.get<IMonthlyBalance>('/balance')
-        if (result.data.winnings !== undefined) {
+        if (result.data.winnings) {
             // Bignumber does not like the commas
             const unparsedWinnings = result.data.winnings.replace(',', '')
             winnings = new BigNumber(unparsedWinnings, 10)
