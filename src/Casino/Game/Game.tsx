@@ -17,7 +17,7 @@ import ChannelDetail from './ChannelDetail'
 import IFrame from './IFrame'
 import BigNumber from 'bignumber.js'
 import AppLoading from '../../common/components/AppLoading'
-import Routes from 'src/routes'
+import Routes from '../../routes'
 import ConfirmationDialog from '../../common/components/ConfirmationDialog'
 import withWidth, { isWidthUp } from '@material-ui/core/withWidth'
 

@@ -2,7 +2,7 @@ import { BigNumber } from 'bignumber.js'
 import { units } from 'ethereum-units'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
+import { bindActionCreators, Dispatch } from 'redux'
 import * as thunks from '../state/thunks'
 import { Grid, Typography } from '@material-ui/core'
 import SlotsList from './SlotsList'
@@ -17,11 +17,12 @@ import { ISlotsState, SlotsState, SlotsStateMachine } from './ISlotsState'
 import { IChannel } from '../state/IChannel'
 import AppLoading from '../../common/components/AppLoading'
 import { MIN_VTHO_AMOUNT } from '../../constants'
+import { ICasinoState } from '../state/ICasinoState'
 
 import './slots.css'
 
 // This typings need to be inherited from the Redux State
-interface ISlotProps {
+interface ISlotProps extends ICasinoState {
     [id: string]: any
 }
 
@@ -228,7 +229,11 @@ class Slots extends Component<ISlotProps, ISlotsState> {
                 />
             </Grid>
             <Grid item={true} xs={12} md={6} lg={4}>
-                <HouseStatus balance={this.props.houseBalance} />
+                <HouseStatus
+                    currentBalance={this.props.houseBalance}
+                    monthlyBalance={this.props.houseMonthlyBalance}
+                    initialDeposit={this.props.houseInitialDeposit}
+                />
             </Grid>
         </Grid>
     )
@@ -404,7 +409,7 @@ class Slots extends Component<ISlotProps, ISlotsState> {
 function mapStateToProps(state) {
     return { ...state.casino, ...state.main }
 }
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch: Dispatch) {
     return bindActionCreators({ ...thunks }, dispatch)
 }
 
