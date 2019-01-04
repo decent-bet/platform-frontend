@@ -75,7 +75,8 @@ export function initializeSlots() {
             dispatch(actions.getBalance(contractFactory, vetAddress)),
             dispatch(actions.getAllowance(contractFactory, vetAddress)),
             dispatch(actions.getBalance(contractFactory, vetAddress)),
-            dispatch(actions.getHouseBalance(contractFactory))
+            dispatch(actions.getHouseBalance(contractFactory)),
+            dispatch(actions.getHouseMonthlyBalance())
         ])
     }
 }

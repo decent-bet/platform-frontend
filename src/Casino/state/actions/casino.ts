@@ -146,7 +146,7 @@ async function fetchHouseBalance(contractFactory: ContractFactory) {
     const contract = await contractFactory.slotsChannelManagerContract()
     const address = contract.instance._address
     const rawBalance = await contract.instance.methods.balanceOf(address).call()
-    const parsedBalance = new BigNumber(rawBalance)
+    const parsedBalance = new BigNumber(rawBalance).dividedBy(units.ether)
     return parsedBalance
 }
 
