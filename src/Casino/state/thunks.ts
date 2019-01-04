@@ -1,6 +1,7 @@
 import actions from './actions'
 import { IThunkDependencies } from '../../common/types'
 import { openAlert } from '../../common/state/thunks'
+import { Dispatch } from 'redux'
 
 export function getCasinoLoginStatus(account: any) {
     return async (dispatch, _getState, { keyHandler }: IThunkDependencies) => {
@@ -63,7 +64,7 @@ export function faucet() {
 
 export function initializeSlots() {
     return async (
-        dispatch,
+        dispatch: Dispatch,
         _getState,
         { contractFactory, keyHandler }: IThunkDependencies
     ) => {
@@ -75,7 +76,8 @@ export function initializeSlots() {
             dispatch(actions.getBalance(contractFactory, vetAddress)),
             dispatch(actions.getAllowance(contractFactory, vetAddress)),
             dispatch(actions.getBalance(contractFactory, vetAddress)),
-            dispatch(actions.getHouseBalance(contractFactory)),
+            dispatch(actions.getHouseCurrentBalance(contractFactory)),
+            dispatch(actions.getHouseInitialDeposits(contractFactory)),
             dispatch(actions.getHouseMonthlyBalance())
         ])
     }

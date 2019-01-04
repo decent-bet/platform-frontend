@@ -232,6 +232,7 @@ class Slots extends Component<ISlotProps, ISlotsState> {
                 <HouseStatus
                     currentBalance={this.props.houseBalance}
                     monthlyBalance={this.props.houseMonthlyBalance}
+                    initialDeposit={this.props.houseInitialDeposit}
                 />
             </Grid>
         </Grid>

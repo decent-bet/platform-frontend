@@ -29,13 +29,16 @@ const styles = createStyles({
 interface IHouseStatusProps {
     currentBalance: BigNumber
     monthlyBalance: BigNumber
+    initialDeposit: BigNumber
 }
 
 const HouseStatus: FunctionComponent<
     IHouseStatusProps & WithStyles<typeof styles>
-> = ({ classes, currentBalance, monthlyBalance }) => {
+> = ({ classes, currentBalance, monthlyBalance, initialDeposit }) => {
     // Calculate the current winnings for this month
-    const currentWinnings = currentBalance.minus(monthlyBalance)
+    const currentWinnings = currentBalance
+        .minus(monthlyBalance)
+        .minus(initialDeposit)
 
     // Change the icon according to the winnings.
     let currentWinningsIcon: JSX.Element

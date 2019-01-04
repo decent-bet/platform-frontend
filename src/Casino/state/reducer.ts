@@ -105,11 +105,14 @@ export default function slotsManagerReducer(
         case `${PREFIX}/${Actions.GET_BALANCE}/${FULFILLED}`:
             return { ...casinoState, balance: action.payload }
 
-        case `${PREFIX}/${Actions.GET_HOUSE_BALANCE}/${FULFILLED}`:
+        case `${PREFIX}/${Actions.GET_HOUSE_CURRENT_BALANCE}/${FULFILLED}`:
             return { ...casinoState, houseBalance: action.payload }
 
         case `${PREFIX}/${Actions.GET_HOUSE_MONTHLY_BALANCE}/${FULFILLED}`:
             return { ...casinoState, houseMonthlyBalance: action.payload }
+
+        case `${PREFIX}/${Actions.GET_HOUSE_INITIAL_DEPOSITS}/${FULFILLED}`:
+            return { ...casinoState, houseInitialDeposit: action.payload }
 
         case `${PREFIX}/${Actions.SET_CHANNEL}`:
             let newChannel = action.payload

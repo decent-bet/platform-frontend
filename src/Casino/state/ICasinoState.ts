@@ -7,6 +7,7 @@ export interface IChannelMap {
 
 export interface ICasinoState {
     readonly houseBalance: BigNumber
+    readonly houseInitialDeposit: BigNumber
     readonly houseMonthlyBalance: BigNumber
     readonly isCasinoLogedIn: boolean
     readonly slotsInitialized: boolean
@@ -19,6 +20,7 @@ export interface ICasinoState {
 
 export const CasinoState: ICasinoState = {
     houseBalance: new BigNumber(0),
+    houseInitialDeposit: new BigNumber(0),
     houseMonthlyBalance: new BigNumber(0),
     isCasinoLogedIn: false,
     slotsInitialized: false,
