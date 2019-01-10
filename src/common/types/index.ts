@@ -6,12 +6,10 @@ import IThorifyFactory from './IThorifyFactory'
 import IUtils from './IUtils'
 import IThunkDependencies from './IThunkDependencies'
 
-export {
-    IKeyStore,
-    IKeyHandler,
-    IContractFactory,
-    IThorifyFactory,
-    IUtils,
-    IAuthProvider,
-    IThunkDependencies
-}
+export type IKeyStore = IKeyStore
+export type IKeyHandler = IKeyHandler
+export type IContractFactory = IContractFactory
+export type IThorifyFactory = IThorifyFactory
+export type IUtils = IUtils
+export type IAuthProvider = IAuthProvider
+export type IThunkDependencies = IThunkDependencies

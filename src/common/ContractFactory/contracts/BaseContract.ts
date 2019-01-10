@@ -2,7 +2,7 @@ import { cry, Transaction } from 'thor-devkit'
 import { Contract } from 'web3'
 import { interval, from, of } from 'rxjs'
 import { flatMap, switchMap, tap } from 'rxjs/operators'
-import { IKeyHandler } from 'src/common/types'
+import { IKeyHandler } from '../../../common/types'
 
 interface IListenEventsSettings {
     config: IGetPastEventsSettings

@@ -1,4 +1,5 @@
 {
     "editor.formatOnSave": true,
-    "debug.allowBreakpointsEverywhere": true
+    "prettier.eslintIntegration": false,
+    "prettier.tslintIntegration": false
 }

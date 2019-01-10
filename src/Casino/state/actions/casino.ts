@@ -5,7 +5,6 @@ import { IKeyHandler } from '../../../common/types'
 import { MNEMONIC_DPATH } from '../../../constants'
 import BigNumber from 'bignumber.js'
 import { units } from 'ethereum-units'
-import ContractFactory from '../../../common/ContractFactory/ContractFactory'
 
 async function getCasinoLoginStatus(keyHandler: IKeyHandler): Promise<boolean> {
     let address = await keyHandler.getPublicAddress()
@@ -142,14 +141,6 @@ function faucet(contractFactory, accountAddress): Promise<any> {
     })
 }
 
-async function fetchHouseBalance(contractFactory: ContractFactory) {
-    const contract = await contractFactory.slotsChannelManagerContract()
-    const address = contract.instance._address
-    const rawBalance = await contract.instance.methods.balanceOf(address).call()
-    const parsedBalance = new BigNumber(rawBalance)
-    return parsedBalance
-}
-
 export default createActions({
     [PREFIX]: {
         [Actions.AUTH_WALLET]: authWallet,
@@ -158,7 +149,6 @@ export default createActions({
         [Actions.SET_SLOTS_INITIALIZED]: setSlotsInitialized,
         [Actions.GET_TOKENS]: fetchTokens,
         [Actions.GET_VTHO_BALANCE]: fetchVTHOBalance,
-        [Actions.GET_BALANCE]: fetchBalance,
-        [Actions.GET_HOUSE_BALANCE]: fetchHouseBalance
+        [Actions.GET_BALANCE]: fetchBalance
     }
 })

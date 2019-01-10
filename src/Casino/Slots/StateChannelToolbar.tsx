@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Button } from '@material-ui/core'
-import * as moment from 'moment'
+import moment from 'moment'
 export default class StateChannelToolbar extends React.Component<any, any> {
     private _claimInterval: NodeJS.Timeout
 

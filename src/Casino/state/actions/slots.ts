@@ -3,7 +3,7 @@ import { createActions } from 'redux-actions'
 import Actions, { PREFIX } from '../actionTypes'
 import BigNumber from 'bignumber.js'
 import { tap, map } from 'rxjs/operators'
-import { IContractFactory, IUtils } from 'src/common/types'
+import { IContractFactory, IUtils } from '../../../common/types'
 import { Observable, forkJoin } from 'rxjs'
 
 // Get the allowance

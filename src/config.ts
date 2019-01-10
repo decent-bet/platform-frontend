@@ -98,9 +98,18 @@ function getVeforgeUrl() {
     }
 }
 
+function getHouseBalanceApiUrl() {
+    if (CURRENT_ENV === ENV_PRODUCTION) {
+        return 'https://house-api.decent.bet'
+    } else {
+        return 'https://house-api-dev.decent.bet'
+    }
+}
+
 export const CHANNEL_SETTINGS = getChannelSettings()
 export const AUTH_API_URL: string = getAuthApiUrl()
 export const RECAPTCHA_SITE_KEY: string = getRecaptchaKey()
 export const THOR_NODE_URL: string = getThorNodeUrl()
 export const WS_API_URL: string = getWsApiUrl()
 export const VEFORGE_URL: string = getVeforgeUrl()
+export const HOUSE_BALANCE_API_URL = getHouseBalanceApiUrl()
