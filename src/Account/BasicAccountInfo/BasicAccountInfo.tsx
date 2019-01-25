@@ -158,15 +158,9 @@ class BasicAccountInfo extends React.Component<
     private isValidDataInput(inputName: string, value: any): boolean {
         switch (inputName) {
             case 'firstName':
-                return (
-                    validator.isAlpha(value) &&
-                    validator.isLength(value, { min: 2, max: 100 })
-                )
+                return validator.isLength(value, { min: 2, max: 100 })
             case 'lastName':
-                return (
-                    validator.isAlpha(value) &&
-                    validator.isLength(value, { min: 2, max: 100 })
-                )
+                return validator.isLength(value, { min: 2, max: 100 })
             case 'state':
                 return validator.isLength(value, { min: 5, max: 500 })
             case 'county':
