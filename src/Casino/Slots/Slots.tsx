@@ -221,13 +221,13 @@ class Slots extends Component<ISlotProps, ISlotsState> {
             <Grid item={true} xs={12}>
                 {this.renderChannelTable()}
             </Grid>
-            <Grid item={true} xs={12} md={6} lg={8}>
+            {/* <Grid item={true} xs={12} md={6} lg={8}>
                 <StateChannelBuilder
                     onBuildChannelListener={this.onBuildChannelListener}
                     tokenBalance={this.props.tokenBalance}
                     vthoBalance={this.props.vthoBalance}
                 />
-            </Grid>
+            </Grid> */}
             <Grid item={true} xs={12} md={6} lg={4}>
                 <HouseStatus
                     currentBalance={this.props.houseBalance}
