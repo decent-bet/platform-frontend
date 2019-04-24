@@ -34,7 +34,7 @@ export default class GameCard extends React.Component {
             : overlay + backgroundImage
 
         return (
-            <Card className="game-card" onClick={this.onClickListener}>
+            <Card className="game-card">
                 <CardMedia>
                     <div
                         className="background"
