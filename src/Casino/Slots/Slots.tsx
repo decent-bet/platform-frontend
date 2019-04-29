@@ -6,7 +6,7 @@ import { bindActionCreators, Dispatch } from 'redux'
 import * as thunks from '../state/thunks'
 import { Grid, Typography } from '@material-ui/core'
 import SlotsList from './SlotsList'
-import StateChannelBuilder from './StateChannelBuilder'
+// import StateChannelBuilder from './StateChannelBuilder'
 import StateChannelTable from './StateChannelTable'
 import StateChannelToolbar from './StateChannelToolbar'
 import HouseStatus from './HouseStatus'
@@ -152,23 +152,23 @@ class Slots extends Component<ISlotProps, ISlotsState> {
         }
     }
 
-    // Builds the entire State Channel in one Step
-    private onBuildChannelListener = async (amount: BigNumber) => {
-        // Update UI. Tell the user we are building the channel
-        this.setState({ stateMachine: SlotsStateMachine.BuildingGame })
+    // // Builds the entire State Channel in one Step
+    // private onBuildChannelListener = async (amount: BigNumber) => {
+    //     // Update UI. Tell the user we are building the channel
+    //     this.setState({ stateMachine: SlotsStateMachine.BuildingGame })
 
-        // Create the channel
-        const currentChannel = await this.props.initChannel(
-            amount,
-            this.onUpdateBuildStatusListener
-        )
+    //     // Create the channel
+    //     const currentChannel = await this.props.initChannel(
+    //         amount,
+    //         this.onUpdateBuildStatusListener
+    //     )
 
-        // Update UI
-        this.setState({
-            stateMachine: SlotsStateMachine.SelectGame,
-            currentChannel
-        })
-    }
+    //     // Update UI
+    //     this.setState({
+    //         stateMachine: SlotsStateMachine.SelectGame,
+    //         currentChannel
+    //     })
+    // }
 
     private onUpdateBuildStatusListener = buildStatus => {
         this.setState({ buildStatus })
